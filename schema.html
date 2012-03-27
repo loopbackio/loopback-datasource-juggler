@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Schema | JugglingDB API docs</title>
+        <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" />
+        <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/js/google-code-prettify/prettify.css" />
+        <style>
+          .doc p {line-height: 21px; font-size: 16px}
+          h3 .icon { margin-top: 4px !important;}
+          li {line-height: 21px;}
+        </style>
+    </head>
+    <body>
+      <div class="navbar">
+        <div class="navbar-inner">
+          <a class="brand" href="#">JugglingDB API docs</a>
+          <div class="container">
+            <ul class="nav">
+              <li><a href="abstract-class.html">AbstractClass</a></li>
+              <li class="active"><a href="schema.html">Schema</a></li>
+              <li><a href="validatable.html">Validatable</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="row-fluid">
+          <div class="span3">
+            <ul class="nav nav-list"><li class="nav-header">instance methods</li><li><a href="#instance/define"><i class="icon icon-eye-open"></i> define</a></li><li><a href="#instance/defineProperty"><i class="icon icon-eye-open"></i> defineProperty</a></li><li><a href="#instance/automigrate"><i class="icon icon-eye-open"></i> automigrate</a></li><li><a href="#instance/autoupdate"><i class="icon icon-eye-open"></i> autoupdate</a></li><li><a href="#instance/isActual"><i class="icon icon-eye-open"></i> isActual</a></li><li><a href="#instance/log"><i class="icon icon-eye-close"></i> log</a></li><li><a href="#instance/freeze"><i class="icon icon-eye-open"></i> freeze</a></li><li><a href="#instance/tableName"><i class="icon icon-eye-open"></i> tableName</a></li><li><a href="#instance/defineForeignKey"><i class="icon icon-eye-open"></i> defineForeignKey</a></li><li><a href="#instance/disconnect"><i class="icon icon-eye-open"></i> disconnect</a></li><li class="nav-header">helper methods</li><li><a href="#helper/hiddenProperty"><i class="icon icon-eye-close"></i> hiddenProperty</a></li></ul>
+          </div>
+          <div class="span9">
+            <div class="hero-unit"><h1>Schema</h1><div class="doc"><p>Schema - adapter-specific classes factory.</p>
+
+<p>All classes in single schema shares same adapter type and
+one database connection</p>
+
+<p><br/><span class="badge">param</span> name - type of schema adapter (mysql, mongoose, sequelize, redis)
+<br/><span class="badge">param</span> settings - any database-specific settings which we need to
+establish connection (of course it depends on specific adapter)</p>
+
+<ul>
+<li>host</li>
+<li>port</li>
+<li>username</li>
+<li>password</li>
+<li>database</li>
+<li>debug <strong>Boolean</strong> = false</li>
+</ul>
+
+<p><br/><span class="badge">example</span> Schema creation, waiting for connection callback</p>
+
+<pre class="prettyprint linenums"><code>var schema = new Schema('mysql', { database: 'myapp_test' });
+schema.define(...);
+schema.on('connected', function () {
+    // work with database
+});
+</code></pre></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:45" style="display: none; margin-top: 15px;"><code>function Schema(name, settings) {
+    var schema = this;
+    // just save everything we get
+    this.name = name;
+    this.settings = settings;
+
+    // create blank models pool
+    this.models = {};
+    this.definitions = {};
+
+    // and initialize schema using adapter
+    // this is only one initialization entry point of adapter
+    // this module should define `adapter` member of `this` (schema)
+    var adapter;
+    if (path.existsSync(__dirname + '/adapters/' + name + '.js')) {
+        adapter = require('./adapters/' + name);
+    } else {
+        try {
+            adapter = require(name);
+        } catch (e) {
+            throw new Error('Adapter ' + name + ' is not defined, try\n  npm install ' + name);
+        }
+    }
+
+    adapter.initialize(this, function () {
+
+        // we have an adaper now?
+        if (!this.adapter) {
+            throw new Error('Adapter is not defined correctly: it should create `adapter` member of schema');
+        }
+
+        this.adapter.log = function (query, start) {
+            schema.log(query, start);
+        };
+
+        this.adapter.logger = function (query) {
+            var t1 = Date.now();
+            var log = this.log;
+            return function (q) {
+                log(q || query, t1);
+            };
+        };
+
+        this.connected = true;
+        this.emit('connected');
+
+    }.bind(this));
+};
+</code></pre><hr/><a href="#instance" class="btn btn-info btn-large">Instance methods</a> <a href="#helper" class="btn btn-inverse btn-large">Helper methods</a> </div><a name="instance"></a><div class="page-header"><h2>Schema - instance methods</h2></div><ul class="nav nav-pills"><li><a href="#instance/define">define</a></li><li><a href="#instance/defineProperty">defineProperty</a></li><li><a href="#instance/automigrate">automigrate</a></li><li><a href="#instance/autoupdate">autoupdate</a></li><li><a href="#instance/isActual">isActual</a></li><li><a href="#instance/log">log</a></li><li><a href="#instance/freeze">freeze</a></li><li><a href="#instance/tableName">tableName</a></li><li><a href="#instance/defineForeignKey">defineForeignKey</a></li><li><a href="#instance/disconnect">disconnect</a></li></ul><a name="instance/define"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">Schema.</span><span style="color: green">prototype</span>.define</h3><blockquote>Declared as <code>function defineClass(className, properties, settings) </code></blockquote><div class="doc"><p>Define class</p>
+
+<p><br/><span class="badge">param</span> <strong>String</strong> className
+<br/><span class="badge">param</span> <strong>Object</strong> properties - hash of class properties in format
+  <code>{property: Type, property2: Type2, ...}</code>
+  or
+  <code>{property: {type: Type}, property2: {type: Type2}, ...}</code>
+<br/><span class="badge">param</span> <strong>Object</strong> settings - other configuration of class
+<br/><span class="badge">return</span> newly created class</p>
+
+<p><br/><span class="badge">example</span> simple case</p>
+
+<pre class="prettyprint linenums"><code>var User = schema.defind('User', {
+    email: String,
+    password: String,
+    birthDate: Date,
+    activated: Boolean
+});
+</code></pre>
+
+<p><br/><span class="badge">example</span> more advanced case</p>
+
+<pre class="prettyprint linenums"><code>var User = schema.defind('User', {
+    email: { type: String, limit: 150, index: true },
+    password: { type: String, limit: 50 },
+    birthDate: Date,
+    registrationDate: {type: Date, default: function () { return new Date }},
+    activated: { type: Boolean, default: false }
+});
+</code></pre></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:131" style="display: none; margin-top: 15px;"><code>function defineClass(className, properties, settings) {
+    var schema = this;
+    var args = slice.call(arguments);
+
+    if (!className) throw new Error('Class name required');
+    if (args.length == 1) properties = {}, args.push(properties);
+    if (args.length == 2) settings   = {}, args.push(settings);
+
+    standartize(properties, settings);
+
+    // every class can receive hash of data as optional param
+    var newClass = function ModelConstructor(data) {
+        if (!(this instanceof ModelConstructor)) {
+            return new ModelConstructor(data);
+        }
+        AbstractClass.call(this, data);
+    };
+
+    hiddenProperty(newClass, 'schema', schema);
+    hiddenProperty(newClass, 'modelName', className);
+    hiddenProperty(newClass, 'cache', {});
+    hiddenProperty(newClass, 'mru', []);
+
+    // setup inheritance
+    newClass.__proto__ = AbstractClass;
+    util.inherits(newClass, AbstractClass);
+
+    // store class in model pool
+    this.models[className] = newClass;
+    this.definitions[className] = {
+        properties: properties,
+        settings: settings
+    };
+
+    // pass controll to adapter
+    this.adapter.define({
+        model:      newClass,
+        properties: properties,
+        settings:   settings
+    });
+
+    return newClass;
+
+    function standartize(properties, settings) {
+        Object.keys(properties).forEach(function (key) {
+            var v = properties[key];
+            if (typeof v === 'function') {
+                properties[key] = { type: v };
+            }
+        });
+        // TODO: add timestamps fields
+        // when present in settings: {timestamps: true}
+        // or {timestamps: {created: 'created_at', updated: false}}
+        // by default property names: createdAt, updatedAt
+    }
+
+};
+</code></pre><hr/><a name="instance/defineProperty"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">Schema.</span><span style="color: green">prototype</span>.defineProperty</h3><blockquote>Declared as <code>function (model, prop, params) </code></blockquote><div class="doc"><p>Define single property named <code>prop</code> on <code>model</code></p>
+
+<p><br/><span class="badge">param</span> <strong>String</strong> model - name of model
+<br/><span class="badge">param</span> <strong>String</strong> prop - name of propery
+<br/><span class="badge">param</span> <strong>Object</strong> params - property settings</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:197" style="display: none; margin-top: 15px;"><code>function (model, prop, params) {
+    this.definitions[model].properties[prop] = params;
+    if (this.adapter.defineProperty) {
+        this.adapter.defineProperty(model, prop, params);
+    }
+};
+</code></pre><hr/><a name="instance/automigrate"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">Schema.</span><span style="color: green">prototype</span>.automigrate</h3><blockquote>Declared as <code>function (cb) </code></blockquote><div class="doc"><p>Drop each model table and re-create.
+This method make sense only for sql adapters.</p>
+
+<div class="alert"><strong>Warning! </strong> All data will be lost! Use autoupdate if you need your data.</div> </div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:210" style="display: none; margin-top: 15px;"><code>function (cb) {
+    this.freeze();
+    if (this.adapter.automigrate) {
+        this.adapter.automigrate(cb);
+    } else if (cb) {
+        cb();
+    }
+};
+</code></pre><hr/><a name="instance/autoupdate"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">Schema.</span><span style="color: green">prototype</span>.autoupdate</h3><blockquote>Declared as <code>function (cb) </code></blockquote><div class="doc"><p>Update existing database tables.
+This method make sense only for sql adapters.</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:210" style="display: none; margin-top: 15px;"><code>function (cb) {
+    this.freeze();
+    if (this.adapter.autoupdate) {
+        this.adapter.autoupdate(cb);
+    } else if (cb) {
+        cb();
+    }
+};
+</code></pre><hr/><a name="instance/isActual"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">Schema.</span><span style="color: green">prototype</span>.isActual</h3><blockquote>Declared as <code>function (cb) </code></blockquote><div class="doc"><p>Check whether migrations needed
+This method make sense only for sql adapters.</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:210" style="display: none; margin-top: 15px;"><code>function (cb) {
+    this.freeze();
+    if (this.adapter.isActual) {
+        this.adapter.isActual(cb);
+    } else if (cb) {
+        cb(null, true);
+    }
+};
+</code></pre><hr/><a name="instance/log"></a><h3><i class="icon icon-eye-close"></i> <span style="color: grey">Schema.</span><span style="color: green">prototype</span>.log</h3><blockquote>Declared as <code>function (sql, t) </code></blockquote><div class="doc"><p>Log benchmarked message. Do not redefine this method, if you need to grab
+chema logs, use <code>schema.on('log', ...)</code> emitter event</p>
+
+<p><br/><span class="badge">private</span> used by adapters</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:251" style="display: none; margin-top: 15px;"><code>function (sql, t) {
+    this.emit('log', sql, t);
+};
+</code></pre><hr/><a name="instance/freeze"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">Schema.</span><span style="color: green">prototype</span>.freeze</h3><blockquote>Declared as <code>function freeze() </code></blockquote><div class="doc"><p>Freeze schema. Behavior depends on adapter</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:258" style="display: none; margin-top: 15px;"><code>function freeze() {
+    if (this.adapter.freezeSchema) {
+        this.adapter.freezeSchema();
+    }
+}
+</code></pre><hr/><a name="instance/tableName"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">Schema.</span><span style="color: green">prototype</span>.tableName</h3><blockquote>Declared as <code>function (modelName) </code></blockquote><div class="doc"><p>Return table name for specified <code>modelName</code>
+<br/><span class="badge">param</span> <strong>String</strong> modelName</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:268" style="display: none; margin-top: 15px;"><code>function (modelName) {
+    return this.definitions[modelName].settings.table = this.definitions[modelName].settings.table || modelName
+};
+</code></pre><hr/><a name="instance/defineForeignKey"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">Schema.</span><span style="color: green">prototype</span>.defineForeignKey</h3><blockquote>Declared as <code>function defineForeignKey(className, key) </code></blockquote><div class="doc"><p>Define foreign key
+<br/><span class="badge">param</span> <strong>String</strong> className
+<br/><span class="badge">param</span> <strong>String</strong> key - name of key field</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:277" style="display: none; margin-top: 15px;"><code>function defineForeignKey(className, key) {
+    // return if already defined
+    if (this.definitions[className].properties[key]) return;
+
+    if (this.adapter.defineForeignKey) {
+        this.adapter.defineForeignKey(className, key, function (err, keyType) {
+            if (err) throw err;
+            this.definitions[className].properties[key] = {type: keyType};
+        }.bind(this));
+    } else {
+        this.definitions[className].properties[key] = {type: Number};
+    }
+};
+</code></pre><hr/><a name="instance/disconnect"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">Schema.</span><span style="color: green">prototype</span>.disconnect</h3><blockquote>Declared as <code>function disconnect() </code></blockquote><div class="doc"><p>Close database connection</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:294" style="display: none; margin-top: 15px;"><code>function disconnect() {
+    if (typeof this.adapter.disconnect === 'function') {
+        this.adapter.disconnect();
+    }
+};
+</code></pre><hr/><a name="helper"></a><div class="page-header"><h2>Schema - helper methods</h2></div><ul class="nav nav-pills"><li><a href="#helper/hiddenProperty">hiddenProperty</a></li></ul><a name="helper/hiddenProperty"></a><h3><i class="icon icon-eye-close"></i> <span style="color: grey"></span>hiddenProperty</h3><blockquote>Declared as <code>function hiddenProperty(where, property, value) </code></blockquote><div class="doc"><p>Define hidden property</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:303" style="display: none; margin-top: 15px;"><code>function hiddenProperty(where, property, value) {
+    Object.defineProperty(where, property, {
+        writable: false,
+        enumerable: false,
+        configurable: false,
+        value: value
+    });
+}
+</code></pre><hr/>
+          </div>
+
+          <hr />
+          <footer>
+              <p>&copy; 1602 Software</p>
+          </footer>
+        </div>
+    </body>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="http://twitter.github.com/bootstrap/assets/js/google-code-prettify/prettify.js"></script>
+    <script>
+      window.prettyPrint && prettyPrint()
+    </script>
+</html>

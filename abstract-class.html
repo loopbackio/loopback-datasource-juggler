@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>AbstractClass | JugglingDB API docs</title>
+        <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" />
+        <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/js/google-code-prettify/prettify.css" />
+        <style>
+          .doc p {line-height: 21px; font-size: 16px}
+          h3 .icon { margin-top: 4px !important;}
+          li {line-height: 21px;}
+        </style>
+    </head>
+    <body>
+      <div class="navbar">
+        <div class="navbar-inner">
+          <a class="brand" href="#">JugglingDB API docs</a>
+          <div class="container">
+            <ul class="nav">
+              <li class="active"><a href="abstract-class.html">AbstractClass</a></li>
+              <li><a href="schema.html">Schema</a></li>
+              <li><a href="validatable.html">Validatable</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="row-fluid">
+          <div class="span3">
+            <ul class="nav nav-list"><li class="nav-header">class methods</li><li><a href="#class/defineProperty"><i class="icon icon-eye-open"></i> defineProperty</a></li><li><a href="#class/create"><i class="icon icon-eye-open"></i> create</a></li><li><a href="#class/upsert"><i class="icon icon-eye-open"></i> upsert</a></li><li><a href="#class/exists"><i class="icon icon-eye-open"></i> exists</a></li><li><a href="#class/find"><i class="icon icon-eye-open"></i> find</a></li><li><a href="#class/all"><i class="icon icon-eye-open"></i> all</a></li><li><a href="#class/findOne"><i class="icon icon-eye-open"></i> findOne</a></li><li><a href="#class/destroyAll"><i class="icon icon-eye-open"></i> destroyAll</a></li><li><a href="#class/count"><i class="icon icon-eye-open"></i> count</a></li><li><a href="#class/toString"><i class="icon icon-eye-open"></i> toString</a></li><li><a href="#class/hasMany"><i class="icon icon-eye-open"></i> hasMany</a></li><li><a href="#class/belongsTo"><i class="icon icon-eye-open"></i> belongsTo</a></li><li><a href="#class/scope"><i class="icon icon-eye-open"></i> scope</a></li><li class="nav-header">instance methods</li><li><a href="#instance/save"><i class="icon icon-eye-open"></i> save</a></li><li><a href="#instance/_adapter"><i class="icon icon-eye-close"></i> _adapter</a></li><li><a href="#instance/toObject"><i class="icon icon-eye-open"></i> toObject</a></li><li><a href="#instance/destroy"><i class="icon icon-eye-open"></i> destroy</a></li><li><a href="#instance/updateAttribute"><i class="icon icon-eye-open"></i> updateAttribute</a></li><li><a href="#instance/updateAttributes"><i class="icon icon-eye-open"></i> updateAttributes</a></li><li><a href="#instance/propertyChanged"><i class="icon icon-eye-open"></i> propertyChanged</a></li><li><a href="#instance/reload"><i class="icon icon-eye-open"></i> reload</a></li><li><a href="#instance/reset"><i class="icon icon-eye-open"></i> reset</a></li><li class="nav-header">helper methods</li><li><a href="#helper/isdef"><i class="icon icon-eye-close"></i> isdef</a></li><li><a href="#helper/merge"><i class="icon icon-eye-close"></i> merge</a></li><li><a href="#helper/defineReadonlyProp"><i class="icon icon-eye-close"></i> defineReadonlyProp</a></li><li><a href="#helper/addToCache"><i class="icon icon-eye-close"></i> addToCache</a></li><li><a href="#helper/touchCache"><i class="icon icon-eye-close"></i> touchCache</a></li><li><a href="#helper/getCached"><i class="icon icon-eye-close"></i> getCached</a></li><li><a href="#helper/clearCache"><i class="icon icon-eye-close"></i> clearCache</a></li><li><a href="#helper/removeFromCache"><i class="icon icon-eye-close"></i> removeFromCache</a></li></ul>
+          </div>
+          <div class="span9">
+            <div class="hero-unit"><h1>AbstractClass</h1><div class="doc"><p>Abstract class - base class for all persist objects
+provides <strong>common API</strong> to access any database adapter.
+This class describes only abstract behavior layer, refer to <code>lib/adapters/*.js</code>
+to learn more about specific adapter implementations</p>
+
+<p><code>AbstractClass</code> mixes <code>Validatable</code> and <code>Hookable</code> classes methods</p>
+
+<p><br/><span class="badge">constructor</span>
+<br/><span class="badge">param</span> <strong>Object</strong> data - initial object data</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:26" style="display: none; margin-top: 15px;"><code>function AbstractClass(data) {
+    var self = this;
+    var ds = this.constructor.schema.definitions[this.constructor.modelName];
+    var properties = ds.properties;
+    var settings = ds.setings;
+    data = data || {};
+
+    if (data.id) {
+        defineReadonlyProp(this, 'id', data.id);
+    }
+
+    Object.defineProperty(this, 'cachedRelations', {
+        writable: true,
+        enumerable: false,
+        configurable: true,
+        value: {}
+    });
+
+    Object.keys(properties).forEach(function (attr) {
+        var _attr    = '_' + attr,
+            attr_was = attr + '_was';
+
+        // Hidden property to store currrent value
+        Object.defineProperty(this, _attr, {
+            writable: true,
+            enumerable: false,
+            configurable: true,
+            value: isdef(data[attr]) ? data[attr] :
+            (isdef(this[attr]) ? this[attr] : (
+                getDefault(attr)
+            ))
+        });
+
+        // Public setters and getters
+        Object.defineProperty(this, attr, {
+            get: function () {
+                if (this.constructor.getter[attr]) {
+                    return this.constructor.getter[attr].call(this);
+                } else {
+                    return this[_attr];
+                }
+            },
+            set: function (value) {
+                if (this.constructor.setter[attr]) {
+                    this.constructor.setter[attr].call(this, value);
+                } else {
+                    this[_attr] = value;
+                }
+            },
+            configurable: true,
+            enumerable: true
+        });
+
+        if (data.hasOwnProperty(attr)) {
+            // Getter for initial property
+            Object.defineProperty(this, attr_was, {
+                writable: true,
+                value: data[attr],
+                configurable: true,
+                enumerable: false
+            });
+        }
+
+    }.bind(this));
+
+    function getDefault(attr) {
+        var def = properties[attr]['default']
+        if (isdef(def)) {
+            if (typeof def === 'function') {
+                return def();
+            } else {
+                return def;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    this.trigger("initialize");
+};
+</code></pre><hr/><a href="#class" class="btn btn-primary btn-large">Class methods</a> <a href="#instance" class="btn btn-info btn-large">Instance methods</a> <a href="#helper" class="btn btn-inverse btn-large">Helper methods</a> </div><a name="class"></a><div class="page-header"><h2>AbstractClass - class methods</h2></div><ul class="nav nav-pills"><li><a href="#class/defineProperty">defineProperty</a></li><li><a href="#class/create">create</a></li><li><a href="#class/upsert">upsert</a></li><li><a href="#class/exists">exists</a></li><li><a href="#class/find">find</a></li><li><a href="#class/all">all</a></li><li><a href="#class/findOne">findOne</a></li><li><a href="#class/destroyAll">destroyAll</a></li><li><a href="#class/count">count</a></li><li><a href="#class/toString">toString</a></li><li><a href="#class/hasMany">hasMany</a></li><li><a href="#class/belongsTo">belongsTo</a></li><li><a href="#class/scope">scope</a></li></ul><a name="class/defineProperty"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">AbstractClass.</span>defineProperty</h3><blockquote>Declared as <code>function (prop, params) </code></blockquote><div class="doc"><p><br/><span class="badge">param</span> <strong>String</strong> prop - property name
+<br/><span class="badge">param</span> <strong>Object</strong> params - various property configuration</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:114" style="display: none; margin-top: 15px;"><code>function (prop, params) {
+    this.schema.defineProperty(this.modelName, prop, params);
+};
+</code></pre><hr/><a name="class/create"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">AbstractClass.</span>create</h3><blockquote>Declared as <code>function (data, callback) </code></blockquote><div class="doc"><p>Create new instance of Model class, saved in database</p>
+
+<p><br/><span class="badge">param</span> data [optional]
+<br/><span class="badge">param</span> callback(err, obj)
+callback called with arguments:</p>
+
+<ul>
+<li>err (null or Error)</li>
+<li>instance (null or Model)</li>
+</ul></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:137" style="display: none; margin-top: 15px;"><code>function (data, callback) {
+    if (stillConnecting(this.schema, this, arguments)) return;
+
+    var modelName = this.modelName;
+
+    if (typeof data === 'function') {
+        callback = data;
+        data = {};
+    }
+
+    if (typeof callback !== 'function') {
+        callback = function () {};
+    }
+
+    var obj = null;
+    // if we come from save
+    if (data instanceof AbstractClass && !data.id) {
+        obj = data;
+        data = obj.toObject(true);
+        // recall constructor to update _was property states (maybe bad idea)
+        this.call(obj, data);
+        create();
+    } else {
+        obj = new this(data);
+        data = obj.toObject(true);
+
+        // validation required
+        obj.isValid(function (valid) {
+            if (!valid) {
+                callback(new Error('Validation error'), obj);
+            } else {
+                create();
+            }
+        });
+    }
+
+    function create() {
+        obj.trigger('create', function (done) {
+            this._adapter().create(modelName, data, function (err, id) {
+                if (id) {
+                    defineReadonlyProp(obj, 'id', id);
+                    addToCache(this.constructor, obj);
+                }
+                done.call(this, function () {
+                    if (callback) {
+                        callback(err, obj);
+                    }
+                });
+            }.bind(this));
+        });
+    }
+};
+</code></pre><hr/><a name="class/upsert"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">AbstractClass.</span>upsert</h3><blockquote>Declared as <code>AbstractClass.updateOrCreate</code></blockquote><div class="doc"><p>Update or insert</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:1" style="display: none; margin-top: 15px;"><code>AbstractClass.updateOrCreate{
+    if (stillConnecting(this.schema, this, arguments)) return;
+
+    var Model = this;
+    if (!data.id) return this.create(data, callback);
+    if (this.schema.adapter.updateOrCreate) {
+        this.schema.adapter.updateOrCreate(Model.modelName, data, function (err, data) {
+            var obj = data ? new Model(data) : null;
+            if (obj) {
+                addToCache(Model, obj);
+            }
+            callback(err, obj);
+        });
+    } else {
+        this.find(data.id, function (err, inst) {
+            if (err) return callback(err);
+            if (inst) {
+                inst.updateAttributes(data, callback);
+            } else {
+                var obj = new Model(data);
+                obj.save(data, callback);
+            }
+        });
+    }
+};
+</code></pre><hr/><a name="class/exists"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">AbstractClass.</span>exists</h3><blockquote>Declared as <code>function exists(id, cb) </code></blockquote><div class="doc"><p>Check whether object exitst in database</p>
+
+<p><br/><span class="badge">param</span> <strong>id</strong> id - identifier of object (primary key value)
+<br/><span class="badge">param</span> <strong>Function</strong> cb - callbacl called with (err, exists: Bool)</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:234" style="display: none; margin-top: 15px;"><code>function exists(id, cb) {
+    if (stillConnecting(this.schema, this, arguments)) return;
+
+    if (id) {
+        this.schema.adapter.exists(this.modelName, id, cb);
+    } else {
+        cb(new Error('Model::exists requires positive id argument'));
+    }
+};
+</code></pre><hr/><a name="class/find"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">AbstractClass.</span>find</h3><blockquote>Declared as <code>function find(id, cb) </code></blockquote><div class="doc"><p>Find object by id</p>
+
+<p><br/><span class="badge">param</span> <strong>id</strong> id - primary key value
+<br/><span class="badge">param</span> <strong>Function</strong> cb - callback called with (err, instance)</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:250" style="display: none; margin-top: 15px;"><code>function find(id, cb) {
+    if (stillConnecting(this.schema, this, arguments)) return;
+
+    this.schema.adapter.find(this.modelName, id, function (err, data) {
+        var obj = null;
+        if (data) {
+            var cached = getCached(this, data.id);
+            if (cached) {
+                obj = cached;
+                substractDirtyAttributes(obj, data);
+                this.call(obj, data);
+            } else {
+                data.id = id;
+                obj = new this(data);
+                addToCache(this, id);
+            }
+        }
+        cb(err, obj);
+    }.bind(this));
+};
+</code></pre><hr/><a name="class/all"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">AbstractClass.</span>all</h3><blockquote>Declared as <code>function all(params, cb) </code></blockquote><div class="doc"><p>Find all instances of Model, matched by query
+make sure you have marked as <code>index: true</code> fields for filter or sort</p>
+
+<p><br/><span class="badge">param</span> <strong>Object</strong> params (optional)</p>
+
+<ul>
+<li>where: Object <code>{ key: val, key2: {gt: 'val2'}}</code></li>
+<li>order: String</li>
+<li>limit: Number</li>
+<li>skip: Number</li>
+</ul>
+
+<p><br/><span class="badge">param</span> <strong>Function</strong> callback (required) called with arguments:</p>
+
+<ul>
+<li>err (null or Error)</li>
+<li>Array of instances</li>
+</ul></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:287" style="display: none; margin-top: 15px;"><code>function all(params, cb) {
+    if (stillConnecting(this.schema, this, arguments)) return;
+
+    if (arguments.length === 1) {
+        cb = params;
+        params = null;
+    }
+    var constr = this;
+    this.schema.adapter.all(this.modelName, params, function (err, data) {
+        var collection = null;
+        if (data && data.map) {
+            collection = data.map(function (d) {
+                var obj = null;
+                // do not create different instances for the same object
+                var cached = getCached(constr, d.id);
+                if (cached) {
+                    obj = cached;
+                    // keep dirty attributes untouthed (remove from dataset)
+                    substractDirtyAttributes(obj, d);
+                    constr.call(obj, d);
+                } else {
+                    obj = new constr(d);
+                    if (obj.id) addToCache(constr, obj);
+                }
+                return obj;
+            });
+            cb(err, collection);
+        }
+    });
+};
+</code></pre><hr/><a name="class/findOne"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">AbstractClass.</span>findOne</h3><blockquote>Declared as <code>function findOne(params, cb) </code></blockquote><div class="doc"><p>Find one record, same as <code>all</code>, limited by 1 and return object, not collection</p>
+
+<p><br/><span class="badge">param</span> <strong>Object</strong> params - search conditions
+<br/><span class="badge">param</span> <strong>Function</strong> cb - callback called with (err, instance)</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:324" style="display: none; margin-top: 15px;"><code>function findOne(params, cb) {
+    if (stillConnecting(this.schema, this, arguments)) return;
+
+    if (typeof params === 'function') {
+        cb = params;
+        params = {};
+    }
+    params.limit = 1;
+    this.all(params, function (err, collection) {
+        if (err || !collection || !collection.length > 0) return cb(err);
+        cb(err, collection[0]);
+    });
+};
+</code></pre><hr/><a name="class/destroyAll"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">AbstractClass.</span>destroyAll</h3><blockquote>Declared as <code>function destroyAll(cb) </code></blockquote><div class="doc"><p>Destroy all records
+<br/><span class="badge">param</span> <strong>Function</strong> cb - callback called with (err)</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:350" style="display: none; margin-top: 15px;"><code>function destroyAll(cb) {
+    if (stillConnecting(this.schema, this, arguments)) return;
+
+    this.schema.adapter.destroyAll(this.modelName, function (err) {
+        clearCache(this);
+        cb(err);
+    }.bind(this));
+};
+</code></pre><hr/><a name="class/count"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">AbstractClass.</span>count</h3><blockquote>Declared as <code>function (where, cb) </code></blockquote><div class="doc"><p>Return count of matched records</p>
+
+<p><br/><span class="badge">param</span> <strong>Object</strong> where - search conditions (optional)
+<br/><span class="badge">param</span> <strong>Function</strong> cb - callback, called with (err, count)</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:365" style="display: none; margin-top: 15px;"><code>function (where, cb) {
+    if (stillConnecting(this.schema, this, arguments)) return;
+
+    if (typeof where === 'function') {
+        cb = where;
+        where = null;
+    }
+    this.schema.adapter.count(this.modelName, cb, where);
+};
+</code></pre><hr/><a name="class/toString"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">AbstractClass.</span>toString</h3><blockquote>Declared as <code>function () </code></blockquote><div class="doc"><p>Return string representation of class</p>
+
+<p><br/><span class="badge">override</span> default toString method</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:61" style="display: none; margin-top: 15px;"><code>function () {
+    return '[Model ' + this.modelName + ']';
+}
+</code></pre><hr/><a name="class/hasMany"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">AbstractClass.</span>hasMany</h3><blockquote>Declared as <code>function hasMany(anotherClass, params) </code></blockquote><div class="doc"><p>Declare hasMany relation</p>
+
+<p><br/><span class="badge">param</span> <strong>Class</strong> anotherClass - class to has many
+<br/><span class="badge">param</span> <strong>Object</strong> params - configuration {as:, foreignKey:}
+<br/><span class="badge">example</span> <code>User.hasMany(Post, {as: 'posts', foreignKey: 'authorId'});</code></p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:634" style="display: none; margin-top: 15px;"><code>function hasMany(anotherClass, params) {
+    var methodName = params.as; // or pluralize(anotherClass.modelName)
+    var fk = params.foreignKey;
+    // each instance of this class should have method named
+    // pluralize(anotherClass.modelName)
+    // which is actually just anotherClass.all({where: {thisModelNameId: this.id}}, cb);
+    defineScope(this.prototype, anotherClass, methodName, function () {
+        var x = {};
+        x[fk] = this.id;
+        return {where: x};
+    }, {
+        find: find,
+        destroy: destroy
+    });
+
+    // obviously, anotherClass should have attribute called `fk`
+    anotherClass.schema.defineForeignKey(anotherClass.modelName, fk);
+
+    function find(id, cb) {
+        anotherClass.find(id, function (err, inst) {
+            if (err) return cb(err);
+            if (inst[fk] === this.id) {
+                cb(null, inst);
+            } else {
+                cb(new Error('Permission denied'));
+            }
+        }.bind(this));
+    }
+
+    function destroy(id, cb) {
+        this.find(id, function (err, inst) {
+            if (err) return cb(err);
+            if (inst) {
+                inst.destroy(cb);
+            } else {
+                cb(new Error('Not found'));
+            }
+        });
+    }
+
+};
+</code></pre><hr/><a name="class/belongsTo"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">AbstractClass.</span>belongsTo</h3><blockquote>Declared as <code>function (anotherClass, params) </code></blockquote><div class="doc"><p>Declare belongsTo relation</p>
+
+<p><br/><span class="badge">param</span> <strong>Class</strong> anotherClass - class to belong
+<br/><span class="badge">param</span> <strong>Object</strong> params - configuration {as: 'propertyName', foreignKey: 'keyName'}</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:682" style="display: none; margin-top: 15px;"><code>function (anotherClass, params) {
+    var methodName = params.as;
+    var fk = params.foreignKey;
+
+    this.schema.defineForeignKey(this.modelName, fk);
+    this.prototype['__finders__'] = this.prototype['__finders__'] || {}
+
+    this.prototype['__finders__'][methodName] = function (id, cb) {
+        anotherClass.find(id, function (err,inst) {
+            if (err) return cb(err);
+            if (inst[fk] === this.id) {
+                cb(null, inst);
+            } else {
+                cb(new Error('Permission denied'));
+            }
+        }.bind(this));
+    }
+
+    this.prototype[methodName] = function (p) {
+        if (p instanceof AbstractClass) { // acts as setter
+            this[fk] = p.id;
+            this.cachedRelations[methodName] = p;
+        } else if (typeof p === 'function') { // acts as async getter
+            this.__finders__[methodName](this[fk], p);
+            return this[fk];
+        } else if (typeof p === 'undefined') { // acts as sync getter
+            return this[fk];
+        } else { // setter
+            this[fk] = p;
+        }
+    };
+
+};
+</code></pre><hr/><a name="class/scope"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">AbstractClass.</span>scope</h3><blockquote>Declared as <code>function (name, params) </code></blockquote><div class="doc"><p>Define scope
+TODO: describe behavior and usage examples</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:720" style="display: none; margin-top: 15px;"><code>function (name, params) {
+    defineScope(this, this, name, params);
+};
+</code></pre><hr/><a name="instance"></a><div class="page-header"><h2>AbstractClass - instance methods</h2></div><ul class="nav nav-pills"><li><a href="#instance/save">save</a></li><li><a href="#instance/_adapter">_adapter</a></li><li><a href="#instance/toObject">toObject</a></li><li><a href="#instance/destroy">destroy</a></li><li><a href="#instance/updateAttribute">updateAttribute</a></li><li><a href="#instance/updateAttributes">updateAttributes</a></li><li><a href="#instance/propertyChanged">propertyChanged</a></li><li><a href="#instance/reload">reload</a></li><li><a href="#instance/reset">reset</a></li></ul><a name="instance/save"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">AbstractClass.</span><span style="color: green">prototype</span>.save</h3><blockquote>Declared as <code>function (options, callback) </code></blockquote><div class="doc"><p>Save instance. When instance haven't id, create method called instead.
+Triggers: validate, save, update | create
+<br/><span class="badge">param</span> options {validate: true, throws: false} [optional]
+<br/><span class="badge">param</span> callback(err, obj)</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:390" style="display: none; margin-top: 15px;"><code>function (options, callback) {
+    if (stillConnecting(this.constructor.schema, this, arguments)) return;
+
+    if (typeof options == 'function') {
+        callback = options;
+        options = {};
+    }
+
+    callback = callback || function () {};
+    options = options || {};
+
+    if (!('validate' in options)) {
+        options.validate = true;
+    }
+    if (!('throws' in options)) {
+        options.throws = false;
+    }
+
+    if (options.validate) {
+        this.isValid(function (valid) {
+            if (valid) {
+                save.call(this);
+            } else {
+                var err = new Error('Validation error');
+                // throws option is dangerous for async usage
+                if (options.throws) {
+                    throw err;
+                }
+                callback(err, this);
+            }
+        }.bind(this));
+    } else {
+        save.call(this);
+    }
+
+    function save() {
+        this.trigger('save', function (saveDone) {
+            var modelName = this.constructor.modelName;
+            var data = this.toObject(true);
+            var inst = this;
+            if (inst.id) {
+                inst.trigger('update', function (updateDone) {
+                    inst._adapter().save(modelName, data, function (err) {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            inst.constructor.call(inst, data);
+                        }
+                        updateDone.call(inst, function () {
+                            saveDone.call(inst, function () {
+                                callback(err, inst);
+                            });
+                        });
+                    });
+                });
+            } else {
+                inst.constructor.create(inst, function (err) {
+                    saveDone.call(inst, function () {
+                        callback(err, inst);
+                    });
+                });
+            }
+
+        });
+    }
+};
+</code></pre><hr/><a name="instance/_adapter"></a><h3><i class="icon icon-eye-close"></i> <span style="color: grey">AbstractClass.</span><span style="color: green">prototype</span>._adapter</h3><blockquote>Declared as <code>function () </code></blockquote><div class="doc"><p>Return adapter of current record
+<br/><span class="badge">private</span></p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:61" style="display: none; margin-top: 15px;"><code>function () {
+    return this.constructor.schema.adapter;
+};
+</code></pre><hr/><a name="instance/toObject"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">AbstractClass.</span><span style="color: green">prototype</span>.toObject</h3><blockquote>Declared as <code>function (onlySchema) </code></blockquote><div class="doc"><p>Convert instance to Object</p>
+
+<p><br/><span class="badge">param</span> <strong>Boolean</strong> onlySchema - restrict properties to schema only, default false
+when onlySchema == true, only properties defined in schema returned, 
+otherwise all enumerable properties returned
+<br/><span class="badge">returns</span> <strong>Object</strong> - canonical object representation (no getters and setters)</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:477" style="display: none; margin-top: 15px;"><code>function (onlySchema) {
+    var data = {};
+    var ds = this.constructor.schema.definitions[this.constructor.modelName];
+    var properties = ds.properties;
+    // weird
+    Object.keys(onlySchema ? properties : this).concat(['id']).forEach(function (property) {
+        data[property] = this[property];
+    }.bind(this));
+    return data;
+};
+</code></pre><hr/><a name="instance/destroy"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">AbstractClass.</span><span style="color: green">prototype</span>.destroy</h3><blockquote>Declared as <code>function (cb) </code></blockquote><div class="doc"><p>Delete object from persistence</p>
+
+<p><br/><span class="badge">triggers</span> <code>destroy</code> hook (async) before and after destroying object</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:493" style="display: none; margin-top: 15px;"><code>function (cb) {
+    if (stillConnecting(this.constructor.schema, this, arguments)) return;
+
+    this.trigger('destroy', function (destroyed) {
+        this._adapter().destroy(this.constructor.modelName, this.id, function (err) {
+            removeFromCache(this.constructor, this.id);
+            destroyed(function () {
+                cb && cb(err);
+            });
+        }.bind(this));
+    });
+};
+</code></pre><hr/><a name="instance/updateAttribute"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">AbstractClass.</span><span style="color: green">prototype</span>.updateAttribute</h3><blockquote>Declared as <code>function updateAttribute(name, value, callback) </code></blockquote><div class="doc"><p>Update single attribute</p>
+
+<p>equals to `updateAttributes({name: value}, cb)</p>
+
+<p><br/><span class="badge">param</span> <strong>String</strong> name - name of property
+<br/><span class="badge">param</span> <strong>Mixed</strong> value - value of property
+<br/><span class="badge">param</span> <strong>Function</strong> callback - callback called with (err, instance)</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:515" style="display: none; margin-top: 15px;"><code>function updateAttribute(name, value, callback) {
+    data = {};
+    data[name] = value;
+    this.updateAttributes(data, callback);
+};
+</code></pre><hr/><a name="instance/updateAttributes"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">AbstractClass.</span><span style="color: green">prototype</span>.updateAttributes</h3><blockquote>Declared as <code>function updateAttributes(data, cb) </code></blockquote><div class="doc"><p>Update set of attributes</p>
+
+<p>this method performs validation before updating</p>
+
+<p><br/><span class="badge">trigger</span> <code>validation</code>, <code>save</code> and <code>update</code> hooks
+<br/><span class="badge">param</span> <strong>Object</strong> data - data to update
+<br/><span class="badge">param</span> <strong>Function</strong> callback - callback called with (err, instance)</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:530" style="display: none; margin-top: 15px;"><code>function updateAttributes(data, cb) {
+    if (stillConnecting(this.constructor.schema, this, arguments)) return;
+
+    var inst = this;
+    var model = this.constructor.modelName;
+
+    // update instance's properties
+    Object.keys(data).forEach(function (key) {
+        inst[key] = data[key];
+    });
+
+    inst.isValid(function (valid) {
+        if (!valid) {
+            if (cb) {
+                cb(new Error('Validation error'));
+            }
+        } else {
+            update();
+        }
+    });
+
+    function update() {
+        inst.trigger('save', function (saveDone) {
+            inst.trigger('update', function (done) {
+
+                Object.keys(data).forEach(function (key) {
+                    data[key] = inst[key];
+                });
+
+                inst._adapter().updateAttributes(model, inst.id, data, function (err) {
+                    if (!err) {
+                        inst.constructor.call(inst, data);
+                        /*
+                        Object.keys(data).forEach(function (key) {
+                            inst[key] = data[key];
+                            Object.defineProperty(inst, key + '_was', {
+                                writable:     false,
+                                configurable: true,
+                                enumerable:   false,
+                                value:        data[key]
+                            });
+                        });
+                        */
+                    }
+                    done.call(inst, function () {
+                        saveDone.call(inst, function () {
+                            cb(err, inst);
+                        });
+                    });
+                });
+            });
+        });
+    }
+};
+</code></pre><hr/><a name="instance/propertyChanged"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">AbstractClass.</span><span style="color: green">prototype</span>.propertyChanged</h3><blockquote>Declared as <code>function propertyChanged(attr) </code></blockquote><div class="doc"><p>Checks is property changed based on current property and initial value</p>
+
+<p><br/><span class="badge">param</span> <strong>String</strong> attr - property name
+<br/><span class="badge">return</span> Boolean</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:591" style="display: none; margin-top: 15px;"><code>function propertyChanged(attr) {
+    return this['_' + attr] !== this[attr + '_was'];
+};
+</code></pre><hr/><a name="instance/reload"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">AbstractClass.</span><span style="color: green">prototype</span>.reload</h3><blockquote>Declared as <code>function reload(callback) </code></blockquote><div class="doc"><p>Reload object from persistence</p>
+
+<p><br/><span class="badge">requires</span> <code>id</code> member of <code>object</code> to be able to call <code>find</code>
+<br/><span class="badge">param</span> <strong>Function</strong> callback - called with (err, instance) arguments</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:601" style="display: none; margin-top: 15px;"><code>function reload(callback) {
+    if (stillConnecting(this.constructor.schema, this, arguments)) return;
+
+    var obj = getCached(this.constructor, this.id);
+    if (obj) obj.reset();
+    this.constructor.find(this.id, callback);
+};
+</code></pre><hr/><a name="instance/reset"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">AbstractClass.</span><span style="color: green">prototype</span>.reset</h3><blockquote>Declared as <code>function () </code></blockquote><div class="doc"><p>Reset dirty attributes</p>
+
+<p>this method does not perform any database operation it just reset object to it's
+initial state</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:61" style="display: none; margin-top: 15px;"><code>function () {
+    var obj = this;
+    Object.keys(obj).forEach(function (k) {
+        if (k !== 'id' && !obj.constructor.schema.definitions[obj.constructor.modelName].properties[k]) {
+            delete obj[k];
+        }
+        if (obj.propertyChanged(k)) {
+            obj[k] = obj[k + '_was'];
+        }
+    });
+};
+</code></pre><hr/><a name="helper"></a><div class="page-header"><h2>AbstractClass - helper methods</h2></div><ul class="nav nav-pills"><li><a href="#helper/isdef">isdef</a></li><li><a href="#helper/merge">merge</a></li><li><a href="#helper/defineReadonlyProp">defineReadonlyProp</a></li><li><a href="#helper/addToCache">addToCache</a></li><li><a href="#helper/touchCache">touchCache</a></li><li><a href="#helper/getCached">getCached</a></li><li><a href="#helper/clearCache">clearCache</a></li><li><a href="#helper/removeFromCache">removeFromCache</a></li></ul><a name="helper/isdef"></a><h3><i class="icon icon-eye-close"></i> <span style="color: grey"></span>isdef</h3><blockquote>Declared as <code>function isdef(s) </code></blockquote><div class="doc"><p>Check whether <code>s</code> is not undefined
+<br/><span class="badge">param</span> <strong>Mixed</strong> s
+<br/><span class="badge">return</span> <strong>Boolean</strong> s is undefined</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:819" style="display: none; margin-top: 15px;"><code>function isdef(s) {
+    var undef;
+    return s !== undef;
+}
+</code></pre><hr/><a name="helper/merge"></a><h3><i class="icon icon-eye-close"></i> <span style="color: grey"></span>merge</h3><blockquote>Declared as <code>function merge(base, update) </code></blockquote><div class="doc"><p>Merge <code>base</code> and <code>update</code> params
+<br/><span class="badge">param</span> <strong>Object</strong> base - base object (updating this object)
+<br/><span class="badge">param</span> <strong>Object</strong> update - object with new data to update base
+<br/><span class="badge">returns</span> <strong>Object</strong> <code>base</code></p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:830" style="display: none; margin-top: 15px;"><code>function merge(base, update) {
+    base = base || {};
+    if (update) {
+        Object.keys(update).forEach(function (key) {
+            base[key] = update[key];
+        });
+    }
+    return base;
+}
+</code></pre><hr/><a name="helper/defineReadonlyProp"></a><h3><i class="icon icon-eye-close"></i> <span style="color: grey"></span>defineReadonlyProp</h3><blockquote>Declared as <code>function defineReadonlyProp(obj, key, value) </code></blockquote><div class="doc"><p>Define readonly property on object</p>
+
+<p><br/><span class="badge">param</span> <strong>Object</strong> obj
+<br/><span class="badge">param</span> <strong>String</strong> key
+<br/><span class="badge">param</span> <strong>Mixed</strong> value</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:847" style="display: none; margin-top: 15px;"><code>function defineReadonlyProp(obj, key, value) {
+    Object.defineProperty(obj, key, {
+        writable: false,
+        enumerable: true,
+        configurable: true,
+        value: value
+    });
+}
+</code></pre><hr/><a name="helper/addToCache"></a><h3><i class="icon icon-eye-close"></i> <span style="color: grey"></span>addToCache</h3><blockquote>Declared as <code>function addToCache(constr, obj) </code></blockquote><div class="doc"><p>Add object to cache</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:859" style="display: none; margin-top: 15px;"><code>function addToCache(constr, obj) {
+    touchCache(constr, obj.id);
+    constr.cache[obj.id] = obj;
+}
+</code></pre><hr/><a name="helper/touchCache"></a><h3><i class="icon icon-eye-close"></i> <span style="color: grey"></span>touchCache</h3><blockquote>Declared as <code>function touchCache(constr, id) </code></blockquote><div class="doc"><p>Renew object position in LRU cache index</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:867" style="display: none; margin-top: 15px;"><code>function touchCache(constr, id) {
+    var cacheLimit = constr.CACHE_LIMIT || DEFAULT_CACHE_LIMIT;
+
+    var ind = constr.mru.indexOf(id);
+    if (~ind) constr.mru.splice(ind, 1);
+    if (constr.mru.length >= cacheLimit * 2) {
+        for (var i = 0; i < cacheLimit;i += 1) {
+            delete constr.cache[constr.mru[i]];
+        }
+        constr.mru.splice(0, cacheLimit);
+    }
+}
+</code></pre><hr/><a name="helper/getCached"></a><h3><i class="icon icon-eye-close"></i> <span style="color: grey"></span>getCached</h3><blockquote>Declared as <code>function getCached(constr, id) </code></blockquote><div class="doc"><p>Retrieve cached object</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:883" style="display: none; margin-top: 15px;"><code>function getCached(constr, id) {
+    if (id) touchCache(constr, id);
+    return id && constr.cache[id];
+}
+</code></pre><hr/><a name="helper/clearCache"></a><h3><i class="icon icon-eye-close"></i> <span style="color: grey"></span>clearCache</h3><blockquote>Declared as <code>function clearCache(constr) </code></blockquote><div class="doc"><p>Clear cache (fully)</p>
+
+<p>removes both cache and LRU index</p>
+
+<p><br/><span class="badge">param</span> <strong>Class</strong> constr - class constructor</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:895" style="display: none; margin-top: 15px;"><code>function clearCache(constr) {
+    constr.cache = {};
+    constr.mru = [];
+}
+</code></pre><hr/><a name="helper/removeFromCache"></a><h3><i class="icon icon-eye-close"></i> <span style="color: grey"></span>removeFromCache</h3><blockquote>Declared as <code>function removeFromCache(constr, id) </code></blockquote><div class="doc"><p>Remove object from cache</p>
+
+<p><br/><span class="badge">param</span> <strong>Class</strong> constr
+<br/><span class="badge">param</span> <strong>id</strong> id</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:906" style="display: none; margin-top: 15px;"><code>function removeFromCache(constr, id) {
+    var ind = constr.mru.indexOf(id);
+    if (!~ind) constr.mru.splice(ind, 1);
+    delete constr.cache[id];
+}
+</code></pre><hr/>
+          </div>
+
+          <hr />
+          <footer>
+              <p>&copy; 1602 Software</p>
+          </footer>
+        </div>
+    </body>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="http://twitter.github.com/bootstrap/assets/js/google-code-prettify/prettify.js"></script>
+    <script>
+      window.prettyPrint && prettyPrint()
+    </script>
+</html>

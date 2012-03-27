@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Validatable | JugglingDB API docs</title>
+        <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" />
+        <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/js/google-code-prettify/prettify.css" />
+        <style>
+          .doc p {line-height: 21px; font-size: 16px}
+          h3 .icon { margin-top: 4px !important;}
+          li {line-height: 21px;}
+        </style>
+    </head>
+    <body>
+      <div class="navbar">
+        <div class="navbar-inner">
+          <a class="brand" href="#">JugglingDB API docs</a>
+          <div class="container">
+            <ul class="nav">
+              <li><a href="abstract-class.html">AbstractClass</a></li>
+              <li><a href="schema.html">Schema</a></li>
+              <li class="active"><a href="validatable.html">Validatable</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="row-fluid">
+          <div class="span3">
+            <ul class="nav nav-list"><li class="nav-header">class methods</li><li><a href="#class/validatesPresenceOf"><i class="icon icon-eye-open"></i> validatesPresenceOf</a></li><li><a href="#class/validatesLengthOf"><i class="icon icon-eye-open"></i> validatesLengthOf</a></li><li><a href="#class/validatesNumericalityOf"><i class="icon icon-eye-open"></i> validatesNumericalityOf</a></li><li><a href="#class/validatesInclusionOf"><i class="icon icon-eye-open"></i> validatesInclusionOf</a></li><li><a href="#class/validatesExclusionOf"><i class="icon icon-eye-open"></i> validatesExclusionOf</a></li><li><a href="#class/validatesFormatOf"><i class="icon icon-eye-open"></i> validatesFormatOf</a></li><li><a href="#class/validate"><i class="icon icon-eye-open"></i> validate</a></li><li><a href="#class/validateAsync"><i class="icon icon-eye-open"></i> validateAsync</a></li><li><a href="#class/validatesUniquenessOf"><i class="icon icon-eye-open"></i> validatesUniquenessOf</a></li><li class="nav-header">instance methods</li><li><a href="#instance/isValid"><i class="icon icon-eye-open"></i> isValid</a></li><li class="nav-header">helper methods</li><li><a href="#helper/validatePresence"><i class="icon icon-eye-close"></i> validatePresence</a></li><li><a href="#helper/validateLength"><i class="icon icon-eye-close"></i> validateLength</a></li><li><a href="#helper/validateNumericality"><i class="icon icon-eye-close"></i> validateNumericality</a></li><li><a href="#helper/validateInclusion"><i class="icon icon-eye-close"></i> validateInclusion</a></li><li><a href="#helper/validateExclusion"><i class="icon icon-eye-close"></i> validateExclusion</a></li><li><a href="#helper/validateFormat"><i class="icon icon-eye-close"></i> validateFormat</a></li><li><a href="#helper/validateCustom"><i class="icon icon-eye-close"></i> validateCustom</a></li><li><a href="#helper/validateUniqueness"><i class="icon icon-eye-close"></i> validateUniqueness</a></li><li><a href="#helper/blank"><i class="icon icon-eye-close"></i> blank</a></li></ul>
+          </div>
+          <div class="span9">
+            <div class="hero-unit"><h1>Validatable</h1><div class="doc"><p>Validation encapsulated in this abstract class.</p>
+
+<p>Basically validation configurators is just class methods, which adds validations
+configs to AbstractClass._validations. Each of this validations run when
+<code>obj.isValid()</code> method called.</p>
+
+<p>Each configurator can accept n params (n-1 field names and one config). Config
+is <strong>Object</strong> depends on specific validation, but all of them has one common part:
+<code>message</code> member. It can be just string, when only one situation possible,
+e.g. <code>Post.validatesPresenceOf('title', { message: 'can not be blank' });</code></p>
+
+<p>In more complicated cases it can be <strong>Hash</strong> of messages (for each case):
+<code>User.validatesLengthOf('password', { min: 6, max: 20, message: {min: 'too short', max: 'too long'}});</code></p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:18" style="display: none; margin-top: 15px;"><code>function Validatable() {
+    // validatable class
+};
+</code></pre><hr/><a href="#class" class="btn btn-primary btn-large">Class methods</a> <a href="#instance" class="btn btn-info btn-large">Instance methods</a> <a href="#helper" class="btn btn-inverse btn-large">Helper methods</a> </div><a name="class"></a><div class="page-header"><h2>Validatable - class methods</h2></div><ul class="nav nav-pills"><li><a href="#class/validatesPresenceOf">validatesPresenceOf</a></li><li><a href="#class/validatesLengthOf">validatesLengthOf</a></li><li><a href="#class/validatesNumericalityOf">validatesNumericalityOf</a></li><li><a href="#class/validatesInclusionOf">validatesInclusionOf</a></li><li><a href="#class/validatesExclusionOf">validatesExclusionOf</a></li><li><a href="#class/validatesFormatOf">validatesFormatOf</a></li><li><a href="#class/validate">validate</a></li><li><a href="#class/validateAsync">validateAsync</a></li><li><a href="#class/validatesUniquenessOf">validatesUniquenessOf</a></li></ul><a name="class/validatesPresenceOf"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">Validatable.</span>validatesPresenceOf</h3><blockquote>Declared as <code>getConfigurator('presence');</code></blockquote><div class="doc"><p>Validate presence. This validation fails when validated field is blank.</p>
+
+<p>Default error message "can't be blank"</p>
+
+<p><br/><span class="badge">example</span> <code>Post.validatesPresenceOf('title')</code>
+<br/><span class="badge">example</span> <code>Post.validatesPresenceOf('title', {message: 'Can not be blank'})</code>
+<br/><span class="badge">sync</span></p>
+
+<p><br/><span class="badge">see</span> <i class="icon-share-alt"></i> <a href="#helper/validatePresence">helper/validatePresence</a></p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:1" style="display: none; margin-top: 15px;"><code>getConfigurator('presence'); </code></pre><hr/><a name="class/validatesLengthOf"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">Validatable.</span>validatesLengthOf</h3><blockquote>Declared as <code>getConfigurator('length');</code></blockquote><div class="doc"><p>Validate length. Three kinds of validations: min, max, is.</p>
+
+<p>Default error messages:</p>
+
+<ul>
+<li>min: too short</li>
+<li>max: too long</li>
+<li>is:  length is wrong</li>
+</ul>
+
+<p><br/><span class="badge">example</span> <code>User.validatesLengthOf('password', {min: 7});</code>
+<br/><span class="badge">example</span> <code>User.validatesLengthOf('email', {max: 100});</code>
+<br/><span class="badge">example</span> <code>User.validatesLengthOf('state', {is: 2});</code>
+<br/><span class="badge">example</span> `User.validatesLengthOf('nick', {min: 3, max: 15});
+<br/><span class="badge">sync</span></p>
+
+<p><br/><span class="badge">see</span> <i class="icon-share-alt"></i> <a href="#helper/validateLength">helper/validateLength</a></p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:1" style="display: none; margin-top: 15px;"><code>getConfigurator('length'); </code></pre><hr/><a name="class/validatesNumericalityOf"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">Validatable.</span>validatesNumericalityOf</h3><blockquote>Declared as <code>getConfigurator('numericality');</code></blockquote><div class="doc"><p>Validate numericality.</p>
+
+<p><br/><span class="badge">example</span> <code>User.validatesNumericalityOf('age', { message: { number: '...' }});</code>
+<br/><span class="badge">example</span> <code>User.validatesNumericalityOf('age', {int: true, message: { int: '...' }});</code></p>
+
+<p>Default error messages:</p>
+
+<ul>
+<li>number: is not a number</li>
+<li>int: is not an integer</li>
+</ul>
+
+<p><br/><span class="badge">sync</span></p>
+
+<p><br/><span class="badge">see</span> <i class="icon-share-alt"></i> <a href="#helper/validateNumericality">helper/validateNumericality</a></p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:1" style="display: none; margin-top: 15px;"><code>getConfigurator('numericality'); </code></pre><hr/><a name="class/validatesInclusionOf"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">Validatable.</span>validatesInclusionOf</h3><blockquote>Declared as <code>getConfigurator('inclusion');</code></blockquote><div class="doc"><p>Validate inclusion in set</p>
+
+<p><br/><span class="badge">example</span> <code>User.validatesInclusionOf('gender', {in: ['male', 'female']});</code></p>
+
+<p>Default error message: is not included in the list</p>
+
+<p><br/><span class="badge">see</span> <i class="icon-share-alt"></i> <a href="#helper/validateInclusion">helper/validateInclusion</a></p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:1" style="display: none; margin-top: 15px;"><code>getConfigurator('inclusion'); </code></pre><hr/><a name="class/validatesExclusionOf"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">Validatable.</span>validatesExclusionOf</h3><blockquote>Declared as <code>getConfigurator('exclusion');</code></blockquote><div class="doc"><p>Validate exclusion</p>
+
+<p><br/><span class="badge">example</span> <code>Company.validatesExclusionOf('domain', {in: ['www', 'admin']});</code></p>
+
+<p>Default error message: is reserved</p>
+
+<p><br/><span class="badge">see</span> <i class="icon-share-alt"></i> <a href="#helper/validateExclusion">helper/validateExclusion</a></p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:1" style="display: none; margin-top: 15px;"><code>getConfigurator('exclusion'); </code></pre><hr/><a name="class/validatesFormatOf"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">Validatable.</span>validatesFormatOf</h3><blockquote>Declared as <code>getConfigurator('format');</code></blockquote><div class="doc"><p>Validate format</p>
+
+<p>Default error message: is invalid</p>
+
+<p><br/><span class="badge">see</span> <i class="icon-share-alt"></i> <a href="#helper/validateFormat">helper/validateFormat</a></p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:1" style="display: none; margin-top: 15px;"><code>getConfigurator('format'); </code></pre><hr/><a name="class/validate"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">Validatable.</span>validate</h3><blockquote>Declared as <code>getConfigurator('custom');</code></blockquote><div class="doc"><p>Validate using custom validator</p>
+
+<p>Default error message: is invalid</p>
+
+<p><br/><span class="badge">see</span> <i class="icon-share-alt"></i> <a href="#helper/validateCustom">helper/validateCustom</a></p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:1" style="display: none; margin-top: 15px;"><code>getConfigurator('custom'); </code></pre><hr/><a name="class/validateAsync"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">Validatable.</span>validateAsync</h3><blockquote>Declared as <code>getConfigurator('custom', </code></blockquote><div class="doc"><p>Validate using custom async validator</p>
+
+<p>Default error message: is invalid</p>
+
+<p><br/><span class="badge">async</span>
+<br/><span class="badge">see</span> <i class="icon-share-alt"></i> <a href="#helper/validateCustom">helper/validateCustom</a></p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:1" style="display: none; margin-top: 15px;"><code>getConfigurator('custom',  </code></pre><hr/><a name="class/validatesUniquenessOf"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">Validatable.</span>validatesUniquenessOf</h3><blockquote>Declared as <code>getConfigurator('uniqueness', </code></blockquote><div class="doc"><p>Validate uniqueness</p>
+
+<p>Default error message: is not unique</p>
+
+<p><br/><span class="badge">async</span>
+<br/><span class="badge">see</span> <i class="icon-share-alt"></i> <a href="#helper/validateUniqueness">helper/validateUniqueness</a></p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:1" style="display: none; margin-top: 15px;"><code>getConfigurator('uniqueness',  </code></pre><hr/><a name="instance"></a><div class="page-header"><h2>Validatable - instance methods</h2></div><ul class="nav nav-pills"><li><a href="#instance/isValid">isValid</a></li></ul><a name="instance/isValid"></a><h3><i class="icon icon-eye-open"></i> <span style="color: grey">Validatable.</span><span style="color: green">prototype</span>.isValid</h3><blockquote>Declared as <code>function (callback) </code></blockquote><div class="doc"><p>This method performs validation, triggers validation hooks.
+Before validation <code>obj.errors</code> collection cleaned.
+Each validation can add errors to <code>obj.errors</code> collection.
+If collection is not blank, validation failed.</p>
+
+<div class="alert"><strong>Warning! </strong> This method can be called as sync only when no async validation configured. It's strongly recommended to run all validations as asyncronous.</div>
+
+<p><br/><span class="badge">param</span> <strong>Function</strong> callback called with (valid)
+<br/><span class="badge">return</span> <strong>Boolean</strong> true if no async validation configured and all passed</p>
+
+<p><br/><span class="badge">example</span> ExpressJS controller: render user if valid, show flash otherwise</p>
+
+<pre class="prettyprint linenums"><code>user.isValid(function (valid) {
+    if (valid) res.render({user: user});
+    else res.flash('error', 'User is not valid'), console.log(user.errors), res.redirect('/users');
+});
+</code></pre></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:279" style="display: none; margin-top: 15px;"><code>function (callback) {
+    var valid = true, inst = this, wait = 0, async = false;
+
+    // exit with success when no errors
+    if (!this.constructor._validations) {
+        cleanErrors(this);
+        if (callback) {
+            callback(valid);
+        }
+        return valid;
+    }
+
+    Object.defineProperty(this, 'errors', {
+        enumerable: false,
+        configurable: true,
+        value: new Errors
+    });
+
+    this.trigger('validation', function (validationsDone) {
+        var inst = this;
+        this.constructor._validations.forEach(function (v) {
+            if (v[2] && v[2].async) {
+                async = true;
+                wait += 1;
+                validationFailed(inst, v, done);
+            } else {
+                if (validationFailed(inst, v)) {
+                    valid = false;
+                }
+            }
+
+        });
+
+        if (!async) {
+            validationsDone();
+        }
+
+        var asyncFail = false;
+        function done(fail) {
+            asyncFail = asyncFail || fail;
+            if (--wait === 0 && callback) {
+                validationsDone.call(inst, function () {
+                    if( valid && !asyncFail ) cleanErrors(inst);
+                    callback(valid && !asyncFail);
+                });
+            }
+        }
+
+    });
+
+    if (!async) {
+        if (valid) cleanErrors(this);
+        if (callback) callback(valid);
+        return valid;
+    } else {
+        // in case of async validation we should return undefined here,
+        // because not all validations are finished yet
+        return;
+    }
+
+};
+</code></pre><hr/><a name="helper"></a><div class="page-header"><h2>Validatable - helper methods</h2></div><ul class="nav nav-pills"><li><a href="#helper/validatePresence">validatePresence</a></li><li><a href="#helper/validateLength">validateLength</a></li><li><a href="#helper/validateNumericality">validateNumericality</a></li><li><a href="#helper/validateInclusion">validateInclusion</a></li><li><a href="#helper/validateExclusion">validateExclusion</a></li><li><a href="#helper/validateFormat">validateFormat</a></li><li><a href="#helper/validateCustom">validateCustom</a></li><li><a href="#helper/validateUniqueness">validateUniqueness</a></li><li><a href="#helper/blank">blank</a></li></ul><a name="helper/validatePresence"></a><h3><i class="icon icon-eye-close"></i> <span style="color: grey"></span>validatePresence</h3><blockquote>Declared as <code>function validatePresence(attr, conf, err) </code></blockquote><div class="doc"><p>Presence validator</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:145" style="display: none; margin-top: 15px;"><code>function validatePresence(attr, conf, err) {
+    if (blank(this[attr])) {
+        err();
+    }
+}
+</code></pre><hr/><a name="helper/validateLength"></a><h3><i class="icon icon-eye-close"></i> <span style="color: grey"></span>validateLength</h3><blockquote>Declared as <code>function validateLength(attr, conf, err) </code></blockquote><div class="doc"><p>Length validator</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:154" style="display: none; margin-top: 15px;"><code>function validateLength(attr, conf, err) {
+    if (nullCheck.call(this, attr, conf, err)) return;
+
+    var len = this[attr].length;
+    if (conf.min && len < conf.min) {
+        err('min');
+    }
+    if (conf.max && len > conf.max) {
+        err('max');
+    }
+    if (conf.is && len !== conf.is) {
+        err('is');
+    }
+}
+</code></pre><hr/><a name="helper/validateNumericality"></a><h3><i class="icon icon-eye-close"></i> <span style="color: grey"></span>validateNumericality</h3><blockquote>Declared as <code>function validateNumericality(attr, conf, err) </code></blockquote><div class="doc"><p>Numericality validator</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:172" style="display: none; margin-top: 15px;"><code>function validateNumericality(attr, conf, err) {
+    if (nullCheck.call(this, attr, conf, err)) return;
+
+    if (typeof this[attr] !== 'number') {
+        return err('number');
+    }
+    if (conf.int && this[attr] !== Math.round(this[attr])) {
+        return err('int');
+    }
+}
+</code></pre><hr/><a name="helper/validateInclusion"></a><h3><i class="icon icon-eye-close"></i> <span style="color: grey"></span>validateInclusion</h3><blockquote>Declared as <code>function validateInclusion(attr, conf, err) </code></blockquote><div class="doc"><p>Inclusion validator</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:186" style="display: none; margin-top: 15px;"><code>function validateInclusion(attr, conf, err) {
+    if (nullCheck.call(this, attr, conf, err)) return;
+
+    if (!~conf.in.indexOf(this[attr])) {
+        err()
+    }
+}
+</code></pre><hr/><a name="helper/validateExclusion"></a><h3><i class="icon icon-eye-close"></i> <span style="color: grey"></span>validateExclusion</h3><blockquote>Declared as <code>function validateExclusion(attr, conf, err) </code></blockquote><div class="doc"><p>Exclusion validator</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:197" style="display: none; margin-top: 15px;"><code>function validateExclusion(attr, conf, err) {
+    if (nullCheck.call(this, attr, conf, err)) return;
+
+    if (~conf.in.indexOf(this[attr])) {
+        err()
+    }
+}
+</code></pre><hr/><a name="helper/validateFormat"></a><h3><i class="icon icon-eye-close"></i> <span style="color: grey"></span>validateFormat</h3><blockquote>Declared as <code>function validateFormat(attr, conf, err) </code></blockquote><div class="doc"><p>Format validator</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:208" style="display: none; margin-top: 15px;"><code>function validateFormat(attr, conf, err) {
+    if (nullCheck.call(this, attr, conf, err)) return;
+
+    if (typeof this[attr] === 'string') {
+        if (!this[attr].match(conf['with'])) {
+            err();
+        }
+    } else {
+        err();
+    }
+}
+</code></pre><hr/><a name="helper/validateCustom"></a><h3><i class="icon icon-eye-close"></i> <span style="color: grey"></span>validateCustom</h3><blockquote>Declared as <code>function validateCustom(attr, conf, err, done) </code></blockquote><div class="doc"><p>Custom validator</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:223" style="display: none; margin-top: 15px;"><code>function validateCustom(attr, conf, err, done) {
+    conf.customValidator.call(this, err, done);
+}
+</code></pre><hr/><a name="helper/validateUniqueness"></a><h3><i class="icon icon-eye-close"></i> <span style="color: grey"></span>validateUniqueness</h3><blockquote>Declared as <code>function validateUniqueness(attr, conf, err, done) </code></blockquote><div class="doc"><p>Uniqueness validator</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:230" style="display: none; margin-top: 15px;"><code>function validateUniqueness(attr, conf, err, done) {
+    var cond = {where: {}};
+    cond.where[attr] = this[attr];
+    this.constructor.all(cond, function (error, found) {
+        if (found.length > 1) {
+            err();
+        } else if (found.length === 1 && found[0].id !== this.id) {
+            err();
+        }
+        done();
+    }.bind(this));
+}
+</code></pre><hr/><a name="helper/blank"></a><h3><i class="icon icon-eye-close"></i> <span style="color: grey"></span>blank</h3><blockquote>Declared as <code>function blank(v) </code></blockquote><div class="doc"><p>Return true when v is undefined, blank array, null or empty string
+otherwise returns false</p>
+
+<p><br/><span class="badge">param</span> <strong>Mix</strong> v
+<br/><span class="badge">returns</span> <strong>Boolean</strong> whether <code>v</code> blank or not</p></div><a class="btn btn-small" onclick="$(this).next('pre').toggle()">Source code</a><pre class="prettyprint linenums:461" style="display: none; margin-top: 15px;"><code>function blank(v) {
+    if (typeof v === 'undefined') return true;
+    if (v instanceof Array && v.length === 0) return true;
+    if (v === null) return true;
+    if (typeof v == 'string' && v === '') return true;
+    return false;
+}
+</code></pre><hr/>
+          </div>
+
+          <hr />
+          <footer>
+              <p>&copy; 1602 Software</p>
+          </footer>
+        </div>
+    </body>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="http://twitter.github.com/bootstrap/assets/js/google-code-prettify/prettify.js"></script>
+    <script>
+      window.prettyPrint && prettyPrint()
+    </script>
+</html>
