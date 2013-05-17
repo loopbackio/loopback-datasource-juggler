@@ -1,24 +1,24 @@
-var ADL = require('../../jugglingdb').ADL;
-var adl = new ADL();
+var DataSource = require('../../jugglingdb').DataSource;
+var ds = new DataSource('memory');
 // define models
-var Post = adl.define('Post', {
+var Post = ds.define('Post', {
     title:     { type: String, length: 255 },
-    content:   { type: ADL.Text },
+    content:   { type: DataSource.Text },
     date:      { type: Date,    default: function () { return new Date;} },
     timestamp: { type: Number,  default: Date.now },
     published: { type: Boolean, default: false, index: true }
 });
 
 // simplier way to describe model
-var User = adl.define('User', {
+var User = ds.define('User', {
     name:         String,
-    bio:          ADL.Text,
+    bio:          DataSource.Text,
     approved:     Boolean,
     joinedAt:     Date,
     age:          Number
 });
 
-var Group = adl.define('Group', {name: String});
+var Group = ds.define('Group', {name: String});
 
 // define any custom method
 User.prototype.getNameAndAge = function () {
@@ -28,8 +28,8 @@ User.prototype.getNameAndAge = function () {
 var user = new User({name: 'Joe'});
 console.log(user);
 
-console.log(adl.models);
-console.log(adl.definitions);
+console.log(ds.models);
+console.log(ds.definitions);
 
 
 
