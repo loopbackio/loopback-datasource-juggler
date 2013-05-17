@@ -1,20 +1,6 @@
 var DataSource = require('../../jugglingdb').DataSource;
 var ds = new DataSource('memory');
 
-var Article = ds.define('Article', {title: String});
-var Tag = ds.define('Tag', {name: String});
-Article.hasAndBelongsToMany('tags');
-
-Article.create(function(e, article) {
-    article.tags.create({name: 'popular'}, function (err, data) {
-        Article.findOne(function(e, article) {
-            article.tags(function(e, tags) {
-               console.log(tags);
-            });
-        });
-    });
-});
-
 // define models
 var Post = ds.define('Post', {
     title: { type: String, length: 255 },
@@ -91,8 +77,19 @@ User.create({name: 'Ray'}, function (err, data) {
     console.log(data);
 });
 
-var count = 5;
-setInterval(function() {console.log(count--); if(!count) process.exit(0);}, 100);
+var Article = ds.define('Article', {title: String});
+var Tag = ds.define('Tag', {name: String});
+Article.hasAndBelongsToMany('tags');
+
+Article.create(function(e, article) {
+    article.tags.create({name: 'popular'}, function (err, data) {
+        Article.findOne(function(e, article) {
+            article.tags(function(e, tags) {
+                console.log(tags);
+            });
+        });
+    });
+});
 
 
 
