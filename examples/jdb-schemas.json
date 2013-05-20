@@ -1,0 +1,15 @@
+{
+    "title": {
+        "type": "String"
+    },
+    "author": {
+        "type": "String",
+        "default": "Raymond"
+    },
+    "body": "String",
+    "date": {
+        "type": "Date"
+    },
+    "hidden": "Boolean",
+    "comments": ["String"]
+}  
