@@ -1,5 +1,5 @@
 var DataSource = require('../../jugglingdb').DataSource;
-var ADL = require('../../jugglingdb').ADL;
+var ModelBuilder = require('../../jugglingdb').ModelBuilder;
 var ds = new DataSource('memory');
 
 // define models
@@ -93,9 +93,9 @@ Article.create(function(e, article) {
 });
 
 // should be able to attach a data source to an existing model
-var adl = new ADL();
+var modelBuilder = new ModelBuilder();
 
-Color = adl.define('Color', {
+Color = modelBuilder.define('Color', {
   name: String
 });
 

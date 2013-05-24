@@ -1,19 +1,34 @@
-var path = require('path');
+var path = require('path'),
+    fs = require('fs'),
+    DataSource = require('../lib/datasource').DataSource;
 
-var loadSchemasSync = require('../lib/adl-loader').loadSchemasSync;
+/**
+ * Load ADL schemas from a json doc
+ * @param schemaFile The schema json file
+ * @returns A map of schemas keyed by name
+ */
+function loadSchemasSync(schemaFile, dataSource) {
+    // Set up the data source
+    if(!dataSource) {
+        dataSource = new DataSource('memory');
+    }
 
+    // Read the schema JSON file
+    var schemas = JSON.parse(fs.readFileSync(schemaFile));
+
+    return DataSource.buildModels(dataSource, schemas);
+
+}
 
 var models = loadSchemasSync(path.join(__dirname, 'jdb-schemas.json'));
 
 for (var s in models) {
     var m = models[s];
-    // console.dir(m);
-    console.log(new m());
+    console.log(m.modelName, new m());
 }
 
 models = loadSchemasSync(path.join(__dirname, 'schemas.json'));
 for (var s in models) {
     var m = models[s];
-    // console.dir(m);
-    console.log(new m());
+    console.log(m.modelName, new m());
 }

@@ -1,9 +1,8 @@
 var fs = require('fs');
 var path = require('path');
 
-exports.ADL = require('./lib/adl').Schema;
-exports.DataSource = require('./lib/datasource').DataSource;
-exports.Schema = exports.DataSource; // require('./lib/schema').Schema;
+exports.ModelBuilder = exports.ADL = require('./lib/model-builder').ModelBuilder;
+exports.DataSource = exports.Schema = require('./lib/datasource').DataSource;
 exports.ModelBaseClass = require('./lib/model.js');
 
 var baseSQL = './lib/sql';
