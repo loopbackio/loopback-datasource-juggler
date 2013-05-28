@@ -179,6 +179,7 @@ describe('Load models from json', function () {
 
         var m1 = new models.anonymous({title: 'Test'});
         m1.should.have.property('title', 'Test');
+        m1.should.have.property('author', 'Raymond');
 
         models = loadSchemasSync(path.join(__dirname, 'test2-schemas.json'));
         models.should.have.property('address');
