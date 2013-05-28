@@ -18,7 +18,7 @@ var User = modelBuilder.define('User', {
     age:          Number
 });
 
-var Group = modelBuilder.define('Group', {name: String});
+var Group = modelBuilder.define('Group', {group: String});
 
 // define any custom method
 User.prototype.getNameAndAge = function () {
@@ -30,6 +30,10 @@ console.log(user);
 
 console.log(modelBuilder.models);
 console.log(modelBuilder.definitions);
+
+User.mixin(Group);
+var user = new User({name: 'Ray', group: 'Admin'});
+console.log(user);
 
 
 
