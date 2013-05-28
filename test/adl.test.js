@@ -146,3 +146,48 @@ describe('DataSource define model', function () {
 
     });
 });
+
+
+describe('Load models from json', function () {
+    it('should be able to define models from json', function () {
+        var path = require('path'),
+            fs = require('fs');
+
+
+        /**
+         * Load ADL schemas from a json doc
+         * @param schemaFile The schema json file
+         * @returns A map of schemas keyed by name
+         */
+        function loadSchemasSync(schemaFile, dataSource) {
+            // Set up the data source
+            if (!dataSource) {
+                dataSource = new DataSource('memory');
+            }
+
+            // Read the schema JSON file
+            var schemas = JSON.parse(fs.readFileSync(schemaFile));
+
+            return DataSource.buildModels(dataSource, schemas);
+
+        }
+
+        var models = loadSchemasSync(path.join(__dirname, 'test1-schemas.json'));
+
+        models.should.have.property('anonymous');
+        models.anonymous.should.have.property('modelName', 'Anonymous');
+
+        var m1 = new models.anonymous({title: 'Test'});
+        m1.should.have.property('title', 'Test');
+
+        models = loadSchemasSync(path.join(__dirname, 'test2-schemas.json'));
+        models.should.have.property('address');
+        models.should.have.property('account');
+        models.should.have.property('customer');
+        for (var s in models) {
+            var m = models[s];
+            console.log(m.modelName, new m());
+        }
+    });
+});
+

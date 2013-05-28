@@ -1,0 +1,83 @@
+[
+    {
+        "name": "Address",
+        "properties": {
+            "label": "string",
+            "street": "string",
+            "city": "string",
+            "zipCode": "string"
+        }
+    },
+
+    {
+        "name": "Account",
+        "properties": {
+            "id": "string",
+            "customer": {
+                "type": "Customer",
+                "association": {
+                    "type": "belongsTo",
+                    "inverse": "account"
+                }
+            },
+            "balance": "number"
+        }
+    },
+
+    {
+        "name": "Customer",
+        "options": {
+            "oracle": {
+                "owner": "STRONGLOOP",
+                "table": "CUSTOMER"
+            }
+        },
+        "properties": {
+            "id": {
+                "type": "number",
+                "id": true,
+                "doc": "Customer ID"
+            },
+            "firstName": {
+                "type": "string",
+                "trim": true,
+                "required": true,
+                "oracle": {
+                    "column": "FNAME",
+                    "type": "VARCHAR",
+                    "length": 32
+                }
+            },
+            "lastName": {
+                "type": "string",
+                "trim": true,
+                "required": true,
+                "oracle": {
+                    "column": "LNAME",
+                    "type": "VARCHAR",
+                    "length": 32
+                }
+            },
+            "vip": {
+                "type": "boolean",
+                "doc": "indicate if the customer is a VIP",
+                "oracle": {
+                    "column": "VIP",
+                    "type": "CHAR",
+                    "length": 1
+                }
+            },
+            "emails": [
+                {
+                    "type": "string",
+                    "trim": true
+                }
+            ],
+            "address": {
+                "type": "Address"
+            },
+            "account": "Account"
+        }
+    }
+
+]
