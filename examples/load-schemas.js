@@ -16,7 +16,7 @@ function loadSchemasSync(schemaFile, dataSource) {
     // Read the schema JSON file
     var schemas = JSON.parse(fs.readFileSync(schemaFile));
 
-    return DataSource.buildModels(dataSource, schemas);
+    return dataSource.buildModels(schemas);
 
 }
 
