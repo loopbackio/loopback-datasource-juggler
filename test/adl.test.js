@@ -168,23 +168,23 @@ describe('Load models from json', function () {
             // Read the schema JSON file
             var schemas = JSON.parse(fs.readFileSync(schemaFile));
 
-            return DataSource.buildModels(dataSource, schemas);
+            return dataSource.buildModels(schemas);
 
         }
 
         var models = loadSchemasSync(path.join(__dirname, 'test1-schemas.json'));
 
-        models.should.have.property('anonymous');
-        models.anonymous.should.have.property('modelName', 'Anonymous');
+        models.should.have.property('Anonymous');
+        models.Anonymous.should.have.property('modelName', 'Anonymous');
 
-        var m1 = new models.anonymous({title: 'Test'});
+        var m1 = new models.Anonymous({title: 'Test'});
         m1.should.have.property('title', 'Test');
         m1.should.have.property('author', 'Raymond');
 
         models = loadSchemasSync(path.join(__dirname, 'test2-schemas.json'));
-        models.should.have.property('address');
-        models.should.have.property('account');
-        models.should.have.property('customer');
+        models.should.have.property('Address');
+        models.should.have.property('Account');
+        models.should.have.property('Customer');
         for (var s in models) {
             var m = models[s];
             console.log(m.modelName, new m());
