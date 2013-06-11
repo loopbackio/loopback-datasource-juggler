@@ -73,6 +73,6 @@
   },
   "dependencies": {
     "async": "latest",
-    "inflection": "~1.2.5"
+    "inflection": "~1.2.6"
   }
 }
