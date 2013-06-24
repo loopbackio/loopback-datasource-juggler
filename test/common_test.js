@@ -254,7 +254,7 @@ function testOrm(schema) {
             test.ok(obj.id);
             test.equals(obj.title, title);
             test.equals(obj.date, date);
-            Post.find(obj.id, function () {
+            Post.findById(obj.id, function () {
                 test.equal(obj.title, title);
                 test.equal(obj.date.toString(), date.toString());
                 test.done();
@@ -282,7 +282,7 @@ function testOrm(schema) {
         Post.create({ title: title }, function (err, post) {
             test.ok(post.id, 'Object should have id');
             test.equals(post.title, title);
-            Post.find(post.id, function (err, foundPost) {
+            Post.findById(post.id, function (err, foundPost) {
                 if (err) throw err;
                 test.equal(post.title, title);
                 test.strictEqual(post, foundPost);
@@ -309,7 +309,7 @@ function testOrm(schema) {
                     Post.exists(post.id, function (err, exists) {
                         if (err) console.log(err);
                         test.ok(!exists, 'Hey! ORM told me that object exists, but it looks like it doesn\'t. Something went wrong...');
-                        Post.find(post.id, function (err, obj) {
+                        Post.findById(post.id, function (err, obj) {
                             test.equal(obj, null, 'Param obj should be null');
                             test.done();
                         });
@@ -483,7 +483,7 @@ function testOrm(schema) {
                 var post = posts[i];
                 if (post.userId) {
                     // We could get the user with belongs to relationship but it is better if there is no interactions.
-                    User.find(post.userId, function(err, user) {
+                    User.findById(post.userId, function(err, user) {
                         User.create(function(err, voidUser) {
                             Post.create({userId: user.id}, function() {
 
@@ -1028,7 +1028,7 @@ function testOrm(schema) {
             test.equal(newData.title, updatedPost.toObject().title);
             test.equal(newData.content, updatedPost.toObject().content);
 
-            Post.find(updatedPost.id, function (err, post) {
+            Post.findById(updatedPost.id, function (err, post) {
                 if (err) throw err;
                 if (!post) throw Error('No post!');
                 if (schema.name !== 'mongodb') {
@@ -1039,7 +1039,7 @@ function testOrm(schema) {
                 Post.updateOrCreate({id: 100001, title: 'hey'}, function (err, post) {
                     if (schema.name !== 'mongodb') test.equal(post.id, 100001);
                     test.equal(post.title, 'hey');
-                    Post.find(post.id, function (err, post) {
+                    Post.findById(post.id, function (err, post) {
                         if (!post) throw Error('No post!');
                         test.done();
                     });
@@ -1056,7 +1056,7 @@ function testOrm(schema) {
         var u = new User({passwd: 'qwerty'});
         test.equal(u.passwd, 'qwertysalt');
         u.save(function (err, user) {
-            User.find(user.id, function (err, user) {
+            User.findById(user.id, function (err, user) {
                 test.ok(user !== u);
                 test.equal(user.passwd, 'qwertysalt');
                 User.all({where: {passwd: 'qwertysalt'}}, function (err, users) {
@@ -1066,7 +1066,7 @@ function testOrm(schema) {
                         test.equal(usr.passwd, 'asalatsalt');
                         User.upsert({passwd: 'heyman'}, function (err, us) {
                             test.equal(us.passwd, 'heymansalt');
-                            User.find(us.id, function (err, user) {
+                            User.findById(us.id, function (err, user) {
                                 test.equal(user.passwd, 'heymansalt');
                                 test.done();
                             });
@@ -1088,7 +1088,7 @@ function testOrm(schema) {
             p.likes.push({second: 2});
             p.likes.push({third: 3});
             p.save(function (err) {
-                Post.find(p.id, function (err, pp) {
+                Post.findById(p.id, function (err, pp) {
                     test.equal(pp.likes.length, 3);
                     test.ok(pp.likes[3].third);
                     test.ok(pp.likes[2].second);
@@ -1101,7 +1101,7 @@ function testOrm(schema) {
                     test.ok(!pp.likes[1]);
                     test.ok(pp.likes[3]);
                     pp.save(function () {
-                        Post.find(p.id, function (err, pp) {
+                        Post.findById(p.id, function (err, pp) {
                             test.equal(pp.likes.length, 1);
                             test.ok(!pp.likes[1]);
                             test.ok(pp.likes[3]);

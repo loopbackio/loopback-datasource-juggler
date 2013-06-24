@@ -19,14 +19,14 @@ describe('basic-querying', function() {
     });
 
 
-    describe('find', function() {
+    describe('findById', function() {
 
         before(function(done) {
             User.destroyAll(done);
         });
 
         it('should query by id: not found', function(done) {
-            User.find(1, function(err, u) {
+            User.findById(1, function(err, u) {
                 should.not.exist(u);
                 should.not.exist(err);
                 done();
@@ -37,7 +37,7 @@ describe('basic-querying', function() {
             User.create(function(err, u) {
                 should.not.exist(err);
                 should.exist(u.id);
-                User.find(u.id, function(err, u) {
+                User.findById(u.id, function(err, u) {
                     should.exist(u);
                     should.not.exist(err);
                     u.should.be.an.instanceOf(User);
@@ -48,12 +48,12 @@ describe('basic-querying', function() {
 
     });
 
-    describe('all', function() {
+    describe('find', function() {
 
         before(seed);
 
         it('should query collection', function(done) {
-            User.all(function(err, users) {
+            User.find(function(err, users) {
                 should.exists(users);
                 should.not.exists(err);
                 users.should.have.lengthOf(6);
@@ -62,7 +62,7 @@ describe('basic-querying', function() {
         });
         
         it('should query limited collection', function(done) {
-            User.all({limit: 3}, function(err, users) {
+            User.find({limit: 3}, function(err, users) {
                 should.exists(users);
                 should.not.exists(err);
                 users.should.have.lengthOf(3);
@@ -71,7 +71,7 @@ describe('basic-querying', function() {
         });
         
         it('should query offset collection with limit', function(done) {
-            User.all({skip: 1, limit: 4}, function(err, users) {
+            User.find({skip: 1, limit: 4}, function(err, users) {
                 should.exists(users);
                 should.not.exists(err);
                 users.should.have.lengthOf(4);
@@ -80,7 +80,7 @@ describe('basic-querying', function() {
         });
 
         it('should query filtered collection', function(done) {
-            User.all({where: {role: 'lead'}}, function(err, users) {
+            User.find({where: {role: 'lead'}}, function(err, users) {
                 should.exists(users);
                 should.not.exists(err);
                 users.should.have.lengthOf(2);
@@ -89,7 +89,7 @@ describe('basic-querying', function() {
         });
 
         it('should query collection sorted by numeric field', function(done) {
-            User.all({order: 'order'}, function(err, users) {
+            User.find({order: 'order'}, function(err, users) {
                 should.exists(users);
                 should.not.exists(err);
                 users.forEach(function(u, i) {
@@ -100,7 +100,7 @@ describe('basic-querying', function() {
         });
 
         it('should query collection desc sorted by numeric field', function(done) {
-            User.all({order: 'order DESC'}, function(err, users) {
+            User.find({order: 'order DESC'}, function(err, users) {
                 should.exists(users);
                 should.not.exists(err);
                 users.forEach(function(u, i) {
@@ -111,7 +111,7 @@ describe('basic-querying', function() {
         });
 
         it('should query collection sorted by string field', function(done) {
-            User.all({order: 'name'}, function(err, users) {
+            User.find({order: 'name'}, function(err, users) {
                 should.exists(users);
                 should.not.exists(err);
                 users.shift().name.should.equal('George Harrison');
@@ -122,7 +122,7 @@ describe('basic-querying', function() {
         });
 
         it('should query collection desc sorted by string field', function(done) {
-            User.all({order: 'name DESC'}, function(err, users) {
+            User.find({order: 'name DESC'}, function(err, users) {
                 should.exists(users);
                 should.not.exists(err);
                 users.pop().name.should.equal('George Harrison');

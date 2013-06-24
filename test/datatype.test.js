@@ -35,7 +35,7 @@ describe('datatypes', function() {
         });
 
         function testFind(next) {
-            Model.find(id, function(err, m) {
+            Model.findById(id, function(err, m) {
                 should.not.exist(err);
                 should.exist(m);
                 m.str.should.be.a('string');

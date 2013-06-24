@@ -109,7 +109,7 @@ describe('relations', function() {
             });
 
             function fetch(book) {
-                book.chapters.find(id, function(err, ch) {
+                book.chapters.findById(id, function(err, ch) {
                     should.not.exist(err);
                     should.exist(ch);
                     ch.id.should.equal(id);
