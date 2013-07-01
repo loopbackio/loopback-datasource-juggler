@@ -35,6 +35,7 @@ describe('datatypes', function() {
         });
 
         function testFind(next) {
+            debugger;
             Model.findById(id, function(err, m) {
                 should.not.exist(err);
                 should.exist(m);

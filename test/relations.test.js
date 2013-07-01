@@ -196,6 +196,7 @@ describe('relations', function() {
             Article.create(function(e, article) {
                 article.tags.create({name: 'popular'}, function(e, t) {
                     t.should.be.an.instanceOf(Tag);
+                    console.log(t);
                     ArticleTag.findOne(function(e, at) {
                         should.exist(at);
                         at.tagId.toString().should.equal(t.id.toString());
