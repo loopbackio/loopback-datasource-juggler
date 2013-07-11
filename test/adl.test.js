@@ -38,6 +38,49 @@ describe('ModelBuilder define model', function () {
         done(null, User);
     });
 
+
+    it('should be able to define nesting models', function (done) {
+        var modelBuilder = new ModelBuilder();
+
+        // simplier way to describe model
+        var User = modelBuilder.define('User', {
+            name: String,
+            bio: ModelBuilder.Text,
+            approved: Boolean,
+            joinedAt: Date,
+            age: Number,
+            address: {
+                street: String,
+                city: String,
+                state: String,
+                zipCode: String,
+                country: String
+            }
+        });
+
+        // define any custom method
+        User.prototype.getNameAndAge = function () {
+            return this.name + ', ' + this.age;
+        };
+
+        modelBuilder.models.should.be.a('object').and.have.property('User', User);
+        modelBuilder.definitions.should.be.a('object').and.have.property('User');
+
+        var user = new User({name: 'Joe', age: 20, address: {street: '123 Main St', 'city': 'San Jose', state: 'CA'}});
+        console.log(user);
+
+        User.modelName.should.equal('User');
+        user.should.be.a('object').and.have.property('name', 'Joe');
+        user.should.have.property('name', 'Joe');
+        user.should.have.property('age', 20);
+        user.should.not.have.property('bio');
+        user.should.have.property('address');
+        user.address.should.have.property('city', 'San Jose');
+        user.address.should.have.property('state', 'CA');
+        done(null, User);
+    });
+
+
 });
 
 
