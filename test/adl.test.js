@@ -1,5 +1,6 @@
 // This test written in mocha+should.js
 var should = require('./init.js');
+var assert = require('assert');
 
 var jdb = require('../');
 var ModelBuilder = jdb.ModelBuilder;
@@ -59,7 +60,8 @@ describe('ModelBuilder define model', function () {
             emails: [{
                 label: String,
                 email: String
-            }]
+            }],
+            friends: [String]
         });
 
         // define any custom method
@@ -73,7 +75,8 @@ describe('ModelBuilder define model', function () {
         var user = new User({
                 name: 'Joe', age: 20,
                 address: {street: '123 Main St', 'city': 'San Jose', state: 'CA'},
-                emails: [{label: 'work', email: 'xyz@sample.com'}]
+                emails: [{label: 'work', email: 'xyz@sample.com'}],
+                friends: ['Mary', 'John']
         });
         // console.log(user);
 
@@ -90,6 +93,9 @@ describe('ModelBuilder define model', function () {
         user.emails.should.have.property('length', 1);
         user.emails[0].should.have.property('label', 'work');
         user.emails[0].should.have.property('email', 'xyz@sample.com');
+        user.friends.should.have.property('length', 2);
+        assert.equal(user.friends[0], 'Mary');
+        assert.equal(user.friends[1], 'John');
         done(null, User);
     });
 
