@@ -14,8 +14,12 @@ var User = modelBuilder.define('User', {
         state: String,
         zipCode: String,
         country: String
-    }
+    },
+    emails: [{
+        label: String,
+        email: String
+    }]
 });
 
-var user = new User({name: 'Joe', age: 20, address: {street: '123 Main St', 'city': 'San Jose', state: 'CA'}});
-console.log(user);
+var user = new User({name: 'Joe', age: 20, address: {street: '123 Main St', 'city': 'San Jose', state: 'CA'}, emails: [{label: 'work', email: 'xyz@sample.com'}]});
+console.log(user.toObject());
