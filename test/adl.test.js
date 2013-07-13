@@ -135,7 +135,7 @@ describe('DataSource define model', function () {
         };
 
         var user = new User({name: 'Joe'});
-        console.log(user);
+        // console.log(user);
 
         // setup relationships
         User.hasMany(Post, {as: 'posts', foreignKey: 'userId'});
@@ -146,15 +146,15 @@ describe('DataSource define model', function () {
 
         var user2 = new User({name: 'Smith'});
         user2.save(function (err) {
-            console.log(user2);
+            // console.log(user2);
             var post = user2.posts.build({title: 'Hello world'});
             post.save(function (err, data) {
-                console.log(err ? err : data);
+                // console.log(err ? err : data);
             });
         });
 
         Post.findOne({where: {published: false}, order: 'date DESC'}, function (err, data) {
-            console.log(data);
+            // console.log(data);
         });
 
         User.create({name: 'Jeff'}, function (err, data) {
@@ -162,13 +162,13 @@ describe('DataSource define model', function () {
                 console.log(err);
                 return;
             }
-            console.log(data);
+            // console.log(data);
             var post = data.posts.build({title: 'My Post'});
-            console.log(post);
+            // console.log(post);
         });
 
         User.create({name: 'Ray'}, function (err, data) {
-            console.log(data);
+            // console.log(data);
         });
 
         var Article = ds.define('Article', {title: String});
@@ -179,7 +179,7 @@ describe('DataSource define model', function () {
             article.tags.create({name: 'popular'}, function (err, data) {
                 Article.findOne(function (e, article) {
                     article.tags(function (e, tags) {
-                        console.log(tags);
+                        // console.log(tags);
                     });
                 });
             });
@@ -249,7 +249,7 @@ describe('Load models from json', function () {
         models.should.have.property('Customer');
         for (var s in models) {
             var m = models[s];
-            console.log(m.modelName, new m());
+            // console.log(m.modelName, new m());
         }
     });
 });
