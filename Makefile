@@ -34,7 +34,7 @@ docs/man/%.3: docs/%.md scripts/doc.sh
 docs/html/%.3.html: docs/%.md scripts/doc.sh docs/footer.html
 	scripts/doc.sh $< $@
 
-docs/html/index.html: docs/jugglingdb.md scripts/doc.sh docs/footer.html
+docs/html/index.html: docs/loopback-data.md scripts/doc.sh docs/footer.html
 	scripts/doc.sh $< $@
 
 man: $(MAN_DOCS)
@@ -42,14 +42,10 @@ html: $(HTML_DOCS)
 
 build: man
 
-web: html
-	rsync ./docs/html/* jugglingdb.co:/var/www/apps/jugglingdb.co/public
-
 about-docs:
 	@echo "\n## DOCS\n"
 	@echo "  make man                # Create docs for man"
 	@echo "  make html               # Create docs in html"
-	@echo "  make web                # Publish docs to jugglingdb.co"
 
 ## WORKFLOW
 

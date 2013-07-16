@@ -1,2 +1,2 @@
-jugglingdb-adapter(3) - Adapter API explained.
+loopback-data-adapter(3) - Adapter API explained.
 ====================

@@ -1,4 +1,4 @@
-jugglingdb-schema(3) - Everything about schema, data types and model definition.
+loopback-connector-schema(3) - Everything about schema, data types and model definition.
 ====================
 
 ## DESCRIPTION
@@ -23,9 +23,9 @@ Instances of Schema are event emitters, events supported by default:
 
 ### Creating schema
 
-`Schema` constructor available on `jugglingdb` module:
+`Schema` constructor available on `loopback-data` module:
 
-    var Schema = require('jugglingdb').Schema;
+    var Schema = require('loopback-data').Schema;
 
 Schema constructor accepts two arguments. First argument is adapter. It could be
 adapter name or adapter package:
@@ -122,5 +122,5 @@ db structure outdated, true when schema and db is in sync:
 
 ## SEE ALSO
 
-jugglingdb-model(3)
-jugglingdb-adapter(3)
+loopback-connector-model(3)
+loopback-connector-adapter(3)

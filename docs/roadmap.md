@@ -1,4 +1,4 @@
-jugglingdb-roadmap - The Future of JugglingDB
+loopback-connector-roadmap - The Future of LoopbackData
 =============================================
 
 ## DOCUMENTATION

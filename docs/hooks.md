@@ -1,4 +1,4 @@
-jugglingdb-hooks(3) - Hooks and object lifecycle.
+loopback-connector-hooks(3) - Hooks and object lifecycle.
 ===================
 
 ## DESCRIPTION
@@ -126,9 +126,9 @@ Hook is destroyed once `model.destroy()` is called. Please note that
 
 Validate hooks called before and after validation and should be used for data
 modification and not for validation. Use custom validation described in
-jugglingdb-validations(3) man section.
+loopback-connector-validations(3) man section.
 
 ## SEE ALSO
 
-jugglingdb-model(3)
-jugglingdb-validations(3)
+loopback-connector-model(3)
+loopback-connector-validations(3)

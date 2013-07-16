@@ -1,4 +1,4 @@
-jugglingdb-changelog(3) - The History of JugglingDB
+loopback-connector-changelog(3) - The History of LoopbackData
 ===================================================
 
 ## HISTORY
@@ -6,7 +6,7 @@ jugglingdb-changelog(3) - The History of JugglingDB
 ### upcoming release 0.3.0
 
 * Documentation:
-  Available in [web](http://jugglingdb.co) and man [jugglingdb(3)]
+  Available in [web](http://www.strongloop.com/products/loopback) and man [loopback-data(3)]
 
 * **Hooks**:
   Changed format of update and save hooks. Hook accept data as second argument.
@@ -30,8 +30,8 @@ jugglingdb-changelog(3) - The History of JugglingDB
 
 ### 0.2.0
 
-* Namespace adapter packages (should start with "jugglingdb-")
-* Added [nano][jugglingdb-nano] adapter
+* Namespace adapter packages (should start with "loopback-connector-")
+* Added [nano][loopback-connector-nano] adapter
 * Adapters removed from core to separate packages
 
 ### 0.1.27
@@ -50,9 +50,9 @@ jugglingdb-changelog(3) - The History of JugglingDB
 * DB sync: autoupdate/automigrate
 * Ability to overwrite getters/setters
 * Resig-style model constructors
-* Added [postgres][jugglingdb-postgres] adapter
-* Added [sqlite3][jugglingdb-postgres] adapter
-* Added [mongodb][jugglingdb-mongodb] adapter
+* Added [postgres][loopback-connector-postgres] adapter
+* Added [sqlite3][loopback-connector-postgres] adapter
+* Added [mongodb][loopback-connector-mongodb] adapter
 * Redis adapter filter/sort rewriting
 * Added `findOne` method
 * Custom table names in sqlite, mysql and postgres
@@ -73,7 +73,7 @@ jugglingdb-changelog(3) - The History of JugglingDB
 
 ### 0.0.2 (16 Oct 2011)
 
-* Built-in adapters: [redis][jugglingdb-redis], mongoose, sequelize, neo4j
+* Built-in adapters: [redis][loopback-connector-redis], mongoose, sequelize, neo4j
 * Scopes
 * Conditional validations, null checks everywhere
 * Defaults applied on create
@@ -84,4 +84,4 @@ Package extracted from [RailwayJS MVC](http://railwayjs.com)
 
 ## SEE ALSO
 
-jugglingdb-roadmap(3)
+loopback-connector-roadmap(3)

@@ -1,5 +1,5 @@
-var DataSource = require('../../jugglingdb').DataSource;
-var ModelBuilder = require('../../jugglingdb').ModelBuilder;
+var DataSource = require('../../loopback-data').DataSource;
+var ModelBuilder = require('../../loopback-data').ModelBuilder;
 var ds = new DataSource('memory');
 
 // define models

@@ -1,10 +1,10 @@
 // This test written in mocha+should.js
 var should = require('./init.js');
 
-var jugglingdb = require('../');
+var loopbackData = require('../');
 
-describe('jugglingdb', function() {
+describe('loopback-data', function() {
     it('should expose version', function () {
-        jugglingdb.version.should.equal(require('../package.json').version);
+        loopbackData.version.should.equal(require('../package.json').version);
     });
 });

@@ -1,16 +1,16 @@
-jugglingdb-model(3) - Model methods, features and internals
+loopback-connector-model(3) - Model methods, features and internals
 ===================
 
 ## DESCRIPTION
 
-This section describes common methods of models managed by jugglingdb and
+This section describes common methods of models managed by loopback-data and
 explains some model internals, such as data representation, setters, getters and
 virtual attributes.
 
 ## DB WRITE METHODS
 
-Database write methods performs hooks and validations. See jugglingdb-hooks(3)
-and jugglingdb-validations(3) to learn how hooks and validations works.
+Database write methods performs hooks and validations. See loopback-connector-hooks(3)
+and loopback-connector-validations(3) to learn how hooks and validations works.
 
 ### Model.create([data[, callback]]);
 
@@ -143,7 +143,7 @@ Syntax 1 and 2 does same things in different ways: adds `chapters` method to
 
     Book.hasMany('chapters', {foreignKey: `chapter_id`});
 
-When using syntax 2 jugglingdb looking for model with singularized name:
+When using syntax 2 loopback-data looking for model with singularized name:
 
     'chapters' => 'chapter' => 'Chapter'
 
@@ -185,7 +185,7 @@ TODO: document
 
 ## SEE ALSO
 
-jugglingdb-schema(3)
-jugglingdb-validations(3)
-jugglingdb-hooks(3)
-jugglingdb-adapter(3)
+loopback-connector-schema(3)
+loopback-connector-validations(3)
+loopback-connector-hooks(3)
+loopback-connector-adapter(3)

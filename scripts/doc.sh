@@ -14,7 +14,7 @@ mkdir -p $(dirname $dest)
 
 case $dest in
   *.[13])
-    ronn --roff $1 --pipe --organization=1602\ Software --manual=JugglingDB > $2
+    ronn --roff $1 --pipe --organization=1602\ Software --manual=LoopbackData > $2
     exit $?
     ;;
 
@@ -22,7 +22,7 @@ case $dest in
     (ronn -5 $1 --pipe\
       --style='print toc'\
       --organization=1602\ Software\
-      --manual=JugglingDB &&\
+      --manual=LoopbackData &&\
       cat docs/ga.html &&\
       cat docs/footer.html) > $2
     exit $?

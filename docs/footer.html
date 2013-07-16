@@ -1,7 +1,7 @@
 <script>
     var filename = location.href.match(/([^\/]+)?\.3.html(#.*?)?$/);
     if (!filename) {
-        filename = [null, 'jugglingdb'];
+        filename = [null, 'loopback-data'];
     }
     var div = document.createElement('div');
     div.innerHTML = 'Found a typo? ' +
@@ -14,7 +14,7 @@
     document.getElementById('man').appendChild(div);
 
     function linkTo(text, dir) {
-        return '<a href="https://github.com/1602/jugglingdb/' +
+        return '<a href="https://github.com/1602/loopback-data/' +
             dir + '/master/docs/' + filename[1] + '.md">' + text + '</a>';
     }
 
