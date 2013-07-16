@@ -1,6 +1,6 @@
 # Loopback Data
-Loopback Data is a data source abstraction, providing
-**common interfaces** to access and manipulate many sources for data.
+
+Loopback Data is an ORM that provides a common set of interfaces for interacting with databases, REST apis, and other data sources.
 
 ## Installation
 
