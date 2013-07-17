@@ -131,6 +131,53 @@ describe('basic-querying', function() {
                 done();
             });
         });
+        
+        it('should only include fields as specified', function(done) {
+            var remaining = 0;
+          
+            function sample(fields) {
+              
+              return {
+                expect: function (arr) {
+                  remaining++;
+                  User.find({fields: fields}, function(err, users) {
+                    
+                      remaining--;
+                      if(err) return done(err);
+                  
+                      should.exists(users);
+                  
+                      if(remaining === 0) {
+                        done();
+                      }
+                
+                      users.forEach(function (user) {
+                        var obj = user.toObject();
+                        
+                        Object.keys(obj)
+                          .forEach(function (key) {
+                            // if the obj has an unexpected value
+                            if(obj[key] !== undefined && arr.indexOf(key) === -1) {
+                              console.log('Given fields:', fields);
+                              console.log('Got:', key, obj[key]);
+                              console.log('Expected:', arr);
+                              throw new Error('should not include data for key: '+ key);
+                            }
+                          });                        
+                      });
+                  });
+                }
+              }
+            }
+            
+            sample({name: true}).expect(['name']);
+            sample({name: false}).expect(['id', 'email', 'role', 'order']);
+            sample({name: false, id: true}).expect(['id']);
+            sample({id: true}).expect(['id']);
+            sample('id').expect(['id']);
+            sample(['id']).expect(['id']);
+            sample(['email']).expect(['email']);
+        });
 
     });
 
