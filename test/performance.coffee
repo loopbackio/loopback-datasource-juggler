@@ -14,7 +14,7 @@ schemas =
     nano:
         url: 'http://localhost:5984/nano-test'
 
-testOrm = (schema) ->
+testOrm = (dataSource) ->
 
     User = Post = 'unknown'
     maxUsers = 100
@@ -23,7 +23,7 @@ testOrm = (schema) ->
 
     it 'should define simple', (test) ->
 
-        User = schema.define 'User', {
+        User = dataSource.define 'User', {
             name:         String,
             bio:          Text,
             approved:     Boolean,
@@ -31,7 +31,7 @@ testOrm = (schema) ->
             age:          Number
         }
 
-        Post = schema.define 'Post',
+        Post = dataSource.define 'Post',
             title:     { type: String, length: 255, index: true }
             content:   { type: Text }
             date:      { type: Date,    detault: Date.now }
@@ -78,6 +78,6 @@ testOrm = (schema) ->
 Object.keys(schemas).forEach (schemaName) ->
     return if process.env.ONLY && process.env.ONLY != schemaName
     context schemaName, ->
-        schema = new Schema schemaName, schemas[schemaName]
-        testOrm(schema)
+        dataSource = new Schema schemaName, schemas[schemaName]
+        testOrm(dataSource)
 

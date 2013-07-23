@@ -75,8 +75,8 @@ describe('hooks', function() {
         });
 
         it('afterCreate should not be triggered on failed create', function(done) {
-            var old = User.schema.adapter.create;
-            User.schema.adapter.create = function(modelName, id, cb) {
+            var old = User.dataSource.connector.create;
+            User.dataSource.connector.create = function(modelName, id, cb) {
                 cb(new Error('error'));
             }
 
@@ -84,7 +84,7 @@ describe('hooks', function() {
                 throw new Error('shouldn\'t be called')
             };
             User.create(function (err, user) {
-                User.schema.adapter.create = old;
+                User.dataSource.connector.create = old;
                 done();
             });
         });
@@ -224,9 +224,9 @@ describe('hooks', function() {
                 should.fail('afterUpdate shouldn\'t be called')
             };
             User.create(function (err, user) {
-                var save = User.schema.adapter.save;
-                User.schema.adapter.save = function(modelName, id, cb) {
-                    User.schema.adapter.save = save;
+                var save = User.dataSource.connector.save;
+                User.dataSource.connector.save = function(modelName, id, cb) {
+                    User.dataSource.connector.save = save;
                     cb(new Error('Error'));
                 }
 
@@ -257,8 +257,8 @@ describe('hooks', function() {
         });
 
         it('should not trigger after-hook on failed destroy', function(done) {
-            var destroy = User.schema.adapter.destroy;
-            User.schema.adapter.destroy = function(modelName, id, cb) {
+            var destroy = User.dataSource.connector.destroy;
+            User.dataSource.connector.destroy = function(modelName, id, cb) {
                 cb(new Error('error'));
             }
             User.afterDestroy = function() {
@@ -266,7 +266,7 @@ describe('hooks', function() {
             };
             User.create(function (err, user) {
                 user.destroy(function(err) {
-                    User.schema.adapter.destroy = destroy;
+                    User.dataSource.connector.destroy = destroy;
                     done();
                 });
             });

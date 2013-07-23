@@ -218,7 +218,7 @@ describe('Load models from json', function () {
 
         /**
          * Load LDL schemas from a json doc
-         * @param schemaFile The schema json file
+         * @param schemaFile The dataSource json file
          * @returns A map of schemas keyed by name
          */
         function loadSchemasSync(schemaFile, dataSource) {
@@ -227,7 +227,7 @@ describe('Load models from json', function () {
                 dataSource = new DataSource('memory');
             }
 
-            // Read the schema JSON file
+            // Read the dataSource JSON file
             var schemas = JSON.parse(fs.readFileSync(schemaFile));
 
             return dataSource.buildModels(schemas);

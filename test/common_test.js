@@ -15,29 +15,29 @@ function skip(name) {
     delete batch[schemaName][name];
 }
 
-module.exports = function testSchema(exportCasesHere, schema) {
+module.exports = function testSchema(exportCasesHere, dataSource) {
 
     batch = exportCasesHere;
-    schemaName = schema.name;
-    if (schema.name.match(/^\/.*\/test\/\.\.$/)) {
+    schemaName = dataSource.name;
+    if (dataSource.name.match(/^\/.*\/test\/\.\.$/)) {
         schemaName = schemaName.split('/').slice(-3).shift();
     }
     var start;
 
     batch['should connect to database'] = function (test) {
         start = Date.now();
-        if (schema.connected) return test.done();
-        schema.on('connected', test.done);
+        if (dataSource.connected) return test.done();
+        dataSource.on('connected', test.done);
     };
 
-    schema.log = function (a) {
+    dataSource.log = function (a) {
         console.log(a);
         nbSchemaRequests++;
     };
 
     batch[schemaName] = {};
 
-    testOrm(schema);
+    testOrm(dataSource);
 
     batch['all tests done'] = function (test) {
         test.done();
@@ -45,7 +45,7 @@ module.exports = function testSchema(exportCasesHere, schema) {
     };
 
     function allTestsDone() {
-        schema.disconnect();
+        dataSource.disconnect();
         console.log('Test done in %dms\n', Date.now() - start);
     }
 
@@ -85,14 +85,14 @@ function clearAndCreate(model, data, callback) {
     }
 }
 
-function testOrm(schema) {
-    var requestsAreCounted = schema.name !== 'mongodb';
+function testOrm(dataSource) {
+    var requestsAreCounted = dataSource.name !== 'mongodb';
 
     var Post, User, Passport, Log, Dog;
 
     it('should define class', function (test) {
 
-        User = schema.define('User', {
+        User = dataSource.define('User', {
             name:      { type: String, index: true },
             email:     { type: String, index: true },
             bio:          Text,
@@ -102,18 +102,18 @@ function testOrm(schema) {
             passwd:    { type: String, index: true }
         });
 
-        Dog = schema.define('Dog', {
+        Dog = dataSource.define('Dog', {
             name        : { type: String, limit: 64, allowNull: false }
         });
 
-        Log = schema.define('Log', {
+        Log = dataSource.define('Log', {
             ownerId     : { type: Number, allowNull: true },
             name         : { type: String, limit: 64, allowNull: false }
         });
 
         Log.belongsTo(Dog,  {as: 'owner',  foreignKey: 'ownerId'});
 
-        schema.extendModel('User', {
+        dataSource.extendModel('User', {
             settings:  { type: Schema.JSON },
             extra:      Object
         });
@@ -121,7 +121,7 @@ function testOrm(schema) {
         var newuser = new User({settings: {hey: 'you'}});
         test.ok(newuser.settings);
 
-        Post = schema.define('Post', {
+        Post = dataSource.define('Post', {
             title:     { type: String, length: 255, index: true },
             subject:   { type: String },
             content:   { type: Text },
@@ -161,7 +161,7 @@ function testOrm(schema) {
         // post.author() -- sync getter when called without params
         // post.author(user) -- setter when called with object
 
-        Passport = schema.define('Passport', {
+        Passport = dataSource.define('Passport', {
             number: String
         });
 
@@ -179,7 +179,7 @@ function testOrm(schema) {
         // instance methods
         test.ok(user.save instanceof Function);
 
-        schema.automigrate(function (err) {
+        dataSource.automigrate(function (err) {
             if (err) {
                 console.log('Error while migrating');
                 console.log(err);
@@ -262,7 +262,7 @@ function testOrm(schema) {
         });
     });
 
-    it('should save only schema-defined field in database', function (test) {
+    it('should save only dataSource-defined field in database', function (test) {
         Post.create({title: '1602', nonSchemaField: 'some value'}, function (err, post) {
             test.ok(!post.nonSchemaField);
             post.a = 1;
@@ -395,10 +395,10 @@ function testOrm(schema) {
     });
 
     if (
-        !schema.name.match(/redis/) &&
-            schema.name !== 'memory' &&
-            schema.name !== 'neo4j' &&
-            schema.name !== 'cradle'
+        !dataSource.name.match(/redis/) &&
+            dataSource.name !== 'memory' &&
+            dataSource.name !== 'neo4j' &&
+            dataSource.name !== 'cradle'
         )
     it('relations key is working', function (test) {
         test.ok(User.relations, 'Relations key should be defined');
@@ -496,7 +496,7 @@ function testOrm(schema) {
                                         test.equal(data.length, data2.length, 'Posts should be the same, since we are loading on the same object.');
                                         requestsAreCounted && test.equal(nbInitialRequests, nbSchemaRequests, 'There should not be any request because value is cached.');
 
-                                        if (schema.name === 'mongodb') { // for the moment mongodb doesn\'t support additional conditions on hasMany relations (see above)
+                                        if (dataSource.name === 'mongodb') { // for the moment mongodb doesn\'t support additional conditions on hasMany relations (see above)
                                             test.done();
                                         } else {
                                             user.posts({where: {id: data[0].id}}, function(err, data) {
@@ -594,7 +594,7 @@ function testOrm(schema) {
                        { title: 'Title A', subject: "A" },
                        { title: 'Title B', subject: "A" },
                        { title: 'Title C', subject: "D" }];
-        var isRedis = Post.schema.name === 'redis';
+        var isRedis = Post.dataSource.name === 'redis';
         var dates = isRedis ? [ 5, 9, 0, 17, 10, 9 ] : [
             new Date(1000 * 5 ),
             new Date(1000 * 9),
@@ -615,7 +615,7 @@ function testOrm(schema) {
                 doStringTest();
                 doNumberTest();
 
-                if (schema.name == 'mongoose') {
+                if (dataSource.name == 'mongoose') {
                     doMultipleSortTest();
                     doMultipleReverseSortTest();
                 }
@@ -628,7 +628,7 @@ function testOrm(schema) {
             return 0;
         }
 
-        // Post.schema.log = console.log;
+        // Post.dataSource.log = console.log;
 
         function doStringTest() {
             tests += 1;
@@ -728,11 +728,11 @@ function testOrm(schema) {
     });
 
     // if (
-    //     !schema.name.match(/redis/) &&
-    //     schema.name !== 'memory' &&
-    //     schema.name !== 'neo4j' &&
-    //     schema.name !== 'cradle' &&
-    //     schema.name !== 'nano'
+    //     !dataSource.name.match(/redis/) &&
+    //     dataSource.name !== 'memory' &&
+    //     dataSource.name !== 'neo4j' &&
+    //     dataSource.name !== 'cradle' &&
+    //     dataSource.name !== 'nano'
     // )
     // it('should allow advanced queying: lt, gt, lte, gte, between', function (test) {
     //     Post.destroyAll(function () {
@@ -792,8 +792,8 @@ function testOrm(schema) {
 
 
     // if (
-    //     schema.name === 'mysql' ||
-    //     schema.name === 'postgres'
+    //     dataSource.name === 'mysql' ||
+    //     dataSource.name === 'postgres'
     // )
     // it('should allow IN or NOT IN', function (test) {
     //     User.destroyAll(function () {
@@ -962,11 +962,11 @@ function testOrm(schema) {
     });
 
     // if (
-    //     !schema.name.match(/redis/) &&
-    //         schema.name !== 'memory' &&
-    //         schema.name !== 'neo4j' &&
-    //         schema.name !== 'cradle' &&
-    //         schema.name !== 'nano'
+    //     !dataSource.name.match(/redis/) &&
+    //         dataSource.name !== 'memory' &&
+    //         dataSource.name !== 'neo4j' &&
+    //         dataSource.name !== 'cradle' &&
+    //         dataSource.name !== 'nano'
     //     )
     // it('belongsTo should be cached', function (test) {
     //     User.findOne(function(err, user) {
@@ -1010,7 +1010,7 @@ function testOrm(schema) {
 
     // });
 
-    if (schema.name !== 'mongoose' && schema.name !== 'neo4j')
+    if (dataSource.name !== 'mongoose' && dataSource.name !== 'neo4j')
     it('should update or create record', function (test) {
         var newData = {
             id: 1,
@@ -1022,7 +1022,7 @@ function testOrm(schema) {
             test.ok(updatedPost);
             if (!updatedPost) throw Error('No post!');
 
-            if (schema.name !== 'mongodb') {
+            if (dataSource.name !== 'mongodb') {
                 test.equal(newData.id, updatedPost.toObject().id);
             }
             test.equal(newData.title, updatedPost.toObject().title);
@@ -1031,13 +1031,13 @@ function testOrm(schema) {
             Post.findById(updatedPost.id, function (err, post) {
                 if (err) throw err;
                 if (!post) throw Error('No post!');
-                if (schema.name !== 'mongodb') {
+                if (dataSource.name !== 'mongodb') {
                     test.equal(newData.id, post.toObject().id);
                 }
                 test.equal(newData.title, post.toObject().title);
                 test.equal(newData.content, post.toObject().content);
                 Post.updateOrCreate({id: 100001, title: 'hey'}, function (err, post) {
-                    if (schema.name !== 'mongodb') test.equal(post.id, 100001);
+                    if (dataSource.name !== 'mongodb') test.equal(post.id, 100001);
                     test.equal(post.title, 'hey');
                     Post.findById(post.id, function (err, post) {
                         if (!post) throw Error('No post!');
@@ -1049,7 +1049,7 @@ function testOrm(schema) {
     });
 
     it('should work with custom setters and getters', function (test) {
-        User.schema.defineForeignKey('User', 'passwd');
+        User.dataSource.defineForeignKey('User', 'passwd');
         User.setter.passwd = function (pass) {
             this._passwd = pass + 'salt';
         };

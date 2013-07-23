@@ -3,23 +3,23 @@ var should = require('./init.js');
 
 var db = getSchema(), slave = getSchema(), Model, SlaveModel;
 
-describe('schema', function() {
+describe('dataSource', function() {
 
     it('should define Model', function() {
         Model = db.define('Model');
-        Model.schema.should.eql(db);
+        Model.dataSource.should.eql(db);
         var m = new Model;
-        m.schema.should.eql(db);
+        m.dataSource.should.eql(db);
     });
 
     it('should clone existing model', function() {
         SlaveModel = slave.copyModel(Model);
-        SlaveModel.schema.should.eql(slave);
+        SlaveModel.dataSource.should.eql(slave);
         slave.should.not.eql(db);
         var sm = new SlaveModel;
         sm.should.be.instanceOf(Model);
-        sm.schema.should.not.eql(db);
-        sm.schema.should.eql(slave);
+        sm.dataSource.should.not.eql(db);
+        sm.dataSource.should.eql(slave);
     });
 
     it('should automigrate', function(done) {
