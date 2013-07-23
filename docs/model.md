@@ -1,5 +1,6 @@
-loopback-connector-model(3) - Model methods, features and internals
-===================
+# loopback-data-model
+
+Model methods, features and internals
 
 ## DESCRIPTION
 
@@ -185,7 +186,7 @@ TODO: document
 
 ## SEE ALSO
 
-loopback-connector-schema(3)
-loopback-connector-validations(3)
-loopback-connector-hooks(3)
-loopback-connector-adapter(3)
+loopback-data-datasource
+loopback-data-validations
+loopback-data-hooks
+loopback-data-connector

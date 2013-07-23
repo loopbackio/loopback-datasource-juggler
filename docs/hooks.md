@@ -1,5 +1,6 @@
-loopback-connector-hooks(3) - Hooks and object lifecycle.
-===================
+# loopback-data-hooks
+
+Hooks and object lifecycle.
 
 ## DESCRIPTION
 
@@ -130,5 +131,5 @@ loopback-connector-validations(3) man section.
 
 ## SEE ALSO
 
-loopback-connector-model(3)
-loopback-connector-validations(3)
+loopback-data-model
+loopback-data-validations

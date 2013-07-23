@@ -4,4 +4,4 @@ Loopback-data provides ORM and data connectivity for Node.js. It was initially f
 
 ## SEE ALSO
 
-loopback-connector
+loopback-data-connector

@@ -1,6 +1,0 @@
-# adapters github
-loopback-connector-mongodb         https://github.com/strongloop/loopback-connector-mongodb
-loopback-connector-oracle         https://github.com/strongloop/loopback-connector-oracle
-loopback-connector-mysql           https://github.com/strongloop/loopback-connector-mysql
-
-# external resources
