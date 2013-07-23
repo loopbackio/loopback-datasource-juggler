@@ -1,33 +1,6 @@
-# man pages
-loopback-data(3)              index
-loopback-connector-changelog(3)    changelog.3
-loopback-connector-roadmap(3)      roadmap.3
-loopback-connector-validations(3)  validations.3
-loopback-connector-hooks(3)        hooks.3
-loopback-connector-schema(3)       schema.3
-loopback-connector-model(3)        model.3
-loopback-connector-adapter(3)      adapter.3
-
 # adapters github
-loopback-connector-nano            https://github.com/loopback-data/nano-adapter
-loopback-connector-mysql           https://github.com/loopback-data/mysql-adapter
-loopback-connector-firebird        https://github.com/loopback-data/firebird-adapter
-loopback-connector-sqlite3         https://github.com/loopback-data/sqlite3-adapter
-loopback-connector-postgres        https://github.com/loopback-data/postgres-adapter
-loopback-connector-redis           https://github.com/loopback-data/redis-adapter
-loopback-connector-mongodb         https://github.com/loopback-data/mongodb-adapter
-
-# adapters npm
-nano-adapter-npm           https://npmjs.org/package/loopback-connector-nano
-mysql-adapter-npm          https://npmjs.org/package/loopback-connector-mysql
-firebird-adapter-npm       https://npmjs.org/package/loopback-connector-firebird
-sqlite3-adapter-npm        https://npmjs.org/package/loopback-connector-sqlite3
-postgres-adapter-npm       https://npmjs.org/package/loopback-connector-postgres
-redis-adapter-npm          https://npmjs.org/package/loopback-connector-redis
-mongodb-adapter-npm        https://npmjs.org/package/loopback-connector-mongodb
+loopback-connector-mongodb         https://github.com/strongloop/loopback-connector-mongodb
+loopback-connector-oracle         https://github.com/strongloop/loopback-connector-oracle
+loopback-connector-mysql           https://github.com/strongloop/loopback-connector-mysql
 
 # external resources
-github.com/loopback-data      https://github.com/loopback-data
-github.com/1602/loopback-data https://github.com/1602/loopback-data
-issues                     https://github.com/1602/loopback-data/issues?state=open
-jsdoc.info/1602/loopback-data http://jsdoc.info/1602/loopback-data
