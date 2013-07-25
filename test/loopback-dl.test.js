@@ -39,6 +39,43 @@ describe('ModelBuilder define model', function () {
         done(null, User);
     });
 
+    it('should not take unknown properties in strict mode', function (done) {
+        var modelBuilder = new ModelBuilder();
+
+        // simplier way to describe model
+        var User = modelBuilder.define('User', {name: String, bio: String}, {strict: true});
+
+        var user = new User({name: 'Joe', age: 20});
+        // console.log(user);
+
+        User.modelName.should.equal('User');
+        user.should.be.a('object');
+        // console.log(user);
+        assert(user.name === 'Joe');
+        assert(user.age === undefined);
+        assert(user.toObject().age === undefined);
+        assert(user.toObject(true).age === undefined);
+        assert(user.bio === undefined);
+        done(null, User);
+    });
+
+    it('should be able to define open models', function (done) {
+        var modelBuilder = new ModelBuilder();
+
+        // simplier way to describe model
+        var User = modelBuilder.define('User', {}, {strict: false});
+
+        var user = new User({name: 'Joe', age: 20});
+        // console.log(user);
+
+        User.modelName.should.equal('User');
+        user.should.be.a('object').and.have.property('name', 'Joe');
+        user.should.have.property('name', 'Joe');
+        user.should.have.property('age', 20);
+        user.should.not.have.property('bio');
+        done(null, User);
+    });
+
 
     it('should be able to define nesting models', function (done) {
         var modelBuilder = new ModelBuilder();
