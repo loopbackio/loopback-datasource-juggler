@@ -1,4 +1,4 @@
-var ModelBuilder = require('../../loopback-data').ModelBuilder;
+var ModelBuilder = require('../../loopback-datasource-juggler').ModelBuilder;
 var modelBuilder = new ModelBuilder();
 // define models
 var Post = modelBuilder.define('Post', {

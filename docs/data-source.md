@@ -1,4 +1,4 @@
-# loopback-data-datasource
+# loopback-datasource-juggler-datasource
 
 Everything about datasource, data types and model definition.
 
@@ -24,9 +24,9 @@ Instances of DataSource are event emitters, events supported by default:
 
 ### Creating dataSource
 
-`DataSource` constructor available on `loopback-data` module:
+`DataSource` constructor available on `loopback-datasource-juggler` module:
 
-    var DataSource = require('loopback-data').DataSource;
+    var DataSource = require('loopback-datasource-juggler').DataSource;
 
 DataSource constructor accepts two arguments. First argument is connector. It could be
 connector name or connector package:
@@ -123,5 +123,5 @@ db structure outdated, true when dataSource and db is in sync:
 
 ## SEE ALSO
 
-loopback-data-model
-loopback-data-connector
+loopback-datasource-juggler-model
+loopback-datasource-juggler-connector

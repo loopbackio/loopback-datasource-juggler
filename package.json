@@ -1,10 +1,10 @@
 {
-  "name": "loopback-data",
+  "name": "loopback-datasource-juggler",
   "description": "ORM for every database: redis, mysql, neo4j, mongodb, couchdb, postgres, sqlite",
   "version": "0.0.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/strongloop/loopback-data"
+    "url": "https://github.com/strongloop/loopback-datasource-juggler"
   },
   "main": "index.js",
   "scripts": {

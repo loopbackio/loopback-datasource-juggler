@@ -1,5 +1,5 @@
-var DataSource = require('../../loopback-data').DataSource;
-var ModelBuilder = require('../../loopback-data').ModelBuilder;
+var DataSource = require('../../loopback-datasource-juggler').DataSource;
+var ModelBuilder = require('../../loopback-datasource-juggler').ModelBuilder;
 var introspectType = require('../lib/introspection');
 
 var ds = new DataSource('memory');

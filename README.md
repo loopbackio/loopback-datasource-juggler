@@ -4,7 +4,7 @@ Loopback Data is an ORM that provides a common set of interfaces for interacting
 
 ## Installation
 
-    slnode install loopback-data
+    slnode install loopback-datasource-juggler
 
 Also install the appropriated connector, for example for mongodb:
 

@@ -1,4 +1,4 @@
-# loopback-data-connector
+# loopback-datasource-juggler-connector
 
 Loopback connectors provide access to backend systems including databases, REST APIs
 and other services. Connectors are not used directly by application code. We create
@@ -6,7 +6,7 @@ a DataSource to interact with the connector.
 
 For example,
 
-    var DataSource = require('loopback-data').DataSource;
+    var DataSource = require('loopback-datasource-juggler').DataSource;
     var oracleConnector = require('loopback-connector-oracle');
 
     var ds = new DataSource(oracleConnector, {
