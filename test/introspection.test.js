@@ -1,6 +1,6 @@
 var assert = require('assert');
 var ModelBuilder = require('../lib/model-builder').ModelBuilder;
-var introspectType = require('../lib/introspection');
+var introspectType = require('../lib/introspection')(ModelBuilder);
 var traverse = require('traverse');
 
 describe('Introspection of model definitions from JSON', function() {
