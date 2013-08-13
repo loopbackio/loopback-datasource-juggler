@@ -1,9 +1,6 @@
 {
     "content": [
         "README.md",
-        "docs/loopback-datasource-juggler.md",
-        "docs/connector.md",
-        "docs/data-source.md",
         {
             "title": "LoopBack DataSource API",
             "depth": 2
