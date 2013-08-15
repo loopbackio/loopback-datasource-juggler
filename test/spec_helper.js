@@ -1,8 +1,10 @@
+/*
 if (!process.env.TRAVIS) {
     var semicov = require('semicov');
     semicov.init('lib', 'LoopbackData');
     process.on('exit', semicov.report);
 }
+*/
 
 try {
     global.sinon = require('sinon');

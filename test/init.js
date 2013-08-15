@@ -1,5 +1,6 @@
 module.exports = require('should');
 
+/*
 if (!process.env.TRAVIS) {
     if (typeof __cov === 'undefined') {
         process.on('exit', function () {
@@ -9,6 +10,7 @@ if (!process.env.TRAVIS) {
 
     require('semicov').init('lib');
 }
+*/
 
 var Schema = require('../').Schema;
 
