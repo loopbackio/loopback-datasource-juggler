@@ -59,6 +59,7 @@ ModelBuilder.define() method takes the following arguments:
 - properties: An object of property definitions
 - options: An object of options, optional
 
+Here is an example,
 
     var ModelBuilder = require('loopback-datasource-juggler').ModelBuilder;
 
@@ -81,6 +82,7 @@ ModelBuilder.define() method takes the following arguments:
     console.log(user.id); // 1
     console.log(user.firstName); // 'John'
     console.log(user.lastName); // 'Smith'
+
 
 That's it. Now you have a User constructor representing the user model.
 
@@ -151,6 +153,8 @@ Properties can have options in addition to the type. LDL uses a JSON object to d
 
 Common options for a property are:
 
+### Data types
+
 * type: The property type
   - String/Text
   - Number
@@ -160,6 +164,66 @@ Common options for a property are:
   - Array
   - Any/Object/JSON
   - GeoPoint
+
+#### Array types
+
+LDL supports array types as follows:
+
+    {emails: [String]}
+
+    or
+
+    {"emails": ["String"]}
+
+    or
+
+    {emails: [{type: String, length: 64}]}
+
+#### Object types
+
+A model often has properties that consist of other properties. For example, the user model can have an `address` property
+that in turn has properties such as `street`, `city`, `state`, and `zipCode`.
+
+LDL allows inline declaration of such properties, for example,
+
+    var UserModel = {
+        firstName: String,
+        lastName: String,
+        address: {
+            street: String,
+            city: String,
+            state: String,
+            zipCode: String
+        },
+        ...
+    }
+
+The value of the address is the definition of the `address` type, which can be also considered as an anonymous model.
+
+If you intend to reuse the address model, we can define it independently and reference it in the user model. For example,
+
+    var AddressModel = {
+        street: String,
+        city: String,
+        state: String,
+        zipCode: String
+    };
+
+    var Address = ds.define('Address', AddressModel);
+
+    var UserModel = {
+            firstName: String,
+            lastName: String,
+            address: 'Address',  // or address: Address
+            ...
+    }
+
+    var User = ds.define('User', UserModel);
+
+**Note**: The user model has to reference the Address constructor or the model name - `'Address'`.
+
+
+#### ID(s) for a model
 
 * id: Indicate if the property is an `id` of the model. The value can be true, false, or a number
     - true: It's an id
@@ -178,10 +242,14 @@ LDL supports the definition of a composite id that has more than one properties.
 
 The composite id is (productId, locationId) for an inventory model.
 
+##### Injecting ID
+
+#### Property documentation
 * doc: Documentation of the property
 
 * default: The default value of the property
 
+#### Constraints
 Constraints are modeled as options, for example:
 
 * required: Indicate if the property is required
@@ -189,6 +257,8 @@ Constraints are modeled as options, for example:
 * min/max: The minimal and maximal value
 * length: The maximal length of a string
 
+
+#### Conversion and formatting
 Format conversions can also be declared as options, for example:
 
 * trim: Trim the string
@@ -196,30 +266,13 @@ Format conversions can also be declared as options, for example:
 * uppercase: Convert the string to be uppercase
 * format: Format a Date
 
+#### Mapping
 Data source specific mappings can be added to the property options, for example, to map a property to be a column in
 Oracle database table, you can use the following syntax:
 
     "oracle": {"column": "FIRST_NAME", "type": "VARCHAR", "length": 32}
 
 
-### Array types
-
-LDL supports array types as follows:
-
-    {emails: [String]}
-
-    or
-
-    {"emails": ["String"]}
-
-    or
-
-    {emails: [{type: String, length: 64}]}
-
-### Object types
-
-#### Embed anonymous types
-#### Reference named types
 
 ### Advanced example
 
