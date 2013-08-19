@@ -4,7 +4,7 @@ LoopBack Definition Language (LDL) is simple DSL to define data models in JavaSc
 start with a model definition which describes the structure and types of data. The model establishes common knowledge of
 data in LoopBack.
 
-## Describing a model
+## Describing a simple model
 
 Let's start with a simple example in plain JSON.
 
@@ -88,43 +88,51 @@ That's it. Now you have a User constructor representing the user model.
 
 At this point, the constructor only has a set of accessors to model properties. No behaviors have been introduced yet.
 
-## Adding methods to a model constructor
+## Adding logic to a model
+
+Models describe the shape of data. To leverage the data, we'll add logic to the model for various purposes, such as:
+
+- Interact with the data store for CRUD
+- Add behavior around a model instance
+- Add service operations using the model as the context
 
 There are a few ways to add methods to a model constructor:
 
-1. Create the model constructor from a data source
-
-        var DataSource = require('loopback-datasource-juggler').DataSource;
-        var ds = new DataSource('memory');
-
-        // Compile the user model definition into a JavaScript constructor
-        var User = ds.define('User', UserDefinition);
-
-        // Create a new instance of User
-        User.create({id: 1, firstName: 'John', lastName: 'Smith'}, function(err, user) {
-            console.log(user); // The newly created user instance
-            User.findById(1, function(err, user) {
-                console.log(user); // The user instance for id 1
-                user.firstName = 'John1'; // Change the property
-                user.save(function(err, user) {
-                    console.log(user); // The modified user instance for id 1
-                });
-            };
-        });
+### 1) Create the model constructor from a data source
+A LoopBack data source injects methods on the model.
 
 
-2. Attach the model to a data source
+    var DataSource = require('loopback-datasource-juggler').DataSource;
+    var ds = new DataSource('memory');
 
+    // Compile the user model definition into a JavaScript constructor
+    var User = ds.define('User', UserDefinition);
+
+    // Create a new instance of User
+    User.create({id: 1, firstName: 'John', lastName: 'Smith'}, function(err, user) {
+        console.log(user); // The newly created user instance
+        User.findById(1, function(err, user) {
+            console.log(user); // The user instance for id 1
+            user.firstName = 'John1'; // Change the property
+            user.save(function(err, user) {
+                console.log(user); // The modified user instance for id 1
+            });
+        };
+    });
+
+
+### 2) Attach the model to a data source
 A plain model constructor created from `ModelBuilder` can be attached a `DataSource`.
 
-        var DataSource = require('loopback-datasource-juggler').DataSource;
-        var ds = new DataSource('memory');
 
-        User.attachTo(ds); // The CRUD methods will be mixed into the User constructor
+    var DataSource = require('loopback-datasource-juggler').DataSource;
+    var ds = new DataSource('memory');
 
-3. Manually declare methods to the model constructor
+    User.attachTo(ds); // The CRUD methods will be mixed into the User constructor
 
+### 3) Manually declare methods to the model constructor
 We can add static and prototype methods to a model constructor.
+
 
     // Define a static method
     User.greet = function(msg) {
@@ -141,8 +149,42 @@ We can add static and prototype methods to a model constructor.
     console.log(user.getFullName()); // 'John Smith'
 
 
-## Exploring advanced features
+## Exploring advanced LDL features
 
+As we mentioned before, a complete model definition is an object with three properties:
+
+- name: The model name
+- options: An object of options, optional
+- properties: An object of property definitions
+
+### Model level options
+There are a set of options to control the model definition.
+
+- strict:
+    - true: Only properties defined in the model are accepted. This is the default.
+    - false: The model will be an open model. Unknown properties are accepted as well.
+
+- idInjection:
+    - true: An `id` property will be added to the model automatically
+    - false: No `id` property will be added to the model
+
+- Data source specific mappings
+The model can be decorated with connector-specific options to customize the mapping between the model and the connector.
+For example, we can define the corresponding schema/table names for Oracle as follows:
+
+        {
+          "name": "Location",
+          "options": {
+            "idInjection": false,
+            "oracle": {
+              "schema": "BLACKPOOL",
+              "table": "LOCATION"
+            }
+          },
+          ...
+        }
+
+### Property definitions
 The basic example use `propertyName: type` to describe a property.
 
 Properties can have options in addition to the type. LDL uses a JSON object to describe such properties, for example:
@@ -153,7 +195,7 @@ Properties can have options in addition to the type. LDL uses a JSON object to d
 
 Common options for a property are:
 
-### Data types
+#### Data types
 
 * type: The property type
   - String/Text
@@ -165,21 +207,15 @@ Common options for a property are:
   - Any/Object/JSON
   - GeoPoint
 
-#### Array types
+##### Array types
 
 LDL supports array types as follows:
 
-    {emails: [String]}
+- `{emails: [String]}`
+- `{"emails": ["String"]}`
+- `{emails: [{type: String, length: 64}]}`
 
-    or
-
-    {"emails": ["String"]}
-
-    or
-
-    {emails: [{type: String, length: 64}]}
-
-#### Object types
+##### Object types
 
 A model often has properties that consist of other properties. For example, the user model can have an `address` property
 that in turn has properties such as `street`, `city`, `state`, and `zipCode`.
@@ -273,8 +309,7 @@ Oracle database table, you can use the following syntax:
     "oracle": {"column": "FIRST_NAME", "type": "VARCHAR", "length": 32}
 
 
-
-### Advanced example
+#### Advanced example
 
     var User = modelBuilder.define('User', {
         name: String,
@@ -296,13 +331,6 @@ Oracle database table, you can use the following syntax:
         friends: [String]
     });
 
-### Model level options
-
-LDL uses a list of options to control the definition of a model.
-
-- strict:
-- idInjection:
-- Data source specific mappings
 
 
 ### Relations between models
