@@ -291,11 +291,11 @@ describe('basic-querying', function() {
 
     });
 
-    describe('destroyAll', function() {
+    describe('destroyAll with where option', function() {
 
         before(seed);
 
-        it('should check whether record not exist', function(done) {
+        it('should only delete instances that satisfy the where condition', function(done) {
             User.destroyAll({name: 'John Lennon'}, function() {
                 User.find({where: {name: 'John Lennon'}}, function(err, data) {
                     should.not.exist(err);
