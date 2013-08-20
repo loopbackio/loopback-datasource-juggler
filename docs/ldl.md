@@ -130,21 +130,28 @@ A plain model constructor created from `ModelBuilder` can be attached a `DataSou
 
     User.attachTo(ds); // The CRUD methods will be mixed into the User constructor
 
-### 3) Manually declare methods to the model constructor
-We can add static and prototype methods to a model constructor.
+### 3) Manually add methods to the model constructor
+Static methods can be added by declaring a function as a member of the model constructor.
+Within a class method, other class methods can be called using the model as usual.
 
 
     // Define a static method
-    User.greet = function(msg) {
-        console.log('Hello ', msg);
+    User.findByLastName = function(lastName, cb) {
+        User.find({where: {lastName: lastName}, cb);
     };
+
+    User.findByLastName('Smith', function(err, users) {
+        console.log(users); // Print an array of user instances
+    });
+
+Instance methods can be added to the prototype. Within instance methods, the model instance itself can be referenced
+with this keyword.
 
     // Define a prototype method
     User.prototype.getFullName = function () {
         return this.firstName + ' ' + this.lastName;
     };
 
-    User.greet('world'); // prints 'Hello world'
     var user = new User({id: 1, firstName: 'John', lastName: 'Smith'});
     console.log(user.getFullName()); // 'John Smith'
 
@@ -185,7 +192,7 @@ For example, we can define the corresponding schema/table names for Oracle as fo
         }
 
 ### Property definitions
-The basic example use `propertyName: type` to describe a property.
+A model consists of a list of properties. The basic example use `propertyName: type` to describe a property.
 
 Properties can have options in addition to the type. LDL uses a JSON object to describe such properties, for example:
 
@@ -193,11 +200,11 @@ Properties can have options in addition to the type. LDL uses a JSON object to d
 
     "firstName": {"type": "string", "required": true, "oracle": {"column": "FIRST_NAME", "type": "VARCHAR(32)"}}
 
-Common options for a property are:
+**Note** `"id": "number"` is a short form of `"id": {"type": "number"}`.
 
 #### Data types
+LDL supports the following data types.
 
-* type: The property type
   - String/Text
   - Number
   - Date
@@ -208,7 +215,6 @@ Common options for a property are:
   - GeoPoint
 
 ##### Array types
-
 LDL supports array types as follows:
 
 - `{emails: [String]}`
@@ -216,7 +222,6 @@ LDL supports array types as follows:
 - `{emails: [{type: String, length: 64}]}`
 
 ##### Object types
-
 A model often has properties that consist of other properties. For example, the user model can have an `address` property
 that in turn has properties such as `street`, `city`, `state`, and `zipCode`.
 
@@ -260,12 +265,20 @@ If you intend to reuse the address model, we can define it independently and ref
 
 
 #### ID(s) for a model
+A model representing data to be persisted in a database usually has one or more properties as an id to uniquely
+identify the model instance. For example, the `user` model can have user ids.
 
-* id: Indicate if the property is an `id` of the model. The value can be true, false, or a number
-    - true: It's an id
-    - false: It's not an id
-    - 0: It's not an id
-    - 1: It's the first part of the composite id
+By default, if no id properties are defined and the `idInjection` of the model options is false, LDL will automatically
+add an id property to the model as follows:
+
+    id: {type: Number, generated: true, id: true}
+
+To explicitly specify a property as `id`, LDL provides an `id` property for the option. The value can be true, false,
+or a number.
+
+- true: It's an id
+- false or any falsey values: It's not an id (default)
+- a positive number, such as 1 or 2: It's the index of the composite id
 
 LDL supports the definition of a composite id that has more than one properties. For example,
 
@@ -278,16 +291,13 @@ LDL supports the definition of a composite id that has more than one properties.
 
 The composite id is (productId, locationId) for an inventory model.
 
-##### Injecting ID
-
 #### Property documentation
 * doc: Documentation of the property
 
-* default: The default value of the property
-
 #### Constraints
-Constraints are modeled as options, for example:
+Constraints are modeled as options too, for example:
 
+* default: The default value of the property
 * required: Indicate if the property is required
 * pattern: A regular expression pattern that a string should match
 * min/max: The minimal and maximal value
@@ -335,16 +345,92 @@ Oracle database table, you can use the following syntax:
 
 ### Relations between models
 
+#### hasMany
+
+A `hasMany` relation builds a one-to-many connection with another model. You'll often find this relation on
+the "other side" of a `belongsTo` relation. This relation indicates that each instance of the model has zero
+or more instances of another model. For example, in an application containing users and posts, a user has zero
+or more posts. For example,
+
     // setup relationships
     User.hasMany(Post,   {as: 'posts',  foreignKey: 'userId'});
+    // creates instance methods:
+    // user.posts(conds)
+    // user.posts.build(data) // like new Post({userId: user.id});
+    // user.posts.create(data) // build and save
+
+Define all necessary stuff for `one to many` relation:
+
+- foreign key in `many` model
+- named scope in `one` model
+
+Example:
+
+    var Book = db.define('Book');
+    var Chapter = db.define('Chapters');
+
+    // Style 1
+    Book.hasMany(Chapter, {as: 'chapters'});
+
+    // Style 2
+    Book.hasMany('chapters', {model: Chapter, foreignKey: 'chapter_id'});
+
+
+Scope methods created on the base model by hasMany allows to build, create and query instances of other class.
+For example:
+
+    Book.create(function(err, book) {
+        // using 'chapters' scope for build:
+        var c = book.chapters.build({name: 'Chapter 1'});
+        // same as:
+        c = new Chapter({name: 'Chapter 1', bookId: book.id});
+        // using 'chapters' scope for create:
+        book.chapters.create();
+        // same as:
+        Chapter.create({bookId: book.id});
+
+        // using scope for querying:
+        book.chapters(function() {/* all chapters with bookId = book.id */ });
+        book.chapters({where: {name: 'test'}, function(err, chapters) {
+        // all chapters with bookId = book.id and name = 'test'
+    });
+
+
+
+#### belongsTo
+A `belongsTo` relation sets up a one-to-one connection with another model, such that each instance of the declaring
+model "belongs to" one instance of the other model. For example, if your application includes users and posts,
+and each post can be written by exactly one user.
 
     Post.belongsTo(User, {as: 'author', foreignKey: 'userId'});
 
-    User.hasAndBelongsToMany('groups');
+The code above basically says Post has a reference called `author` to User using the `userId` property of Post as the
+foreign key. Now we can access the author in one of the following styles:
+
+
+    post.author(callback); // Get the User object for the post author asynchronously
+    post.author(); // Get the User object for the post author synchronously
+    post.author(user) // Set the author to be the given user
+
+#### hasAndBelongsToMany
+A `hasAndBelongsToMany` relation creates a direct many-to-many connection with another model, with no
+intervening model. For example, if your application includes users and groups, with each group having many users
+and each user appearing in many groups, you could declare the models this way,
+
+    User.hasAndBelongsToMany('groups', {model: Group, foreignKey: 'groupId'});
+    user.groups(callback); // get groups of the user
+    user.groups.create(data, callback); // create a new group and connect it with the user
+    user.groups.add(group, callback); // connect an existing group with the user
+    user.groups.remove(group, callback); // remove the user from the group
+
 
 ### Extend from a base model
+
+    var Customer = User.extend('customer', {
+        ...
+    });
+
 ### Mix in model definitions
 
-    var Group = modelBuilder.define('Group', {group: String});
-
+    var Group = modelBuilder.define('Group', {groups: [String]});
     User.mixin(Group);
