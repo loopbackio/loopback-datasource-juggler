@@ -10,7 +10,6 @@
             "depth": 3
         },
 
-
         "lib/model-builder.js",
         "lib/types.js",
         "lib/geo.js",
@@ -36,7 +35,9 @@
             "title": "Base class for SQL connectors",
             "depth": 3
         },
-        "lib/sql.js"
+        "lib/sql.js",
+        "docs/definition-language.md",
+        "docs/datasource-connector.md"
     ],
     "codeSectionDepth": 4
 }
