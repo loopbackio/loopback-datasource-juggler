@@ -13,7 +13,7 @@ LoopBack DataSource Juggler consists of the following components:
 
 ![loopback-datasource-juggler-overview](overview.png "LoopBack Diagram")
 
-### LoopBack Definition Language
+## LoopBack Definition Language
 
 To define model dataSource have single method `dataSource.define`. It accepts three
 arguments:
@@ -51,7 +51,7 @@ Examples of model definition:
         tableName: 'users'
     });
 
-### DataSource
+## DataSource
 
 DataSource is a factory for model classes. DataSource connected with specific database or other
 backend system using connector.
@@ -60,7 +60,7 @@ All model classes within single datasource shares same connector type and one da
 connection. But it's possible to use more than one datasource to connect with
 different databases.
 
-#### Creating dataSource
+### Creating dataSource
 
 `DataSource` constructor available on `loopback-datasource-juggler` module:
 
@@ -72,7 +72,7 @@ connector name or connector package:
     var dataSourceByConnectorName = new DataSource('memory');
     var dataSourceByConnectorModule = new DataSource(require('redis'));
 
-#### Settings
+### Settings
 
 Second argument is optional settings. Settings object format and defaults
 depends on specific connector, but common fields are:
