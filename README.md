@@ -1,7 +1,7 @@
 # LoopBack DataSource Juggler
 
-LoopBack DataSource Juggler is an ORM that provides a common set of interfaces for interacting with databases, REST APIs, and other data sources.
-It was initially forked from [JugglingDB](https://github.com/1602/jugglingdb).
+LoopBack DataSource Juggler is an ORM that provides a common set of interfaces for interacting with databases, REST APIs,
+and other data sources. It was initially forked from [JugglingDB](https://github.com/1602/jugglingdb).
 
 ## Overview
 
@@ -86,36 +86,6 @@ depends on specific connector, but common fields are:
 
 For connector-specific settings refer to connector's readme file.
 
-#### Connecting to database
-
-DataSource connecting to database automatically. Once connection established dataSource
-object emit 'connected' event, and set `connected` flag to true, but it is not
-necessary to wait for 'connected' event because all queries cached and executed
-when dataSource emit 'connected' event.
-
-To disconnect from database server call `dataSource.disconnect` method. This call
-forwarded to connector if connector have ability to connect/disconnect.
-
-
-#### DB structure syncronization
-
-DataSource instance have two methods for updating db structure: automigrate and
-autoupdate.
-
-The `automigrate` method drop table (if exists) and create it again,
-`autoupdate` method generates ALTER TABLE query. Both method accepts callback
-called when migration/update done.
-
-To check if any db changes required use `isActual` method. It accepts single
-`callback` argument, which receive boolean value depending on db state: false if
-db structure outdated, true when dataSource and db is in sync:
-
-    dataSource.isActual(function(err, actual) {
-        if (!actual) {
-            dataSource.autoupdate();
-        }
-    });
-
 ## LoopBack Connectors
 
 |    Type   | Package Name                                                                           |
@@ -124,7 +94,6 @@ db structure outdated, true when dataSource and db is in sync:
 | Oracle    | [loopback-connector-oracle](https://github.com/strongloop/loopback-connector-oracle)   |
 | MySQL     | [loopback-connector-mysql](https://github.com/strongloop/loopback-connector-mysql)     |
 
-## Build your own connector
 
 LoopBack connectors provide access to backend systems including databases, REST APIs
 and other services. Connectors are not used directly by application code. We create
@@ -150,110 +119,6 @@ The connector argument passed the DataSource constructor can be one of the follo
 * The short name of the connector module, such as 'oracle', which will be converted to 'loopback-connector-<shortName>'
 * A local module under ./connectors/<connectorName> folder
 
-## Generic connector implmentations
-
-A connector module can implement the following methods to interact with the datasource.
-
-    exports.initialize = function (dataSource, postInit) {
-
-        var settings = dataSource.settings || {}; // The settings is passed in from the dataSource
-
-        var connector = new MyConnector(settings); // Construct the connector instance
-        dataSource.connector = connector; // Attach connector to dataSource
-        connector.dataSource = dataSource; // Hold a reference to dataSource
-
-        /**
-         * Connector instance can have an optional property named as DataAccessObject that provides
-         * static and prototype methods to be mixed into the model constructor. The property can be defined
-         * on the prototype.
-         */
-        connector.DataAccessObject = function {};
-
-        /**
-         * Connector instance can have an optional function to be called to handle data model definitions.
-         * The function can be defined on the prototype too.
-         * @param model The name of the model
-         * @param properties An object for property definitions keyed by propery names
-         * @param settings An object for the model settings
-         */
-        connector.define = function(model, properties, settings) {
-            ...
-        };
-
-        connector.connect(..., postInit); // Run some async code for initialization
-        // process.nextTick(postInit);
-    }
-
-Another way is to directly export the connection function which takes a settings object.
-
-    module.exports = function(settings) {
-        ...
-    }
-
-## CRUD connector implmentations
-
-To support CRUD operations for a model class that is attached to the dataSource/connector, the connector needs to provide
-the following functions:
-
-    /**
-     * Create a new model instance
-     */
-    CRUDConnector.prototype.create = function (model, data, callback) {
-    };
-
-    /**
-     * Save a model instance
-     */
-    CRUDConnector.prototype.save = function (model, data, callback) {
-    };
-
-    /**
-     * Check if a model instance exists by id
-     */
-    CRUDConnector.prototype.exists = function (model, id, callback) {
-    };
-
-    /**
-     * Find a model instance by id
-     */
-    CRUDConnector.prototype.find = function find(model, id, callback) {
-    };
-
-    /**
-     * Update a model instance or create a new model instance if it doesn't exist
-     */
-    CRUDConnector.prototype.updateOrCreate = function updateOrCreate(model, data, callback) {
-    };
-
-    /**
-     * Delete a model instance by id
-     */
-    CRUDConnector.prototype.destroy = function destroy(model, id, callback) {
-    };
-
-    /**
-     * Query model instances by the filter
-     */
-    CRUDConnector.prototype.all = function all(model, filter, callback) {
-    };
-
-    /**
-     * Delete all model instances
-     */
-    CRUDConnector.prototype.destroyAll = function destroyAll(model, callback) {
-    };
-
-    /**
-     * Count the model instances by the where criteria
-     */
-    CRUDConnector.prototype.count = function count(model, callback, where) {
-    };
-
-    /**
-     * Update the attributes for a model instance by id
-     */
-    CRUDConnector.prototype.updateAttributes = function updateAttrs(model, id, data, callback) {
-    };
 
 ## Installation
 

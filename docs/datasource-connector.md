@@ -29,6 +29,7 @@ The `DataSource` constructor available from `loopback-datasource-juggler` module
     });
 
 #### Connector
+
 The connector argument passed the DataSource constructor can be one of the following:
 
 * The connector module from `require(connectorName)`
@@ -43,6 +44,7 @@ The connector argument passed the DataSource constructor can be one of the follo
 
 
 #### Settings
+
 The settings argument configures the connector. Settings object format and defaults
 depends on specific connector, but common fields are:
 
@@ -62,14 +64,31 @@ For connector-specific settings refer to connector's readme file.
 DataSource is a factory for model classes. DataSource connected with specific database or other
 backend system using connector.
 
-All model classes within single datasource shares same connector type and one database
-connection. But it's possible to use more than one datasource to connect with
+    var ds = new DataSource('memory');
+    var User = ds.define('User', {
+        name: String,
+        bio: String,
+        approved: Boolean,
+        joinedAt: Date,
+        age: Number
+    });
+
+All model classes within single data source shares same connector type and one database
+connection or connection pool. But it's possible to use more than one data source to connect with
 different databases.
 
-### Data Access Object
+Alternatively, a plain model constructor created from `ModelBuilder` can be attached a `DataSource`.
+
+    var ds = new DataSource('memory');
+    User.attachTo(ds); // The CRUD methods will be mixed into the User constructor
+
+What behaviors does data source add to the model? The methods are contributed by the underlying connector
+through the data access object.
+
+### Injecting behaviors to the model
 
 
-#### Connecting to database
+### Connecting to database
 
 DataSource connecting to database automatically. Once connection established dataSource
 object emit 'connected' event, and set `connected` flag to true, but it is not
@@ -80,22 +99,26 @@ To disconnect from database server call `dataSource.disconnect` method. This cal
 forwarded to connector if connector have ability to connect/disconnect.
 
 
-#### DB structure syncronization
+### Synchronizing model definitions and database tables
 
-DataSource instance have two methods for updating db structure: automigrate and
-autoupdate.
+DataSource instance have two methods for updating db structure: `automigrate` and `autoupdate` for relational
+databases.
 
-The `automigrate` method drop table (if exists) and create it again,
-`autoupdate` method generates ALTER TABLE query. Both method accepts callback
-called when migration/update done.
+The `automigrate` method drop table (if exists) and create it again, `autoupdate` method generates
+ALTER TABLE query. Both method accepts an optional array of model names and a callback function to be
+called when migration/update done. If the `models` argument is not present, all models are checked.
 
-To check if any db changes required use `isActual` method. It accepts single
-`callback` argument, which receive boolean value depending on db state: false if
-db structure outdated, true when dataSource and db is in sync:
+To check if any db changes required use `isActual` method. It accepts
+and a `callback` argument, which receive boolean value depending on db state:
 
-    dataSource.isActual(function(err, actual) {
+- false if db structure outdated
+- true when dataSource and db is in sync
+
+    dataSource.isActual(models, function(err, actual) {
         if (!actual) {
-            dataSource.autoupdate();
+            dataSource.autoupdate(models, function(err, result) {
+                ...
+            });
         }
     });
 
@@ -119,18 +142,17 @@ For example,
     var oracleConnector = require('loopback-connector-oracle');
 
     var ds = new DataSource(oracleConnector, {
-        host : '166.78.158.45',
+        host : 'localhost',
         database : 'XE',
         username : 'strongloop',
-        password : 'str0ng100pjs',
+        password : 'strongloop',
         debug : true
     });
 
 
-
 ## Generic connector implementations
 
-A connector module can implement the following methods to interact with the datasource.
+A connector module can implement the following methods to interact with the data source.
 
     exports.initialize = function (dataSource, postInit) {
 
@@ -168,7 +190,7 @@ Another way is to directly export the connection function which takes a settings
         ...
     }
 
-## CRUD connector implmentations
+## CRUD connector implementations
 
 To support CRUD operations for a model class that is attached to the dataSource/connector, the connector needs to provide
 the following functions:
@@ -233,15 +255,7 @@ the following functions:
     CRUDConnector.prototype.updateAttributes = function updateAttrs(model, id, data, callback) {
     };
 
-## Installation
 
-    npm install loopback-datasource-juggler
-
-Also install the appropriated connector, for example for mongodb:
-
-    npm install loopback-connector-mongodb
-
-check following list of available connectors
 
 
 
