@@ -98,6 +98,7 @@ when dataSource emit 'connected' event.
 To disconnect from database server call `dataSource.disconnect` method. This call
 forwarded to connector if connector have ability to connect/disconnect.
 
+### Discovering model definitions from the database
 
 ### Synchronizing model definitions and database tables
 
@@ -113,6 +114,7 @@ and a `callback` argument, which receive boolean value depending on db state:
 
 - false if db structure outdated
 - true when dataSource and db is in sync
+
 
     dataSource.isActual(models, function(err, actual) {
         if (!actual) {

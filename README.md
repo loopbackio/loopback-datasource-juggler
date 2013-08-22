@@ -105,10 +105,10 @@ For example,
     var oracleConnector = require('loopback-connector-oracle');
 
     var ds = new DataSource(oracleConnector, {
-        host : '166.78.158.45',
+        host : '127.0.0.1',
         database : 'XE',
         username : 'strongloop',
-        password : 'str0ng100pjs',
+        password : 'password',
         debug : true
     });
 
