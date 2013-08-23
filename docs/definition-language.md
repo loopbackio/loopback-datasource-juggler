@@ -98,7 +98,7 @@ Models describe the shape of data. To leverage the data, we'll add logic to the 
 
 There are a few ways to add methods to a model constructor:
 
-### 1) Create the model constructor from a data source
+### Create the model constructor from a data source
 A LoopBack data source injects methods on the model.
 
 
@@ -121,7 +121,7 @@ A LoopBack data source injects methods on the model.
     });
 
 
-### 2) Attach the model to a data source
+### Attach the model to a data source
 A plain model constructor created from `ModelBuilder` can be attached a `DataSource`.
 
 
@@ -130,7 +130,7 @@ A plain model constructor created from `ModelBuilder` can be attached a `DataSou
 
     User.attachTo(ds); // The CRUD methods will be mixed into the User constructor
 
-### 3) Manually add methods to the model constructor
+### Manually add methods to the model constructor
 Static methods can be added by declaring a function as a member of the model constructor.
 Within a class method, other class methods can be called using the model as usual.
 
@@ -319,30 +319,6 @@ Oracle database table, you can use the following syntax:
     "oracle": {"column": "FIRST_NAME", "type": "VARCHAR", "length": 32}
 
 
-#### Advanced example
-
-    var User = modelBuilder.define('User', {
-        name: String,
-        bio: ModelBuilder.Text,
-        approved: Boolean,
-        joinedAt: Date,
-        age: Number,
-        address: {
-            street: String,
-            city: String,
-            state: String,
-            zipCode: String,
-            country: String
-        },
-        emails: [{
-            label: String,
-            email: String
-        }],
-        friends: [String]
-    });
-
-
-
 ### Relations between models
 
 #### hasMany
@@ -425,12 +401,18 @@ and each user appearing in many groups, you could declare the models this way,
 
 
 ### Extend from a base model
+LDL allows a new model to extend from an existing model. For example, Customer can extend from User as follows. The Customer
+model will inherit properties and methods from the User model.
 
     var Customer = User.extend('customer', {
-        ...
+        accountId: String,
+        vip: Boolean
     });
 
 ### Mix in model definitions
+Some models share the common set of properties and logic around. LDL allows a model to mix in one or more other models.
+For example,
 
+    var TimeStamp = modelBuilder.define('TimeStamp', {created: Date, modified: Date});
     var Group = modelBuilder.define('Group', {groups: [String]});
-    User.mixin(Group);
+    User.mixin(Group, TimeStamp);
