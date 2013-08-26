@@ -42,7 +42,6 @@ describe('ModelBuilder define model', function () {
     it('should not take unknown properties in strict mode', function (done) {
         var modelBuilder = new ModelBuilder();
 
-        // simplier way to describe model
         var User = modelBuilder.define('User', {name: String, bio: String}, {strict: true});
 
         var user = new User({name: 'Joe', age: 20});
@@ -59,11 +58,41 @@ describe('ModelBuilder define model', function () {
         done(null, User);
     });
 
+    it('should throw when unknown properties are used if strict=throw', function (done) {
+        var modelBuilder = new ModelBuilder();
+
+        var User = modelBuilder.define('User', {name: String, bio: String}, {strict: 'throw'});
+
+        try {
+            var user = new User({name: 'Joe', age: 20});
+            assert(false, 'The code should have thrown an error');
+        } catch(e) {
+            assert(true, 'The code is expected to throw an error');
+        }
+        // console.log(user);
+        done(null, User);
+    });
+
     it('should be able to define open models', function (done) {
         var modelBuilder = new ModelBuilder();
 
-        // simplier way to describe model
         var User = modelBuilder.define('User', {}, {strict: false});
+
+        var user = new User({name: 'Joe', age: 20});
+        // console.log(user);
+
+        User.modelName.should.equal('User');
+        user.should.be.a('object').and.have.property('name', 'Joe');
+        user.should.have.property('name', 'Joe');
+        user.should.have.property('age', 20);
+        user.should.not.have.property('bio');
+        done(null, User);
+    });
+
+    it('should use false as the default value for strict', function (done) {
+        var modelBuilder = new ModelBuilder();
+
+        var User = modelBuilder.define('User', {});
 
         var user = new User({name: 'Joe', age: 20});
         // console.log(user);
@@ -244,6 +273,112 @@ describe('DataSource define model', function () {
         });
 
     });
+
+    it('should not take unknown properties in strict mode', function (done) {
+        var ds = new DataSource('memory');
+
+        var User = ds.define('User', {name: String, bio: String}, {strict: true});
+
+        User.create({name: 'Joe', age: 20}, function (err, user) {
+            // console.log(user);
+
+            User.modelName.should.equal('User');
+            user.should.be.a('object');
+            // console.log(user);
+            assert(user.name === 'Joe');
+            assert(user.age === undefined);
+            assert(user.toObject().age === undefined);
+            assert(user.toObject(true).age === undefined);
+            assert(user.bio === undefined);
+            done(null, User);
+        });
+    });
+
+    it('should throw when unknown properties are used if strict=throw', function (done) {
+        var ds = new DataSource('memory');
+
+        var User = ds.define('User', {name: String, bio: String}, {strict: 'throw'});
+
+        try {
+            var user = new User({name: 'Joe', age: 20});
+            assert(false, 'The code should have thrown an error');
+        } catch(e) {
+            assert(true, 'The code is expected to throw an error');
+        }
+        // console.log(user);
+        done(null, User);
+    });
+
+    it('should be able to define open models', function (done) {
+        var ds = new DataSource('memory');
+
+        var User = ds.define('User', {}, {strict: false});
+
+        User.create({name: 'Joe', age: 20}, function (err, user) {
+            // console.log(user);
+
+            User.modelName.should.equal('User');
+            user.should.be.a('object').and.have.property('name', 'Joe');
+            user.should.have.property('name', 'Joe');
+            user.should.have.property('age', 20);
+            user.should.not.have.property('bio');
+            done(null, User);
+        });
+    });
+
+    it('should use false as the default value for strict', function (done) {
+        var ds = new DataSource('memory');
+
+        var User = ds.define('User', {});
+
+        User.create({name: 'Joe', age: 20}, function (err, user) {
+            // console.log(user);
+
+            User.modelName.should.equal('User');
+            user.should.be.a('object').and.have.property('name', 'Joe');
+            user.should.have.property('name', 'Joe');
+            user.should.have.property('age', 20);
+            user.should.not.have.property('bio');
+            done(null, User);
+        });
+    });
+
+    it('should use true as the default value for strict for relational DBs', function (done) {
+        var ds = new DataSource('memory');
+        ds.connector.relational = true; // HACK
+
+        var User = ds.define('User', {name: String, bio: String}, {strict: true});
+
+        var user = new User({name: 'Joe', age: 20});
+        // console.log(user);
+
+        User.modelName.should.equal('User');
+        user.should.be.a('object');
+        // console.log(user);
+        assert(user.name === 'Joe');
+        assert(user.age === undefined);
+        assert(user.toObject().age === undefined);
+        assert(user.toObject(true).age === undefined);
+        assert(user.bio === undefined);
+        done(null, User);
+    });
+
+    it('should throw when unknown properties are used if strict=false for relational DBs', function (done) {
+        var ds = new DataSource('memory');
+        ds.connector.relational = true; // HACK
+
+        var User = ds.define('User', {name: String, bio: String}, {strict: 'throw'});
+
+        try {
+            var user = new User({name: 'Joe', age: 20});
+            assert(false, 'The code should have thrown an error');
+        } catch(e) {
+            assert(true, 'The code is expected to throw an error');
+        }
+        // console.log(user);
+        done(null, User);
+    });
+
 });
 
 
