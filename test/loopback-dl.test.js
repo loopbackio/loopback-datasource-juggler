@@ -11,7 +11,6 @@ describe('ModelBuilder define model', function () {
     it('should be able to define plain models', function (done) {
         var modelBuilder = new ModelBuilder();
 
-        // simplier way to describe model
         var User = modelBuilder.define('User', {
             name: String,
             bio: ModelBuilder.Text,
@@ -29,7 +28,6 @@ describe('ModelBuilder define model', function () {
         modelBuilder.definitions.should.be.a('object').and.have.property('User');
 
         var user = new User({name: 'Joe', age: 20});
-        // console.log(user);
 
         User.modelName.should.equal('User');
         user.should.be.a('object').and.have.property('name', 'Joe');
@@ -45,11 +43,9 @@ describe('ModelBuilder define model', function () {
         var User = modelBuilder.define('User', {name: String, bio: String}, {strict: true});
 
         var user = new User({name: 'Joe', age: 20});
-        // console.log(user);
 
         User.modelName.should.equal('User');
         user.should.be.a('object');
-        // console.log(user);
         assert(user.name === 'Joe');
         assert(user.age === undefined);
         assert(user.toObject().age === undefined);
@@ -69,7 +65,6 @@ describe('ModelBuilder define model', function () {
         } catch(e) {
             assert(true, 'The code is expected to throw an error');
         }
-        // console.log(user);
         done(null, User);
     });
 
@@ -79,7 +74,6 @@ describe('ModelBuilder define model', function () {
         var User = modelBuilder.define('User', {}, {strict: false});
 
         var user = new User({name: 'Joe', age: 20});
-        // console.log(user);
 
         User.modelName.should.equal('User');
         user.should.be.a('object').and.have.property('name', 'Joe');
@@ -95,7 +89,6 @@ describe('ModelBuilder define model', function () {
         var User = modelBuilder.define('User', {});
 
         var user = new User({name: 'Joe', age: 20});
-        // console.log(user);
 
         User.modelName.should.equal('User');
         user.should.be.a('object').and.have.property('name', 'Joe');
@@ -144,7 +137,6 @@ describe('ModelBuilder define model', function () {
                 emails: [{label: 'work', email: 'xyz@sample.com'}],
                 friends: ['Mary', 'John']
         });
-        // console.log(user);
 
         User.modelName.should.equal('User');
         user.should.be.a('object').and.have.property('name', 'Joe');
@@ -178,13 +170,13 @@ describe('DataSource define model', function () {
             title: { type: String, length: 255 },
             content: { type: DataSource.Text },
             date: { type: Date, default: function () {
-                return new Date;
+                return new Date();
             } },
             timestamp: { type: Number, default: Date.now },
             published: { type: Boolean, default: false, index: true }
         });
 
-// simplier way to describe model
+// simpler way to describe model
         var User = ds.define('User', {
             name: String,
             bio: DataSource.Text,
@@ -193,15 +185,17 @@ describe('DataSource define model', function () {
             age: Number
         });
 
-        var Group = ds.define('Group', {name: String});
+        var Group = ds.define('Group', {group: String});
+        User.mixin(Group);
 
 // define any custom method
         User.prototype.getNameAndAge = function () {
             return this.name + ', ' + this.age;
         };
 
-        var user = new User({name: 'Joe'});
-        // console.log(user);
+        var user = new User({name: 'Joe', group: 'G1'});
+        assert.equal(user.name, 'Joe');
+        assert.equal(user.group, 'G1');
 
         // setup relationships
         User.hasMany(Post, {as: 'posts', foreignKey: 'userId'});
@@ -212,7 +206,6 @@ describe('DataSource define model', function () {
 
         var user2 = new User({name: 'Smith'});
         user2.save(function (err) {
-            // console.log(user2);
             var post = user2.posts.build({title: 'Hello world'});
             post.save(function (err, data) {
                 // console.log(err ? err : data);
@@ -228,9 +221,7 @@ describe('DataSource define model', function () {
                 console.log(err);
                 return;
             }
-            // console.log(data);
             var post = data.posts.build({title: 'My Post'});
-            // console.log(post);
         });
 
         User.create({name: 'Ray'}, function (err, data) {
@@ -280,11 +271,9 @@ describe('DataSource define model', function () {
         var User = ds.define('User', {name: String, bio: String}, {strict: true});
 
         User.create({name: 'Joe', age: 20}, function (err, user) {
-            // console.log(user);
 
             User.modelName.should.equal('User');
             user.should.be.a('object');
-            // console.log(user);
             assert(user.name === 'Joe');
             assert(user.age === undefined);
             assert(user.toObject().age === undefined);
@@ -305,7 +294,6 @@ describe('DataSource define model', function () {
         } catch(e) {
             assert(true, 'The code is expected to throw an error');
         }
-        // console.log(user);
         done(null, User);
     });
 
@@ -315,7 +303,6 @@ describe('DataSource define model', function () {
         var User = ds.define('User', {}, {strict: false});
 
         User.create({name: 'Joe', age: 20}, function (err, user) {
-            // console.log(user);
 
             User.modelName.should.equal('User');
             user.should.be.a('object').and.have.property('name', 'Joe');
@@ -332,7 +319,6 @@ describe('DataSource define model', function () {
         var User = ds.define('User', {});
 
         User.create({name: 'Joe', age: 20}, function (err, user) {
-            // console.log(user);
 
             User.modelName.should.equal('User');
             user.should.be.a('object').and.have.property('name', 'Joe');
@@ -350,11 +336,9 @@ describe('DataSource define model', function () {
         var User = ds.define('User', {name: String, bio: String}, {strict: true});
 
         var user = new User({name: 'Joe', age: 20});
-        // console.log(user);
 
         User.modelName.should.equal('User');
         user.should.be.a('object');
-        // console.log(user);
         assert(user.name === 'Joe');
         assert(user.age === undefined);
         assert(user.toObject().age === undefined);
@@ -375,7 +359,6 @@ describe('DataSource define model', function () {
         } catch(e) {
             assert(true, 'The code is expected to throw an error');
         }
-        // console.log(user);
         done(null, User);
     });
 
@@ -421,7 +404,7 @@ describe('Load models from json', function () {
         models.should.have.property('Customer');
         for (var s in models) {
             var m = models[s];
-            // console.log(m.modelName, new m());
+            assert(new m());
         }
     });
 });
