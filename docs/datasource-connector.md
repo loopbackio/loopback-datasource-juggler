@@ -1,4 +1,4 @@
-# LoopBack DataSource and Connector
+# LoopBack DataSource and Connector Guide
 
 ## Overview
 LoopBack is centered around models, which represent data and behaviors. The concept of `DataSource` is introduced to

@@ -1,4 +1,4 @@
-# LoopBack Definition Language (LDL)
+# LoopBack Definition Language Guide
 
 LoopBack Definition Language (LDL) is simple DSL to define data models in JavaScript or plain JSON. With LoopBack, we often
 start with a model definition which describes the structure and types of data. The model establishes common knowledge of
