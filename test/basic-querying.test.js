@@ -320,12 +320,12 @@ function seed(done) {
     var beatles = [
         {
             name: 'John Lennon',
-            mail: 'john@b3atl3s.co.uk',
+            email: 'john@b3atl3s.co.uk',
             role: 'lead',
             order: 2
         }, {
             name: 'Paul McCartney',
-            mail: 'paul@b3atl3s.co.uk',
+            email: 'paul@b3atl3s.co.uk',
             role: 'lead',
             order: 1
         },
