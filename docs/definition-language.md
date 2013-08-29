@@ -1,8 +1,9 @@
 # LoopBack Definition Language Guide
 
-LoopBack Definition Language (LDL) is simple DSL to define data models in JavaScript or plain JSON. With LoopBack, we often
-start with a model definition which describes the structure and types of data. The model establishes common knowledge of
-data in LoopBack.
+LoopBack Definition Language (LDL) is simple DSL to define data models in
+JavaScript or plain JSON. With LoopBack, we often start with a model definition
+which describes the structure and types of data. The model establishes common
+knowledge of data in LoopBack.
 
 ## Describing a simple model
 
@@ -20,9 +21,10 @@ The model simply defines a `user` model that consists of three properties:
 * firstName - The first name. It's a string.
 * lastName - The last name. It's a string.
 
-Each key in the JSON object defines a property in our model which will be cast to its associated type. The simplest form of
-a property definition is `propertyName: type`. The key is the name of the property and the value is the type of the property.
-We'll cover more advanced form later in this guide.
+Each key in the JSON object defines a property in our model which will be cast
+to its associated type. The simplest form of a property definition is
+`propertyName: type`. The key is the name of the property and the value is the
+type of the property. We'll cover more advanced form later in this guide.
 
 LDL supports a list of built-in types, including the basic types from JSON:
 
@@ -32,7 +34,8 @@ LDL supports a list of built-in types, including the basic types from JSON:
 * Array
 * Object
 
-**Note**: The type name is case-insensitive, i.e., either "Number" or "number" can be used.
+**Note**: The type name is case-insensitive, i.e., either "Number" or "number"
+can be used.
 
 The same model can also be described in JavaScript code:
 
@@ -42,16 +45,18 @@ The same model can also be described in JavaScript code:
         lastName: String
     }
 
-As we can see, the JavaScript version is less verbose as it doesn't require quotes for property names. The types are
-described using JavaScript constructors, for example, `Number` for `"Number"`. String literals are also supported.
+As we can see, the JavaScript version is less verbose as it doesn't require
+quotes for property names. The types are described using JavaScript constructors,
+for example, `Number` for `"Number"`. String literals are also supported.
 
-Now we have the definition of a model, how do we use it in LoopBack Node.js code? It's easy, LoopBack will build a
-JavaScript constructor (or class) for you.
+Now we have the definition of a model, how do we use it in LoopBack Node.js
+code? It's easy, LoopBack will build a JavaScript constructor (or class) for you.
 
 ## Creating a model constructor
 
-LDL compiles the model definition into a JavaScript constructor using `ModelBuilder.define` APIs. ModelBuilder is the
-basic factory to create model constructors.
+LDL compiles the model definition into a JavaScript constructor using
+`ModelBuilder.define` APIs. ModelBuilder is the basic factory to create model
+constructors.
 
 ModelBuilder.define() method takes the following arguments:
 
@@ -86,11 +91,13 @@ Here is an example,
 
 That's it. Now you have a User constructor representing the user model.
 
-At this point, the constructor only has a set of accessors to model properties. No behaviors have been introduced yet.
+At this point, the constructor only has a set of accessors to model properties.
+No behaviors have been introduced yet.
 
 ## Adding logic to a model
 
-Models describe the shape of data. To leverage the data, we'll add logic to the model for various purposes, such as:
+Models describe the shape of data. To leverage the data, we'll add logic to the
+model for various purposes, such as:
 
 - Interact with the data store for CRUD
 - Add behavior around a model instance
@@ -131,8 +138,9 @@ A plain model constructor created from `ModelBuilder` can be attached a `DataSou
     User.attachTo(ds); // The CRUD methods will be mixed into the User constructor
 
 ### Manually add methods to the model constructor
-Static methods can be added by declaring a function as a member of the model constructor.
-Within a class method, other class methods can be called using the model as usual.
+Static methods can be added by declaring a function as a member of the model
+constructor. Within a class method, other class methods can be called using the
+model as usual.
 
 
     // Define a static method
@@ -144,8 +152,8 @@ Within a class method, other class methods can be called using the model as usua
         console.log(users); // Print an array of user instances
     });
 
-Instance methods can be added to the prototype. Within instance methods, the model instance itself can be referenced
-with this keyword.
+Instance methods can be added to the prototype. Within instance methods, the
+model instance itself can be referenced with this keyword.
 
     // Define a prototype method
     User.prototype.getFullName = function () {
@@ -158,7 +166,8 @@ with this keyword.
 
 ## Exploring advanced LDL features
 
-As we mentioned before, a complete model definition is an object with three properties:
+As we mentioned before, a complete model definition is an object with three
+properties:
 
 - name: The model name
 - options: An object of options, optional
@@ -176,8 +185,9 @@ There are a set of options to control the model definition.
     - false: No `id` property will be added to the model
 
 - Data source specific mappings
-The model can be decorated with connector-specific options to customize the mapping between the model and the connector.
-For example, we can define the corresponding schema/table names for Oracle as follows:
+The model can be decorated with connector-specific options to customize the
+mapping between the model and the connector. For example, we can define the
+corresponding schema/table names for Oracle as follows:
 
         {
           "name": "Location",
@@ -192,9 +202,11 @@ For example, we can define the corresponding schema/table names for Oracle as fo
         }
 
 ### Property definitions
-A model consists of a list of properties. The basic example use `propertyName: type` to describe a property.
+A model consists of a list of properties. The basic example use
+`propertyName: type` to describe a property.
 
-Properties can have options in addition to the type. LDL uses a JSON object to describe such properties, for example:
+Properties can have options in addition to the type. LDL uses a JSON object to
+describe such properties, for example:
 
     "id": {"type": "number", "id": true, "doc": "User ID"}
 
@@ -222,7 +234,8 @@ LDL supports array types as follows:
 - `{emails: [{type: String, length: 64}]}`
 
 ##### Object types
-A model often has properties that consist of other properties. For example, the user model can have an `address` property
+A model often has properties that consist of other properties. For example, the
+user model can have an `address` property
 that in turn has properties such as `street`, `city`, `state`, and `zipCode`.
 
 LDL allows inline declaration of such properties, for example,
@@ -239,9 +252,11 @@ LDL allows inline declaration of such properties, for example,
         ...
     }
 
-The value of the address is the definition of the `address` type, which can be also considered as an anonymous model.
+The value of the address is the definition of the `address` type, which can be
+also considered as an anonymous model.
 
-If you intend to reuse the address model, we can define it independently and reference it in the user model. For example,
+If you intend to reuse the address model, we can define it independently and
+reference it in the user model. For example,
 
     var AddressModel = {
         street: String,
@@ -261,26 +276,29 @@ If you intend to reuse the address model, we can define it independently and ref
 
     var User = ds.define('User', UserModel);
 
-**Note**: The user model has to reference the Address constructor or the model name - `'Address'`.
+**Note**: The user model has to reference the Address constructor or the model
+name - `'Address'`.
 
 
 #### ID(s) for a model
-A model representing data to be persisted in a database usually has one or more properties as an id to uniquely
-identify the model instance. For example, the `user` model can have user ids.
+A model representing data to be persisted in a database usually has one or more
+properties as an id to uniquely identify the model instance. For example, the
+`user` model can have user ids.
 
-By default, if no id properties are defined and the `idInjection` of the model options is false, LDL will automatically
-add an id property to the model as follows:
+By default, if no id properties are defined and the `idInjection` of the model
+options is false, LDL will automatically add an id property to the model as follows:
 
     id: {type: Number, generated: true, id: true}
 
-To explicitly specify a property as `id`, LDL provides an `id` property for the option. The value can be true, false,
-or a number.
+To explicitly specify a property as `id`, LDL provides an `id` property for the
+option. The value can be true, false, or a number.
 
 - true: It's an id
 - false or any falsey values: It's not an id (default)
 - a positive number, such as 1 or 2: It's the index of the composite id
 
-LDL supports the definition of a composite id that has more than one properties. For example,
+LDL supports the definition of a composite id that has more than one properties.
+For example,
 
     var InventoryDefinition =
     {
@@ -313,8 +331,9 @@ Format conversions can also be declared as options, for example:
 * format: Format a Date
 
 #### Mapping
-Data source specific mappings can be added to the property options, for example, to map a property to be a column in
-Oracle database table, you can use the following syntax:
+Data source specific mappings can be added to the property options, for example,
+to map a property to be a column in Oracle database table, you can use the
+following syntax:
 
     "oracle": {"column": "FIRST_NAME", "type": "VARCHAR", "length": 32}
 
@@ -323,10 +342,11 @@ Oracle database table, you can use the following syntax:
 
 #### hasMany
 
-A `hasMany` relation builds a one-to-many connection with another model. You'll often find this relation on
-the "other side" of a `belongsTo` relation. This relation indicates that each instance of the model has zero
-or more instances of another model. For example, in an application containing users and posts, a user has zero
-or more posts. For example,
+A `hasMany` relation builds a one-to-many connection with another model. You'll
+often find this relation on the "other side" of a `belongsTo` relation. This
+relation indicates that each instance of the model has zero or more instances
+of another model. For example, in an application containing users and posts, a
+user has zero or more posts. For example,
 
     // setup relationships
     User.hasMany(Post,   {as: 'posts',  foreignKey: 'userId'});
@@ -352,8 +372,8 @@ Example:
     Book.hasMany('chapters', {model: Chapter, foreignKey: 'chapter_id'});
 
 
-Scope methods created on the base model by hasMany allows to build, create and query instances of other class.
-For example:
+Scope methods created on the base model by hasMany allows to build, create and
+query instances of other class. For example,
 
     Book.create(function(err, book) {
         // using 'chapters' scope for build:
@@ -374,14 +394,16 @@ For example:
 
 
 #### belongsTo
-A `belongsTo` relation sets up a one-to-one connection with another model, such that each instance of the declaring
-model "belongs to" one instance of the other model. For example, if your application includes users and posts,
-and each post can be written by exactly one user.
+A `belongsTo` relation sets up a one-to-one connection with another model, such
+that each instance of the declaring model "belongs to" one instance of the other
+model. For example, if your application includes users and posts, and each post
+can be written by exactly one user.
 
     Post.belongsTo(User, {as: 'author', foreignKey: 'userId'});
 
-The code above basically says Post has a reference called `author` to User using the `userId` property of Post as the
-foreign key. Now we can access the author in one of the following styles:
+The code above basically says Post has a reference called `author` to User using
+the `userId` property of Post as the foreign key. Now we can access the author
+in one of the following styles:
 
 
     post.author(callback); // Get the User object for the post author asynchronously
@@ -389,9 +411,10 @@ foreign key. Now we can access the author in one of the following styles:
     post.author(user) // Set the author to be the given user
 
 #### hasAndBelongsToMany
-A `hasAndBelongsToMany` relation creates a direct many-to-many connection with another model, with no
-intervening model. For example, if your application includes users and groups, with each group having many users
-and each user appearing in many groups, you could declare the models this way,
+A `hasAndBelongsToMany` relation creates a direct many-to-many connection with
+another model, with no intervening model. For example, if your application
+includes users and groups, with each group having many users and each user
+appearing in many groups, you could declare the models this way,
 
     User.hasAndBelongsToMany('groups', {model: Group, foreignKey: 'groupId'});
     user.groups(callback); // get groups of the user
@@ -401,8 +424,9 @@ and each user appearing in many groups, you could declare the models this way,
 
 
 ### Extend from a base model
-LDL allows a new model to extend from an existing model. For example, Customer can extend from User as follows. The Customer
-model will inherit properties and methods from the User model.
+LDL allows a new model to extend from an existing model. For example, Customer
+can extend from User as follows. The Customer model will inherit properties and
+methods from the User model.
 
     var Customer = User.extend('customer', {
         accountId: String,
@@ -410,8 +434,8 @@ model will inherit properties and methods from the User model.
     });
 
 ### Mix in model definitions
-Some models share the common set of properties and logic around. LDL allows a model to mix in one or more other models.
-For example,
+Some models share the common set of properties and logic around. LDL allows a
+model to mix in one or more other models. For example,
 
     var TimeStamp = modelBuilder.define('TimeStamp', {created: Date, modified: Date});
     var Group = modelBuilder.define('Group', {groups: [String]});
