@@ -301,15 +301,22 @@ describe('DataSource define model', function () {
         var ds = new DataSource('memory');
 
         var User = ds.define('User', {}, {strict: false});
+        User.modelName.should.equal('User');
 
         User.create({name: 'Joe', age: 20}, function (err, user) {
 
-            User.modelName.should.equal('User');
             user.should.be.a('object').and.have.property('name', 'Joe');
             user.should.have.property('name', 'Joe');
             user.should.have.property('age', 20);
             user.should.not.have.property('bio');
-            done(null, User);
+
+            User.findById(user.id, function(err, user) {
+                user.should.be.a('object').and.have.property('name', 'Joe');
+                user.should.have.property('name', 'Joe');
+                user.should.have.property('age', 20);
+                user.should.not.have.property('bio');
+                done(null, User);
+            });
         });
     });
 
