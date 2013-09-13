@@ -11,7 +11,7 @@ LoopBack DataSource Juggler consists of the following components:
 * DataSource
 * Connector
 
-![loopback-datasource-juggler-overview](overview.png "LoopBack Diagram")
+![loopback-datasource-juggler-overview](docs/overview.png "LoopBack Diagram")
 
 ## LoopBack Definition Language
 
