@@ -1,7 +1,8 @@
 {
   "name": "loopback-datasource-juggler",
-  "description": "ORM for every database: redis, mysql, neo4j, mongodb, couchdb, postgres, sqlite",
   "version": "1.0.0",
+  "description": "LoopBack DataSoure Juggler",
+  "keywords": [ "StrongLoop", "LoopBack", "DataSource", "Juggler", "ORM" ],
   "repository": {
     "type": "git",
     "url": "https://github.com/strongloop/loopback-datasource-juggler"
@@ -20,7 +21,7 @@
   "devDependencies": {
     "blanket": "~1.1.5",
     "should": "~1.2.2",
-    "mocha": "~1.8.2"
+    "mocha": "~1.12.1"
   },
   "dependencies": {
     "async": "~0.2.9",
