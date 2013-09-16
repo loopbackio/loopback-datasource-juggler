@@ -177,8 +177,15 @@ properties:
 There are a set of options to control the model definition.
 
 - strict:
-    - true: Only properties defined in the model are accepted. This is the default.
-    - false: The model will be an open model. Unknown properties are accepted as well.
+    - true: Only properties defined in the model are accepted. Use this
+    mode if you want to make sure only predefined properties are accepted.
+    - false: The model will be an open model. All properties are accepted,
+    including the ones that not predefined with the model. This mode is useful
+    if the mobile application just wants to store free form JSON data to
+    a schema-less database such as MongoDB.
+    - undefined: Default to false unless the data source is backed by a
+    relational database such as Oracle or MySQL.
+
 
 - idInjection:
     - true: An `id` property will be added to the model automatically
@@ -308,6 +315,8 @@ For example,
     }
 
 The composite id is (productId, locationId) for an inventory model.
+
+**Note: Composite ids are NOT supported as query parameters in REST APIs yet.**
 
 #### Property documentation
 * doc: Documentation of the property
