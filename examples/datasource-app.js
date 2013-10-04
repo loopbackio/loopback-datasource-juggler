@@ -78,6 +78,11 @@ User.create({name: 'Ray'}, function (err, data) {
     console.log(data);
 });
 
+User.scope('minors', {age: {le: 16}});
+User.minors(function(err, kids) {
+    console.log('Kids: ', kids);
+});
+
 var Article = ds.define('Article', {title: String});
 var Tag = ds.define('Tag', {name: String});
 Article.hasAndBelongsToMany('tags');
