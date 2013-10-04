@@ -369,6 +369,21 @@ describe('DataSource define model', function () {
         done(null, User);
     });
 
+
+    it('should change the property value for save if strict=false', function (done) {
+        var ds = new DataSource('memory');// define models
+        var Post = ds.define('Post');
+
+        Post.create({price: 900}, function(err, post) {
+            assert.equal(post.price, 900);
+            post.price = 1000;
+            post.save(function(err, result) {
+               assert.equal(1000, result.price);
+               done(err, result);
+            });
+        });
+    });
+
 });
 
 
