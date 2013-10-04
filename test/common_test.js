@@ -579,11 +579,11 @@ function testOrm(dataSource) {
     });
 
     it('should return type of property', function (test) {
-        test.equal(Post.whatTypeName('title'), 'String');
-        test.equal(Post.whatTypeName('content'), 'Text');
+        test.equal(Post.getPropertyType('title'), 'String');
+        test.equal(Post.getPropertyType('content'), 'Text');
         var p = new Post;
-        test.equal(p.whatTypeName('title'), 'String');
-        test.equal(p.whatTypeName('content'), 'Text');
+        test.equal(p.getPropertyType('title'), 'String');
+        test.equal(p.getPropertyType('content'), 'Text');
         test.done();
     });
 

@@ -241,7 +241,7 @@ describe('manipulation', function() {
             person.name.should.equal(hw);
             person.propertyChanged('name').should.be.false;
             person.name = 'Goodbye, Lenin';
-            person.name_was.should.equal(hw);
+            person.name$was.should.equal(hw);
             person.propertyChanged('name').should.be.true;
             (person.createdAt >= now).should.be.true;
             person.isNewRecord().should.be.true;
