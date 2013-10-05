@@ -154,6 +154,48 @@ describe('ModelDefinition class', function () {
 
     });
 
+    it('should be able to define referencing models by name', function (done) {
+        var modelBuilder = new ModelBuilder();
+
+        var Address = modelBuilder.define('Address', {
+            street: String,
+            city: String,
+            zipCode: String,
+            state: String
+        });
+        var User = new ModelDefinition(modelBuilder, 'User', {
+            name: String,
+            bio: ModelBuilder.Text,
+            approved: Boolean,
+            joinedAt: Date,
+            age: Number,
+            address: 'Address'
+
+        });
+
+        User.build();
+        assert.equal(User.properties.name.type, String);
+        assert.equal(User.properties.bio.type, ModelBuilder.Text);
+        assert.equal(User.properties.approved.type, Boolean);
+        assert.equal(User.properties.joinedAt.type, Date);
+        assert.equal(User.properties.age.type, Number);
+        assert.equal(User.properties.address.type, Address);
+
+
+        var json = User.toJSON();
+        assert.equal(json.name, "User");
+        assert.equal(json.properties.name.type, "String");
+        assert.equal(json.properties.bio.type, "Text");
+        assert.equal(json.properties.approved.type, "Boolean");
+        assert.equal(json.properties.joinedAt.type, "Date");
+        assert.equal(json.properties.age.type, "Number");
+
+        assert.equal(json.properties.address.type, 'Address');
+
+        done();
+
+    });
+
     it('should report correct id names', function (done) {
         var modelBuilder = new ModelBuilder();
 
