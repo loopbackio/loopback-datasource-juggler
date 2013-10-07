@@ -429,5 +429,40 @@ describe('Load models from json', function () {
             assert(new m());
         }
     });
+
+    it('should be able to extend models', function (done) {
+        var modelBuilder = new ModelBuilder();
+
+        var User = modelBuilder.define('User', {
+            name: String,
+            bio: ModelBuilder.Text,
+            approved: Boolean,
+            joinedAt: Date,
+            age: Number
+        });
+
+        var Customer = User.extend('Customer', {customerId: {type: String, id: true}});
+
+        var customer = new Customer({name: 'Joe', age: 20, customerId: 'c01'});
+
+        customer.should.be.a('object').and.have.property('name', 'Joe');
+        customer.should.have.property('name', 'Joe');
+        customer.should.have.property('age', 20);
+        customer.should.have.property('customerId', 'c01');
+        customer.should.not.have.property('bio');
+
+        // The properties are defined at prototype level
+        assert.equal(Object.keys(customer).length, 0);
+        var count = 0;
+        for(var p in customer) {
+            if(typeof customer[p] !== 'function') {
+                count++;
+            }
+        }
+        assert.equal(count, 7); // Please note there is an injected id from User prototype
+        assert.equal(Object.keys(customer.toObject()).length, 6);
+
+        done(null, customer);
+    });
 });
 
