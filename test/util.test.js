@@ -1,5 +1,8 @@
 var should = require('./init.js');
-var fieldsToArray = require('../lib/utils').fieldsToArray;
+var utils = require('../lib/utils');
+var fieldsToArray = utils.fieldsToArray;
+var removeUndefined = utils.removeUndefined;
+
 
 describe('util.fieldsToArray', function(){
   it('Turn objects and strings into an array of fields to include when finding models', function() {
@@ -24,4 +27,24 @@ describe('util.fieldsToArray', function(){
     sample({'bat': 0}).expect(['foo', 'bar', 'baz']);
     sample({'bat': false}).expect(['foo', 'bar', 'baz']);
   });
+});
+
+describe('util.removeUndefined', function(){
+    it('Remove undefined values from the query object', function() {
+        var q1 = {where: {x: 1, y: undefined}};
+        should.deepEqual(removeUndefined(q1), {where: {x: 1}});
+
+        var q2 = {where: {x: 1, y: 2}};
+        should.deepEqual(removeUndefined(q2), {where: {x: 1, y: 2}});
+
+        var q3 = {where: {x: 1, y: {in: [2, undefined]}}};
+        should.deepEqual(removeUndefined(q3), {where: {x: 1, y: {in: [2]}}});
+
+        should.equal(removeUndefined(null), null);
+
+        should.equal(removeUndefined(undefined), undefined);
+
+        should.equal(removeUndefined('x'), 'x');
+
+    });
 });
