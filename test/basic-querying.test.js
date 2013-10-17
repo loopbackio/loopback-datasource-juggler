@@ -8,7 +8,7 @@ describe('basic-querying', function() {
         db = getSchema();
 
         User = db.define('User', {
-            name: {type: String, sort: true},
+            name: {type: String, index: true, sort: true},
             email: {type: String, index: true},
             role: {type: String, index: true},
             order: {type: Number, index: true, sort: true}
