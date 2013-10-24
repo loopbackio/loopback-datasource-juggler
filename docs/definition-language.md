@@ -191,6 +191,11 @@ There are a set of options to control the model definition.
     - true: An `id` property will be added to the model automatically
     - false: No `id` property will be added to the model
 
+
+- plural: The plural form of the model name. If not present, it will be derived from the model name following English
+conventions. 
+
+
 - Data source specific mappings
 The model can be decorated with connector-specific options to customize the
 mapping between the model and the connector. For example, we can define the
