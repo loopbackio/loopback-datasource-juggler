@@ -48,3 +48,66 @@ describe('util.removeUndefined', function(){
 
     });
 });
+
+describe('util.parseSettings', function(){
+    it('Parse a full url into a settings object', function() {
+        var url = 'mongodb://x:y@localhost:27017/mydb?w=2';
+        var settings = utils.parseSettings(url);
+        should.equal(settings.hostname, 'localhost');
+        should.equal(settings.port, 27017);
+        should.equal(settings.host, 'localhost');
+        should.equal(settings.user, 'x');
+        should.equal(settings.password, 'y');
+        should.equal(settings.database, 'mydb');
+        should.equal(settings.connector, 'mongodb');
+        should.equal(settings.w, '2');
+        should.equal(settings.url, 'mongodb://x:y@localhost:27017/mydb?w=2');
+
+    });
+
+    it('Parse a url without auth into a settings object', function() {
+        var url = 'mongodb://localhost:27017/mydb/abc?w=2';
+        var settings = utils.parseSettings(url);
+        should.equal(settings.hostname, 'localhost');
+        should.equal(settings.port, 27017);
+        should.equal(settings.host, 'localhost');
+        should.equal(settings.user, undefined);
+        should.equal(settings.password, undefined);
+        should.equal(settings.database, 'mydb');
+        should.equal(settings.connector, 'mongodb');
+        should.equal(settings.w, '2');
+        should.equal(settings.url, 'mongodb://localhost:27017/mydb/abc?w=2');
+
+    });
+
+    it('Parse a url with complex query into a settings object', function() {
+        var url = 'mysql://127.0.0.1:3306/mydb?x[a]=1&x[b]=2&engine=InnoDB';
+        var settings = utils.parseSettings(url);
+        should.equal(settings.hostname, '127.0.0.1');
+        should.equal(settings.port, 3306);
+        should.equal(settings.host, '127.0.0.1');
+        should.equal(settings.user, undefined);
+        should.equal(settings.password, undefined);
+        should.equal(settings.database, 'mydb');
+        should.equal(settings.connector, 'mysql');
+        should.equal(settings.x.a, '1');
+        should.equal(settings.x.b, '2');
+        should.equal(settings.engine, 'InnoDB');
+        should.equal(settings.url, 'mysql://127.0.0.1:3306/mydb?x[a]=1&x[b]=2&engine=InnoDB');
+
+    });
+
+    it('Parse a url without auth into a settings object', function() {
+        var url = 'memory://?x=1';
+        var settings = utils.parseSettings(url);
+        should.equal(settings.hostname, '');
+        should.equal(settings.user, undefined);
+        should.equal(settings.password, undefined);
+        should.equal(settings.database, undefined);
+        should.equal(settings.connector, 'memory');
+        should.equal(settings.x, '1');
+        should.equal(settings.url, 'memory://?x=1');
+
+    });
+
+});

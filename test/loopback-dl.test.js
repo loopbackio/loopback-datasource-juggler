@@ -466,3 +466,25 @@ describe('Load models from json', function () {
     });
 });
 
+describe('DataSource constructor', function(){
+    it('Takes url as the settings', function() {
+        var ds = new DataSource('memory://localhost/mydb?x=1');
+        assert.equal(ds.connector.name, 'memory');
+    });
+
+    it('Takes connector name', function() {
+        var ds = new DataSource('memory');
+        assert.equal(ds.connector.name, 'memory');
+    });
+
+    it('Takes settings object', function() {
+        var ds = new DataSource({connector: 'memory'});
+        assert.equal(ds.connector.name, 'memory');
+    });
+
+    it('Takes settings object and name', function() {
+        var ds = new DataSource('x', {connector: 'memory'});
+        assert.equal(ds.connector.name, 'memory');
+    });
+});
+
