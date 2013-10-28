@@ -2,7 +2,13 @@
   "name": "loopback-datasource-juggler",
   "version": "1.0.0",
   "description": "LoopBack DataSoure Juggler",
-  "keywords": [ "StrongLoop", "LoopBack", "DataSource", "Juggler", "ORM" ],
+  "keywords": [
+    "StrongLoop",
+    "LoopBack",
+    "DataSource",
+    "Juggler",
+    "ORM"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/strongloop/loopback-datasource-juggler"
@@ -26,7 +32,8 @@
   "dependencies": {
     "async": "~0.2.9",
     "inflection": "~1.2.6",
-    "traverse": "~0.6.5"
+    "traverse": "~0.6.5",
+    "qs": "~0.6.5"
   },
   "license": "MIT"
 }
