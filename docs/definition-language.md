@@ -354,81 +354,113 @@ following syntax:
 
 ### Relations between models
 
+#### belongsTo
+
+A `belongsTo` relation sets up a one-to-one connection with another model, such
+that each instance of the declaring model "belongs to" one instance of the other
+model. For example, if your application includes customers and orders, and each order
+can be placed by exactly one customer.
+
+![belongsTo](belongs-to.png "belongsTo")
+
+    var Order = ds.createModel('Order', {
+        customerId: Number,
+        orderDate: Date
+    });
+
+    var Customer = ds.createModel('Customer', {
+        name: String
+    });
+
+    Order.belongsTo(Customer);
+
+
+The code above basically says Order has a reference called `customer` to User using
+the `customerId` property of Order as the foreign key. Now we can access the customer
+in one of the following styles:
+
+
+    order.customer(callback); // Get the customer for the order
+    order.customer(); // Get the customer for the order synchronously
+    order.customer(customer); // Set the customer for the order
+
+
 #### hasMany
 
 A `hasMany` relation builds a one-to-many connection with another model. You'll
 often find this relation on the "other side" of a `belongsTo` relation. This
 relation indicates that each instance of the model has zero or more instances
-of another model. For example, in an application containing users and posts, a
-user has zero or more posts. For example,
+of another model. For example, in an application containing customers and orders, a
+customer has zero or more orders.
 
-    // setup relationships
-    User.hasMany(Post,   {as: 'posts',  foreignKey: 'userId'});
-    // creates instance methods:
-    // user.posts(conds)
-    // user.posts.build(data) // like new Post({userId: user.id});
-    // user.posts.create(data) // build and save
+![hasMany](has-many.png "hasMany")
 
-Define all necessary stuff for `one to many` relation:
+    var Order = ds.createModel('Order', {
+        customerId: Number,
+        orderDate: Date
+    });
 
-- foreign key in `many` model
-- named scope in `one` model
+    var Customer = ds.createModel('Customer', {
+        name: String
+    });
 
-Example:
+    Customer.hasMany(Order, {as: 'orders', foreignKey: 'customerId'});
 
-    var Book = db.define('Book');
-    var Chapter = db.define('Chapters');
-
-    // Style 1
-    Book.hasMany(Chapter, {as: 'chapters'});
-
-    // Style 2
-    Book.hasMany('chapters', {model: Chapter, foreignKey: 'chapter_id'});
 
 
 Scope methods created on the base model by hasMany allows to build, create and
 query instances of other class. For example,
 
-    Book.create(function(err, book) {
-        // using 'chapters' scope for build:
-        var c = book.chapters.build({name: 'Chapter 1'});
-        // same as:
-        c = new Chapter({name: 'Chapter 1', bookId: book.id});
-        // using 'chapters' scope for create:
-        book.chapters.create();
-        // same as:
-        Chapter.create({bookId: book.id});
+    customer.orders(filter, callback); // Find orders for the customer
+    customer.orders.build(data); // Build a new order
+    customer.orders.create(data, callback); // Create a new order for the customer
+    customer.orders.destroyAll(callback); // Remove all orders for the customer
+    customer.orders.findById(orderId, callback); // Find an order by id
+    customer.orders.destroy(orderId, callback); // Delete and order by id
 
-        // using scope for querying:
-        book.chapters(function() {/* all chapters with bookId = book.id */ });
-        book.chapters({where: {name: 'test'}, function(err, chapters) {
-        // all chapters with bookId = book.id and name = 'test'
+
+#### hasMany through
+
+A `hasMany through` relation is often used to set up a many-to-many connection with another model. This relation
+indicates that the declaring model can be matched with zero or more instances of another model by proceeding through
+a third model. For example, consider a medical practice where patients make appointments to see physicians. The
+relevant association declarations could look like this:
+
+![hasManyThrough](has-many-through.png "hasManyThrough")
+
+    var Physician = ds.createModel('Physician', {name: String});
+    var Patient = ds.createModel('Patient', {name: String});
+    var Appointment = ds.createModel('Appointment', {
+        physicianId: Number,
+        patientId: Number,
+        appointmentDate: Date
     });
 
+    Appointment.belongsTo(Patient);
+    Appointment.belongsTo(Physician);
 
+    Physician.hasMany(Patient, {through: Appointment});
+    Patient.hasMany(Physician, {through: Appointment});
 
-#### belongsTo
-A `belongsTo` relation sets up a one-to-one connection with another model, such
-that each instance of the declaring model "belongs to" one instance of the other
-model. For example, if your application includes users and posts, and each post
-can be written by exactly one user.
+Now the Physician model has a virtual property called `patients`:
 
-    Post.belongsTo(User, {as: 'author', foreignKey: 'userId'});
+    physician.patients(filter, callback); // Find patients for the physician
+    physician.patients.build(data); // Build a new patient
+    physician.patients.create(data, callback); // Create a new patient for the physician
+    physician.patients.destroyAll(callback); // Remove all patients for the physician
+    physician.patients.add(patient, callback); // Add an patient to the physician
+    physician.patients.remove(patient, callback); // Remove an patient from the physician
+    physician.patients.findById(patientId, callback); // Find an patient by id
 
-The code above basically says Post has a reference called `author` to User using
-the `userId` property of Post as the foreign key. Now we can access the author
-in one of the following styles:
-
-
-    post.author(callback); // Get the User object for the post author asynchronously
-    post.author(); // Get the User object for the post author synchronously
-    post.author(user) // Set the author to be the given user
 
 #### hasAndBelongsToMany
+
 A `hasAndBelongsToMany` relation creates a direct many-to-many connection with
 another model, with no intervening model. For example, if your application
 includes users and groups, with each group having many users and each user
 appearing in many groups, you could declare the models this way,
+
+![hasAndBelongsToMany](has-and-belongs-to-many.png "hasAndBelongsToMany")
 
     User.hasAndBelongsToMany('groups', {model: Group, foreignKey: 'groupId'});
     user.groups(callback); // get groups of the user
