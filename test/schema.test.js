@@ -9,7 +9,7 @@ describe('dataSource', function() {
         Model = db.define('Model');
         Model.dataSource.should.eql(db);
         var m = new Model;
-        m.dataSource.should.eql(db);
+        m.getDataSource().should.eql(db);
     });
 
     it('should clone existing model', function() {
@@ -18,8 +18,8 @@ describe('dataSource', function() {
         slave.should.not.eql(db);
         var sm = new SlaveModel;
         sm.should.be.instanceOf(Model);
-        sm.dataSource.should.not.eql(db);
-        sm.dataSource.should.eql(slave);
+        sm.getDataSource().should.not.eql(db);
+        sm.getDataSource().should.eql(slave);
     });
 
     it('should automigrate', function(done) {
