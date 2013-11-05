@@ -444,6 +444,10 @@ describe('Load models with relations', function () {
         var ds = new DataSource('memory');
 
         var User = ds.define('User', {name: String}, {relations: {posts: {type: 'hasMany', model: 'Post'}, accounts: {type: 'hasMany', model: 'Account'}}});
+
+        assert(!User.relations['posts']);
+        assert(!User.relations['accounts']);
+
         var Post = ds.define('Post', {userId: Number, content: String}, {relations: {user: {type: 'belongsTo', model: 'User'}}});
 
         var Account = ds.define('Account', {userId: Number, type: String}, {relations: {user: {type: 'belongsTo', model: 'User'}}});
@@ -488,6 +492,44 @@ describe('Load models with relations', function () {
         }
 
     });
+
+    it('should throw if the relation type is invalid', function (done) {
+        var ds = new DataSource('memory');
+
+        var Post = ds.define('Post', {userId: Number, content: String});
+
+        try {
+            var User = ds.define('User', {name: String}, {relations: {posts: {type: 'hasXYZ', model: 'Post'}}});
+        } catch (e) {
+            done();
+        }
+
+    });
+
+    it('should handle hasMany through', function (done) {
+        var ds = new DataSource('memory');
+        var Physician = ds.createModel('Physician', {
+            name: String
+        }, {relations: {patients: {model: 'Patient', type: 'hasMany', through: 'Appointment'}}});
+
+        var Patient = ds.createModel('Patient', {
+            name: String
+        }, {relations: {physicians: {model: 'Physician', type: 'hasMany', through: 'Appointment'}}});
+
+        assert(!Physician.relations['patients']); // Appointment hasn't been resolved yet
+        assert(!Patient.relations['physicians']); // Appointment hasn't been resolved yet
+
+        var Appointment = ds.createModel('Appointment', {
+            physicianId: Number,
+            patientId: Number,
+            appointmentDate: Date
+        }, {relations: {patient: {type: 'belongsTo', model: 'Patient'}, physician: {type: 'belongsTo', model: 'Physician'}}});
+
+        assert(Physician.relations['patients']);
+        assert(Patient.relations['physicians']);
+        done();
+    });
+
 
 });
 
