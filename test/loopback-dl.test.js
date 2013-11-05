@@ -157,6 +157,38 @@ describe('ModelBuilder define model', function () {
         done(null, User);
     });
 
+    it('should be able to reference models by name before they are defined', function (done) {
+        var modelBuilder = new ModelBuilder();
+
+        var User = modelBuilder.define('User', {name: String, address: 'Address'});
+
+        var user;
+        try {
+            user = new User({name: 'Joe', address: {street: '123 Main St', 'city': 'San Jose', state: 'CA'}});
+            assert(false, 'An exception should have been thrown');
+        } catch (e) {
+            // Ignore
+        }
+
+        var Address = modelBuilder.define('Address', {
+            street: String,
+            city: String,
+            state: String,
+            zipCode: String,
+            country: String
+        });
+
+        user = new User({name: 'Joe', address: {street: '123 Main St', 'city': 'San Jose', state: 'CA'}});
+
+        User.modelName.should.equal('User');
+        User.definition.properties.address.should.have.property('type', Address);
+        user.should.be.a('object');
+        assert(user.name === 'Joe');
+        user.address.should.have.property('city', 'San Jose');
+        user.address.should.have.property('state', 'CA');
+        done(null, User);
+    });
+
 
 });
 
@@ -386,6 +418,120 @@ describe('DataSource define model', function () {
 
 });
 
+
+describe('Load models with relations', function () {
+    it('should set up relations', function (done) {
+        var ds = new DataSource('memory');
+
+        var Post = ds.define('Post', {userId: Number, content: String});
+        var User = ds.define('User', {name: String}, {relations: {posts: {type: 'hasMany', model: 'Post'}}});
+
+        assert(User.relations['posts']);
+        done();
+    });
+
+    it('should set up belongsTo relations', function (done) {
+        var ds = new DataSource('memory');
+
+        var User = ds.define('User', {name: String});
+        var Post = ds.define('Post', {userId: Number, content: String}, {relations: {user: {type: 'belongsTo', model: 'User'}}});
+
+        assert(Post.relations['user']);
+        done();
+    });
+
+    it('should set up hasMany and belongsTo relations', function (done) {
+        var ds = new DataSource('memory');
+
+        var User = ds.define('User', {name: String}, {relations: {posts: {type: 'hasMany', model: 'Post'}, accounts: {type: 'hasMany', model: 'Account'}}});
+
+        assert(!User.relations['posts']);
+        assert(!User.relations['accounts']);
+
+        var Post = ds.define('Post', {userId: Number, content: String}, {relations: {user: {type: 'belongsTo', model: 'User'}}});
+
+        var Account = ds.define('Account', {userId: Number, type: String}, {relations: {user: {type: 'belongsTo', model: 'User'}}});
+
+        assert(Post.relations['user']);
+        assert.deepEqual(Post.relations['user'], {
+            type: 'belongsTo',
+            keyFrom: 'userId',
+            keyTo: 'id',
+            modelTo: User,
+            multiple: false
+        });
+        assert(User.relations['posts']);
+        assert.deepEqual(User.relations['posts'], {
+            type: 'hasMany',
+            keyFrom: 'id',
+            keyTo: 'userId',
+            modelTo: Post,
+            multiple: true
+        });
+        assert(User.relations['accounts']);
+        assert.deepEqual(User.relations['accounts'], {
+            type: 'hasMany',
+            keyFrom: 'id',
+            keyTo: 'userId',
+            modelTo: Account,
+            multiple: true
+        });
+
+        done();
+    });
+
+    it('should throw if a relation is missing type', function (done) {
+        var ds = new DataSource('memory');
+
+        var Post = ds.define('Post', {userId: Number, content: String});
+
+        try {
+            var User = ds.define('User', {name: String}, {relations: {posts: {model: 'Post'}}});
+        } catch (e) {
+            done();
+        }
+
+    });
+
+    it('should throw if the relation type is invalid', function (done) {
+        var ds = new DataSource('memory');
+
+        var Post = ds.define('Post', {userId: Number, content: String});
+
+        try {
+            var User = ds.define('User', {name: String}, {relations: {posts: {type: 'hasXYZ', model: 'Post'}}});
+        } catch (e) {
+            done();
+        }
+
+    });
+
+    it('should handle hasMany through', function (done) {
+        var ds = new DataSource('memory');
+        var Physician = ds.createModel('Physician', {
+            name: String
+        }, {relations: {patients: {model: 'Patient', type: 'hasMany', through: 'Appointment'}}});
+
+        var Patient = ds.createModel('Patient', {
+            name: String
+        }, {relations: {physicians: {model: 'Physician', type: 'hasMany', through: 'Appointment'}}});
+
+        assert(!Physician.relations['patients']); // Appointment hasn't been resolved yet
+        assert(!Patient.relations['physicians']); // Appointment hasn't been resolved yet
+
+        var Appointment = ds.createModel('Appointment', {
+            physicianId: Number,
+            patientId: Number,
+            appointmentDate: Date
+        }, {relations: {patient: {type: 'belongsTo', model: 'Patient'}, physician: {type: 'belongsTo', model: 'Physician'}}});
+
+        assert(Physician.relations['patients']);
+        assert(Patient.relations['physicians']);
+        done();
+    });
+
+
+});
 
 describe('Load models from json', function () {
     it('should be able to define models from json', function () {
