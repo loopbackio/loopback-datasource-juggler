@@ -530,6 +530,20 @@ describe('Load models with relations', function () {
         done();
     });
 
+    it('should set up relations after attach', function (done) {
+        var ds = new DataSource('memory');
+        var modelBuilder = new ModelBuilder();
+
+        var Post = modelBuilder.define('Post', {userId: Number, content: String});
+        var User = modelBuilder.define('User', {name: String}, {relations: {posts: {type: 'hasMany', model: 'Post'}}});
+
+        assert(!User.relations['posts']);
+        Post.attachTo(ds);
+        User.attachTo(ds);
+        assert(User.relations['posts']);
+        done();
+    });
+
 
 });
 
