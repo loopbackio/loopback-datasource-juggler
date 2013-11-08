@@ -1,11 +1,13 @@
 {
   "name": "loopback-datasource-juggler",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "LoopBack DataSoure Juggler",
   "keywords": [
     "StrongLoop",
     "LoopBack",
     "DataSource",
+    "Connector",
+    "Database",
     "Juggler",
     "ORM"
   ],
