@@ -423,9 +423,16 @@ describe('Load models with base', function () {
     var ds = new ModelBuilder();
 
     var User = ds.define('User', {name: String});
+
+    User.staticMethod = function staticMethod() {};
+    User.prototype.instanceMethod = function instanceMethod() {};
+
     var Customer = ds.define('Customer', {vip: Boolean}, {base: 'User'});
 
     assert(Customer.prototype instanceof User);
+    assert(Customer.staticMethod === User.staticMethod);
+    assert(Customer.prototype.instanceMethod === User.prototype.instanceMethod);
+
 
     try {
       var Customer1 = ds.define('Customer1', {vip: Boolean}, {base: 'User1'});
