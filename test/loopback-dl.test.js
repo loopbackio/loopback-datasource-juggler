@@ -418,6 +418,31 @@ describe('DataSource define model', function () {
 
 });
 
+describe('Load models with base', function () {
+  it('should set up base class', function (done) {
+    var ds = new ModelBuilder();
+
+    var User = ds.define('User', {name: String});
+
+    User.staticMethod = function staticMethod() {};
+    User.prototype.instanceMethod = function instanceMethod() {};
+
+    var Customer = ds.define('Customer', {vip: Boolean}, {base: 'User'});
+
+    assert(Customer.prototype instanceof User);
+    assert(Customer.staticMethod === User.staticMethod);
+    assert(Customer.prototype.instanceMethod === User.prototype.instanceMethod);
+
+
+    try {
+      var Customer1 = ds.define('Customer1', {vip: Boolean}, {base: 'User1'});
+    } catch(e) {
+      assert(e);
+    }
+
+    done();
+  });
+});
 
 describe('Load models with relations', function () {
     it('should set up relations', function (done) {
