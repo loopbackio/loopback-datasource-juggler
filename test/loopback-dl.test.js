@@ -418,6 +418,24 @@ describe('DataSource define model', function () {
 
 });
 
+describe('Load models with base', function () {
+  it('should set up base class', function (done) {
+    var ds = new ModelBuilder();
+
+    var User = ds.define('User', {name: String});
+    var Customer = ds.define('Customer', {vip: Boolean}, {base: 'User'});
+
+    assert(Customer.prototype instanceof User);
+
+    try {
+      var Customer1 = ds.define('Customer1', {vip: Boolean}, {base: 'User1'});
+    } catch(e) {
+      assert(e);
+    }
+
+    done();
+  });
+});
 
 describe('Load models with relations', function () {
     it('should set up relations', function (done) {
