@@ -200,7 +200,7 @@ describe('DataSource define model', function () {
 // define models
         var Post = ds.define('Post', {
             title: { type: String, length: 255 },
-            content: { type: DataSource.Text },
+            content: { type: ModelBuilder.Text },
             date: { type: Date, default: function () {
                 return new Date();
             } },
@@ -211,7 +211,7 @@ describe('DataSource define model', function () {
 // simpler way to describe model
         var User = ds.define('User', {
             name: String,
-            bio: DataSource.Text,
+            bio: ModelBuilder.Text,
             approved: Boolean,
             joinedAt: Date,
             age: Number
@@ -592,7 +592,7 @@ describe('Load models from json', function () {
             // Read the dataSource JSON file
             var schemas = JSON.parse(fs.readFileSync(schemaFile));
 
-            return dataSource.buildModels(schemas);
+            return dataSource.modelBuilder.buildModels(schemas);
 
         }
 
