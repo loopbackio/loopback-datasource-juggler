@@ -2,13 +2,14 @@
 var should = require('./init.js');
 
 var Schema = require('../').Schema;
+var ModelBuilder = require('../').ModelBuilder;
 
 describe('JSON property', function() {
     var dataSource, Model;
 
     it('should be defined', function() {
         dataSource = getSchema();
-        Model = dataSource.define('Model', {propertyName: Schema.JSON});
+        Model = dataSource.define('Model', {propertyName: ModelBuilder.JSON});
         var m = new Model;
         (new Boolean('propertyName' in m)).should.eql(true);
         should.not.exist(m.propertyName);
