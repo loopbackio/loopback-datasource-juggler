@@ -1,6 +1,6 @@
 {
   "name": "loopback-datasource-juggler",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "LoopBack DataSoure Juggler",
   "keywords": [
     "StrongLoop",
@@ -17,17 +17,12 @@
   },
   "main": "index.js",
   "scripts": {
-    "blanket": {
-      "pattern": "//^((?!(node_modules|test)).)*$/"
-    },
-    "coverage": "mocha -r blanket -R html-cov > coverage_loopback-datasource-juggler.html",
     "test": "make test"
   },
   "engines": [
     "node >= 0.6"
   ],
   "devDependencies": {
-    "blanket": "~1.1.5",
     "should": "~1.2.2",
     "mocha": "~1.12.1"
   },
