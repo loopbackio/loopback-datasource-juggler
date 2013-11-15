@@ -1,7 +1,8 @@
 # LoopBack DataSource Juggler
 
-LoopBack DataSource Juggler is an ORM that provides a common set of interfaces for interacting with databases, REST APIs,
-and other data sources. It was initially forked from [JugglingDB](https://github.com/1602/jugglingdb).
+LoopBack DataSource Juggler is an ORM that provides a common set of interfaces
+for interacting with databases, REST APIs, and other data sources. It was
+initially forked from [JugglingDB](https://github.com/1602/jugglingdb).
 
 ## Overview
 
@@ -15,12 +16,12 @@ LoopBack DataSource Juggler consists of the following components:
 
 ## LoopBack Definition Language
 
-To define model dataSource have single method `dataSource.define`. It accepts three
-arguments:
+To define model dataSource have single method `dataSource.define`. It accepts
+three arguments:
 
 * **model name**:
-  String name in camel-case with first upper-case letter. This name will be used
-  later to access model.
+  String name in camel-case with first upper-case letter. This name will be
+  used later to access model.
 * **properties**:
   Object with property type definitions. Key is property name, value is type
   definition. Type definition can be function representing type of property
@@ -53,12 +54,12 @@ Examples of model definition:
 
 ## DataSource
 
-DataSource is a factory for model classes. DataSource connected with specific database or other
-backend system using connector.
+DataSource is a factory for model classes. DataSource connected with specific
+database or other backend system using connector.
 
-All model classes within single datasource shares same connector type and one database
-connection. But it's possible to use more than one datasource to connect with
-different databases.
+All model classes within single datasource shares same connector type and one
+database connection. But it's possible to use more than one datasource to
+connect with different databases.
 
 ### Creating dataSource
 
@@ -66,8 +67,8 @@ different databases.
 
     var DataSource = require('loopback-datasource-juggler').DataSource;
 
-DataSource constructor accepts two arguments. First argument is connector. It could be
-connector name or connector package:
+DataSource constructor accepts two arguments. First argument is connector. It
+could be a connector name or connector package:
 
     var dataSourceByConnectorName = new DataSource('memory');
     var dataSourceByConnectorModule = new DataSource(require('redis'));
@@ -95,9 +96,9 @@ For connector-specific settings refer to connector's readme file.
 | MySQL     | [loopback-connector-mysql](https://github.com/strongloop/loopback-connector-mysql)     |
 
 
-LoopBack connectors provide access to backend systems including databases, REST APIs
-and other services. Connectors are not used directly by application code. We create
-a DataSource to interact with the connector.
+LoopBack connectors provide access to backend systems including databases,
+REST APIs and other services. Connectors are not used directly by application
+code. We create a DataSource to interact with the connector.
 
 For example,
 
@@ -112,11 +113,13 @@ For example,
         debug : true
     });
 
-The connector argument passed the DataSource constructor can be one of the following:
+The connector argument passed the DataSource constructor can be one of the
+following:
 
 * The connector module from `require(connectorName)`
 * The full name of the connector module, such as 'loopback-connector-oracle'
-* The short name of the connector module, such as 'oracle', which will be converted to 'loopback-connector-<shortName>'
+* The short name of the connector module, such as 'oracle', which will be
+  converted to 'loopback-connector-<shortName>'
 * A local module under ./connectors/<connectorName> folder
 
 
@@ -129,6 +132,5 @@ Also install the appropriated connector, for example for mongodb:
     npm install loopback-connector-mongodb
 
 check following list of available connectors
-
 
 
