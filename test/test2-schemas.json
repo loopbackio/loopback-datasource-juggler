@@ -15,9 +15,9 @@
             "id": "string",
             "customer": {
                 "type": "Customer",
-                "association": {
+                "relation": {
                     "type": "belongsTo",
-                    "inverse": "account"
+                    "as": "account"
                 }
             },
             "balance": "number"
