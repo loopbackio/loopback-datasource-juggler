@@ -173,7 +173,7 @@ can be used to build LoopBack models.
 You can also discover and build model classes in one shot:
 
     // Start with INVENTORY table and follow the primary/foreign relationships to discover associated tables
-    ds.discoverAndBuildModels('INVENTORY', {visited: {}, associations: true}, function (err, models) {
+    ds.discoverAndBuildModels('INVENTORY', {visited: {}, relations: true}, function (err, models) {
 
         // Now we have an object of models keyed by the model name
         // Find the 1st record for Inventory
