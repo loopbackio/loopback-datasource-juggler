@@ -30,9 +30,14 @@ Customer.hasMany(Order, {as: 'orders', foreignKey: 'customerId'});
 Customer.create({name: 'Ray'}, function (err, customer) {
     Order.create({customerId: customer.id, orderDate: new Date()}, function (err, order) {
         customer.orders(console.log);
-        customer.orders.create({orderDate: new Date()}, console.log);
-        customer.orders.findById('2', console.log);
-        customer.orders.destroy('2', console.log);
+        customer.orders.create({orderDate: new Date()}, function(err, order) {
+          console.log(order);
+          Customer.include([customer], 'orders', function(err, results) {
+            console.log('Results: ', results);
+          });
+          customer.orders.findById('2', console.log);
+          customer.orders.destroy('2', console.log);
+        });
     });
 });
 
