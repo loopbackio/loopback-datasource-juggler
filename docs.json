@@ -5,13 +5,25 @@
             "depth": 2
         },
         {
-            "title": "Model and types",
+            "title": "Model builder",
             "depth": 3
         },
 
         "lib/model-builder.js",
+        {
+            "title": "Types",
+            "depth": 3
+        },        
         "lib/types.js",
+        {
+            "title": "GeoPoint",
+            "depth": 3
+        },
         "lib/geo.js",
+        {
+            "title": "Model",
+            "depth": 3
+        },        
         "lib/model.js",
 
         {
