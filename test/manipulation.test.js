@@ -2,6 +2,7 @@
 var should = require('./init.js');
 
 var db, Person;
+var ValidationError = require('..').ValidationError;
 
 describe('manipulation', function() {
 
@@ -173,7 +174,7 @@ describe('manipulation', function() {
                     p.save({
                         'throws': true
                     });
-                }).should.throw('Validation error');
+                }).should.throw(ValidationError);
             });
         });
 
