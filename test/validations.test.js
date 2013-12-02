@@ -2,7 +2,7 @@
 var should = require('./init.js');
 
 var j = require('../'), db, User;
-var ValidationError = require('../lib/validations.js').ValidationError;
+var ValidationError = j.ValidationError;
 
 function getValidAttributes() {
     return {
@@ -98,7 +98,7 @@ describe('validations', function() {
                 User.validatesPresenceOf('name');
                 User.create(function(e, u) {
                     should.exist(e);
-                    e.codes.name.should.eql(['presence']);
+                    e.details.codes.name.should.eql(['presence']);
                     done();
                 });
             });
