@@ -686,9 +686,8 @@ describe('Injected remotable methods', function(){
     M1.create.shared = false;
     assert.equal(M1.create.shared, false, 'M1.create should be local now');
     assert.equal(M2.create.shared, true, 'M2.create should stay remotable');
-    // Non-shared method should be same
-    assert.equal(M1.prototype.save, M2.prototype.save,
-      'Local methods should be the same');
+    assert.notEqual(M1.prototype.save, M2.prototype.save,
+      'non-remote methods are not shared');
   });
 
 
