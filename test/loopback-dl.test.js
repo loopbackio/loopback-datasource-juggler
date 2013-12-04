@@ -572,6 +572,33 @@ describe('Load models with relations', function () {
 
 });
 
+describe('DataAccessObject', function () {
+  it('should be able to coerce where clause based on the types', function () {
+    var ds = new DataSource('memory');
+    var model = ds.createModel('M1', {
+      id: {type: String, id: true},
+      age: Number
+    });
+    var where = model._coerce({id: 1});
+    assert.deepEqual(where, {id: '1'});
+
+    where = model._coerce({age: '10'});
+    assert.deepEqual(where, {age: 10});
+
+    where = model._coerce({age: 10});
+    assert.deepEqual(where, {age: 10});
+
+    where = model._coerce({age: {gt: 10}});
+    assert.deepEqual(where, {age: {gt: 10}});
+
+    where = model._coerce({age: {gt: '10'}});
+    assert.deepEqual(where, {age: {gt: 10}});
+
+    where = model._coerce({age: {between: ['10', '20']}});
+    assert.deepEqual(where, {age: {between: [10, 20]}});
+  });
+});
+
 describe('Load models from json', function () {
     it('should be able to define models from json', function () {
         var path = require('path'),
