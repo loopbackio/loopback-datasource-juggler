@@ -673,3 +673,34 @@ describe('DataSource constructor', function(){
     });
 });
 
+
+describe('Injected methods from connectors', function(){
+  it('are not shared across models for remote methods', function() {
+    var ds = new DataSource('memory');
+    var M1 = ds.createModel('M1');
+    var M2 = ds.createModel('M2');
+    // Remotable methods are not shared across models
+    assert.notEqual(M1.create, M2.create, 'Remotable methods are not shared');
+    assert.equal(M1.create.shared, true, 'M1.create is remotable');
+    assert.equal(M2.create.shared, true, 'M2.create is remotable');
+    M1.create.shared = false;
+    assert.equal(M1.create.shared, false, 'M1.create should be local now');
+    assert.equal(M2.create.shared, true, 'M2.create should stay remotable');
+  });
+
+  it('are not shared across models for non-remote methods', function() {
+    var ds = new DataSource('memory');
+    var M1 = ds.createModel('M1');
+    var M2 = ds.createModel('M2');
+    var m1 = M1.prototype.save;
+    var m2 = M2.prototype.save;
+    assert.notEqual(m1, m2, 'non-remote methods are not shared');
+    assert.equal(!!m1.shared, false, 'M1.save is not remotable');
+    assert.equal(!!m2.shared, false, 'M2.save is not remotable');
+    m1.shared = true;
+    assert.equal(m1.shared, true, 'M1.save is now remotable');
+    assert.equal(!!m2.shared, false, 'M2.save is not remotable');
+
+  });
+
+});
