@@ -649,6 +649,96 @@ describe('Load models from json', function () {
 
         done(null, customer);
     });
+
+  it('should be able to extend models with merged settings', function (done) {
+    var modelBuilder = new ModelBuilder();
+
+    var User = modelBuilder.define('User', {
+      name: String
+    }, {
+      defaultPermission: 'ALLOW',
+      acls: [
+        {
+          principalType: 'ROLE',
+          principalId: '$everyone',
+          permission: 'ALLOW'
+        }
+      ],
+      relations: {
+        posts: {
+          type: 'hasMany',
+          model:'Post'
+        }
+      }
+    });
+
+      var Customer = User.extend('Customer',
+        {customerId: {type: String, id: true}},
+        {
+          defaultPermission: 'DENY',
+          acls: [
+            {
+              principalType: 'ROLE',
+              principalId: '$unauthenticated',
+              permission: 'DENY'
+            }
+          ],
+          relations: {
+            orders: {
+              type: 'hasMany',
+              model:'Order'
+            }
+          }
+        }
+      );
+
+      assert.deepEqual(User.settings, {
+        defaultPermission: 'ALLOW',
+        acls: [
+          {
+            principalType: 'ROLE',
+            principalId: '$everyone',
+            permission: 'ALLOW'
+          }
+        ],
+        relations: {
+          posts: {
+            type: 'hasMany',
+            model:'Post'
+          }
+        },
+        strict: false
+      });
+
+      assert.deepEqual(Customer.settings, {
+        defaultPermission: 'DENY',
+        acls: [
+          {
+            principalType: 'ROLE',
+            principalId: '$everyone',
+            permission: 'ALLOW'
+          },
+          {
+            principalType: 'ROLE',
+            principalId: '$unauthenticated',
+            permission: 'DENY'
+          }
+        ],
+        relations: {
+          posts: {
+            type: 'hasMany',
+            model:'Post'
+          },
+          orders: {
+            type: 'hasMany',
+            model:'Order'
+          }
+        },
+        strict: false
+      });
+
+      done();
+    });
 });
 
 describe('DataSource constructor', function(){
