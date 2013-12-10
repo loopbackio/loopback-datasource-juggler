@@ -572,6 +572,83 @@ describe('Load models with relations', function () {
 
 });
 
+describe('DataAccessObject', function () {
+  var ds, model, where;
+
+  before(function () {
+    ds = new DataSource('memory');
+    model = ds.createModel('M1', {
+      id: {type: String, id: true},
+      age: Number,
+      vip: Boolean,
+      date: Date,
+      scores: [Number]
+    });
+  });
+
+  it('should be able to coerce where clause for string types', function () {
+    where = model._coerce({id: 1});
+    assert.deepEqual(where, {id: '1'});
+    where = model._coerce({id: '1'});
+    assert.deepEqual(where, {id: '1'});
+  });
+
+  it('should be able to coerce where clause for number types', function () {
+    where = model._coerce({age: '10'});
+    assert.deepEqual(where, {age: 10});
+
+    where = model._coerce({age: 10});
+    assert.deepEqual(where, {age: 10});
+
+    where = model._coerce({age: {gt: 10}});
+    assert.deepEqual(where, {age: {gt: 10}});
+
+    where = model._coerce({age: {gt: '10'}});
+    assert.deepEqual(where, {age: {gt: 10}});
+
+    where = model._coerce({age: {between: ['10', '20']}});
+    assert.deepEqual(where, {age: {between: [10, 20]}});
+  });
+
+  it('should be able to coerce where clause for array types', function () {
+    where = model._coerce({scores: ['10', '20']});
+    assert.deepEqual(where, {scores: [10, 20]});
+  });
+
+  it('should be able to coerce where clause for date types', function () {
+    var d = new Date();
+    where = model._coerce({date: d});
+    assert.deepEqual(where, {date: d});
+
+    where = model._coerce({date: d.toISOString()});
+    assert.deepEqual(where, {date: d});
+  });
+
+  it('should be able to coerce where clause for boolean types', function () {
+    where = model._coerce({vip: 'true'});
+    assert.deepEqual(where, {vip: true});
+
+    where = model._coerce({vip: true});
+    assert.deepEqual(where, {vip: true});
+
+    where = model._coerce({vip: 'false'});
+    assert.deepEqual(where, {vip: false});
+
+    where = model._coerce({vip: false});
+    assert.deepEqual(where, {vip: false});
+
+    where = model._coerce({vip: '1'});
+    assert.deepEqual(where, {vip: true});
+
+    where = model._coerce({vip: 0});
+    assert.deepEqual(where, {vip: false});
+
+    where = model._coerce({vip: ''});
+    assert.deepEqual(where, {vip: false});
+
+  });
+});
+
 describe('Load models from json', function () {
     it('should be able to define models from json', function () {
         var path = require('path'),
@@ -648,6 +725,96 @@ describe('Load models from json', function () {
         assert.equal(Object.keys(customer.toObject()).length, 6);
 
         done(null, customer);
+    });
+
+  it('should be able to extend models with merged settings', function (done) {
+    var modelBuilder = new ModelBuilder();
+
+    var User = modelBuilder.define('User', {
+      name: String
+    }, {
+      defaultPermission: 'ALLOW',
+      acls: [
+        {
+          principalType: 'ROLE',
+          principalId: '$everyone',
+          permission: 'ALLOW'
+        }
+      ],
+      relations: {
+        posts: {
+          type: 'hasMany',
+          model:'Post'
+        }
+      }
+    });
+
+      var Customer = User.extend('Customer',
+        {customerId: {type: String, id: true}},
+        {
+          defaultPermission: 'DENY',
+          acls: [
+            {
+              principalType: 'ROLE',
+              principalId: '$unauthenticated',
+              permission: 'DENY'
+            }
+          ],
+          relations: {
+            orders: {
+              type: 'hasMany',
+              model:'Order'
+            }
+          }
+        }
+      );
+
+      assert.deepEqual(User.settings, {
+        defaultPermission: 'ALLOW',
+        acls: [
+          {
+            principalType: 'ROLE',
+            principalId: '$everyone',
+            permission: 'ALLOW'
+          }
+        ],
+        relations: {
+          posts: {
+            type: 'hasMany',
+            model:'Post'
+          }
+        },
+        strict: false
+      });
+
+      assert.deepEqual(Customer.settings, {
+        defaultPermission: 'DENY',
+        acls: [
+          {
+            principalType: 'ROLE',
+            principalId: '$everyone',
+            permission: 'ALLOW'
+          },
+          {
+            principalType: 'ROLE',
+            principalId: '$unauthenticated',
+            permission: 'DENY'
+          }
+        ],
+        relations: {
+          posts: {
+            type: 'hasMany',
+            model:'Post'
+          },
+          orders: {
+            type: 'hasMany',
+            model:'Order'
+          }
+        },
+        strict: false
+      });
+
+      done();
     });
 });
 
