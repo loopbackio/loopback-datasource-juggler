@@ -5,6 +5,7 @@ var assert = require('assert');
 var jdb = require('../');
 var ModelBuilder = jdb.ModelBuilder;
 var DataSource = jdb.DataSource;
+var Memory = require('../lib/connectors/memory');
 
 var ModelDefinition = require('../lib/model-definition');
 
@@ -226,6 +227,26 @@ describe('ModelDefinition class', function () {
         assert.equal(User.columnName('oracle', 'userId'), 'ID');
         assert.equal(User.columnName('mysql', 'userId'), 'userId');
         done();
+    });
+
+    it('should inherit prototype using option.base', function () {
+        var memory = new DataSource({connector: Memory});
+        var modelBuilder =  memory.modelBuilder;
+        var parent = memory.createModel('parent', {}, {
+            relations: {
+                children: {
+                    type: 'hasMany',
+                    model: 'anotherChild'
+                }
+            }
+        });
+        var baseChild = modelBuilder.define('baseChild');
+        baseChild.attachTo(memory);
+        // the name of this must begin with a letter < b
+        // for this test to fail 
+        var anotherChild = baseChild.extend('anotherChild');
+
+        assert(anotherChild.prototype instanceof baseChild);
     });
 
 });
