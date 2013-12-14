@@ -654,6 +654,14 @@ describe('DataAccessObject', function () {
     assert.deepEqual(where, {location: {near: {lng: 10, lat: 20}, maxDistance: 20}});
   });
 
+  it('should skip null or undefined values', function () {
+    where = model._coerce({date: null});
+    assert.deepEqual(where, {date: null});
+
+    where = model._coerce({date: undefined});
+    assert.deepEqual(where, {date: undefined});
+  });
+
 });
 
 describe('Load models from json', function () {
