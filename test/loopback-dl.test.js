@@ -582,6 +582,7 @@ describe('DataAccessObject', function () {
       age: Number,
       vip: Boolean,
       date: Date,
+      location: 'GeoPoint',
       scores: [Number]
     });
   });
@@ -647,6 +648,12 @@ describe('DataAccessObject', function () {
     assert.deepEqual(where, {vip: false});
 
   });
+
+  it('should skip GeoPoint', function () {
+    where = model._coerce({location: {near: {lng: 10, lat: 20}, maxDistance: 20}});
+    assert.deepEqual(where, {location: {near: {lng: 10, lat: 20}, maxDistance: 20}});
+  });
+
 });
 
 describe('Load models from json', function () {
