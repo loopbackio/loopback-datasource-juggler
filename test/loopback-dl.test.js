@@ -868,6 +868,12 @@ describe('Injected methods from connectors', function(){
     assert.equal(m1.shared, true, 'M1.save is now remotable');
     assert.equal(!!m2.shared, false, 'M2.save is not remotable');
 
+    assert.equal(M1.deleteById, M1.removeById,
+      'Same methods on the same model should have the same proxy');
+
+    assert.notEqual(M1.deleteById, M2.deleteById,
+      'Same methods on differnt models should have different proxies');
+
   });
 
 });
