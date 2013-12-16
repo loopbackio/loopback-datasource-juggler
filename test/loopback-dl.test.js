@@ -662,6 +662,14 @@ describe('DataAccessObject', function () {
     assert.deepEqual(where, {date: undefined});
   });
 
+  it('should skip conversion if it produces NaN for numbers', function () {
+    where = model._coerce({age: 'xyz'});
+    assert.deepEqual(where, {age: 'xyz'});
+
+    where = model._coerce({age: {inq: ['xyz', '12']}});
+    assert.deepEqual(where, {age: {inq: ['xyz', 12]}});
+  });
+
 });
 
 describe('Load models from json', function () {
