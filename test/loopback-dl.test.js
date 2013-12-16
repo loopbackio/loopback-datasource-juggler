@@ -654,18 +654,24 @@ describe('DataAccessObject', function () {
     assert.deepEqual(where, {location: {near: {lng: 10, lat: 20}, maxDistance: 20}});
   });
 
-  it('should skip null or undefined values', function () {
+  it('should skip null values', function () {
     where = model._coerce({date: null});
     assert.deepEqual(where, {date: null});
+  });
 
+  it('should skip undefined values', function () {
     where = model._coerce({date: undefined});
     assert.deepEqual(where, {date: undefined});
   });
 
-  it('should skip conversion if it produces NaN for numbers', function () {
+  it('should skip conversion if a simple property produces NaN for numbers',
+    function () {
     where = model._coerce({age: 'xyz'});
     assert.deepEqual(where, {age: 'xyz'});
+  });
 
+  it('should skip conversion if an array property produces NaN for numbers',
+    function () {
     where = model._coerce({age: {inq: ['xyz', '12']}});
     assert.deepEqual(where, {age: {inq: ['xyz', 12]}});
   });
