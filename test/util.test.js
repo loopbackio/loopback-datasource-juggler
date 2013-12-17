@@ -2,6 +2,7 @@ var should = require('./init.js');
 var utils = require('../lib/utils');
 var fieldsToArray = utils.fieldsToArray;
 var removeUndefined = utils.removeUndefined;
+var mergeSettings = utils.mergeSettings;
 
 
 describe('util.fieldsToArray', function(){
@@ -114,4 +115,76 @@ describe('util.parseSettings', function(){
 
     });
 
+});
+
+describe('mergeSettings', function () {
+  it('should merge settings correctly', function () {
+    var src = { base: 'User',
+      relations: { accessTokens: { model: 'accessToken', type: 'hasMany',
+        foreignKey: 'userId' },
+        account: { model: 'account', type: 'belongsTo' } },
+      acls: [
+        { accessType: '*',
+          permission: 'DENY',
+          principalType: 'ROLE',
+          principalId: '$everyone' },
+        { accessType: '*',
+          permission: 'ALLOW',
+          principalType: 'ROLE',
+          property: 'login',
+          principalId: '$everyone' },
+        { permission: 'ALLOW',
+          property: 'findById',
+          principalType: 'ROLE',
+          principalId: '$owner' }
+      ] };
+    var tgt = { strict: false,
+      acls: [
+        { principalType: 'ROLE',
+          principalId: '$everyone',
+          permission: 'ALLOW',
+          property: 'create' },
+        { principalType: 'ROLE',
+          principalId: '$owner',
+          permission: 'ALLOW',
+          property: 'removeById' }
+      ],
+      maxTTL: 31556926,
+      ttl: 1209600 };
+
+    var dst = mergeSettings(tgt, src);
+
+    var expected = { strict: false,
+      acls: [
+        { principalType: 'ROLE',
+          principalId: '$everyone',
+          permission: 'ALLOW',
+          property: 'create' },
+        { principalType: 'ROLE',
+          principalId: '$owner',
+          permission: 'ALLOW',
+          property: 'removeById' },
+        { accessType: '*',
+          permission: 'DENY',
+          principalType: 'ROLE',
+          principalId: '$everyone' },
+        { accessType: '*',
+          permission: 'ALLOW',
+          principalType: 'ROLE',
+          property: 'login',
+          principalId: '$everyone' },
+        { permission: 'ALLOW',
+          property: 'findById',
+          principalType: 'ROLE',
+          principalId: '$owner' }
+      ],
+      maxTTL: 31556926,
+      ttl: 1209600,
+      base: 'User',
+      relations: { accessTokens: { model: 'accessToken', type: 'hasMany',
+        foreignKey: 'userId' },
+        account: { model: 'account', type: 'belongsTo' } } };
+
+    should.deepEqual(dst.acls, expected.acls, 'Merged settings should match the expectation');
+  });
 });
