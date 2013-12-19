@@ -906,3 +906,39 @@ describe('Injected methods from connectors', function(){
   });
 
 });
+
+
+describe('ModelBuilder options.models', function(){
+  it('should inject model classes from models', function() {
+    var builder = new ModelBuilder();
+    var M1 = builder.define('M1');
+    var M2 = builder.define('M2', {}, {models: {
+      'M1': M1
+    }});
+
+    assert.equal(M2.M1, M1, 'M1 should be injected to M2');
+  });
+
+  it('should inject model classes by name in the models', function() {
+    var builder = new ModelBuilder();
+    var M1 = builder.define('M1');
+    var M2 = builder.define('M2', {}, {models: {
+      'M1': 'M1'
+    }});
+
+    assert.equal(M2.M1, M1, 'M1 should be injected to M2');
+  });
+
+  it('should inject model classes by name in the models before the class is defined',
+    function() {
+      var builder = new ModelBuilder();
+      var M2 = builder.define('M2', {}, {models: {
+        'M1': 'M1'
+      }});
+      assert(M2.M1, 'M1 should be injected to M2');
+      assert(M2.M1.settings.unresolved, 'M1 is still a proxy');
+      var M1 = builder.define('M1');
+      assert.equal(M2.M1, M1, 'M1 should be injected to M2');
+  });
+
+});
