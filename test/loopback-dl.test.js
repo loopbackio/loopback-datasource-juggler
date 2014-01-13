@@ -444,6 +444,51 @@ describe('Load models with base', function () {
   });
 });
 
+describe('DataSource constructor', function() {
+  // Mocked require
+  var loader = function(name) {
+    return {
+      name: name
+    }
+  };
+
+  it('should resolve connector by path', function() {
+    var connector = DataSource._resolveConnector(__dirname + '/../lib/connectors/memory');
+    assert(connector.connector);
+  });
+  it('should resolve connector by internal name', function() {
+    var connector = DataSource._resolveConnector('memory');
+    assert(connector.connector);
+  });
+  it('should try to resolve connector by module name starts with loopback-connector-', function() {
+    var connector = DataSource._resolveConnector('loopback-connector-xyz', loader);
+    assert(connector.connector);
+  });
+  it('should try to resolve connector by short module name', function() {
+    var connector = DataSource._resolveConnector('xyz', loader);
+    assert(connector.connector);
+  });
+  it('should try to resolve connector by full module name', function() {
+    var connector = DataSource._resolveConnector('loopback-xyz', loader);
+    assert(connector.connector);
+  });
+  it('should fail to resolve connector by module name starts with loopback-connector-', function() {
+    var connector = DataSource._resolveConnector('loopback-connector-xyz');
+    assert(!connector.connector);
+    assert(connector.error.indexOf('loopback-connector-xyz') !== -1);
+  });
+  it('should fail to resolve connector by short module name', function() {
+    var connector = DataSource._resolveConnector('xyz');
+    assert(!connector.connector);
+    assert(connector.error.indexOf('loopback-connector-xyz') !== -1);
+  });
+  it('should fail to resolve connector by full module name', function() {
+    var connector = DataSource._resolveConnector('loopback-xyz');
+    assert(!connector.connector);
+    assert(connector.error.indexOf('loopback-connector-loopback-xyz') !== -1);
+  });
+});
+
 describe('Load models with relations', function () {
     it('should set up relations', function (done) {
         var ds = new DataSource('memory');
