@@ -58,6 +58,7 @@ The `DataSource` constructor is available from `loopback-datasource-juggler` mod
 - connector: The name or instance of the connector module
 - settings: An object of properties to configure the connector
 
+
     var dataSource = new DataSource({
         connector: require('loopback-connector-mongodb'),
         host: 'localhost',
