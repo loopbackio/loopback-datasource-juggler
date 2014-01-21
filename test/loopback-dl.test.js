@@ -510,6 +510,19 @@ describe('Load models with relations', function () {
         done();
     });
 
+    it('should set up foreign key with the correct type', function (done) {
+        var ds = new DataSource('memory');
+
+        var User = ds.define('User', {name: String, id: {type: String, id: true}});
+        var Post = ds.define('Post', {content: String}, {relations: {user: {type: 'belongsTo', model: 'User'}}});
+
+        var fk = Post.definition.properties['userId'];
+        assert(fk, 'The foreign key should be added');
+        assert(fk.type === String, 'The foreign key should be the same type as primary key');
+        assert(Post.relations['user'], 'User relation should be set');
+        done();
+    });
+
     it('should set up hasMany and belongsTo relations', function (done) {
         var ds = new DataSource('memory');
 
