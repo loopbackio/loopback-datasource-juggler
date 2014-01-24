@@ -8,56 +8,56 @@ var ds = new DataSource('memory');
 var Application = ds.createModel('Schemaless', {}, {strict: false});
 
 var application = {
-    owner: 'rfeng',
-    name: 'MyApp1',
-    description: 'My first app',
-    pushSettings: [
-        {   "platform": "apns",
-            "apns": {
-                "pushOptions": {
-                    "gateway": "gateway.sandbox.push.apple.com",
-                    "cert": "credentials/apns_cert_dev.pem",
-                    "key": "credentials/apns_key_dev.pem"
-                },
+  owner: 'rfeng',
+  name: 'MyApp1',
+  description: 'My first app',
+  pushSettings: [
+    {   "platform": "apns",
+      "apns": {
+        "pushOptions": {
+          "gateway": "gateway.sandbox.push.apple.com",
+          "cert": "credentials/apns_cert_dev.pem",
+          "key": "credentials/apns_key_dev.pem"
+        },
 
-                "feedbackOptions": {
-                    "gateway": "feedback.sandbox.push.apple.com",
-                    "cert": "credentials/apns_cert_dev.pem",
-                    "key": "credentials/apns_key_dev.pem",
-                    "batchFeedback": true,
-                    "interval": 300
-                }
-            }}
-    ]}
+        "feedbackOptions": {
+          "gateway": "feedback.sandbox.push.apple.com",
+          "cert": "credentials/apns_cert_dev.pem",
+          "key": "credentials/apns_key_dev.pem",
+          "batchFeedback": true,
+          "interval": 300
+        }
+      }}
+  ]}
 
 console.log(new Application(application).toObject());
 
 Application.create(application, function (err, app1) {
-    console.log('Created: ', app1.toObject());
-    Application.findById(app1.id, function (err, app2) {
-        console.log('Found: ', app2.toObject());
-    });
+  console.log('Created: ', app1.toObject());
+  Application.findById(app1.id, function (err, app2) {
+    console.log('Found: ', app2.toObject());
+  });
 });
 
 // Instance JSON document
 var user = {
-    name: 'Joe',
-    age: 30,
-    birthday: new Date(),
-    vip: true,
-    address: {
-        street: '1 Main St',
-        city: 'San Jose',
-        state: 'CA',
-        zipcode: '95131',
-        country: 'US'
-    },
-    friends: ['John', 'Mary'],
-    emails: [
-        {label: 'work', id: 'x@sample.com'},
-        {label: 'home', id: 'x@home.com'}
-    ],
-    tags: []
+  name: 'Joe',
+  age: 30,
+  birthday: new Date(),
+  vip: true,
+  address: {
+    street: '1 Main St',
+    city: 'San Jose',
+    state: 'CA',
+    zipcode: '95131',
+    country: 'US'
+  },
+  friends: ['John', 'Mary'],
+  emails: [
+    {label: 'work', id: 'x@sample.com'},
+    {label: 'home', id: 'x@home.com'}
+  ],
+  tags: []
 };
 
 // Introspect the JSON document to generate a schema
@@ -72,10 +72,10 @@ var obj = new User(user);
 console.log(obj.toObject());
 
 User.create(user, function (err, u1) {
-    console.log('Created: ', u1.toObject());
-    User.findById(u1.id, function (err, u2) {
-        console.log('Found: ', u2.toObject());
-    });
+  console.log('Created: ', u1.toObject());
+  User.findById(u1.id, function (err, u2) {
+    console.log('Found: ', u2.toObject());
+  });
 });
 
 
