@@ -58,12 +58,15 @@ The `DataSource` constructor is available from `loopback-datasource-juggler` mod
 - connector: The name or instance of the connector module
 - settings: An object of properties to configure the connector
 
-    var dataSource = new DataSource({
-        connector: require('loopback-connector-mongodb'),
-        host: 'localhost',
-        port: 27017,
-        database: 'mydb'
-    });
+
+```
+var dataSource = new DataSource({
+    connector: require('loopback-connector-mongodb'),
+    host: 'localhost',
+    port: 27017,
+    database: 'mydb'
+});
+```
 
 #### connector
 
@@ -75,10 +78,11 @@ The `connector` argument passed the DataSource constructor can be one of the fol
 to 'loopback-connector-<shortName>'
 * A local module under ./connectors/<connectorName> folder
 
-
-    var ds1 = new DataSource('memory');
-    var ds2 = new DataSource('loopback-connector-mongodb'));
-    var ds3 = new DataSource(require('loopback-connector-oracle'));
+```
+var ds1 = new DataSource('memory');
+var ds2 = new DataSource('loopback-connector-mongodb'));
+var ds3 = new DataSource(require('loopback-connector-oracle'));
+```
 
 **Note**: LoopBack provides a built-in connector named as `memory` to use in-memory
 store for CRUD operations.

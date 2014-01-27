@@ -4,29 +4,29 @@ var ds = new DataSource('memory');
 
 // define models
 var Post = ds.define('Post', {
-    title: { type: String, length: 255 },
-    content: { type: DataSource.Text },
-    date: { type: Date, default: function () {
-        return new Date;
-    } },
-    timestamp: { type: Number, default: Date.now },
-    published: { type: Boolean, default: false, index: true }
+  title: { type: String, length: 255 },
+  content: { type: DataSource.Text },
+  date: { type: Date, default: function () {
+    return new Date;
+  } },
+  timestamp: { type: Number, default: Date.now },
+  published: { type: Boolean, default: false, index: true }
 });
 
 // simplier way to describe model
 var User = ds.define('User', {
-    name: String,
-    bio: DataSource.Text,
-    approved: Boolean,
-    joinedAt: Date,
-    age: Number
+  name: String,
+  bio: DataSource.Text,
+  approved: Boolean,
+  joinedAt: Date,
+  age: Number
 });
 
 var Group = ds.define('Group', {name: String});
 
 // define any custom method
 User.prototype.getNameAndAge = function () {
-    return this.name + ', ' + this.age;
+  return this.name + ', ' + this.age;
 };
 
 var user = new User({name: 'Joe'});
@@ -53,48 +53,48 @@ User.hasAndBelongsToMany('groups');
 
 var user2 = new User({name: 'Smith'});
 user2.save(function (err) {
-    console.log(user2);
-    var post = user2.posts.build({title: 'Hello world'});
-    post.save(function(err, data) {
-       console.log(err ? err: data);
-    });
+  console.log(user2);
+  var post = user2.posts.build({title: 'Hello world'});
+  post.save(function (err, data) {
+    console.log(err ? err : data);
+  });
 });
 
 Post.findOne({where: {published: false}, order: 'date DESC'}, function (err, data) {
-    console.log(data);
+  console.log(data);
 });
 
 User.create({name: 'Jeff'}, function (err, data) {
-    if (err) {
-        console.log(err);
-        return;
-    }
-    console.log(data);
-    var post = data.posts.build({title: 'My Post'});
-    console.log(post);
+  if (err) {
+    console.log(err);
+    return;
+  }
+  console.log(data);
+  var post = data.posts.build({title: 'My Post'});
+  console.log(post);
 });
 
 User.create({name: 'Ray'}, function (err, data) {
-    console.log(data);
+  console.log(data);
 });
 
 User.scope('minors', {age: {le: 16}});
-User.minors(function(err, kids) {
-    console.log('Kids: ', kids);
+User.minors(function (err, kids) {
+  console.log('Kids: ', kids);
 });
 
 var Article = ds.define('Article', {title: String});
 var Tag = ds.define('Tag', {name: String});
 Article.hasAndBelongsToMany('tags');
 
-Article.create(function(e, article) {
-    article.tags.create({name: 'popular'}, function (err, data) {
-        Article.findOne(function(e, article) {
-            article.tags(function(e, tags) {
-                console.log(tags);
-            });
-        });
+Article.create(function (e, article) {
+  article.tags.create({name: 'popular'}, function (err, data) {
+    Article.findOne(function (e, article) {
+      article.tags(function (e, tags) {
+        console.log(tags);
+      });
     });
+  });
 });
 
 // should be able to attach a data source to an existing model
