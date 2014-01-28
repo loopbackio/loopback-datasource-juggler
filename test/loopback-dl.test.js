@@ -479,6 +479,42 @@ describe('Load models with base', function () {
   });
 });
 
+describe('DataSource connector types', function() {
+  it('should return an array of types', function() {
+    var ds = new DataSource('memory');
+    var types = ds.getTypes();
+    assert.deepEqual(types, ['db', 'nosql', 'memory']);
+  });
+
+  it('should test supported types by string', function() {
+    var ds = new DataSource('memory');
+    var result = ds.supportTypes('db');
+    assert(result);
+  });
+
+  it('should test supported types by array', function() {
+    var ds = new DataSource('memory');
+    var result = ds.supportTypes(['db', 'memory']);
+    assert(result);
+  });
+
+  it('should test unsupported types by string', function() {
+    var ds = new DataSource('memory');
+    var result = ds.supportTypes('rdbms');
+    assert(!result);
+  });
+
+  it('should test unsupported types by array', function() {
+    var ds = new DataSource('memory');
+    var result = ds.supportTypes(['rdbms', 'memory']);
+    assert(!result);
+
+    result = ds.supportTypes(['rdbms']);
+    assert(!result);
+  });
+
+});
+
 describe('DataSource constructor', function () {
   // Mocked require
   var loader = function (name) {
