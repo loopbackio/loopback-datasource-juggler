@@ -40,10 +40,10 @@ describe('Memory connector', function () {
     });
 
     var count = 0;
-    var id = 1;
+    var ids = [];
     async.eachSeries(['John1', 'John2', 'John3'], function (item, cb) {
       User.create({name: item}, function (err, result) {
-        id = result.id;
+        ids.push(result.id);
         count++;
         readModels(function (err, json) {
           assert.equal(Object.keys(json.models.User).length, count);
@@ -52,10 +52,17 @@ describe('Memory connector', function () {
       });
     }, function (err, results) {
       // Now try to delete one
-      User.deleteById(id, function (err) {
+      User.deleteById(ids[0], function (err) {
         readModels(function (err, json) {
           assert.equal(Object.keys(json.models.User).length, 2);
-          done();
+          User.upsert({id: ids[1], name: 'John'}, function(err, result) {
+            readModels(function (err, json) {
+              assert.equal(Object.keys(json.models.User).length, 2);
+              var user = JSON.parse(json.models.User[ids[1]]);
+              assert.equal(user.name, 'John');
+              done();
+            });
+          });
         });
       });
     });
