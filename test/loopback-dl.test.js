@@ -416,6 +416,40 @@ describe('DataSource define model', function () {
     });
   });
 
+  it('injects id by default', function (done) {
+    var ds = new ModelBuilder();
+
+    var User = ds.define('User', {});
+    assert.deepEqual(User.definition.properties.id,
+      {type: Number, id: 1, generated: true});
+
+    done();
+  });
+
+  it('disables idInjection if the value is false', function (done) {
+    var ds = new ModelBuilder();
+
+    var User1 = ds.define('User', {}, {idInjection: false});
+    assert(!User1.definition.properties.id);
+    done();
+  });
+
+  it('updates generated id type by the connector', function (done) {
+    var builder = new ModelBuilder();
+
+    var User = builder.define('User', {id: {type: String, generated: true, id: true}});
+    assert.deepEqual(User.definition.properties.id,
+      {type: String, id: 1, generated: true});
+
+    var ds = new DataSource('memory');// define models
+    User.attachTo(ds);
+
+    assert.deepEqual(User.definition.properties.id,
+      {type: Number, id: 1, generated: true});
+
+    done();
+  });
+
 });
 
 describe('Load models with base', function () {
@@ -443,6 +477,42 @@ describe('Load models with base', function () {
 
     done();
   });
+});
+
+describe('DataSource connector types', function() {
+  it('should return an array of types', function() {
+    var ds = new DataSource('memory');
+    var types = ds.getTypes();
+    assert.deepEqual(types, ['db', 'nosql', 'memory']);
+  });
+
+  it('should test supported types by string', function() {
+    var ds = new DataSource('memory');
+    var result = ds.supportTypes('db');
+    assert(result);
+  });
+
+  it('should test supported types by array', function() {
+    var ds = new DataSource('memory');
+    var result = ds.supportTypes(['db', 'memory']);
+    assert(result);
+  });
+
+  it('should test unsupported types by string', function() {
+    var ds = new DataSource('memory');
+    var result = ds.supportTypes('rdbms');
+    assert(!result);
+  });
+
+  it('should test unsupported types by array', function() {
+    var ds = new DataSource('memory');
+    var result = ds.supportTypes(['rdbms', 'memory']);
+    assert(!result);
+
+    result = ds.supportTypes(['rdbms']);
+    assert(!result);
+  });
+
 });
 
 describe('DataSource constructor', function () {
