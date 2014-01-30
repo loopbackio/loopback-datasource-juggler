@@ -54,6 +54,26 @@ describe('ModelBuilder define model', function () {
     done(null, User);
   });
 
+  it('should ignore non-predefined properties in strict mode', function (done) {
+    var modelBuilder = new ModelBuilder();
+
+    var User = modelBuilder.define('User', {name: String, bio: String}, {strict: true});
+
+    var user = new User({name: 'Joe'});
+    user.age = 10;
+    user.bio = 'me';
+
+    assert(user.name === 'Joe');
+    assert(user.bio === 'me');
+    assert(user.toObject().age === undefined);
+    assert(user.toObject(true).age === undefined);
+    assert(user.toObject(false).age === 10);
+    assert(user.toObject().bio === 'me');
+    assert(user.toObject(true).bio === 'me');
+    assert(user.toObject(false).bio === 'me');
+    done(null, User);
+  });
+
   it('should throw when unknown properties are used if strict=throw', function (done) {
     var modelBuilder = new ModelBuilder();
 
@@ -80,6 +100,26 @@ describe('ModelBuilder define model', function () {
     user.should.have.property('name', 'Joe');
     user.should.have.property('age', 20);
     user.should.not.have.property('bio');
+    done(null, User);
+  });
+
+  it('should take non-predefined properties in non-strict mode', function (done) {
+    var modelBuilder = new ModelBuilder();
+
+    var User = modelBuilder.define('User', {name: String, bio: String}, {strict: false});
+
+    var user = new User({name: 'Joe'});
+    user.age = 10;
+    user.bio = 'me';
+
+    assert(user.name === 'Joe');
+    assert(user.bio === 'me');
+    assert(user.toObject().age === 10);
+    assert(user.toObject(false).age === 10);
+    assert(user.toObject(true).age === 10);
+    assert(user.toObject().bio === 'me');
+    assert(user.toObject(true).bio === 'me');
+    assert(user.toObject(false).bio === 'me');
     done(null, User);
   });
 
