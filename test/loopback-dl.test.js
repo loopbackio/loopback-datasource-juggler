@@ -46,11 +46,11 @@ describe('ModelBuilder define model', function () {
 
     User.modelName.should.equal('User');
     user.should.be.a('object');
-    assert(user.name === 'Joe');
-    assert(user.age === undefined);
-    assert(user.toObject().age === undefined);
-    assert(user.toObject(true).age === undefined);
-    assert(user.bio === undefined);
+    user.should.have.property('name', 'Joe');
+    user.should.not.have.property('age');
+    user.toObject().should.not.have.property('age');
+    user.toObject(true).should.not.have.property('age');
+    user.should.not.have.property('bio');
     done(null, User);
   });
 
@@ -63,14 +63,18 @@ describe('ModelBuilder define model', function () {
     user.age = 10;
     user.bio = 'me';
 
-    assert(user.name === 'Joe');
-    assert(user.bio === 'me');
-    assert(user.toObject().age === undefined);
-    assert(user.toObject(true).age === undefined);
-    assert(user.toObject(false).age === 10);
-    assert(user.toObject().bio === 'me');
-    assert(user.toObject(true).bio === 'me');
-    assert(user.toObject(false).bio === 'me');
+    user.should.have.property('name', 'Joe');
+    user.should.have.property('bio', 'me');
+
+    // Non predefined property age should be ignored in strict mode if schemaOnly parameter is not false
+    user.toObject().should.not.have.property('age');
+    user.toObject(true).should.not.have.property('age');
+    user.toObject(false).should.have.property('age', 10);
+
+    // Predefined property bio should be kept in strict mode
+    user.toObject().should.have.property('bio', 'me');
+    user.toObject(true).should.have.property('bio', 'me');
+    user.toObject(false).should.have.property('bio', 'me');
     done(null, User);
   });
 
@@ -112,14 +116,19 @@ describe('ModelBuilder define model', function () {
     user.age = 10;
     user.bio = 'me';
 
-    assert(user.name === 'Joe');
-    assert(user.bio === 'me');
-    assert(user.toObject().age === 10);
-    assert(user.toObject(false).age === 10);
-    assert(user.toObject(true).age === 10);
-    assert(user.toObject().bio === 'me');
-    assert(user.toObject(true).bio === 'me');
-    assert(user.toObject(false).bio === 'me');
+    user.should.have.property('name', 'Joe');
+    user.should.have.property('bio', 'me');
+
+    // Non predefined property age should be kept in non-strict mode
+    user.toObject().should.have.property('age', 10);
+    user.toObject(true).should.have.property('age', 10);
+    user.toObject(false).should.have.property('age', 10);
+
+    // Predefined property bio should be kept
+    user.toObject().should.have.property('bio', 'me');
+    user.toObject(true).should.have.property('bio', 'me');
+    user.toObject(false).should.have.property('bio', 'me');
+
     done(null, User);
   });
 
