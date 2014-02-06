@@ -27,9 +27,9 @@ describe('datatypes', function () {
     }, function (err, m) {
       should.not.exist(err);
       should.exist(m && m.id);
-      m.str.should.be.a('string');
-      m.num.should.be.a('number');
-      m.bool.should.be.a('boolean');
+      m.str.should.be.a.String;
+      m.num.should.be.a.Number;
+      m.bool.should.be.a.Boolean;
       id = m.id;
       testFind(testAll);
     });
@@ -39,9 +39,9 @@ describe('datatypes', function () {
       Model.findById(id, function (err, m) {
         should.not.exist(err);
         should.exist(m);
-        m.str.should.be.a('string');
-        m.num.should.be.a('number');
-        m.bool.should.be.a('boolean');
+        m.str.should.be.a.String;
+        m.num.should.be.a.Number;
+        m.bool.should.be.a.Boolean;
         m.date.should.be.an.instanceOf(Date);
         m.date.toString().should.equal(d.toString(), 'Time must match');
         next();
@@ -52,9 +52,9 @@ describe('datatypes', function () {
       Model.findOne(function (err, m) {
         should.not.exist(err);
         should.exist(m);
-        m.str.should.be.a('string');
-        m.num.should.be.a('number');
-        m.bool.should.be.a('boolean');
+        m.str.should.be.a.String;
+        m.num.should.be.a.Number;
+        m.bool.should.be.a.Boolean;
         m.date.should.be.an.instanceOf(Date);
         m.date.toString().should.equal(d.toString(), 'Time must match');
         done();

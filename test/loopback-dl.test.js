@@ -24,13 +24,13 @@ describe('ModelBuilder define model', function () {
       return this.name + ', ' + this.age;
     };
 
-    modelBuilder.models.should.be.a('object').and.have.property('User', User);
-    modelBuilder.definitions.should.be.a('object').and.have.property('User');
+    modelBuilder.models.should.be.a.Object.and.have.property('User', User);
+    modelBuilder.definitions.should.be.a.Object.and.have.property('User');
 
     var user = new User({name: 'Joe', age: 20});
 
     User.modelName.should.equal('User');
-    user.should.be.a('object').and.have.property('name', 'Joe');
+    user.should.be.a.Object.and.have.property('name', 'Joe');
     user.should.have.property('name', 'Joe');
     user.should.have.property('age', 20);
     user.should.not.have.property('bio');
@@ -45,7 +45,7 @@ describe('ModelBuilder define model', function () {
     var user = new User({name: 'Joe', age: 20});
 
     User.modelName.should.equal('User');
-    user.should.be.a('object');
+    user.should.be.a.Object;
     assert(user.name === 'Joe');
     assert(user.age === undefined);
     assert(user.toObject().age === undefined);
@@ -76,7 +76,7 @@ describe('ModelBuilder define model', function () {
     var user = new User({name: 'Joe', age: 20});
 
     User.modelName.should.equal('User');
-    user.should.be.a('object').and.have.property('name', 'Joe');
+    user.should.be.a.Object.and.have.property('name', 'Joe');
     user.should.have.property('name', 'Joe');
     user.should.have.property('age', 20);
     user.should.not.have.property('bio');
@@ -91,7 +91,7 @@ describe('ModelBuilder define model', function () {
     var user = new User({name: 'Joe', age: 20});
 
     User.modelName.should.equal('User');
-    user.should.be.a('object').and.have.property('name', 'Joe');
+    user.should.be.a.Object.and.have.property('name', 'Joe');
     user.should.have.property('name', 'Joe');
     user.should.have.property('age', 20);
     user.should.not.have.property('bio');
@@ -129,8 +129,8 @@ describe('ModelBuilder define model', function () {
       return this.name + ', ' + this.age;
     };
 
-    modelBuilder.models.should.be.a('object').and.have.property('User', User);
-    modelBuilder.definitions.should.be.a('object').and.have.property('User');
+    modelBuilder.models.should.be.a.Object.and.have.property('User', User);
+    modelBuilder.definitions.should.be.a.Object.and.have.property('User');
 
     var user = new User({
       name: 'Joe', age: 20,
@@ -142,7 +142,7 @@ describe('ModelBuilder define model', function () {
     });
 
     User.modelName.should.equal('User');
-    user.should.be.a('object').and.have.property('name', 'Joe');
+    user.should.be.a.Object.and.have.property('name', 'Joe');
     user.should.have.property('name', 'Joe');
     user.should.have.property('age', 20);
     user.should.not.have.property('bio');
@@ -185,7 +185,7 @@ describe('ModelBuilder define model', function () {
 
     User.modelName.should.equal('User');
     User.definition.properties.address.should.have.property('type', Address);
-    user.should.be.a('object');
+    user.should.be.a.Object;
     assert(user.name === 'Joe');
     user.address.should.have.property('city', 'San Jose');
     user.address.should.have.property('state', 'CA');
@@ -306,7 +306,7 @@ describe('DataSource define model', function () {
     User.create({name: 'Joe', age: 20}, function (err, user) {
 
       User.modelName.should.equal('User');
-      user.should.be.a('object');
+      user.should.be.a.Object;
       assert(user.name === 'Joe');
       assert(user.age === undefined);
       assert(user.toObject().age === undefined);
@@ -338,13 +338,13 @@ describe('DataSource define model', function () {
 
     User.create({name: 'Joe', age: 20}, function (err, user) {
 
-      user.should.be.a('object').and.have.property('name', 'Joe');
+      user.should.be.a.Object.and.have.property('name', 'Joe');
       user.should.have.property('name', 'Joe');
       user.should.have.property('age', 20);
       user.should.not.have.property('bio');
 
       User.findById(user.id, function (err, user) {
-        user.should.be.a('object').and.have.property('name', 'Joe');
+        user.should.be.a.Object.and.have.property('name', 'Joe');
         user.should.have.property('name', 'Joe');
         user.should.have.property('age', 20);
         user.should.not.have.property('bio');
@@ -361,7 +361,7 @@ describe('DataSource define model', function () {
     User.create({name: 'Joe', age: 20}, function (err, user) {
 
       User.modelName.should.equal('User');
-      user.should.be.a('object').and.have.property('name', 'Joe');
+      user.should.be.a.Object.and.have.property('name', 'Joe');
       user.should.have.property('name', 'Joe');
       user.should.have.property('age', 20);
       user.should.not.have.property('bio');
@@ -378,7 +378,7 @@ describe('DataSource define model', function () {
     var user = new User({name: 'Joe', age: 20});
 
     User.modelName.should.equal('User');
-    user.should.be.a('object');
+    user.should.be.a.Object;
     assert(user.name === 'Joe');
     assert(user.age === undefined);
     assert(user.toObject().age === undefined);
@@ -863,7 +863,7 @@ describe('Load models from json', function () {
 
     var customer = new Customer({name: 'Joe', age: 20, customerId: 'c01'});
 
-    customer.should.be.a('object').and.have.property('name', 'Joe');
+    customer.should.be.a.Object.and.have.property('name', 'Joe');
     customer.should.have.property('name', 'Joe');
     customer.should.have.property('age', 20);
     customer.should.have.property('customerId', 'c01');
