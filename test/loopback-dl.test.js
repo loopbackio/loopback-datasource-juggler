@@ -46,11 +46,35 @@ describe('ModelBuilder define model', function () {
 
     User.modelName.should.equal('User');
     user.should.be.a('object');
-    assert(user.name === 'Joe');
-    assert(user.age === undefined);
-    assert(user.toObject().age === undefined);
-    assert(user.toObject(true).age === undefined);
-    assert(user.bio === undefined);
+    user.should.have.property('name', 'Joe');
+    user.should.not.have.property('age');
+    user.toObject().should.not.have.property('age');
+    user.toObject(true).should.not.have.property('age');
+    user.should.not.have.property('bio');
+    done(null, User);
+  });
+
+  it('should ignore non-predefined properties in strict mode', function (done) {
+    var modelBuilder = new ModelBuilder();
+
+    var User = modelBuilder.define('User', {name: String, bio: String}, {strict: true});
+
+    var user = new User({name: 'Joe'});
+    user.age = 10;
+    user.bio = 'me';
+
+    user.should.have.property('name', 'Joe');
+    user.should.have.property('bio', 'me');
+
+    // Non predefined property age should be ignored in strict mode if schemaOnly parameter is not false
+    user.toObject().should.not.have.property('age');
+    user.toObject(true).should.not.have.property('age');
+    user.toObject(false).should.have.property('age', 10);
+
+    // Predefined property bio should be kept in strict mode
+    user.toObject().should.have.property('bio', 'me');
+    user.toObject(true).should.have.property('bio', 'me');
+    user.toObject(false).should.have.property('bio', 'me');
     done(null, User);
   });
 
@@ -80,6 +104,31 @@ describe('ModelBuilder define model', function () {
     user.should.have.property('name', 'Joe');
     user.should.have.property('age', 20);
     user.should.not.have.property('bio');
+    done(null, User);
+  });
+
+  it('should take non-predefined properties in non-strict mode', function (done) {
+    var modelBuilder = new ModelBuilder();
+
+    var User = modelBuilder.define('User', {name: String, bio: String}, {strict: false});
+
+    var user = new User({name: 'Joe'});
+    user.age = 10;
+    user.bio = 'me';
+
+    user.should.have.property('name', 'Joe');
+    user.should.have.property('bio', 'me');
+
+    // Non predefined property age should be kept in non-strict mode
+    user.toObject().should.have.property('age', 10);
+    user.toObject(true).should.have.property('age', 10);
+    user.toObject(false).should.have.property('age', 10);
+
+    // Predefined property bio should be kept
+    user.toObject().should.have.property('bio', 'me');
+    user.toObject(true).should.have.property('bio', 'me');
+    user.toObject(false).should.have.property('bio', 'me');
+
     done(null, User);
   });
 
@@ -416,6 +465,61 @@ describe('DataSource define model', function () {
     });
   });
 
+  it('supports instance level strict mode', function () {
+    var ds = new DataSource('memory');
+
+    var User = ds.define('User', {name: String, bio: String}, {strict: true});
+
+    var user = new User({name: 'Joe', age: 20}, {strict: false});
+
+    user.should.have.property('__strict', false);
+    user.should.be.a('object');
+    user.should.have.property('name', 'Joe');
+    user.should.have.property('age', 20);
+    user.toObject().should.have.property('age', 20);
+    user.toObject(true).should.have.property('age', 20);
+
+    user.setStrict(true);
+    user.toObject().should.not.have.property('age');
+    user.toObject(true).should.not.have.property('age');
+    user.toObject(false).should.have.property('age', 20);
+
+  });
+
+  it('injects id by default', function (done) {
+    var ds = new ModelBuilder();
+
+    var User = ds.define('User', {});
+    assert.deepEqual(User.definition.properties.id,
+      {type: Number, id: 1, generated: true});
+
+    done();
+  });
+
+  it('disables idInjection if the value is false', function (done) {
+    var ds = new ModelBuilder();
+
+    var User1 = ds.define('User', {}, {idInjection: false});
+    assert(!User1.definition.properties.id);
+    done();
+  });
+
+  it('updates generated id type by the connector', function (done) {
+    var builder = new ModelBuilder();
+
+    var User = builder.define('User', {id: {type: String, generated: true, id: true}});
+    assert.deepEqual(User.definition.properties.id,
+      {type: String, id: 1, generated: true});
+
+    var ds = new DataSource('memory');// define models
+    User.attachTo(ds);
+
+    assert.deepEqual(User.definition.properties.id,
+      {type: Number, id: 1, generated: true});
+
+    done();
+  });
+
 });
 
 describe('Load models with base', function () {
@@ -443,6 +547,42 @@ describe('Load models with base', function () {
 
     done();
   });
+});
+
+describe('DataSource connector types', function() {
+  it('should return an array of types', function() {
+    var ds = new DataSource('memory');
+    var types = ds.getTypes();
+    assert.deepEqual(types, ['db', 'nosql', 'memory']);
+  });
+
+  it('should test supported types by string', function() {
+    var ds = new DataSource('memory');
+    var result = ds.supportTypes('db');
+    assert(result);
+  });
+
+  it('should test supported types by array', function() {
+    var ds = new DataSource('memory');
+    var result = ds.supportTypes(['db', 'memory']);
+    assert(result);
+  });
+
+  it('should test unsupported types by string', function() {
+    var ds = new DataSource('memory');
+    var result = ds.supportTypes('rdbms');
+    assert(!result);
+  });
+
+  it('should test unsupported types by array', function() {
+    var ds = new DataSource('memory');
+    var result = ds.supportTypes(['rdbms', 'memory']);
+    assert(!result);
+
+    result = ds.supportTypes(['rdbms']);
+    assert(!result);
+  });
+
 });
 
 describe('DataSource constructor', function () {

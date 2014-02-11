@@ -13,6 +13,12 @@ describe('include', function () {
       passports.length.should.be.ok;
       passports.forEach(function (p) {
         p.__cachedRelations.should.have.property('owner');
+
+        // The relation should be promoted as the 'owner' property
+        p.should.have.property('owner');
+        // The __cachedRelations should be removed from json output
+        p.toJSON().should.not.have.property('__cachedRelations');
+
         var owner = p.__cachedRelations.owner;
         if (!p.ownerId) {
           should.not.exist(owner);
@@ -31,6 +37,11 @@ describe('include', function () {
       should.exist(users);
       users.length.should.be.ok;
       users.forEach(function (u) {
+        // The relation should be promoted as the 'owner' property
+        u.should.have.property('posts');
+        // The __cachedRelations should be removed from json output
+        u.toJSON().should.not.have.property('__cachedRelations');
+
         u.__cachedRelations.should.have.property('posts');
         u.__cachedRelations.posts.forEach(function (p) {
           p.userId.should.equal(u.id);
@@ -47,6 +58,12 @@ describe('include', function () {
       passports.length.should.be.ok;
       passports.forEach(function (p) {
         p.__cachedRelations.should.have.property('owner');
+
+        // The relation should be promoted as the 'owner' property
+        p.should.have.property('owner');
+        // The __cachedRelations should be removed from json output
+        p.toJSON().should.not.have.property('__cachedRelations');
+
         var user = p.__cachedRelations.owner;
         if (!p.ownerId) {
           should.not.exist(user);
@@ -97,6 +114,12 @@ describe('include', function () {
       should.exist(users);
       users.length.should.be.ok;
       users.forEach(function (user) {
+        // The relation should be promoted as the 'owner' property
+        user.should.have.property('posts');
+        user.should.have.property('passports');
+        // The __cachedRelations should be removed from json output
+        user.toJSON().should.not.have.property('__cachedRelations');
+
         user.__cachedRelations.should.have.property('posts');
         user.__cachedRelations.should.have.property('passports');
         user.__cachedRelations.posts.forEach(function (p) {
