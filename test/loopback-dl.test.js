@@ -46,11 +46,35 @@ describe('ModelBuilder define model', function () {
 
     User.modelName.should.equal('User');
     user.should.be.a('object');
-    assert(user.name === 'Joe');
-    assert(user.age === undefined);
-    assert(user.toObject().age === undefined);
-    assert(user.toObject(true).age === undefined);
-    assert(user.bio === undefined);
+    user.should.have.property('name', 'Joe');
+    user.should.not.have.property('age');
+    user.toObject().should.not.have.property('age');
+    user.toObject(true).should.not.have.property('age');
+    user.should.not.have.property('bio');
+    done(null, User);
+  });
+
+  it('should ignore non-predefined properties in strict mode', function (done) {
+    var modelBuilder = new ModelBuilder();
+
+    var User = modelBuilder.define('User', {name: String, bio: String}, {strict: true});
+
+    var user = new User({name: 'Joe'});
+    user.age = 10;
+    user.bio = 'me';
+
+    user.should.have.property('name', 'Joe');
+    user.should.have.property('bio', 'me');
+
+    // Non predefined property age should be ignored in strict mode if schemaOnly parameter is not false
+    user.toObject().should.not.have.property('age');
+    user.toObject(true).should.not.have.property('age');
+    user.toObject(false).should.have.property('age', 10);
+
+    // Predefined property bio should be kept in strict mode
+    user.toObject().should.have.property('bio', 'me');
+    user.toObject(true).should.have.property('bio', 'me');
+    user.toObject(false).should.have.property('bio', 'me');
     done(null, User);
   });
 
@@ -80,6 +104,31 @@ describe('ModelBuilder define model', function () {
     user.should.have.property('name', 'Joe');
     user.should.have.property('age', 20);
     user.should.not.have.property('bio');
+    done(null, User);
+  });
+
+  it('should take non-predefined properties in non-strict mode', function (done) {
+    var modelBuilder = new ModelBuilder();
+
+    var User = modelBuilder.define('User', {name: String, bio: String}, {strict: false});
+
+    var user = new User({name: 'Joe'});
+    user.age = 10;
+    user.bio = 'me';
+
+    user.should.have.property('name', 'Joe');
+    user.should.have.property('bio', 'me');
+
+    // Non predefined property age should be kept in non-strict mode
+    user.toObject().should.have.property('age', 10);
+    user.toObject(true).should.have.property('age', 10);
+    user.toObject(false).should.have.property('age', 10);
+
+    // Predefined property bio should be kept
+    user.toObject().should.have.property('bio', 'me');
+    user.toObject(true).should.have.property('bio', 'me');
+    user.toObject(false).should.have.property('bio', 'me');
+
     done(null, User);
   });
 
@@ -414,6 +463,27 @@ describe('DataSource define model', function () {
         done(err, result);
       });
     });
+  });
+
+  it('supports instance level strict mode', function () {
+    var ds = new DataSource('memory');
+
+    var User = ds.define('User', {name: String, bio: String}, {strict: true});
+
+    var user = new User({name: 'Joe', age: 20}, {strict: false});
+
+    user.should.have.property('__strict', false);
+    user.should.be.a('object');
+    user.should.have.property('name', 'Joe');
+    user.should.have.property('age', 20);
+    user.toObject().should.have.property('age', 20);
+    user.toObject(true).should.have.property('age', 20);
+
+    user.setStrict(true);
+    user.toObject().should.not.have.property('age');
+    user.toObject(true).should.not.have.property('age');
+    user.toObject(false).should.have.property('age', 20);
+
   });
 
   it('injects id by default', function (done) {
