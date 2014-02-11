@@ -465,6 +465,27 @@ describe('DataSource define model', function () {
     });
   });
 
+  it('supports instance level strict mode', function () {
+    var ds = new DataSource('memory');
+
+    var User = ds.define('User', {name: String, bio: String}, {strict: true});
+
+    var user = new User({name: 'Joe', age: 20}, {strict: false});
+
+    user.should.have.property('__strict', false);
+    user.should.be.a('object');
+    user.should.have.property('name', 'Joe');
+    user.should.have.property('age', 20);
+    user.toObject().should.have.property('age', 20);
+    user.toObject(true).should.have.property('age', 20);
+
+    user.setStrict(true);
+    user.toObject().should.not.have.property('age');
+    user.toObject(true).should.not.have.property('age');
+    user.toObject(false).should.have.property('age', 20);
+
+  });
+
   it('injects id by default', function (done) {
     var ds = new ModelBuilder();
 
