@@ -12,7 +12,7 @@ describe('datatypes', function () {
       date: Date,
       num: Number,
       bool: Boolean,
-      list: {type: []},
+      list: {type: [String]},
     });
     db.automigrate(function () {
       Model.destroyAll(done);
@@ -63,4 +63,49 @@ describe('datatypes', function () {
 
   });
 
+  it('should respect data types when updating attributes', function (done) {
+    var d = new Date, id;
+
+    Model.create({
+      str: 'hello', date: d, num: '3', bool: 1}, function(err, m) {
+      should.not.exist(err);
+      should.exist(m && m.id);
+
+      // sanity check initial types
+      m.str.should.be.a('string');
+      m.num.should.be.a('number');
+      m.bool.should.be.a('boolean');
+      id = m.id;
+      testDataInDB(function () {
+        testUpdate(function() {
+          testDataInDB(done);
+        });
+      });
+    });
+
+    function testUpdate(done) {
+      Model.findById(id, function(err, m) {
+        should.not.exist(err);
+
+        // update using updateAttributes
+        m.updateAttributes({
+          id: id, num: '10'
+        }, function (err, m) {
+          should.not.exist(err);
+          m.num.should.be.a('number');
+          done();
+        });
+      });
+    }
+
+    function testDataInDB(done) {
+
+      // verify that the value stored in the db is still an object
+      db.connector.find(Model.modelName, id, function (err, data) {
+        should.exist(data);
+        data.num.should.be.a('number');
+        done();
+      });
+    }
+  });
 });
