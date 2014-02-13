@@ -5,25 +5,6 @@ var db, Model;
 
 describe('datatypes', function () {
 
-  // Used to emulate a custom id type
-  function DummyType(value) {
-    if (!(this instanceof DummyType) &&
-      ( typeof value === 'string' || typeof value === 'object')) {
-
-      return new DummyType(value);
-    }
-
-    if (typeof value === 'string') {
-      this.value = value;
-      return;
-    } else if (typeof value === 'object') {
-      this.value = value.value;
-      return;
-    }
-
-    return value;
-  };
-
   before(function (done) {
     db = getSchema();
     Model = db.define('Model', {
@@ -31,8 +12,7 @@ describe('datatypes', function () {
       date: Date,
       num: Number,
       bool: Boolean,
-      dummy: DummyType,
-      list: {type: []},
+      list: {type: [String]},
     });
     db.automigrate(function () {
       Model.destroyAll(done);
@@ -87,8 +67,7 @@ describe('datatypes', function () {
     var d = new Date, id;
 
     Model.create({
-      str: 'hello', date: d, num: '3', bool: 1, dummy: new DummyType('dummy')
-    }, function(err, m) {
+      str: 'hello', date: d, num: '3', bool: 1}, function(err, m) {
       should.not.exist(err);
       should.exist(m && m.id);
 
@@ -96,7 +75,6 @@ describe('datatypes', function () {
       m.str.should.be.a('string');
       m.num.should.be.a('number');
       m.bool.should.be.a('boolean');
-      m.dummy.should.be.an.instanceOf(DummyType);
       id = m.id;
       testDataInDB(function () {
         testUpdate(function() {
@@ -111,10 +89,10 @@ describe('datatypes', function () {
 
         // update using updateAttributes
         m.updateAttributes({
-          id: id, dummy: 'NotADummy'
+          id: id, num: '10'
         }, function (err, m) {
           should.not.exist(err);
-          m.dummy.should.be.an.instanceOf(DummyType);
+          m.num.should.be.a('number');
           done();
         });
       });
@@ -125,7 +103,7 @@ describe('datatypes', function () {
       // verify that the value stored in the db is still an object
       db.connector.find(Model.modelName, id, function (err, data) {
         should.exist(data);
-        data.dummy.should.be.a('object');
+        data.num.should.be.a('number');
         done();
       });
     }
