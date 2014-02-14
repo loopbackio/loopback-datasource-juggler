@@ -117,8 +117,15 @@ describe('include', function () {
         // The relation should be promoted as the 'owner' property
         user.should.have.property('posts');
         user.should.have.property('passports');
+
+        var userObj = user.toJSON();
+        userObj.should.have.property('posts');
+        userObj.should.have.property('passports');
+        userObj.posts.should.be.an.instanceOf(Array);
+        userObj.passports.should.be.an.instanceOf(Array);
+
         // The __cachedRelations should be removed from json output
-        user.toJSON().should.not.have.property('__cachedRelations');
+        userObj.should.not.have.property('__cachedRelations');
 
         user.__cachedRelations.should.have.property('posts');
         user.__cachedRelations.should.have.property('passports');
