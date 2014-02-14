@@ -29,4 +29,5 @@ var user = new User({name: 'Joe', age: 20, address: {street: '123 Main St', 'cit
     {label: 'work', email: 'xyz@sample.com'}
   ],
   friends: ['John', 'Mary']});
+console.log(user);
 console.log(user.toObject());

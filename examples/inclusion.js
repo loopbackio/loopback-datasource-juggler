@@ -24,20 +24,7 @@ setup(function () {
   });
 
   User.find({include: ['posts', 'passports']}, function (err, users) {
-    // console.log('users.passports && users.posts', users);
-    users.forEach(function (user) {
-      console.log('user', user);
-      user.posts(function (err, posts) {
-        if (posts && posts.length > 0) {
-          console.log('posts', posts);
-        }
-      });
-      user.passports(function (err, passports) {
-        if (passports && passports.length > 0) {
-          console.log('posts', passports);
-        }
-      });
-    });
+    console.log('users.passports && users.posts', users);
   });
 
 });
