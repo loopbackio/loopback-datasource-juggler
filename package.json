@@ -32,5 +32,8 @@
     "traverse": "~0.6.6",
     "qs": "~0.6.6"
   },
-  "license": "MIT"
+  "license": {
+    "name": "Dual MIT/StrongLoop",
+    "url": "https://github.com/strongloop/loopback-datasource-juggler/blob/master/LICENSE"
+  }
 }
