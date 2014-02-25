@@ -486,6 +486,32 @@ describe('DataSource define model', function () {
 
   });
 
+  it('should update the instance with unknown properties', function (done) {
+    var ds = new DataSource('memory');// define models
+    Post = ds.define('Post', {
+      title: { type: String, length: 255, index: true },
+      content: { type: String }
+    });
+
+    Post.create({title: 'a', content: 'AAA'}, function (err, post) {
+      post.updateAttributes({title: 'b', xyz: 'xyz'}, function (err, p) {
+        should.not.exist(err);
+        p.id.should.be.equal(post.id);
+        p.content.should.be.equal(post.content);
+        p.xyz.should.be.equal('xyz');
+
+        Post.findById(post.id, function (err, p) {
+          p.id.should.be.equal(post.id);
+          p.content.should.be.equal(post.content);
+          p.xyz.should.be.equal('xyz');
+          p.title.should.be.equal('b');
+          done();
+        });
+      });
+
+    });
+  });
+
   it('injects id by default', function (done) {
     var ds = new ModelBuilder();
 
