@@ -51,7 +51,7 @@ Post.belongsTo(User, {as: 'author', foreignKey: 'userId'});
 
 User.hasAndBelongsToMany('groups');
 
-var user2 = new User({name: 'Smith'});
+var user2 = new User({name: 'Smith', age: 14});
 user2.save(function (err) {
   console.log(user2);
   var post = user2.posts.build({title: 'Hello world'});
@@ -64,7 +64,7 @@ Post.findOne({where: {published: false}, order: 'date DESC'}, function (err, dat
   console.log(data);
 });
 
-User.create({name: 'Jeff'}, function (err, data) {
+User.create({name: 'Jeff', age: 12}, function (err, data) {
   if (err) {
     console.log(err);
     return;
@@ -78,7 +78,7 @@ User.create({name: 'Ray'}, function (err, data) {
   console.log(data);
 });
 
-User.scope('minors', {age: {le: 16}});
+User.scope('minors', {where: {age: {lte: 16}}, include: 'posts'});
 User.minors(function (err, kids) {
   console.log('Kids: ', kids);
 });
