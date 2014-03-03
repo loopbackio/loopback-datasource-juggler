@@ -13,6 +13,7 @@ describe('datatypes', function () {
       num: Number,
       bool: Boolean,
       list: {type: [String]},
+      arr: Array
     });
     db.automigrate(function () {
       Model.destroyAll(done);
@@ -23,25 +24,30 @@ describe('datatypes', function () {
     var d = new Date, id;
 
     Model.create({
-      str: 'hello', date: d, num: '3', bool: 1, list: ['test']
+      str: 'hello', date: d, num: '3', bool: 1, list: ['test'], arr: [1, 'str']
     }, function (err, m) {
       should.not.exist(err);
       should.exist(m && m.id);
       m.str.should.be.a('string');
       m.num.should.be.a('number');
       m.bool.should.be.a('boolean');
+      m.list[0].should.be.equal('test');
+      m.arr[0].should.be.equal(1);
+      m.arr[1].should.be.equal('str');
       id = m.id;
       testFind(testAll);
     });
 
     function testFind(next) {
-      debugger;
       Model.findById(id, function (err, m) {
         should.not.exist(err);
         should.exist(m);
         m.str.should.be.a('string');
         m.num.should.be.a('number');
         m.bool.should.be.a('boolean');
+        m.list[0].should.be.equal('test');
+        m.arr[0].should.be.equal(1);
+        m.arr[1].should.be.equal('str');
         m.date.should.be.an.instanceOf(Date);
         m.date.toString().should.equal(d.toString(), 'Time must match');
         next();
