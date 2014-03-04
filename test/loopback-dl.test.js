@@ -1,6 +1,7 @@
 // This test written in mocha+should.js
 var should = require('./init.js');
 var assert = require('assert');
+var async = require('async');
 
 var jdb = require('../');
 var ModelBuilder = jdb.ModelBuilder;
@@ -794,6 +795,33 @@ describe('Load models with relations', function () {
     done();
   });
 
+});
+
+describe('Model with scopes', function () {
+  it('should create scopes', function (done) {
+    var ds = new DataSource('memory');
+    var User = ds.define('User', {name: String, vip: Boolean, age: Number},
+      {scopes: {vips: {where: {vip: true}}, top5: {limit: 5, order: 'age'}}});
+
+    var users = [];
+    for (var i = 0; i < 10; i++) {
+      users.push({name: 'User' + i, vip: i % 3 === 0, age: 20 + i * 2});
+    }
+    async.each(users, function (user, callback) {
+      User.create(user, callback);
+    }, function (err) {
+      User.vips(function (err, vips) {
+        if(err) {
+          return done(err);
+        }
+        assert.equal(vips.length, 4);
+        User.top5(function (err, top5) {
+          assert.equal(top5.length, 5);
+          done(err);
+        });
+      });
+    });
+  });
 });
 
 describe('DataAccessObject', function () {
