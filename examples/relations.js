@@ -3,6 +3,7 @@ var ds = new DataSource('memory');
 
 var Order = ds.createModel('Order', {
   customerId: Number,
+  items: [String],
   orderDate: Date
 });
 
@@ -13,7 +14,7 @@ var Customer = ds.createModel('Customer', {
 Order.belongsTo(Customer);
 
 Customer.create({name: 'John'}, function (err, customer) {
-  Order.create({customerId: customer.id, orderDate: new Date()}, function (err, order) {
+  Order.create({customerId: customer.id, orderDate: new Date(), items: ['Book']}, function (err, order) {
     order.customer(console.log);
     order.customer(true, console.log);
 
@@ -21,6 +22,16 @@ Customer.create({name: 'John'}, function (err, customer) {
       order.customer(customer2);
       order.customer(console.log);
     });
+  });
+
+  Order.create({orderDate: new Date(), items: ['Phone']}, function (err, order2) {
+
+    order2.customer.create({name: 'Smith'}, function(err, customer2) {
+      console.log(order2, customer2);
+    });
+
+    var customer3 = order2.customer.build({name: 'Tom'});
+    console.log('Customer 3', customer3);
   });
 });
 
@@ -60,13 +71,32 @@ Appointment.belongsTo(Physician);
 Physician.hasMany(Patient, {through: Appointment});
 Patient.hasMany(Physician, {through: Appointment});
 
-Physician.create({name: 'Smith'}, function (err, physician) {
-  Patient.create({name: 'Mary'}, function (err, patient) {
-    Appointment.create({appointmentDate: new Date(), physicianId: physician.id, patientId: patient.id},
-      function (err, appt) {
-        physician.patients(console.log);
-        patient.physicians(console.log);
+Physician.create({name: 'Dr John'}, function (err, physician1) {
+  Physician.create({name: 'Dr Smith'}, function (err, physician2) {
+    Patient.create({name: 'Mary'}, function (err, patient1) {
+      Patient.create({name: 'Ben'}, function (err, patient2) {
+        Appointment.create({appointmentDate: new Date(), physicianId: physician1.id, patientId: patient1.id},
+          function (err, appt1) {
+            Appointment.create({appointmentDate: new Date(), physicianId: physician1.id, patientId: patient2.id},
+              function (err, appt2) {
+                physician1.patients(console.log);
+                physician1.patients({where: {name: 'Mary'}}, console.log);
+                patient1.physicians(console.log);
+
+                // Build an appointment?
+                var patient3 = patient1.physicians.build({name: 'Dr X'});
+                console.log('Physician 3: ', patient3, patient3.constructor.modelName);
+
+                // Create a physician?
+                patient1.physicians.create({name: 'Dr X'}, function(err, patient4) {
+                  console.log('Physician 4: ', patient4, patient4.constructor.modelName);
+                });
+
+
+              });
+          });
       });
+    });
   });
 });
 
@@ -85,6 +115,15 @@ Assembly.create({name: 'car'}, function (err, assembly) {
   Part.create({partNumber: 'engine'}, function (err, part) {
     assembly.parts.add(part, function (err) {
       assembly.parts(console.log);
+
+      // Build an part?
+      var part3 = assembly.parts.build({partNumber: 'door'});
+      console.log('Part3: ', part3, part3.constructor.modelName);
+
+      // Create a part?
+      assembly.parts.create({name: 'door'}, function(err, part4) {
+        console.log('Part4: ', part4, part4.constructor.modelName);
+      });
     });
 
   });
