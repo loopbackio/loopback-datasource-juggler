@@ -1,51 +1,13 @@
 {
     "content": [
-        {
-            "title": "LoopBack DataSource API",
-            "depth": 2
-        },
-        {
-            "title": "Model builder",
-            "depth": 3
-        },
-
-        "lib/model-builder.js",
-        {
-            "title": "Types",
-            "depth": 3
-        },        
-        "lib/types.js",
-        {
-            "title": "GeoPoint",
-            "depth": 3
-        },
-        "lib/geo.js",
-        {
-            "title": "Model",
-            "depth": 3
-        },        
-        "lib/model.js",
-
-        {
-            "title": "DataSource",
-            "depth": 3
-        },
         "lib/datasource.js",
-
-        {
-            "title": "Data access mixins",
-            "depth": 3
-        },
+        "lib/geo.js",        
         "lib/dao.js",
-        "lib/hooks.js",
+        "lib/model.js",
+        "lib/model-builder.js",          
         "lib/include.js",
         "lib/relations.js",
         "lib/validations.js",
-
-        {
-            "title": "Base class for SQL connectors",
-            "depth": 3
-        },
         "lib/sql.js"
     ],
     "codeSectionDepth": 4,
@@ -54,4 +16,3 @@
       "/docs": "/docs"
     }
 }
-
