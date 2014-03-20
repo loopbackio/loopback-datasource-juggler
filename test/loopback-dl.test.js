@@ -615,9 +615,17 @@ describe('DataSource connector types', function() {
 describe('DataSource constructor', function () {
   // Mocked require
   var loader = function (name) {
+    if (name.indexOf('./connectors/') !== -1) {
+      // ./connectors/<name> doesn't exist
+      return null;
+    }
+    if (name === 'loopback-connector-abc') {
+      // Assume loopback-connector-abc doesn't exist
+      return null;
+    }
     return {
       name: name
-    }
+    };
   };
 
   it('should resolve connector by path', function () {
@@ -632,9 +640,20 @@ describe('DataSource constructor', function () {
     var connector = DataSource._resolveConnector('loopback-connector-xyz', loader);
     assert(connector.connector);
   });
-  it('should try to resolve connector by short module name', function () {
+  it('should try to resolve connector by short module name with full name first', function () {
     var connector = DataSource._resolveConnector('xyz', loader);
     assert(connector.connector);
+    assert.equal(connector.connector.name, 'loopback-connector-xyz');
+  });
+  it('should try to resolve connector by short module name', function () {
+    var connector = DataSource._resolveConnector('abc', loader);
+    assert(connector.connector);
+    assert.equal(connector.connector.name, 'abc');
+  });
+  it('should try to resolve connector by short module name for known connectors', function () {
+    var connector = DataSource._resolveConnector('oracle', loader);
+    assert(connector.connector);
+    assert.equal(connector.connector.name, 'loopback-connector-oracle');
   });
   it('should try to resolve connector by full module name', function () {
     var connector = DataSource._resolveConnector('loopback-xyz', loader);
