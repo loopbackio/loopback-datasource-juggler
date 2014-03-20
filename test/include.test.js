@@ -1,15 +1,14 @@
 // This test written in mocha+should.js
 var should = require('./init.js');
 
-var db, User, Post, Passport, City, Street, Building;
-var nbSchemaRequests = 0;
+var db, User, Post, Passport, City, Street, Building, Assembly, Part;
 
 describe('include', function () {
 
   before(setup);
 
   it('should fetch belongsTo relation', function (done) {
-    Passport.all({include: 'owner'}, function (err, passports) {
+    Passport.find({include: 'owner'}, function (err, passports) {
       passports.length.should.be.ok;
       passports.forEach(function (p) {
         p.__cachedRelations.should.have.property('owner');
@@ -32,7 +31,7 @@ describe('include', function () {
   });
 
   it('should fetch hasMany relation', function (done) {
-    User.all({include: 'posts'}, function (err, users) {
+    User.find({include: 'posts'}, function (err, users) {
       should.not.exist(err);
       should.exist(users);
       users.length.should.be.ok;
@@ -52,7 +51,7 @@ describe('include', function () {
   });
 
   it('should fetch Passport - Owner - Posts', function (done) {
-    Passport.all({include: {owner: 'posts'}}, function (err, passports) {
+    Passport.find({include: {owner: 'posts'}}, function (err, passports) {
       should.not.exist(err);
       should.exist(passports);
       passports.length.should.be.ok;
@@ -81,7 +80,7 @@ describe('include', function () {
   });
 
   it('should fetch Passports - User - Posts - User', function (done) {
-    Passport.all({
+    Passport.find({
       include: {owner: {posts: 'author'}}
     }, function (err, passports) {
       should.not.exist(err);
@@ -109,7 +108,7 @@ describe('include', function () {
   });
 
   it('should fetch User - Posts AND Passports', function (done) {
-    User.all({include: ['posts', 'passports']}, function (err, users) {
+    User.find({include: ['posts', 'passports']}, function (err, users) {
       should.not.exist(err);
       should.exist(users);
       users.length.should.be.ok;
@@ -140,6 +139,39 @@ describe('include', function () {
     });
   });
 
+  it('should support hasAndBelongsToMany', function (done) {
+
+    Assembly.destroyAll(function(err) {
+      Part.destroyAll(function(err) {
+        Assembly.relations.parts.modelThrough.destroyAll(function(err) {
+        Assembly.create({name: 'car'}, function (err, assembly) {
+          Part.create({partNumber: 'engine'}, function (err, part) {
+            assembly.parts.add(part, function (err, data) {
+              assembly.parts(function (err, parts) {
+                should.not.exist(err);
+                should.exists(parts);
+                parts.length.should.equal(1);
+                parts[0].partNumber.should.equal('engine');
+
+                // Create a part
+                assembly.parts.create({partNumber: 'door'}, function (err, part4) {
+
+                  Assembly.find({include: 'parts'}, function (err, assemblies) {
+                    assemblies.length.should.equal(1);
+                    assemblies[0].parts.length.should.equal(2);
+                    done();
+                  });
+
+                });
+              });
+            });
+          });
+        });
+        });
+      });
+    });
+  });
+
 });
 
 function setup(done) {
@@ -162,6 +194,17 @@ function setup(done) {
   User.hasMany('passports', {foreignKey: 'ownerId'});
   User.hasMany('posts', {foreignKey: 'userId'});
   Post.belongsTo('author', {model: User, foreignKey: 'userId'});
+
+  Assembly = db.define('Assembly', {
+    name: String
+  });
+
+  Part = db.define('Part', {
+    partNumber: String
+  });
+
+  Assembly.hasAndBelongsToMany(Part);
+  Part.hasAndBelongsToMany(Assembly);
 
   db.automigrate(function () {
     var createdUsers = [];
