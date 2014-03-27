@@ -44,7 +44,7 @@ describe('validations', function () {
   });
 
   after(function () {
-    db.disconnect();
+    // db.disconnect();
   });
 
   describe('commons', function () {
