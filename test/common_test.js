@@ -44,7 +44,7 @@ module.exports = function testSchema(exportCasesHere, dataSource) {
   };
 
   function allTestsDone() {
-    dataSource.disconnect();
+    // dataSource.disconnect();
     console.log('Test done in %dms\n', Date.now() - start);
   }
 

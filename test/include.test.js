@@ -70,6 +70,7 @@ describe('include', function () {
           should.exist(user);
           user.id.should.equal(p.ownerId);
           user.__cachedRelations.should.have.property('posts');
+          user.should.have.property('posts');
           user.__cachedRelations.posts.forEach(function (pp) {
             pp.userId.should.equal(user.id);
           });
@@ -97,6 +98,7 @@ describe('include', function () {
           user.__cachedRelations.should.have.property('posts');
           user.__cachedRelations.posts.forEach(function (pp) {
             pp.userId.should.equal(user.id);
+            pp.should.have.property('author');
             pp.__cachedRelations.should.have.property('author');
             var author = pp.__cachedRelations.author;
             author.id.should.equal(user.id);

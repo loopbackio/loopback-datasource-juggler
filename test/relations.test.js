@@ -23,7 +23,7 @@ describe('relations', function () {
   });
 
   after(function () {
-    db.disconnect();
+    // db.disconnect();
   });
 
   describe('hasMany', function () {
