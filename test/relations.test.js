@@ -117,6 +117,10 @@ describe('relations', function () {
         });
       }
     });
+
+    it('should set targetClass on scope property', function() {
+      should.equal(Book.prototype.chapters._targetClass, 'Chapter');
+    });
   });
 
   describe('belongsTo', function () {
@@ -248,6 +252,9 @@ describe('relations', function () {
       });
     });
 
+    it('should set targetClass on scope property', function() {
+      should.equal(Article.prototype.tags._targetClass, 'Tag');
+    });
   });
 
 });
