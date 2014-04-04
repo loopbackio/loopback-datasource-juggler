@@ -68,7 +68,7 @@ describe('relations', function () {
       });
     });
 
-    it.skip('should fetch all scoped instances', function (done) {
+    it('should fetch all scoped instances', function (done) {
       Book.create(function (err, book) {
         book.chapters.create({name: 'a'}, function () {
           book.chapters.create({name: 'z'}, function () {
@@ -116,6 +116,10 @@ describe('relations', function () {
           done();
         });
       }
+    });
+
+    it('should set targetClass on scope property', function() {
+      should.equal(Book.prototype.chapters._targetClass, 'Chapter');
     });
   });
 
@@ -248,6 +252,9 @@ describe('relations', function () {
       });
     });
 
+    it('should set targetClass on scope property', function() {
+      should.equal(Article.prototype.tags._targetClass, 'Tag');
+    });
   });
 
 });
