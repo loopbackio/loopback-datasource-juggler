@@ -242,5 +242,46 @@ describe('ModelDefinition class', function () {
     assert(anotherChild.prototype instanceof baseChild);
   });
 
+  it('should not serialize hidden properties into JSON', function () {
+    var memory = new DataSource({connector: Memory});
+    var modelBuilder = memory.modelBuilder;
+    var HiddenModel = memory.createModel('hidden', {}, {
+      hidden: ['secret']
+    });
+    var hm = new HiddenModel({
+      id: 1,
+      foo: 'bar',
+      secret: 'secret'
+    });
+    var serialized = hm.toJSON();
+    assert.deepEqual(serialized, {
+      id: 1,
+      foo: 'bar'
+    });
+  });
+
+  it('should not serialize hidden properties of nested models into JSON', function (done) {
+    var memory = new DataSource({connector: Memory});
+    var modelBuilder = memory.modelBuilder;
+    var Parent = memory.createModel('parent');
+    var Child = memory.createModel('child', {}, {hidden: ['secret']});
+    Parent.hasMany(Child);
+    Parent.create({
+      name: 'parent'
+    }, function(err, parent) {
+      parent.children.create({
+        name: 'child',
+        secret: 'secret'
+      }, function(err, child) {
+        Parent.find({include: 'children'}, function(err, parents) {
+          var serialized = parents[0].toJSON();
+          var child = serialized.children[0];
+          assert.equal(child.name, 'child');
+          assert.notEqual(child.secret, 'secret');
+          done();
+        });
+      });
+    });
+  });
 });
 
