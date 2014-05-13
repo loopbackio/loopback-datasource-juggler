@@ -576,6 +576,152 @@ describe('Load models with base', function () {
   });
 });
 
+describe('Models attached to a dataSource', function() {
+  var Post;
+  before(function() {
+    var ds = new DataSource('memory');// define models
+    Post = ds.define('Post', {
+      title: { type: String, length: 255, index: true },
+      content: { type: String }
+    });
+  });
+
+  beforeEach(function(done) {
+    Post.destroyAll(done);
+  });
+
+  it('updateOrCreate should update the instance', function (done) {
+    Post.create({title: 'a', content: 'AAA'}, function (err, post) {
+      post.title = 'b';
+      Post.updateOrCreate(post, function (err, p) {
+        should.not.exist(err);
+        p.id.should.be.equal(post.id);
+        p.content.should.be.equal(post.content);
+        should.not.exist(p._id);
+
+        Post.findById(post.id, function (err, p) {
+          p.id.should.be.equal(post.id);
+          should.not.exist(p._id);
+          p.content.should.be.equal(post.content);
+          p.title.should.be.equal('b');
+
+          done();
+        });
+      });
+
+    });
+  });
+
+  it('updateOrCreate should update the instance without removing existing properties', function (done) {
+    Post.create({title: 'a', content: 'AAA'}, function (err, post) {
+      post = post.toObject();
+      delete post.title;
+      Post.updateOrCreate(post, function (err, p) {
+        should.not.exist(err);
+        p.id.should.be.equal(post.id);
+        p.content.should.be.equal(post.content);
+        should.not.exist(p._id);
+
+        Post.findById(post.id, function (err, p) {
+          p.id.should.be.equal(post.id);
+          should.not.exist(p._id);
+          p.content.should.be.equal(post.content);
+          p.title.should.be.equal('a');
+
+          done();
+        });
+      });
+
+    });
+  });
+
+  it('updateOrCreate should create a new instance if it does not exist', function (done) {
+    var post = {id: 123, title: 'a', content: 'AAA'};
+    Post.updateOrCreate(post, function (err, p) {
+      should.not.exist(err);
+      p.title.should.be.equal(post.title);
+      p.content.should.be.equal(post.content);
+      p.id.should.be.equal(post.id);
+
+      Post.findById(p.id, function (err, p) {
+        p.id.should.be.equal(post.id);
+        should.not.exist(p._id);
+        p.content.should.be.equal(post.content);
+        p.title.should.be.equal(post.title);
+        p.id.should.be.equal(post.id);
+
+        done();
+      });
+    });
+
+  });
+
+  it('save should update the instance with the same id', function (done) {
+    Post.create({title: 'a', content: 'AAA'}, function (err, post) {
+      post.title = 'b';
+      post.save(function (err, p) {
+        should.not.exist(err);
+        p.id.should.be.equal(post.id);
+        p.content.should.be.equal(post.content);
+        should.not.exist(p._id);
+
+        Post.findById(post.id, function (err, p) {
+          p.id.should.be.equal(post.id);
+          should.not.exist(p._id);
+          p.content.should.be.equal(post.content);
+          p.title.should.be.equal('b');
+
+          done();
+        });
+      });
+
+    });
+  });
+
+  it('save should update the instance without removing existing properties', function (done) {
+    Post.create({title: 'a', content: 'AAA'}, function (err, post) {
+      delete post.title;
+      post.save(function (err, p) {
+        should.not.exist(err);
+        p.id.should.be.equal(post.id);
+        p.content.should.be.equal(post.content);
+        should.not.exist(p._id);
+
+        Post.findById(post.id, function (err, p) {
+          p.id.should.be.equal(post.id);
+          should.not.exist(p._id);
+          p.content.should.be.equal(post.content);
+          p.title.should.be.equal('a');
+
+          done();
+        });
+      });
+
+    });
+  });
+
+  it('save should create a new instance if it does not exist', function (done) {
+    var post = new Post({id: '123', title: 'a', content: 'AAA'});
+    post.save(post, function (err, p) {
+      should.not.exist(err);
+      p.title.should.be.equal(post.title);
+      p.content.should.be.equal(post.content);
+      p.id.should.be.equal(post.id);
+
+      Post.findById(p.id, function (err, p) {
+        p.id.should.be.equal(post.id);
+        should.not.exist(p._id);
+        p.content.should.be.equal(post.content);
+        p.title.should.be.equal(post.title);
+        p.id.should.be.equal(post.id);
+
+        done();
+      });
+    });
+
+  });
+});
+
 describe('DataSource connector types', function() {
   it('should return an array of types', function() {
     var ds = new DataSource('memory');
