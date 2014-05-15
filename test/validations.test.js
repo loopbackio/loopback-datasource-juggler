@@ -1,5 +1,6 @@
 // This test written in mocha+should.js
 var should = require('./init.js');
+var async = require('async');
 
 var j = require('../'), db, User;
 var ValidationError = j.ValidationError;
@@ -172,6 +173,41 @@ describe('validations', function () {
       })).should.not.be.ok;
     });
 
+    it('should support multi-key constraint', function(done) {
+      var EMAIL = 'user@xample.com';
+      var SiteUser = db.define('SiteUser', {
+        siteId: String,
+        email: String
+      });
+      SiteUser.validatesUniquenessOf('email', { scopedTo: ['siteId'] });
+      async.waterfall([
+        function automigrate(next) {
+          db.automigrate(next);
+        },
+        function createSite1User(next) {
+          SiteUser.create(
+            { siteId: 1, email: EMAIL },
+            next);
+        },
+        function createSite2User(user1, next) {
+          SiteUser.create(
+            { siteId: 2, email: EMAIL },
+            next);
+        },
+        function validateDuplicateUser(user2, next) {
+          var user3 = new SiteUser({ siteId: 1, email: EMAIL });
+          user3.isValid(function(valid) {
+            valid.should.be.false;
+            next();
+          });
+        }
+      ], function(err) {
+        if (err && err.name == 'ValidationError') {
+          console.error('ValidationError:', err.details.messages);
+        }
+        done(err);
+      });
+    });
   });
 
   describe('format', function () {
