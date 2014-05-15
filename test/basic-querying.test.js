@@ -131,6 +131,50 @@ describe('basic-querying', function () {
       });
     });
 
+    it('should support "and" operator that is satisfied', function (done) {
+      User.find({where: {and: [
+        {name: 'John Lennon'},
+        {role: 'lead'}
+      ]}}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 1);
+        done();
+      });
+    });
+
+    it('should support "and" operator that is not satisfied', function (done) {
+      User.find({where: {and: [
+        {name: 'John Lennon'},
+        {role: 'member'}
+      ]}}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 0);
+        done();
+      });
+    });
+
+    it('should support "or" that is satisfied', function (done) {
+      User.find({where: {or: [
+        {name: 'John Lennon'},
+        {role: 'lead'}
+      ]}}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 2);
+        done();
+      });
+    });
+
+    it('should support "or" operator that is not satisfied', function (done) {
+      User.find({where: {or: [
+        {name: 'XYZ'},
+        {role: 'Hello1'}
+      ]}}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 0);
+        done();
+      });
+    });
+
     it('should only include fields as specified', function (done) {
       var remaining = 0;
 
