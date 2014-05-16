@@ -3,7 +3,8 @@ var ds = new DataSource('memory');
 
 var Order = ds.createModel('Order', {
   items: [String],
-  orderDate: Date
+  orderDate: Date,
+  qty: Number
 });
 
 var Customer = ds.createModel('Customer', {
@@ -43,13 +44,16 @@ Customer.create({name: 'John'}, function (err, customer) {
 Customer.hasMany(Order, {as: 'orders', foreignKey: 'customerId'});
 
 Customer.create({name: 'Ray'}, function (err, customer) {
-  Order.create({customerId: customer.id, orderDate: new Date()}, function (err, order) {
+  Order.create({customerId: customer.id, qty: 3, orderDate: new Date()}, function (err, order) {
     order3 = order;
     customer.orders(console.log);
-    customer.orders.create({orderDate: new Date()}, function (err, order) {
+    customer.orders.create({orderDate: new Date(), qty: 4}, function (err, order) {
       console.log(order);
       Customer.include([customer], 'orders', function (err, results) {
         console.log('Results: ', results);
+      });
+      customer.orders({where: {qty: 4}}, function(err, results) {
+        console.log('customer.orders', results);
       });
       customer.orders.findById(order3.id, console.log);
       customer.orders.destroy(order3.id, console.log);
