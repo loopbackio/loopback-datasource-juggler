@@ -111,6 +111,25 @@ describe('validations', function () {
         done();
       });
 
+      it('should include validation messages in err.message', function(done) {
+        delete User._validations;
+        User.validatesPresenceOf('name');
+        User.create(function (e, u) {
+          should.exist(e);
+          e.message.should.match(/`name` can't be blank/);
+          done();
+        });
+      });
+
+      it('should include model name in err.message', function(done) {
+        delete User._validations;
+        User.validatesPresenceOf('name');
+        User.create(function (e, u) {
+          should.exist(e);
+          e.message.should.match(/`User` instance/i);
+          done();
+        });
+      });
     });
   });
 
