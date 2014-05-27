@@ -582,7 +582,8 @@ describe('Models attached to a dataSource', function() {
     var ds = new DataSource('memory');// define models
     Post = ds.define('Post', {
       title: { type: String, length: 255, index: true },
-      content: { type: String }
+      content: { type: String },
+      comments: [String]
     });
   });
 
@@ -613,9 +614,10 @@ describe('Models attached to a dataSource', function() {
   });
 
   it('updateOrCreate should update the instance without removing existing properties', function (done) {
-    Post.create({title: 'a', content: 'AAA'}, function (err, post) {
+    Post.create({title: 'a', content: 'AAA', comments: ['Comment1']}, function (err, post) {
       post = post.toObject();
       delete post.title;
+      delete post.comments;
       Post.updateOrCreate(post, function (err, p) {
         should.not.exist(err);
         p.id.should.be.equal(post.id);
@@ -627,7 +629,8 @@ describe('Models attached to a dataSource', function() {
           should.not.exist(p._id);
           p.content.should.be.equal(post.content);
           p.title.should.be.equal('a');
-
+          p.comments.length.should.be.equal(1);
+          p.comments[0].should.be.equal('Comment1');
           done();
         });
       });
