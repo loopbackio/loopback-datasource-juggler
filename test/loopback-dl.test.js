@@ -993,7 +993,7 @@ describe('Model with scopes', function () {
 });
 
 describe('DataAccessObject', function () {
-  var ds, model, where;
+  var ds, model, where, error;
 
   before(function () {
     ds = new DataSource('memory');
@@ -1005,6 +1005,10 @@ describe('DataAccessObject', function () {
       location: 'GeoPoint',
       scores: [Number]
     });
+  });
+
+  beforeEach(function () {
+    error = null;
   });
 
   it('should be able to coerce where clause for string types', function () {
@@ -1067,6 +1071,139 @@ describe('DataAccessObject', function () {
     where = model._coerce({vip: ''});
     assert.deepEqual(where, {vip: false});
 
+  });
+
+  it('should be able to coerce where clause with and operators', function () {
+    where = model._coerce({and: [{age: '10'}, {vip: 'true'}]});
+    assert.deepEqual(where, {and: [{age: 10}, {vip: true}]});
+  });
+
+  it('should be able to coerce where clause with or operators', function () {
+    where = model._coerce({or: [{age: '10'}, {vip: 'true'}]});
+    assert.deepEqual(where, {or: [{age: 10}, {vip: true}]});
+  });
+
+  it('should throw if the where property is not an object', function () {
+    try {
+      // The where clause has to be an object
+      error = err;model._coerce('abc');
+    } catch (err) {
+      error = err;
+    }
+    assert(error, 'An error should have been thrown');
+  });
+
+  it('should throw if the where property is an array', function () {
+    try {
+      // The where clause cannot be an array
+      error = err;model._coerce([
+        {vip: true}
+      ]);
+    } catch (err) {
+      error = err;
+    }
+    assert(error, 'An error should have been thrown');
+  });
+
+  it('should throw if the and operator does not take an array', function () {
+    try {
+      // The and operator only takes an array of objects
+      error = err;model._coerce({and: {x: 1}});
+    } catch (err) {
+      error = err;
+    }
+    assert(error, 'An error should have been thrown');
+  });
+
+  it('should throw if the or operator does not take an array', function () {
+    try {
+      // The or operator only takes an array of objects
+      error = err;model._coerce({or: {x: 1}});
+    } catch (err) {
+      error = err;
+    }
+    assert(error, 'An error should have been thrown');
+  });
+
+  it('should throw if the or operator does not take an array of objects', function () {
+    try {
+      // The or operator only takes an array of objects
+      error = err;model._coerce({or: ['x']});
+    } catch(err) {
+      error = err;
+    }
+    assert(error, 'An error should have been thrown');
+  });
+
+  it('should throw if filter property is not an object', function () {
+    var filter = null;
+    try {
+      // The filter clause has to be an object
+      filter = model._normalize('abc');
+    } catch (err) {
+      error = err;
+    }
+    assert(error, 'An error should have been thrown');
+  });
+
+  it('should throw if filter.limit property is not a number', function () {
+    try {
+      // The limit param must be a valid number
+      filter = model._normalize({limit: 'x'});
+    } catch (err) {
+      error = err;
+    }
+    assert(error, 'An error should have been thrown');
+  });
+
+  it('should throw if filter.limit property is nagative', function () {
+    try {
+      // The limit param must be a valid number
+      filter = model._normalize({limit: -1});
+    } catch (err) {
+      error = err;
+    }
+    assert(error, 'An error should have been thrown');
+  });
+
+  it('should throw if filter.limit property is not an integer', function () {
+    try {
+      // The limit param must be a valid number
+      filter = model._normalize({limit: 5.8});
+    } catch (err) {
+      error = err;
+    }
+    assert(error, 'An error should have been thrown');
+  });
+
+  it('should throw if filter.offset property is not a number', function () {
+    try {
+      // The limit param must be a valid number
+      filter = model._normalize({offset: 'x'});
+    } catch (err) {
+      error = err;
+    }
+    assert(error, 'An error should have been thrown');
+  });
+
+  it('should throw if filter.skip property is not a number', function () {
+    try {
+      // The limit param must be a valid number
+      filter = model._normalize({skip: '_'});
+    } catch (err) {
+      error = err;
+    }
+    assert(error, 'An error should have been thrown');
+  });
+
+  it('should normalize limit/offset/skip', function () {
+    filter = model._normalize({limit: '10', skip: 5});
+    assert.deepEqual(filter, {limit: 10, offset: 5});
+  });
+
+  it('should set the default value for limit', function () {
+    filter = model._normalize({skip: 5});
+    assert.deepEqual(filter, {limit: 100, offset: 5});
   });
 
   it('should skip GeoPoint', function () {
