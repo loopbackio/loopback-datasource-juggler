@@ -4,11 +4,9 @@
         "lib/geo.js",        
         "lib/dao.js",
         "lib/model.js",
-        "lib/model-builder.js",          
         "lib/include.js",
         "lib/relations.js",
-        "lib/validations.js",
-        "lib/sql.js"
+        "lib/validations.js"
     ],
     "codeSectionDepth": 4,
     "assets": {
