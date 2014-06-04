@@ -1086,7 +1086,7 @@ describe('DataAccessObject', function () {
   it('should throw if the where property is not an object', function () {
     try {
       // The where clause has to be an object
-      error = err;model._coerce('abc');
+      model._coerce('abc');
     } catch (err) {
       error = err;
     }
@@ -1096,7 +1096,7 @@ describe('DataAccessObject', function () {
   it('should throw if the where property is an array', function () {
     try {
       // The where clause cannot be an array
-      error = err;model._coerce([
+      model._coerce([
         {vip: true}
       ]);
     } catch (err) {
@@ -1108,7 +1108,7 @@ describe('DataAccessObject', function () {
   it('should throw if the and operator does not take an array', function () {
     try {
       // The and operator only takes an array of objects
-      error = err;model._coerce({and: {x: 1}});
+      model._coerce({and: {x: 1}});
     } catch (err) {
       error = err;
     }
@@ -1118,7 +1118,7 @@ describe('DataAccessObject', function () {
   it('should throw if the or operator does not take an array', function () {
     try {
       // The or operator only takes an array of objects
-      error = err;model._coerce({or: {x: 1}});
+      model._coerce({or: {x: 1}});
     } catch (err) {
       error = err;
     }
@@ -1128,7 +1128,7 @@ describe('DataAccessObject', function () {
   it('should throw if the or operator does not take an array of objects', function () {
     try {
       // The or operator only takes an array of objects
-      error = err;model._coerce({or: ['x']});
+      model._coerce({or: ['x']});
     } catch(err) {
       error = err;
     }
