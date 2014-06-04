@@ -3,7 +3,6 @@
         "lib/datasource.js",
         "lib/geo.js",        
         "lib/dao.js",
-        "lib/model.js",
         "lib/include.js",
         "lib/relations.js",
         "lib/validations.js"
