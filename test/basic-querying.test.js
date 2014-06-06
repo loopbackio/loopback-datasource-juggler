@@ -8,6 +8,7 @@ describe('basic-querying', function () {
     db = getSchema();
 
     User = db.define('User', {
+      seq: {type: Number, index: true},
       name: {type: String, index: true, sort: true},
       email: {type: String, index: true},
       birthday: {type: Date, index: true},
@@ -177,7 +178,7 @@ describe('basic-querying', function () {
     });
 
     it('should support date "gte" that is satisfied', function (done) {
-      User.find({where: { birthday: { "gte": new Date('1980-12-08') }
+      User.find({order: 'seq', where: { birthday: { "gte": new Date('1980-12-08') }
       }}, function (err, users) {
         should.not.exist(err);
         users.should.have.property('length', 1);
@@ -187,7 +188,7 @@ describe('basic-querying', function () {
     });
 
     it('should support date "gt" that is not satisfied', function (done) {
-      User.find({where: { birthday: { "gt": new Date('1980-12-08') }
+      User.find({order: 'seq', where: { birthday: { "gt": new Date('1980-12-08') }
       }}, function (err, users) {
         should.not.exist(err);
         users.should.have.property('length', 0);
@@ -196,7 +197,7 @@ describe('basic-querying', function () {
     });
 
     it('should support date "gt" that is satisfied', function (done) {
-      User.find({where: { birthday: { "gt": new Date('1980-12-07') }
+      User.find({order: 'seq', where: { birthday: { "gt": new Date('1980-12-07') }
       }}, function (err, users) {
         should.not.exist(err);
         users.should.have.property('length', 1);
@@ -206,7 +207,7 @@ describe('basic-querying', function () {
     });
 
     it('should support date "lt" that is satisfied', function (done) {
-      User.find({where: { birthday: { "lt": new Date('1980-12-07') }
+      User.find({order: 'seq', where: { birthday: { "lt": new Date('1980-12-07') }
       }}, function (err, users) {
         should.not.exist(err);
         users.should.have.property('length', 1);
@@ -216,7 +217,7 @@ describe('basic-querying', function () {
     });
 
     it('should support number "gte" that is satisfied', function (done) {
-      User.find({where: { order: { "gte":  3}
+      User.find({order: 'seq', where: { order: { "gte":  3}
       }}, function (err, users) {
         should.not.exist(err);
         users.should.have.property('length', 4);
@@ -226,7 +227,7 @@ describe('basic-querying', function () {
     });
 
     it('should support number "gt" that is not satisfied', function (done) {
-      User.find({where: { order: { "gt": 6 }
+      User.find({order: 'seq', where: { order: { "gt": 6 }
       }}, function (err, users) {
         should.not.exist(err);
         users.should.have.property('length', 0);
@@ -235,7 +236,7 @@ describe('basic-querying', function () {
     });
 
     it('should support number "gt" that is satisfied', function (done) {
-      User.find({where: { order: { "gt": 5 }
+      User.find({order: 'seq', where: { order: { "gt": 5 }
       }}, function (err, users) {
         should.not.exist(err);
         users.should.have.property('length', 1);
@@ -245,7 +246,7 @@ describe('basic-querying', function () {
     });
 
     it('should support number "lt" that is satisfied', function (done) {
-      User.find({where: { order: { "lt": 2 }
+      User.find({order: 'seq', where: { order: { "lt": 2 }
       }}, function (err, users) {
         should.not.exist(err);
         users.should.have.property('length', 1);
@@ -255,7 +256,7 @@ describe('basic-querying', function () {
     });
 
     it('should support string "gte" that is satisfied', function (done) {
-      User.find({where: { name: { "gte":  'Paul McCartney'}
+      User.find({order: 'seq', where: { name: { "gte":  'Paul McCartney'}
       }}, function (err, users) {
         should.not.exist(err);
         users.should.have.property('length', 4);
@@ -265,7 +266,7 @@ describe('basic-querying', function () {
     });
 
     it('should support string "gt" that is not satisfied', function (done) {
-      User.find({where: { name: { "gt": 'xyz' }
+      User.find({order: 'seq', where: { name: { "gt": 'xyz' }
       }}, function (err, users) {
         should.not.exist(err);
         users.should.have.property('length', 0);
@@ -274,7 +275,7 @@ describe('basic-querying', function () {
     });
 
     it('should support string "gt" that is satisfied', function (done) {
-      User.find({where: { name: { "gt": 'Paul McCartney' }
+      User.find({order: 'seq', where: { name: { "gt": 'Paul McCartney' }
       }}, function (err, users) {
         should.not.exist(err);
         users.should.have.property('length', 3);
@@ -284,7 +285,7 @@ describe('basic-querying', function () {
     });
 
     it('should support string "lt" that is satisfied', function (done) {
-      User.find({where: { name: { "lt": 'Paul McCartney' }
+      User.find({order: 'seq', where: { name: { "lt": 'Paul McCartney' }
       }}, function (err, users) {
         should.not.exist(err);
         users.should.have.property('length', 2);
@@ -332,7 +333,7 @@ describe('basic-querying', function () {
       }
 
       sample({name: true}).expect(['name']);
-      sample({name: false}).expect(['id', 'email', 'role', 'order', 'birthday']);
+      sample({name: false}).expect(['id', 'seq', 'email', 'role', 'order', 'birthday']);
       sample({name: false, id: true}).expect(['id']);
       sample({id: true}).expect(['id']);
       sample('id').expect(['id']);
@@ -478,6 +479,7 @@ function seed(done) {
   var count = 0;
   var beatles = [
     {
+      seq: 0,
       name: 'John Lennon',
       email: 'john@b3atl3s.co.uk',
       role: 'lead',
@@ -485,16 +487,17 @@ function seed(done) {
       order: 2
     },
     {
+      seq: 1,
       name: 'Paul McCartney',
       email: 'paul@b3atl3s.co.uk',
       role: 'lead',
       birthday: new Date('1942-06-18'),
       order: 1
     },
-    {name: 'George Harrison', order: 5},
-    {name: 'Ringo Starr', order: 6},
-    {name: 'Pete Best', order: 4},
-    {name: 'Stuart Sutcliffe', order: 3}
+    {seq: 2, name: 'George Harrison', order: 5},
+    {seq: 3, name: 'Ringo Starr', order: 6},
+    {seq: 4, name: 'Pete Best', order: 4},
+    {seq: 5, name: 'Stuart Sutcliffe', order: 3}
   ];
   User.destroyAll(function () {
     beatles.forEach(function (beatle) {
