@@ -10,6 +10,7 @@ describe('basic-querying', function () {
     User = db.define('User', {
       name: {type: String, index: true, sort: true},
       email: {type: String, index: true},
+      birthday: {type: Date, index: true},
       role: {type: String, index: true},
       order: {type: Number, index: true, sort: true}
     });
@@ -175,6 +176,49 @@ describe('basic-querying', function () {
       });
     });
 
+    it('should support "gte" that is satisfied', function (done) {
+      User.find({where: { birthday:
+        { "gte": new Date('1980-12-08') }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 1);
+        users[0].name.should.equal('John Lennon');
+        done();
+      });
+    });
+
+    it('should support "gt" that is satisfied', function (done) {
+      User.find({where: { birthday:
+        { "gt": new Date('1980-12-08') }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 0);
+        done();
+      });
+    });
+
+    it('should support "gt" that is satisfied', function (done) {
+      User.find({where: { birthday:
+        { "gt": new Date('1980-12-07') }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 1);
+        users[0].name.should.equal('John Lennon');
+        done();
+      });
+    });
+
+    it('should support "lt" that is satisfied', function (done) {
+      User.find({where: { birthday:
+        { "lt": new Date('1980-12-07') }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 1);
+        users[0].name.should.equal('Paul McCartney');
+        done();
+      });
+    });
+
     it('should only include fields as specified', function (done) {
       var remaining = 0;
 
@@ -214,7 +258,7 @@ describe('basic-querying', function () {
       }
 
       sample({name: true}).expect(['name']);
-      sample({name: false}).expect(['id', 'email', 'role', 'order']);
+      sample({name: false}).expect(['id', 'email', 'role', 'order', 'birthday']);
       sample({name: false, id: true}).expect(['id']);
       sample({id: true}).expect(['id']);
       sample('id').expect(['id']);
@@ -363,12 +407,14 @@ function seed(done) {
       name: 'John Lennon',
       email: 'john@b3atl3s.co.uk',
       role: 'lead',
+      birthday: new Date('1980-12-08'),
       order: 2
     },
     {
       name: 'Paul McCartney',
       email: 'paul@b3atl3s.co.uk',
       role: 'lead',
+      birthday: new Date('1942-06-18'),
       order: 1
     },
     {name: 'George Harrison', order: 5},
