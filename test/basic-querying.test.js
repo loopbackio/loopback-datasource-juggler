@@ -13,7 +13,8 @@ describe('basic-querying', function () {
       email: {type: String, index: true},
       birthday: {type: Date, index: true},
       role: {type: String, index: true},
-      order: {type: Number, index: true, sort: true}
+      order: {type: Number, index: true, sort: true},
+      vip: {type: Boolean}
     });
 
     db.automigrate(done);
@@ -294,6 +295,46 @@ describe('basic-querying', function () {
       });
     });
 
+    it('should support boolean "gte" that is satisfied', function (done) {
+      User.find({order: 'seq', where: { vip: { "gte":  true}
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 3);
+        users[0].name.should.equal('John Lennon');
+        done();
+      });
+    });
+
+    it('should support boolean "gt" that is not satisfied', function (done) {
+      User.find({order: 'seq', where: { vip: { "gt": true }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 0);
+        done();
+      });
+    });
+
+    it('should support boolean "gt" that is satisfied', function (done) {
+      User.find({order: 'seq', where: { vip: { "gt": false }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 3);
+        users[0].name.should.equal('John Lennon');
+        done();
+      });
+    });
+
+    it('should support boolean "lt" that is satisfied', function (done) {
+      User.find({order: 'seq', where: { vip: { "lt": true }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 2);
+        users[0].name.should.equal('George Harrison');
+        done();
+      });
+    });
+
+
     it('should only include fields as specified', function (done) {
       var remaining = 0;
 
@@ -333,7 +374,7 @@ describe('basic-querying', function () {
       }
 
       sample({name: true}).expect(['name']);
-      sample({name: false}).expect(['id', 'seq', 'email', 'role', 'order', 'birthday']);
+      sample({name: false}).expect(['id', 'seq', 'email', 'role', 'order', 'birthday', 'vip']);
       sample({name: false, id: true}).expect(['id']);
       sample({id: true}).expect(['id']);
       sample('id').expect(['id']);
@@ -484,7 +525,8 @@ function seed(done) {
       email: 'john@b3atl3s.co.uk',
       role: 'lead',
       birthday: new Date('1980-12-08'),
-      order: 2
+      order: 2,
+      vip: true
     },
     {
       seq: 1,
@@ -492,12 +534,13 @@ function seed(done) {
       email: 'paul@b3atl3s.co.uk',
       role: 'lead',
       birthday: new Date('1942-06-18'),
-      order: 1
+      order: 1,
+      vip: true
     },
-    {seq: 2, name: 'George Harrison', order: 5},
-    {seq: 3, name: 'Ringo Starr', order: 6},
+    {seq: 2, name: 'George Harrison', order: 5, vip: false},
+    {seq: 3, name: 'Ringo Starr', order: 6, vip: false},
     {seq: 4, name: 'Pete Best', order: 4},
-    {seq: 5, name: 'Stuart Sutcliffe', order: 3}
+    {seq: 5, name: 'Stuart Sutcliffe', order: 3, vip: true}
   ];
   User.destroyAll(function () {
     beatles.forEach(function (beatle) {
