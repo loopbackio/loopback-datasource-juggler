@@ -256,6 +256,33 @@ describe('basic-querying', function () {
       });
     });
 
+    it('should support number "gt" that is satisfied by null value', function (done) {
+      User.find({order: 'seq', where: { order: { "gt": null }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 0);
+        done();
+      });
+    });
+
+    it('should support number "lt" that is not satisfied by null value', function (done) {
+      User.find({order: 'seq', where: { order: { "lt": null }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 0);
+        done();
+      });
+    });
+
+    it('should support string "gte" that is satisfied by null value', function (done) {
+      User.find({order: 'seq', where: { name: { "gte":  null}
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 0);
+        done();
+      });
+    });
+
     it('should support string "gte" that is satisfied', function (done) {
       User.find({order: 'seq', where: { name: { "gte":  'Paul McCartney'}
       }}, function (err, users) {
