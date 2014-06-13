@@ -8,10 +8,13 @@ describe('basic-querying', function () {
     db = getSchema();
 
     User = db.define('User', {
+      seq: {type: Number, index: true},
       name: {type: String, index: true, sort: true},
       email: {type: String, index: true},
+      birthday: {type: Date, index: true},
       role: {type: String, index: true},
-      order: {type: Number, index: true, sort: true}
+      order: {type: Number, index: true, sort: true},
+      vip: {type: Boolean}
     });
 
     db.automigrate(done);
@@ -175,6 +178,190 @@ describe('basic-querying', function () {
       });
     });
 
+    it('should support date "gte" that is satisfied', function (done) {
+      User.find({order: 'seq', where: { birthday: { "gte": new Date('1980-12-08') }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 1);
+        users[0].name.should.equal('John Lennon');
+        done();
+      });
+    });
+
+    it('should support date "gt" that is not satisfied', function (done) {
+      User.find({order: 'seq', where: { birthday: { "gt": new Date('1980-12-08') }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 0);
+        done();
+      });
+    });
+
+    it('should support date "gt" that is satisfied', function (done) {
+      User.find({order: 'seq', where: { birthday: { "gt": new Date('1980-12-07') }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 1);
+        users[0].name.should.equal('John Lennon');
+        done();
+      });
+    });
+
+    it('should support date "lt" that is satisfied', function (done) {
+      User.find({order: 'seq', where: { birthday: { "lt": new Date('1980-12-07') }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 1);
+        users[0].name.should.equal('Paul McCartney');
+        done();
+      });
+    });
+
+    it('should support number "gte" that is satisfied', function (done) {
+      User.find({order: 'seq', where: { order: { "gte":  3}
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 4);
+        users[0].name.should.equal('George Harrison');
+        done();
+      });
+    });
+
+    it('should support number "gt" that is not satisfied', function (done) {
+      User.find({order: 'seq', where: { order: { "gt": 6 }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 0);
+        done();
+      });
+    });
+
+    it('should support number "gt" that is satisfied', function (done) {
+      User.find({order: 'seq', where: { order: { "gt": 5 }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 1);
+        users[0].name.should.equal('Ringo Starr');
+        done();
+      });
+    });
+
+    it('should support number "lt" that is satisfied', function (done) {
+      User.find({order: 'seq', where: { order: { "lt": 2 }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 1);
+        users[0].name.should.equal('Paul McCartney');
+        done();
+      });
+    });
+
+    it('should support number "gt" that is satisfied by null value', function (done) {
+      User.find({order: 'seq', where: { order: { "gt": null }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 0);
+        done();
+      });
+    });
+
+    it('should support number "lt" that is not satisfied by null value', function (done) {
+      User.find({order: 'seq', where: { order: { "lt": null }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 0);
+        done();
+      });
+    });
+
+    it('should support string "gte" that is satisfied by null value', function (done) {
+      User.find({order: 'seq', where: { name: { "gte":  null}
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 0);
+        done();
+      });
+    });
+
+    it('should support string "gte" that is satisfied', function (done) {
+      User.find({order: 'seq', where: { name: { "gte":  'Paul McCartney'}
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 4);
+        users[0].name.should.equal('Paul McCartney');
+        done();
+      });
+    });
+
+    it('should support string "gt" that is not satisfied', function (done) {
+      User.find({order: 'seq', where: { name: { "gt": 'xyz' }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 0);
+        done();
+      });
+    });
+
+    it('should support string "gt" that is satisfied', function (done) {
+      User.find({order: 'seq', where: { name: { "gt": 'Paul McCartney' }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 3);
+        users[0].name.should.equal('Ringo Starr');
+        done();
+      });
+    });
+
+    it('should support string "lt" that is satisfied', function (done) {
+      User.find({order: 'seq', where: { name: { "lt": 'Paul McCartney' }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 2);
+        users[0].name.should.equal('John Lennon');
+        done();
+      });
+    });
+
+    it('should support boolean "gte" that is satisfied', function (done) {
+      User.find({order: 'seq', where: { vip: { "gte":  true}
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 3);
+        users[0].name.should.equal('John Lennon');
+        done();
+      });
+    });
+
+    it('should support boolean "gt" that is not satisfied', function (done) {
+      User.find({order: 'seq', where: { vip: { "gt": true }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 0);
+        done();
+      });
+    });
+
+    it('should support boolean "gt" that is satisfied', function (done) {
+      User.find({order: 'seq', where: { vip: { "gt": false }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 3);
+        users[0].name.should.equal('John Lennon');
+        done();
+      });
+    });
+
+    it('should support boolean "lt" that is satisfied', function (done) {
+      User.find({order: 'seq', where: { vip: { "lt": true }
+      }}, function (err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 2);
+        users[0].name.should.equal('George Harrison');
+        done();
+      });
+    });
+
+
     it('should only include fields as specified', function (done) {
       var remaining = 0;
 
@@ -214,7 +401,7 @@ describe('basic-querying', function () {
       }
 
       sample({name: true}).expect(['name']);
-      sample({name: false}).expect(['id', 'email', 'role', 'order']);
+      sample({name: false}).expect(['id', 'seq', 'email', 'role', 'order', 'birthday', 'vip']);
       sample({name: false, id: true}).expect(['id']);
       sample({id: true}).expect(['id']);
       sample('id').expect(['id']);
@@ -360,21 +547,27 @@ function seed(done) {
   var count = 0;
   var beatles = [
     {
+      seq: 0,
       name: 'John Lennon',
       email: 'john@b3atl3s.co.uk',
       role: 'lead',
-      order: 2
+      birthday: new Date('1980-12-08'),
+      order: 2,
+      vip: true
     },
     {
+      seq: 1,
       name: 'Paul McCartney',
       email: 'paul@b3atl3s.co.uk',
       role: 'lead',
-      order: 1
+      birthday: new Date('1942-06-18'),
+      order: 1,
+      vip: true
     },
-    {name: 'George Harrison', order: 5},
-    {name: 'Ringo Starr', order: 6},
-    {name: 'Pete Best', order: 4},
-    {name: 'Stuart Sutcliffe', order: 3}
+    {seq: 2, name: 'George Harrison', order: 5, vip: false},
+    {seq: 3, name: 'Ringo Starr', order: 6, vip: false},
+    {seq: 4, name: 'Pete Best', order: 4},
+    {seq: 5, name: 'Stuart Sutcliffe', order: 3, vip: true}
   ];
   User.destroyAll(function () {
     beatles.forEach(function (beatle) {
