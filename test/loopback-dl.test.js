@@ -1299,15 +1299,24 @@ describe('Load models from json', function () {
     customer.should.not.have.property('bio');
 
     // The properties are defined at prototype level
-    assert.equal(Object.keys(customer).length, 0);
+    assert.equal(Object.keys(customer).filter(function (k) {
+      // Remove internal properties
+      return k.indexOf('__') === -1;
+    }).length, 0);
     var count = 0;
     for (var p in customer) {
+      if (p.indexOf('__') === 0) {
+        continue;
+      }
       if (typeof customer[p] !== 'function') {
         count++;
       }
     }
     assert.equal(count, 7); // Please note there is an injected id from User prototype
-    assert.equal(Object.keys(customer.toObject()).length, 6);
+    assert.equal(Object.keys(customer.toObject()).filter(function (k) {
+      // Remove internal properties
+      return k.indexOf('__') === -1;
+    }).length, 6);
 
     done(null, customer);
   });
