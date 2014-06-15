@@ -872,27 +872,33 @@ describe('Load models with relations', function () {
     var Account = ds.define('Account', {userId: Number, type: String}, {relations: {user: {type: 'belongsTo', model: 'User'}}});
 
     assert(Post.relations['user']);
-    assert.deepEqual(Post.relations['user'], {
+    assert.deepEqual(Post.relations['user'].toJSON(), {
+      name: 'user',
       type: 'belongsTo',
+      modelFrom: 'Post',
       keyFrom: 'userId',
+      modelTo: 'User',
       keyTo: 'id',
-      modelTo: User,
       multiple: false
     });
     assert(User.relations['posts']);
-    assert.deepEqual(User.relations['posts'], {
+    assert.deepEqual(User.relations['posts'].toJSON(), {
+      name: 'posts',
       type: 'hasMany',
+      modelFrom: 'User',
       keyFrom: 'id',
+      modelTo: 'Post',
       keyTo: 'userId',
-      modelTo: Post,
       multiple: true
     });
     assert(User.relations['accounts']);
-    assert.deepEqual(User.relations['accounts'], {
+    assert.deepEqual(User.relations['accounts'].toJSON(), {
+      name: 'accounts',
       type: 'hasMany',
+      modelFrom: 'User',
       keyFrom: 'id',
+      modelTo: 'Account',
       keyTo: 'userId',
-      modelTo: Account,
       multiple: true
     });
 
