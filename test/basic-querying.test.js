@@ -72,11 +72,22 @@ describe('basic-querying', function () {
       });
     });
 
-    it('should query offset collection with limit', function (done) {
-      User.find({skip: 1, limit: 4}, function (err, users) {
+    it('should query collection with skip & limit', function (done) {
+      User.find({skip: 1, limit: 4, order: 'seq'}, function (err, users) {
         should.exists(users);
         should.not.exists(err);
+        users[0].seq.should.be.eql(1);
         users.should.have.lengthOf(4);
+        done();
+      });
+    });
+
+    it('should query collection with offset & limit', function (done) {
+      User.find({offset: 2, limit: 3}, function (err, users) {
+        should.exists(users);
+        should.not.exists(err);
+        users[0].seq.should.be.eql(2);
+        users.should.have.lengthOf(3);
         done();
       });
     });
