@@ -4,6 +4,7 @@
         "lib/geo.js",        
         "lib/dao.js",
         "lib/include.js",
+        "lib/model-builder.js",        
         "lib/relations.js",
         "lib/validations.js"
     ],
