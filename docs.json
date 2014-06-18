@@ -2,7 +2,7 @@
     "content": [
         "lib/datasource.js",
         "lib/geo.js",        
-        "lib/dao.js",
+        "lib/hooks.js",
         "lib/include.js",
         "lib/model-builder.js",        
         "lib/relations.js",
