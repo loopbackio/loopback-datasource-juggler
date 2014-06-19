@@ -193,7 +193,6 @@ describe('relations', function () {
       Supplier.hasOne(Account);
       Object.keys((new Account()).toObject()).should.include('supplierId');
       (new Supplier()).account.should.be.an.instanceOf(Function);
-
     });
 
     it('can be used to query data', function (done) {
