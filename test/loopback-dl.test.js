@@ -1198,12 +1198,12 @@ describe('DataAccessObject', function () {
 
   it('should normalize limit/offset/skip', function () {
     filter = model._normalize({limit: '10', skip: 5});
-    assert.deepEqual(filter, {limit: 10, offset: 5});
+    assert.deepEqual(filter, {limit: 10, offset: 5, skip: 5});
   });
 
   it('should set the default value for limit', function () {
     filter = model._normalize({skip: 5});
-    assert.deepEqual(filter, {limit: 100, offset: 5});
+    assert.deepEqual(filter, {limit: 100, offset: 5, skip: 5});
   });
 
   it('should skip GeoPoint', function () {
