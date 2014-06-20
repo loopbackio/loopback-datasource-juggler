@@ -1,5 +1,6 @@
 // This test written in mocha+should.js
 var should = require('./init.js');
+var async = require('async');
 var db, User;
 
 describe('basic-querying', function () {
@@ -578,7 +579,6 @@ describe('basic-querying', function () {
 });
 
 function seed(done) {
-  var count = 0;
   var beatles = [
     {
       seq: 0,
@@ -603,15 +603,11 @@ function seed(done) {
     {seq: 4, name: 'Pete Best', order: 4},
     {seq: 5, name: 'Stuart Sutcliffe', order: 3, vip: true}
   ];
-  User.destroyAll(function () {
-    beatles.forEach(function (beatle) {
-      User.create(beatle, ok);
-    });
-  });
 
-  function ok() {
-    if (++count === beatles.length) {
-      done();
+  async.series([
+    User.destroyAll.bind(User),
+    function(cb) {
+      async.each(beatles, User.create.bind(User), cb);
     }
-  }
+  ], done);
 }
