@@ -1,5 +1,6 @@
 // This test written in mocha+should.js
 var should = require('./init.js');
+var async = require('async');
 var db, User;
 
 describe('basic-querying', function () {
@@ -552,10 +553,43 @@ describe('basic-querying', function () {
 
   });
 
+  describe('updateAll ', function () {
+
+    beforeEach(seed);
+
+    it('should only update instances that satisfy the where condition', function (done) {
+      User.update({name: 'John Lennon'}, {name: 'John Smith'}, function () {
+        User.find({where: {name: 'John Lennon'}}, function (err, data) {
+          should.not.exist(err);
+          data.length.should.equal(0);
+          User.find({where: {name: 'John Smith'}}, function (err, data) {
+            should.not.exist(err);
+            data.length.should.equal(1);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should update all instances without where', function (done) {
+      User.update({name: 'John Smith'}, function () {
+        User.find({where: {name: 'John Lennon'}}, function (err, data) {
+          should.not.exist(err);
+          data.length.should.equal(0);
+          User.find({where: {name: 'John Smith'}}, function (err, data) {
+            should.not.exist(err);
+            data.length.should.equal(6);
+            done();
+          });
+        });
+      });
+    });
+
+  });
+
 });
 
 function seed(done) {
-  var count = 0;
   var beatles = [
     {
       seq: 0,
@@ -580,15 +614,11 @@ function seed(done) {
     {seq: 4, name: 'Pete Best', order: 4},
     {seq: 5, name: 'Stuart Sutcliffe', order: 3, vip: true}
   ];
-  User.destroyAll(function () {
-    beatles.forEach(function (beatle) {
-      User.create(beatle, ok);
-    });
-  });
 
-  function ok() {
-    if (++count === beatles.length) {
-      done();
+  async.series([
+    User.destroyAll.bind(User),
+    function(cb) {
+      async.each(beatles, User.create.bind(User), cb);
     }
-  }
+  ], done);
 }
