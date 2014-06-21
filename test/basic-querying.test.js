@@ -84,7 +84,7 @@ describe('basic-querying', function () {
     });
 
     it('should query collection with offset & limit', function (done) {
-      User.find({offset: 2, limit: 3}, function (err, users) {
+      User.find({offset: 2, limit: 3, order: 'seq'}, function (err, users) {
         should.exists(users);
         should.not.exists(err);
         users[0].seq.should.be.eql(2);
