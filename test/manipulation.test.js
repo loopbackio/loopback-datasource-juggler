@@ -133,14 +133,11 @@ describe('manipulation', function () {
       Person.findOne(function (err, p) {
         should.not.exist(err);
         p.name = 'Hans';
-        p.propertyChanged('name').should.be.true;
         p.save(function (err) {
           should.not.exist(err);
-          p.propertyChanged('name').should.be.false;
           Person.findOne(function (err, p) {
             should.not.exist(err);
             p.name.should.equal('Hans');
-            p.propertyChanged('name').should.be.false;
             done();
           });
         });
@@ -157,10 +154,8 @@ describe('manipulation', function () {
         p.name = 'Nana';
         p.save(function (err) {
           should.exist(err);
-          p.propertyChanged('name').should.be.true;
           p.save({validate: false}, function (err) {
             should.not.exist(err);
-            p.propertyChanged('name').should.be.false;
             done();
           });
         });
@@ -244,10 +239,7 @@ describe('manipulation', function () {
         person = new Person({name: hw});
 
       person.name.should.equal(hw);
-      person.propertyChanged('name').should.be.false;
       person.name = 'Goodbye, Lenin';
-      person.name$was.should.equal(hw);
-      person.propertyChanged('name').should.be.true;
       (person.createdAt >= now).should.be.true;
       person.isNewRecord().should.be.true;
     });

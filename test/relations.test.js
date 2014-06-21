@@ -1,7 +1,7 @@
 // This test written in mocha+should.js
 var should = require('./init.js');
 
-var db, Book, Chapter, Author, Reader;
+var db, Book, Chapter, Author, Reader, Publisher;
 
 describe('relations', function () {
   before(function (done) {
@@ -174,6 +174,42 @@ describe('relations', function () {
           item.listId.should.equal(list.id);
           item.__cachedRelations.list.should.equal(list);
           done();
+        });
+      });
+    });
+
+  });
+
+  describe('hasOne', function () {
+    var Supplier, Account;
+
+    before(function () {
+      db = getSchema();
+      Supplier = db.define('Supplier', {name: String});
+      Account = db.define('Account', {accountNo: String});
+    });
+
+    it('can be declared using hasOne method', function () {
+      Supplier.hasOne(Account);
+      Object.keys((new Account()).toObject()).should.include('supplierId');
+      (new Supplier()).account.should.be.an.instanceOf(Function);
+    });
+
+    it('can be used to query data', function (done) {
+      // Supplier.hasOne(Account);
+      db.automigrate(function () {
+        Supplier.create({name: 'Supplier 1'}, function (e, supplier) {
+          should.not.exist(e);
+          should.exist(supplier);
+          supplier.account.create({accountNo: 'a01'}, function (err, account) {
+            supplier.account(function (e, act) {
+              should.not.exist(e);
+              should.exist(act);
+              act.should.be.an.instanceOf(Account);
+              supplier.account().should.equal(act.id);
+              done();
+            });
+          });
         });
       });
     });

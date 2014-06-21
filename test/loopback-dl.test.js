@@ -872,27 +872,33 @@ describe('Load models with relations', function () {
     var Account = ds.define('Account', {userId: Number, type: String}, {relations: {user: {type: 'belongsTo', model: 'User'}}});
 
     assert(Post.relations['user']);
-    assert.deepEqual(Post.relations['user'], {
+    assert.deepEqual(Post.relations['user'].toJSON(), {
+      name: 'user',
       type: 'belongsTo',
+      modelFrom: 'Post',
       keyFrom: 'userId',
+      modelTo: 'User',
       keyTo: 'id',
-      modelTo: User,
       multiple: false
     });
     assert(User.relations['posts']);
-    assert.deepEqual(User.relations['posts'], {
+    assert.deepEqual(User.relations['posts'].toJSON(), {
+      name: 'posts',
       type: 'hasMany',
+      modelFrom: 'User',
       keyFrom: 'id',
+      modelTo: 'Post',
       keyTo: 'userId',
-      modelTo: Post,
       multiple: true
     });
     assert(User.relations['accounts']);
-    assert.deepEqual(User.relations['accounts'], {
+    assert.deepEqual(User.relations['accounts'].toJSON(), {
+      name: 'accounts',
       type: 'hasMany',
+      modelFrom: 'User',
       keyFrom: 'id',
+      modelTo: 'Account',
       keyTo: 'userId',
-      modelTo: Account,
       multiple: true
     });
 
@@ -1198,12 +1204,12 @@ describe('DataAccessObject', function () {
 
   it('should normalize limit/offset/skip', function () {
     filter = model._normalize({limit: '10', skip: 5});
-    assert.deepEqual(filter, {limit: 10, offset: 5});
+    assert.deepEqual(filter, {limit: 10, offset: 5, skip: 5});
   });
 
   it('should set the default value for limit', function () {
     filter = model._normalize({skip: 5});
-    assert.deepEqual(filter, {limit: 100, offset: 5});
+    assert.deepEqual(filter, {limit: 100, offset: 5, skip: 5});
   });
 
   it('should skip GeoPoint', function () {
@@ -1299,15 +1305,24 @@ describe('Load models from json', function () {
     customer.should.not.have.property('bio');
 
     // The properties are defined at prototype level
-    assert.equal(Object.keys(customer).length, 0);
+    assert.equal(Object.keys(customer).filter(function (k) {
+      // Remove internal properties
+      return k.indexOf('__') === -1;
+    }).length, 0);
     var count = 0;
     for (var p in customer) {
+      if (p.indexOf('__') === 0) {
+        continue;
+      }
       if (typeof customer[p] !== 'function') {
         count++;
       }
     }
     assert.equal(count, 7); // Please note there is an injected id from User prototype
-    assert.equal(Object.keys(customer.toObject()).length, 6);
+    assert.equal(Object.keys(customer.toObject()).filter(function (k) {
+      // Remove internal properties
+      return k.indexOf('__') === -1;
+    }).length, 6);
 
     done(null, customer);
   });
