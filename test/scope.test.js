@@ -3,7 +3,7 @@ var should = require('./init.js');
 
 var db, Railway, Station;
 
-describe('sc0pe', function () {
+describe('scope', function () {
 
   before(function () {
     db = getSchema();

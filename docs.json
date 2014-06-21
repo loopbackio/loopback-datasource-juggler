@@ -2,13 +2,11 @@
     "content": [
         "lib/datasource.js",
         "lib/geo.js",        
-        "lib/dao.js",
-        "lib/model.js",
-        "lib/model-builder.js",          
+        "lib/hooks.js",
         "lib/include.js",
+        "lib/model-builder.js",        
         "lib/relations.js",
-        "lib/validations.js",
-        "lib/sql.js"
+        "lib/validations.js"
     ],
     "codeSectionDepth": 4,
     "assets": {
