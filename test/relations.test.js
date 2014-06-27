@@ -155,7 +155,7 @@ describe('relations', function () {
               should.not.exist(e);
               should.exist(l);
               l.should.be.an.instanceOf(List);
-              todo.list().should.equal(l.id);
+              todo.list().id.should.equal(l.id);
               done();
             });
           });
@@ -206,7 +206,7 @@ describe('relations', function () {
               should.not.exist(e);
               should.exist(act);
               act.should.be.an.instanceOf(Account);
-              supplier.account().should.equal(act.id);
+              supplier.account().id.should.equal(act.id);
               done();
             });
           });
