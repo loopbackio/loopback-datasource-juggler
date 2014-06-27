@@ -141,6 +141,64 @@ describe('Memory connector', function () {
       });
     });
 
+    it('should throw if the like value is not string or regexp', function (done) {
+      User.find({where: {name: {like: 123}}}, function (err, posts) {
+        should.exist(err);
+        done();
+      });
+    });
+
+    it('should throw if the nlike value is not string or regexp', function (done) {
+      User.find({where: {name: {nlike: 123}}}, function (err, posts) {
+        should.exist(err);
+        done();
+      });
+    });
+
+    it('should throw if the inq value is not an array', function (done) {
+      User.find({where: {name: {inq: '12'}}}, function (err, posts) {
+        should.exist(err);
+        done();
+      });
+    });
+
+    it('should throw if the nin value is not an array', function (done) {
+      User.find({where: {name: {nin: '12'}}}, function (err, posts) {
+        should.exist(err);
+        done();
+      });
+    });
+
+    it('should throw if the between value is not an array', function (done) {
+      User.find({where: {name: {between: '12'}}}, function (err, posts) {
+        should.exist(err);
+        done();
+      });
+    });
+
+    it('should throw if the between value is not an array of length 2', function (done) {
+      User.find({where: {name: {between: ['12']}}}, function (err, posts) {
+        should.exist(err);
+        done();
+      });
+    });
+
+    it('support order with multiple fields', function (done) {
+      User.find({order: 'vip ASC, seq DESC'}, function (err, posts) {
+        should.not.exist(err);
+        posts[0].seq.should.be.eql(4);
+        posts[1].seq.should.be.eql(3);
+        done();
+      });
+    });
+
+    it('should throw if order has wrong direction', function (done) {
+      User.find({order: 'seq ABC'}, function (err, posts) {
+        should.exist(err);
+        done();
+      });
+    });
+
     function seed(done) {
       var beatles = [
         {

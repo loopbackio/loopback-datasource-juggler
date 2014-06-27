@@ -264,7 +264,7 @@ describe('DataSource define model', function () {
       name: String,
       bio: ModelBuilder.Text,
       approved: Boolean,
-      joinedAt: Date,
+      joinedAt: {type: Date, default: Date},
       age: Number
     });
 
@@ -279,6 +279,8 @@ describe('DataSource define model', function () {
     var user = new User({name: 'Joe', group: 'G1'});
     assert.equal(user.name, 'Joe');
     assert.equal(user.group, 'G1');
+
+    assert(user.joinedAt instanceof Date);
 
     // setup relationships
     User.hasMany(Post, {as: 'posts', foreignKey: 'userId'});

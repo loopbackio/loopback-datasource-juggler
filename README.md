@@ -5,8 +5,8 @@ for interacting with databases, REST APIs, and other data sources. It was
 initially forked from [JugglingDB](https://github.com/1602/jugglingdb).
 
 **For full documentation, see the official StrongLoop documentation**:
- * [Data sources and connectors](http://docs.strongloop.com/display/DOC/Data+sources+and+connectors)
- * [Data Source Juggler](http://docs.strongloop.com/display/DOC/Data+Source+Juggler).
+ * [Data sources and connectors](http://docs.strongloop.com/display/LB/Data+sources+and+connectors)
+ * [Creating data sources and connected models](http://docs.strongloop.com/display/LB/Creating+data+sources+and+connected+models).
 
 ## Installation
 
