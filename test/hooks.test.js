@@ -81,7 +81,27 @@ describe('hooks', function () {
       }
 
       User.afterCreate = function () {
-        throw new Error('shouldn\'t be called')
+        throw new Error('shouldn\'t be called');
+      };
+      User.create(function (err, user) {
+        User.dataSource.connector.create = old;
+        done();
+      });
+    });
+
+    it('afterCreate should not be triggered on failed beforeCreate', function (done) {
+      User.beforeCreate = function (next, data) {
+        // Skip next()
+        next(new Error('fail in beforeCreate'));
+      };
+
+      var old = User.dataSource.connector.create;
+      User.dataSource.connector.create = function (modelName, id, cb) {
+        throw new Error('shouldn\'t be called');
+      }
+
+      User.afterCreate = function () {
+        throw new Error('shouldn\'t be called');
       };
       User.create(function (err, user) {
         User.dataSource.connector.create = old;
@@ -173,6 +193,18 @@ describe('hooks', function () {
       });
     });
 
+    it('beforeSave should be able to skip next', function (done) {
+      User.create(function (err, user) {
+        User.beforeSave = function (next, data) {
+          next(null, 'XYZ');
+        };
+        user.save(function(err, result) {
+          result.should.be.eql('XYZ');
+          done();
+        });
+      });
+    });
+
   });
 
   describe('update', function () {
@@ -221,7 +253,7 @@ describe('hooks', function () {
 
     it('should not trigger after-hook on failed save', function (done) {
       User.afterUpdate = function () {
-        should.fail('afterUpdate shouldn\'t be called')
+        should.fail('afterUpdate shouldn\'t be called');
       };
       User.create(function (err, user) {
         var save = User.dataSource.connector.save;
