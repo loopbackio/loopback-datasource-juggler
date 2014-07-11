@@ -159,6 +159,20 @@ describe('validations', function () {
     });
 
   });
+  
+  describe('absence', function () {
+
+    it('should validate absence', function () {
+      User.validatesAbsenceOf('reserved', { if: 'locked' });
+      var u = new User({reserved: 'foo', locked: true});
+      u.isValid().should.not.be.true;
+      u.reserved = null;
+      u.isValid().should.be.true;
+      var u = new User({reserved: 'foo', locked: false});
+      u.isValid().should.be.true;
+    });
+
+  });
 
   describe('uniqueness', function () {
     it('should validate uniqueness', function (done) {
@@ -242,6 +256,18 @@ describe('validations', function () {
         });
       })).should.be.false;
     });
+    
+    it('should work with if/unless', function (done) {
+      User.validatesUniquenessOf('email', { 
+        if: function() { return true; },
+        unless: function() { return false; }
+      });
+      var u = new User({email: 'hello'});
+      Boolean(u.isValid(function (valid) {
+        valid.should.be.true;
+        done();
+      })).should.be.false;
+    });
   });
 
   describe('format', function () {
@@ -266,7 +292,38 @@ describe('validations', function () {
   });
 
   describe('custom', function () {
-    it('should validate using custom sync validation');
-    it('should validate using custom async validation');
+    it('should validate using custom sync validation', function() {
+      User.validate('email', function (err) {
+        if (this.email === 'hello') err();
+      });
+      var u = new User({email: 'hello'});
+      Boolean(u.isValid()).should.be.false;
+    });
+    
+    it('should validate and return detailed error messages', function() {
+      User.validate('global', function (err) {
+        if (this.email === 'hello' || this.email === 'hey') {
+          this.errors.add('hello', 'Cannot be `' + this.email + '`', 'invalid');
+          err(false); // false: prevent global error message
+        }
+      });
+      var u = new User({email: 'hello'});
+      Boolean(u.isValid()).should.be.false;
+      u.errors.should.eql({ hello: [ 'Cannot be `hello`' ] });
+    });
+    
+    it('should validate using custom async validation', function(done) {
+      User.validateAsync('email', function (err, next) {
+        process.nextTick(next);
+      }, { 
+        if: function() { return true; },
+        unless: function() { return false; }
+      });
+      var u = new User({email: 'hello'});
+      Boolean(u.isValid(function (valid) {
+        valid.should.be.true;
+        done();
+      })).should.be.false;
+    });
   });
 });
