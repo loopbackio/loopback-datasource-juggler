@@ -126,9 +126,9 @@ describe('relations', function () {
     });
   });
   
-  describe('hasMany with mapping', function () {
-    it('can be declared with mapping', function (done) {
-      Book.hasMany(Chapter, { mapping: { type: 'bookType' } });
+  describe('hasMany with properties', function () {
+    it('can be declared with properties', function (done) {
+      Book.hasMany(Chapter, { properties: { type: 'bookType' } });
       db.automigrate(done);
     });
     
@@ -146,14 +146,14 @@ describe('relations', function () {
   });
   
   describe('hasMany with scope', function () {
-    it('can be declared with mapping', function (done) {
+    it('can be declared with properties', function (done) {
       Category.hasMany(Product, {
-        mapping: function(inst) {
+        properties: function(inst) {
           if (!inst.productType) return; // skip
           return { type: inst.productType };
         },
         scope: function(inst, filter) {
-          var m = this.mapping(inst); // re-use mapping
+          var m = this.properties(inst); // re-use properties
           if (m) return { where: m };
         }
       });
@@ -198,13 +198,13 @@ describe('relations', function () {
     // a reference to the parent scope/instance: ctx.instance
     // in order to enforce a (dynamic scope) at runtime
     // a temporary property can be set in the beforeRemoting
-    // handler. Optionally, a dynamic mapping can be declared.
+    // handler. Optionally,properties dynamic properties can be declared.
     //
     // The code below simulates this.
     
-    it('should create record on scope - mapped', function (done) {
+    it('should create record on scope - properties', function (done) {
       Category.findOne(function (err, c) {
-        c.productType = 'tool'; // temporary, for mapping
+        c.productType = 'tool'; // temporary
         c.products.create(function(err, p) {
           p.categoryId.should.equal(c.id);
           p.type.should.equal('tool');
@@ -304,7 +304,7 @@ describe('relations', function () {
     });
 
     it('can be declared using hasOne method', function () {
-      Supplier.hasOne(Account, { mapping: { name: 'supplierName' } });
+      Supplier.hasOne(Account, { properties: { name: 'supplierName' } });
       Object.keys((new Account()).toObject()).should.include('supplierId');
       (new Supplier()).account.should.be.an.instanceOf(Function);
     });
