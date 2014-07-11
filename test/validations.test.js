@@ -295,21 +295,23 @@ describe('validations', function () {
     it('should validate using custom sync validation', function() {
       User.validate('email', function (err) {
         if (this.email === 'hello') err();
-      });
+      }, { code: 'invalid-email' });
       var u = new User({email: 'hello'});
       Boolean(u.isValid()).should.be.false;
+      u.errors.codes.should.eql({ email: ['invalid-email'] });
     });
     
     it('should validate and return detailed error messages', function() {
       User.validate('global', function (err) {
         if (this.email === 'hello' || this.email === 'hey') {
-          this.errors.add('hello', 'Cannot be `' + this.email + '`', 'invalid');
+          this.errors.add('email', 'Cannot be `' + this.email + '`', 'invalid-email');
           err(false); // false: prevent global error message
         }
       });
       var u = new User({email: 'hello'});
       Boolean(u.isValid()).should.be.false;
-      u.errors.should.eql({ hello: [ 'Cannot be `hello`' ] });
+      u.errors.should.eql({ email: ['Cannot be `hello`'] });
+      u.errors.codes.should.eql({ email: ['invalid-email'] });
     });
     
     it('should validate using custom async validation', function(done) {
