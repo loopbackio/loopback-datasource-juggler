@@ -1,7 +1,8 @@
 // This test written in mocha+should.js
 var should = require('./init.js');
 
-var db, Book, Chapter, Author, Reader, Publisher;
+var db, Book, Chapter, Author, Reader;
+var Category, Product;
 
 describe('relations', function () {
   before(function (done) {
@@ -10,6 +11,8 @@ describe('relations', function () {
     Chapter = db.define('Chapter', {name: {type: String, index: true}});
     Author = db.define('Author', {name: String});
     Reader = db.define('Reader', {name: String});
+    Category = db.define('Category', {name: String});
+    Product = db.define('Product', {name: String, type: String});
 
     db.automigrate(function () {
       Book.destroyAll(function () {
@@ -385,6 +388,117 @@ describe('relations', function () {
     });
 
   });
+  
+  describe('hasMany with properties', function () {
+    it('can be declared with properties', function (done) {
+      Book.hasMany(Chapter, { properties: { type: 'bookType' } });
+      db.automigrate(done);
+    });
+    
+    it('should create record on scope', function (done) {
+      Book.create({ type: 'fiction' }, function (err, book) {
+        book.chapters.create(function (err, c) {
+          should.not.exist(err);
+          should.exist(c);
+          c.bookId.should.equal(book.id);
+          c.bookType.should.equal('fiction');
+          done();
+        });
+      });
+    });
+  });
+  
+  describe('hasMany with scope', function () {
+    it('can be declared with properties', function (done) {
+      Category.hasMany(Product, {
+        properties: function(inst) {
+          if (!inst.productType) return; // skip
+          return { type: inst.productType };
+        },
+        scope: function(inst, filter) {
+          var m = this.properties(inst); // re-use properties
+          if (m) return { where: m };
+        }
+      });
+      db.automigrate(done);
+    });
+    
+    it('should create record on scope', function (done) {
+      Category.create(function (err, c) {
+        c.products.create({ type: 'book' }, function(err, p) {
+          p.categoryId.should.equal(c.id);
+          p.type.should.equal('book');
+          c.products.create({ type: 'widget' }, function(err, p) {
+            p.categoryId.should.equal(c.id);
+            p.type.should.equal('widget');
+            done();
+          });
+        });
+      });
+    });
+    
+    it('should find record on scope', function (done) {
+      Category.findOne(function (err, c) {
+        c.products(function(err, products) {
+          products.should.have.length(2);
+          done();
+        });
+      });
+    });
+    
+    it('should find record on scope - filtered', function (done) {
+      Category.findOne(function (err, c) {
+        c.products({ where: { type: 'book' } }, function(err, products) {
+          products.should.have.length(1);
+          products[0].type.should.equal('book');
+          done();
+        });
+      });
+    });
+    
+    // So why not just do the above? In LoopBack, the context
+    // that gets passed into a beforeRemote handler contains
+    // a reference to the parent scope/instance: ctx.instance
+    // in order to enforce a (dynamic scope) at runtime
+    // a temporary property can be set in the beforeRemoting
+    // handler. Optionally,properties dynamic properties can be declared.
+    //
+    // The code below simulates this.
+    
+    it('should create record on scope - properties', function (done) {
+      Category.findOne(function (err, c) {
+        c.productType = 'tool'; // temporary
+        c.products.create(function(err, p) {
+          p.categoryId.should.equal(c.id);
+          p.type.should.equal('tool');
+          done();
+        });
+      });
+    });
+    
+    it('should find record on scope - scoped', function (done) {
+      Category.findOne(function (err, c) {
+        c.productType = 'book'; // temporary, for scoping
+        c.products(function(err, products) {
+          products.should.have.length(1);
+          products[0].type.should.equal('book');
+          done();
+        });
+      });
+    });
+    
+    it('should find record on scope - scoped', function (done) {
+      Category.findOne(function (err, c) {
+        c.productType = 'tool'; // temporary, for scoping
+        c.products(function(err, products) {
+          products.should.have.length(1);
+          products[0].type.should.equal('tool');
+          done();
+        });
+      });
+    });
+  
+  });
 
   describe('belongsTo', function () {
     var List, Item, Fear, Mind;
@@ -453,7 +567,7 @@ describe('relations', function () {
     });
 
     it('can be declared using hasOne method', function () {
-      Supplier.hasOne(Account);
+      Supplier.hasOne(Account, { properties: { name: 'supplierName' } });
       Object.keys((new Account()).toObject()).should.include('supplierId');
       (new Supplier()).account.should.be.an.instanceOf(Function);
     });
@@ -470,6 +584,7 @@ describe('relations', function () {
               should.exist(act);
               act.should.be.an.instanceOf(Account);
               supplier.account().id.should.equal(act.id);
+              act.supplierName.should.equal(supplier.name);
               done();
             });
           });
