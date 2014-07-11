@@ -227,6 +227,21 @@ describe('validations', function () {
         done(err);
       });
     });
+    
+    it('should skip blank values', function (done) {
+      User.validatesUniquenessOf('email');
+      var u = new User({email: '  '});
+      Boolean(u.isValid(function (valid) {
+        valid.should.be.true;
+        u.save(function () {
+          var u2 = new User({email: null});
+          u2.isValid(function (valid) {
+            valid.should.be.true;
+            done();
+          });
+        });
+      })).should.be.false;
+    });
   });
 
   describe('format', function () {
