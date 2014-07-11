@@ -28,7 +28,7 @@ describe('relations', function () {
   after(function () {
     // db.disconnect();
   });
-  
+
   describe('hasMany', function () {
     it('can be declared in different ways', function (done) {
       Book.hasMany(Chapter);
