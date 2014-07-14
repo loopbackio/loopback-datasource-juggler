@@ -76,12 +76,12 @@ describe('relations', function () {
         book.chapters.create({name: 'a'}, function () {
           book.chapters.create({name: 'z'}, function () {
             book.chapters.create({name: 'c'}, function () {
-              fetch(book);
+              verify(book);
             });
           });
         });
       });
-      function fetch(book) {
+      function verify(book) {
         book.chapters(function (err, ch) {
           should.not.exist(err);
           should.exist(ch);
@@ -105,13 +105,13 @@ describe('relations', function () {
           id = ch.id;
           book.chapters.create({name: 'z'}, function () {
             book.chapters.create({name: 'c'}, function () {
-              fetch(book);
+              verify(book);
             });
           });
         });
       });
 
-      function fetch(book) {
+      function verify(book) {
         book.chapters.findById(id, function (err, ch) {
           should.not.exist(err);
           should.exist(ch);
@@ -131,12 +131,12 @@ describe('relations', function () {
         book.chapters.create({name: 'a'}, function (err, ch) {
           id = ch.id;
           book.chapters.updateById(id, {name: 'aa'}, function(err, ch) {
-            fetch(book);
+            verify(book);
           });
         });
       });
 
-      function fetch(book) {
+      function verify(book) {
         book.chapters.findById(id, function (err, ch) {
           should.not.exist(err);
           should.exist(ch);
@@ -153,12 +153,12 @@ describe('relations', function () {
         book.chapters.create({name: 'a'}, function (err, ch) {
           id = ch.id;
           book.chapters.destroy(id, function(err, ch) {
-            fetch(book);
+            verify(book);
           });
         });
       });
 
-      function fetch(book) {
+      function verify(book) {
         book.chapters.findById(id, function (err, ch) {
           should.exist(err);
           done();
@@ -173,13 +173,13 @@ describe('relations', function () {
           id = ch.id;
           book.chapters.create({name: 'z'}, function () {
             book.chapters.create({name: 'c'}, function () {
-              fetch(book);
+              verify(book);
             });
           });
         });
       });
 
-      function fetch(book) {
+      function verify(book) {
         book.chapters.exists(id, function (err, flag) {
           should.not.exist(err);
           flag.should.be.eql(true);
@@ -239,12 +239,12 @@ describe('relations', function () {
         physician.patients.create({name: 'a'}, function () {
           physician.patients.create({name: 'z'}, function () {
             physician.patients.create({name: 'c'}, function () {
-              fetch(physician);
+              verify(physician);
             });
           });
         });
       });
-      function fetch(physician) {
+      function verify(physician) {
         physician.patients(function (err, ch) {
           should.not.exist(err);
           should.exist(ch);
@@ -261,13 +261,13 @@ describe('relations', function () {
           id = ch.id;
           physician.patients.create({name: 'z'}, function () {
             physician.patients.create({name: 'c'}, function () {
-              fetch(physician);
+              verify(physician);
             });
           });
         });
       });
 
-      function fetch(physician) {
+      function verify(physician) {
         physician.patients.findById(id, function (err, ch) {
           should.not.exist(err);
           should.exist(ch);
@@ -287,12 +287,12 @@ describe('relations', function () {
         physician.patients.create({name: 'a'}, function (err, ch) {
           id = ch.id;
           physician.patients.updateById(id, {name: 'aa'}, function(err, ch) {
-            fetch(physician);
+            verify(physician);
           });
         });
       });
 
-      function fetch(physician) {
+      function verify(physician) {
         physician.patients.findById(id, function (err, ch) {
           should.not.exist(err);
           should.exist(ch);
@@ -309,12 +309,12 @@ describe('relations', function () {
         physician.patients.create({name: 'a'}, function (err, ch) {
           id = ch.id;
           physician.patients.destroy(id, function(err, ch) {
-            fetch(physician);
+            verify(physician);
           });
         });
       });
 
-      function fetch(physician) {
+      function verify(physician) {
         physician.patients.findById(id, function (err, ch) {
           should.exist(err);
           done();
@@ -329,13 +329,13 @@ describe('relations', function () {
           id = ch.id;
           physician.patients.create({name: 'z'}, function () {
             physician.patients.create({name: 'c'}, function () {
-              fetch(physician);
+              verify(physician);
             });
           });
         });
       });
 
-      function fetch(physician) {
+      function verify(physician) {
         physician.patients.exists(id, function (err, flag) {
           should.not.exist(err);
           flag.should.be.eql(true);
@@ -365,12 +365,12 @@ describe('relations', function () {
         physician.patients.create({name: 'a'}, function (err, patient) {
           id = patient.id;
           physician.patients.remove(id, function (err, ch) {
-            fetch(physician);
+            verify(physician);
           });
         });
       });
 
-      function fetch(physician) {
+      function verify(physician) {
         physician.patients.exists(id, function (err, flag) {
           should.not.exist(err);
           flag.should.be.eql(false);
