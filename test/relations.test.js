@@ -5,31 +5,27 @@ var db, Book, Chapter, Author, Reader;
 var Category, Product;
 
 describe('relations', function () {
-  before(function (done) {
-    db = getSchema();
-    Book = db.define('Book', {name: String});
-    Chapter = db.define('Chapter', {name: {type: String, index: true}});
-    Author = db.define('Author', {name: String});
-    Reader = db.define('Reader', {name: String});
-    Category = db.define('Category', {name: String});
-    Product = db.define('Product', {name: String, type: String});
 
-    db.automigrate(function () {
-      Book.destroyAll(function () {
-        Chapter.destroyAll(function () {
-          Author.destroyAll(function () {
-            Reader.destroyAll(done);
+  describe('hasMany', function () {
+    before(function (done) {
+      db = getSchema();
+      Book = db.define('Book', {name: String, type: String});
+      Chapter = db.define('Chapter', {name: {type: String, index: true},
+        bookType: String});
+      Author = db.define('Author', {name: String});
+      Reader = db.define('Reader', {name: String});
+
+      db.automigrate(function () {
+        Book.destroyAll(function () {
+          Chapter.destroyAll(function () {
+            Author.destroyAll(function () {
+              Reader.destroyAll(done);
+            });
           });
         });
       });
     });
-  });
 
-  after(function () {
-    // db.disconnect();
-  });
-
-  describe('hasMany', function () {
     it('can be declared in different ways', function (done) {
       Book.hasMany(Chapter);
       Book.hasMany(Reader, {as: 'users'});
@@ -115,7 +111,7 @@ describe('relations', function () {
         book.chapters.findById(id, function (err, ch) {
           should.not.exist(err);
           should.exist(ch);
-          ch.id.should.equal(id);
+          ch.id.should.eql(id);
           done();
         });
       }
@@ -140,7 +136,7 @@ describe('relations', function () {
         book.chapters.findById(id, function (err, ch) {
           should.not.exist(err);
           should.exist(ch);
-          ch.id.should.equal(id);
+          ch.id.should.eql(id);
           ch.name.should.equal('aa');
           done();
         });
@@ -407,9 +403,13 @@ describe('relations', function () {
       });
     });
   });
-  
+
   describe('hasMany with scope', function () {
     it('can be declared with properties', function (done) {
+      db = getSchema();
+      Category = db.define('Category', {name: String, productType: String});
+      Product = db.define('Product', {name: String, type: String});
+
       Category.hasMany(Product, {
         properties: function(inst) {
           if (!inst.productType) return; // skip
@@ -563,7 +563,7 @@ describe('relations', function () {
     before(function () {
       db = getSchema();
       Supplier = db.define('Supplier', {name: String});
-      Account = db.define('Account', {accountNo: String});
+      Account = db.define('Account', {accountNo: String, supplierName: String});
     });
 
     it('can be declared using hasOne method', function () {
