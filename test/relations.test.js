@@ -76,12 +76,12 @@ describe('relations', function () {
         book.chapters.create({name: 'a'}, function () {
           book.chapters.create({name: 'z'}, function () {
             book.chapters.create({name: 'c'}, function () {
-              fetch(book);
+              verify(book);
             });
           });
         });
       });
-      function fetch(book) {
+      function verify(book) {
         book.chapters(function (err, ch) {
           should.not.exist(err);
           should.exist(ch);
@@ -105,13 +105,13 @@ describe('relations', function () {
           id = ch.id;
           book.chapters.create({name: 'z'}, function () {
             book.chapters.create({name: 'c'}, function () {
-              fetch(book);
+              verify(book);
             });
           });
         });
       });
 
-      function fetch(book) {
+      function verify(book) {
         book.chapters.findById(id, function (err, ch) {
           should.not.exist(err);
           should.exist(ch);
@@ -124,6 +124,269 @@ describe('relations', function () {
     it('should set targetClass on scope property', function() {
       should.equal(Book.prototype.chapters._targetClass, 'Chapter');
     });
+
+    it('should update scoped record', function (done) {
+      var id;
+      Book.create(function (err, book) {
+        book.chapters.create({name: 'a'}, function (err, ch) {
+          id = ch.id;
+          book.chapters.updateById(id, {name: 'aa'}, function(err, ch) {
+            verify(book);
+          });
+        });
+      });
+
+      function verify(book) {
+        book.chapters.findById(id, function (err, ch) {
+          should.not.exist(err);
+          should.exist(ch);
+          ch.id.should.equal(id);
+          ch.name.should.equal('aa');
+          done();
+        });
+      }
+    });
+
+    it('should destroy scoped record', function (done) {
+      var id;
+      Book.create(function (err, book) {
+        book.chapters.create({name: 'a'}, function (err, ch) {
+          id = ch.id;
+          book.chapters.destroy(id, function(err, ch) {
+            verify(book);
+          });
+        });
+      });
+
+      function verify(book) {
+        book.chapters.findById(id, function (err, ch) {
+          should.exist(err);
+          done();
+        });
+      }
+    });
+
+    it('should check existence of a scoped record', function (done) {
+      var id;
+      Book.create(function (err, book) {
+        book.chapters.create({name: 'a'}, function (err, ch) {
+          id = ch.id;
+          book.chapters.create({name: 'z'}, function () {
+            book.chapters.create({name: 'c'}, function () {
+              verify(book);
+            });
+          });
+        });
+      });
+
+      function verify(book) {
+        book.chapters.exists(id, function (err, flag) {
+          should.not.exist(err);
+          flag.should.be.eql(true);
+          done();
+        });
+      }
+    });
+  });
+
+  describe('hasMany through', function () {
+    var Physician, Patient, Appointment;
+
+    before(function (done) {
+      db = getSchema();
+      Physician = db.define('Physician', {name: String});
+      Patient = db.define('Patient', {name: String});
+      Appointment = db.define('Appointment', {date: {type: Date,
+        default: function () {
+          return new Date();
+        }}});
+
+      Physician.hasMany(Patient, {through: Appointment});
+      Patient.hasMany(Physician, {through: Appointment});
+      Appointment.belongsTo(Patient);
+      Appointment.belongsTo(Physician);
+
+      db.automigrate(['Physician', 'Patient', 'Appointment'], function (err) {
+        done(err);
+      });
+    });
+
+    it('should build record on scope', function (done) {
+      Physician.create(function (err, physician) {
+        var patient = physician.patients.build();
+        patient.physicianId.should.equal(physician.id);
+        patient.save(done);
+      });
+    });
+
+    it('should create record on scope', function (done) {
+      Physician.create(function (err, physician) {
+        physician.patients.create(function (err, patient) {
+          should.not.exist(err);
+          should.exist(patient);
+          Appointment.find({where: {physicianId: physician.id, patientId: patient.id}},
+            function(err, apps) {
+              should.not.exist(err);
+              apps.should.have.lengthOf(1);
+              done();
+          });
+        });
+      });
+    });
+
+    it('should fetch all scoped instances', function (done) {
+      Physician.create(function (err, physician) {
+        physician.patients.create({name: 'a'}, function () {
+          physician.patients.create({name: 'z'}, function () {
+            physician.patients.create({name: 'c'}, function () {
+              verify(physician);
+            });
+          });
+        });
+      });
+      function verify(physician) {
+        physician.patients(function (err, ch) {
+          should.not.exist(err);
+          should.exist(ch);
+          ch.should.have.lengthOf(3);
+          done();
+        });
+      }
+    });
+
+    it('should find scoped record', function (done) {
+      var id;
+      Physician.create(function (err, physician) {
+        physician.patients.create({name: 'a'}, function (err, ch) {
+          id = ch.id;
+          physician.patients.create({name: 'z'}, function () {
+            physician.patients.create({name: 'c'}, function () {
+              verify(physician);
+            });
+          });
+        });
+      });
+
+      function verify(physician) {
+        physician.patients.findById(id, function (err, ch) {
+          should.not.exist(err);
+          should.exist(ch);
+          ch.id.should.equal(id);
+          done();
+        });
+      }
+    });
+
+    it('should set targetClass on scope property', function() {
+      should.equal(Physician.prototype.patients._targetClass, 'Patient');
+    });
+
+    it('should update scoped record', function (done) {
+      var id;
+      Physician.create(function (err, physician) {
+        physician.patients.create({name: 'a'}, function (err, ch) {
+          id = ch.id;
+          physician.patients.updateById(id, {name: 'aa'}, function(err, ch) {
+            verify(physician);
+          });
+        });
+      });
+
+      function verify(physician) {
+        physician.patients.findById(id, function (err, ch) {
+          should.not.exist(err);
+          should.exist(ch);
+          ch.id.should.equal(id);
+          ch.name.should.equal('aa');
+          done();
+        });
+      }
+    });
+
+    it('should destroy scoped record', function (done) {
+      var id;
+      Physician.create(function (err, physician) {
+        physician.patients.create({name: 'a'}, function (err, ch) {
+          id = ch.id;
+          physician.patients.destroy(id, function(err, ch) {
+            verify(physician);
+          });
+        });
+      });
+
+      function verify(physician) {
+        physician.patients.findById(id, function (err, ch) {
+          should.exist(err);
+          done();
+        });
+      }
+    });
+
+    it('should check existence of a scoped record', function (done) {
+      var id;
+      Physician.create(function (err, physician) {
+        physician.patients.create({name: 'a'}, function (err, ch) {
+          id = ch.id;
+          physician.patients.create({name: 'z'}, function () {
+            physician.patients.create({name: 'c'}, function () {
+              verify(physician);
+            });
+          });
+        });
+      });
+
+      function verify(physician) {
+        physician.patients.exists(id, function (err, flag) {
+          should.not.exist(err);
+          flag.should.be.eql(true);
+          done();
+        });
+      }
+    });
+
+    it('should allow to add connection with instance', function (done) {
+      Physician.create({name: 'ph1'}, function (e, physician) {
+        Patient.create({name: 'pa1'}, function (e, patient) {
+          physician.patients.add(patient, function (e, app) {
+            should.not.exist(e);
+            should.exist(app);
+            app.should.be.an.instanceOf(Appointment);
+            app.physicianId.should.equal(physician.id);
+            app.patientId.should.equal(patient.id);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should allow to remove connection with instance', function (done) {
+      var id;
+      Physician.create(function (err, physician) {
+        physician.patients.create({name: 'a'}, function (err, patient) {
+          id = patient.id;
+          physician.patients.remove(id, function (err, ch) {
+            verify(physician);
+          });
+        });
+      });
+
+      function verify(physician) {
+        physician.patients.exists(id, function (err, flag) {
+          should.not.exist(err);
+          flag.should.be.eql(false);
+          done();
+        });
+      }
+    });
+
+    beforeEach(function (done) {
+      Appointment.destroyAll(function (err) {
+        Physician.destroyAll(function (err) {
+          Patient.destroyAll(done);
+        });
+      });
+    });
+
   });
   
   describe('hasMany with properties', function () {
