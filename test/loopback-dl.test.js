@@ -1285,6 +1285,39 @@ describe('Load models from json', function () {
     }
   });
 
+  it('should allow customization of default model base class', function () {
+    var modelBuilder = new ModelBuilder();
+
+    var User = modelBuilder.define('User', {
+      name: String,
+      bio: ModelBuilder.Text,
+      approved: Boolean,
+      joinedAt: Date,
+      age: Number
+    });
+
+    modelBuilder.defaultModelBaseClass = User;
+
+    var Customer = modelBuilder.define('Customer', {customerId: {type: String, id: true}});
+    assert(Customer.prototype instanceof User);
+  });
+
+  it('should allow model base class', function () {
+    var modelBuilder = new ModelBuilder();
+
+    var User = modelBuilder.define('User', {
+      name: String,
+      bio: ModelBuilder.Text,
+      approved: Boolean,
+      joinedAt: Date,
+      age: Number
+    });
+
+    var Customer = modelBuilder.define('Customer',
+      {customerId: {type: String, id: true}}, {}, User);
+    assert(Customer.prototype instanceof User);
+  });
+
   it('should be able to extend models', function (done) {
     var modelBuilder = new ModelBuilder();
 
