@@ -1,7 +1,7 @@
 // This test written in mocha+should.js
 var should = require('./init.js');
 
-var db, User, Post, Passport, City, Street, Building, Assembly, Part;
+var db, User, AccessToken, Post, Passport, City, Street, Building, Assembly, Part;
 
 describe('include', function () {
 
@@ -141,6 +141,19 @@ describe('include', function () {
     });
   });
 
+  it('should not fetch User - AccessTokens', function (done) {
+    User.find({include: ['accesstokens']}, function (err, users) {
+      should.not.exist(err);
+      should.exist(users);
+      users.length.should.be.ok;
+      users.forEach(function (user) {
+        var userObj = user.toJSON();
+        userObj.should.not.have.property('accesstokens');
+      });
+      done();
+    });
+  });
+
   it('should support hasAndBelongsToMany', function (done) {
 
     Assembly.destroyAll(function(err) {
@@ -185,6 +198,9 @@ function setup(done) {
     name: String,
     age: Number
   });
+  AccessToken = db.define('AccessToken', {
+    token: String
+  });
   Passport = db.define('Passport', {
     number: String
   });
@@ -195,6 +211,10 @@ function setup(done) {
   Passport.belongsTo('owner', {model: User});
   User.hasMany('passports', {foreignKey: 'ownerId'});
   User.hasMany('posts', {foreignKey: 'userId'});
+  User.hasMany('accesstokens', {
+    foreignKey: 'userId',
+    options: {disableInclude: true}
+  });
   Post.belongsTo('author', {model: User, foreignKey: 'userId'});
 
   Assembly = db.define('Assembly', {
@@ -226,7 +246,19 @@ function setup(done) {
         function (items) {
           createdUsers = items;
           createPassports();
+          createAccessTokens();
         }
+      );
+    }
+
+    function createAccessTokens() {
+      clearAndCreate(
+        AccessToken,
+        [
+          {token: '1', userId: createdUsers[0].id},
+          {token: '2', userId: createdUsers[1].id}
+        ],
+        function (items) {}
       );
     }
 
