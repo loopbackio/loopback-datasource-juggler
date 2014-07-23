@@ -404,7 +404,7 @@ describe('relations', function () {
     });
   });
 
-  describe('hasMany with scope', function () {
+  describe('hasMany with scope and properties', function () {
     it('can be declared with properties', function (done) {
       db = getSchema();
       Category = db.define('Category', {name: String, productType: String});
@@ -555,6 +555,45 @@ describe('relations', function () {
       });
     });
 
+  });
+  
+  describe('belongsTo with scope', function () {
+    var Person, Passport;
+    
+    it('can be declared with scope and properties', function (done) {
+      Person = db.define('Person', {name: String, age: Number});
+      Passport = db.define('Passport', {name: String, notes: String});
+      Passport.belongsTo(Person, {
+        properties: { notes: 'passportNotes' },
+        scope: { fields: { id: true, name: true } }
+      });
+      db.automigrate(done);
+    });
+    
+    it('should create record on scope', function (done) {
+      var p = new Passport({ name: 'Passport', notes: 'Some notes...' });
+      p.person.create({ id: 3, name: 'Fred', age: 36 }, function(err, person) {
+        p.personId.should.equal(person.id);
+        p.save(function (err, p) {
+          person.name.should.equal('Fred');
+          person.passportNotes.should.equal('Some notes...');
+          done();
+        });
+      });
+    });
+    
+    it('should find record on scope', function (done) {
+      Passport.findOne(function (err, p) {
+        p.personId.should.equal(3);
+        p.person(function(err, person) {
+          person.name.should.equal('Fred');
+          person.should.not.have.property('age');
+          person.should.not.have.property('passportNotes');
+          done();
+        });
+      });
+    });
+  
   });
 
   describe('hasOne', function () {
