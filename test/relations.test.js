@@ -658,6 +658,9 @@ describe('relations', function () {
       });
     });
 
+    it('should set targetClass on scope property', function() {
+      should.equal(Supplier.prototype.account._targetClass, 'Account');
+    });
   });
 
   describe('hasAndBelongsToMany', function () {
