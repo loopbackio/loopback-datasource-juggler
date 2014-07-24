@@ -437,7 +437,7 @@ describe('relations', function () {
       });
     });
     
-    it('should find record on scope', function (done) {
+    it('should find records on scope', function (done) {
       Category.findOne(function (err, c) {
         c.products(function(err, products) {
           products.should.have.length(2);
@@ -476,6 +476,15 @@ describe('relations', function () {
       });
     });
     
+    it('should find records on scope', function (done) {
+      Category.findOne(function (err, c) {
+        c.products(function(err, products) {
+          products.should.have.length(3);
+          done();
+        });
+      });
+    });
+    
     it('should find record on scope - scoped', function (done) {
       Category.findOne(function (err, c) {
         c.productType = 'book'; // temporary, for scoping
@@ -493,6 +502,24 @@ describe('relations', function () {
         c.products(function(err, products) {
           products.should.have.length(1);
           products[0].type.should.equal('tool');
+          done();
+        });
+      });
+    });
+    
+    it('should delete records on scope - scoped', function (done) {
+      Category.findOne(function (err, c) {
+        c.productType = 'tool'; // temporary, for scoping
+        c.products.destroyAll(function(err, result) {
+          done();
+        });
+      });
+    });
+    
+    it('should find record on scope - verify', function (done) {
+      Category.findOne(function (err, c) {
+        c.products(function(err, products) {
+          products.should.have.length(2);
           done();
         });
       });
