@@ -788,6 +788,7 @@ describe('relations', function () {
     it('can be declared', function (done) {
       Author.hasAndBelongsToMany(Picture, { through: PictureLink, polymorphic: 'imageable' });
       Reader.hasAndBelongsToMany(Picture, { through: PictureLink, polymorphic: 'imageable' });
+      // Optionally, define inverse relations:
       Picture.hasMany(Author, { through: PictureLink, polymorphic: 'imageable', invert: true });
       Picture.hasMany(Reader, { through: PictureLink, polymorphic: 'imageable', invert: true });
       db.automigrate(done);
