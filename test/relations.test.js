@@ -792,7 +792,7 @@ describe('relations', function () {
     });
     
     it('should create polymorphic relation - author', function (done) {
-      Author.create({ id: 3, name: 'Author 1' }, function (err, author) {
+      Author.create({ id: 4, name: 'Author 1' }, function (err, author) {
         author.pictures.create({ name: 'Author Pic 1' }, function (err, p) {
           should.not.exist(err);
           p.id.should.equal(1);
@@ -819,14 +819,14 @@ describe('relations', function () {
       PictureLink.findOne(function(err, link) {
         should.not.exist(err);
         link.pictureId.should.equal(1);
-        link.imageableId.should.equal(3);
+        link.imageableId.should.equal(4);
         link.imageableType.should.equal('Author');
         done();
       });
     });
     
     it('should get polymorphic relation through model - author', function (done) {
-      Author.findById(3, function(err, author) {
+      Author.findById(4, function(err, author) {
         should.not.exist(err);
         author.name.should.equal('Author 1');
         author.pictures(function(err, pics) {
@@ -847,6 +847,68 @@ describe('relations', function () {
           should.not.exist(err);
           pics.should.have.length(1);
           pics[0].name.should.equal('Reader Pic 1');
+          done();
+        });
+      });
+    });
+    
+    it('should include polymorphic items', function (done) {
+      Author.find({ include: 'pictures' }, function(err, authors) {
+        authors.should.have.length(1);
+        authors[0].pictures(function(err, pics) {
+          pics[0].name.should.equal('Author Pic 1');
+          pics[1].name.should.equal('Author Pic 2');
+          done();
+        });
+      });
+    });
+    
+    it('should add to a polymorphic relation - author', function (done) {
+      Author.findById(4, function(err, author) {
+        Picture.create({ id: 7, name: 'Example' }, function(err, p) {
+          author.pictures.add(p, function(err, link) {
+            link.should.be.instanceof(PictureLink);
+            link.pictureId.should.equal(7);
+            link.imageableId.should.equal(4);
+            link.imageableType.should.equal('Author');
+            done();
+          });
+        });
+      });
+    });
+    
+    it('should create polymorphic through model', function (done) {
+      PictureLink.findOne({ where: { pictureId: 7 } }, function(err, link) {
+        should.not.exist(err);
+        link.pictureId.should.equal(7);
+        link.imageableId.should.equal(4);
+        link.imageableType.should.equal('Author');
+        done();
+      });
+    });
+    
+    it('should check if polymorphic relation exists - author', function (done) {
+      Author.findById(4, function(err, author) {
+        author.pictures.exists(7, function(err, exists) {
+          exists.should.be.true;
+          done();
+        });
+      });
+    });
+    
+    it('should remove from a polymorphic relation - author', function (done) {
+      Author.findById(4, function(err, author) {
+        author.pictures.remove(7, function(err) {
+          should.not.exist(err);
+          done();
+        });
+      });
+    });
+    
+    it('should check if polymorphic relation exists - author', function (done) {
+      Author.findById(4, function(err, author) {
+        author.pictures.exists(7, function(err, exists) {
+          exists.should.be.false;
           done();
         });
       });
