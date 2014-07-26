@@ -3,7 +3,7 @@ var should = require('./init.js');
 
 var db, Book, Chapter, Author, Reader;
 var Category, Product;
-var Picture;
+var Picture, PictureLink;
 
 describe('relations', function () {
 
@@ -669,6 +669,94 @@ describe('relations', function () {
       });
     });
     
+  });
+  
+  describe('polymorphic hasAndBelongsToMany through', function () {
+    before(function (done) {
+      db = getSchema();
+      Picture = db.define('Picture', {name: String});
+      Author = db.define('Author', {name: String});
+      Reader = db.define('Reader', {name: String});
+      PictureLink = db.define('PictureLink', {});
+
+      db.automigrate(function () {
+        Picture.destroyAll(function () {
+          PictureLink.destroyAll(function () {
+            Author.destroyAll(function () {
+              Reader.destroyAll(done);
+            });
+          });
+        });
+      });
+    });
+
+    it('can be declared', function (done) {
+      Author.hasAndBelongsToMany(Picture, { through: PictureLink, polymorphic: 'imageable' });
+      Reader.hasAndBelongsToMany(Picture, { through: PictureLink, polymorphic: 'imageable' });
+      db.automigrate(done);
+    });
+    
+    it('should create polymorphic relation - author', function (done) {
+      Author.create({ id: 3, name: 'Author 1' }, function (err, author) {
+        author.pictures.create({ name: 'Author Pic 1' }, function (err, p) {
+          should.not.exist(err);
+          p.id.should.equal(1);
+          author.pictures.create({ name: 'Author Pic 2' }, function (err, p) {
+            should.not.exist(err);
+            p.id.should.equal(2);
+            done();
+          });
+        });
+      });
+    });
+    
+    it('should create polymorphic relation - reader', function (done) {
+      Reader.create({ id: 4, name: 'Reader 1' }, function (err, reader) {
+        reader.pictures.create({ name: 'Reader Pic 1' }, function (err, p) {
+          should.not.exist(err);
+          p.id.should.equal(3);
+          done();
+        });
+      });
+    });
+    
+    it('should create polymorphic through model', function (done) {
+      PictureLink.findOne(function(err, link) {
+        should.not.exist(err);
+        link.pictureId.should.equal(1);
+        link.imageableId.should.equal(3);
+        link.imageableType.should.equal('Author');
+        done();
+      });
+    });
+    
+    it('should get polymorphic relation through model - author', function (done) {
+      Author.findById(3, function(err, author) {
+        should.not.exist(err);
+        author.name.should.equal('Author 1');
+        author.pictures(function(err, pics) {
+          should.not.exist(err);
+          pics.should.have.length(2);
+          pics[0].name.should.equal('Author Pic 1');
+          pics[1].name.should.equal('Author Pic 2');
+          done();
+        });
+      });
+    });
+    
+    it('should get polymorphic relation through model - reader', function (done) {
+      Reader.findById(4, function(err, reader) {
+        should.not.exist(err);
+        reader.name.should.equal('Reader 1');
+        reader.pictures(function(err, pics) {
+          should.not.exist(err);
+          pics.should.have.length(1);
+          pics[0].name.should.equal('Reader Pic 1');
+          done();
+        });
+      });
+    });
+  
   });
 
   describe('belongsTo', function () {
