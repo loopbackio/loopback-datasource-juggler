@@ -788,6 +788,8 @@ describe('relations', function () {
     it('can be declared', function (done) {
       Author.hasAndBelongsToMany(Picture, { through: PictureLink, polymorphic: 'imageable' });
       Reader.hasAndBelongsToMany(Picture, { through: PictureLink, polymorphic: 'imageable' });
+      Picture.hasMany(Author, { through: PictureLink, polymorphic: 'imageable', invert: true });
+      Picture.hasMany(Reader, { through: PictureLink, polymorphic: 'imageable', invert: true });
       db.automigrate(done);
     });
     
@@ -821,7 +823,11 @@ describe('relations', function () {
         link.pictureId.should.equal(1);
         link.imageableId.should.equal(4);
         link.imageableType.should.equal('Author');
-        done();
+        link.imageable(function(err, imageable) {
+          imageable.should.be.instanceof(Author);
+          imageable.id.should.equal(4);
+          done();
+        });
       });
     });
     
@@ -856,6 +862,7 @@ describe('relations', function () {
       Author.find({ include: 'pictures' }, function(err, authors) {
         authors.should.have.length(1);
         authors[0].pictures(function(err, pics) {
+          pics.should.have.length(2);
           pics[0].name.should.equal('Author Pic 1');
           pics[1].name.should.equal('Author Pic 2');
           done();
@@ -878,12 +885,63 @@ describe('relations', function () {
     });
     
     it('should create polymorphic through model', function (done) {
-      PictureLink.findOne({ where: { pictureId: 7 } }, function(err, link) {
+      PictureLink.findOne({ where: { pictureId: 7, imageableType: 'Author' } }, function(err, link) {
         should.not.exist(err);
         link.pictureId.should.equal(7);
         link.imageableId.should.equal(4);
         link.imageableType.should.equal('Author');
         done();
+      });
+    });
+    
+    it('should add to a polymorphic relation - author', function (done) {
+      Author.create({ id: 5, name: 'Author 2' }, function (err, author) {
+        author.pictures.add(7, function (err, p) {
+          should.not.exist(err);
+          done();
+        });
+      });
+    });
+    
+    it('should add to a polymorphic relation - author', function (done) {
+      Reader.create({ id: 5, name: 'Reader 2' }, function (err, reader) {
+        reader.pictures.add(7, function (err, p) {
+          should.not.exist(err);
+          done();
+        });
+      });
+    });
+    
+    it('should get the inverse polymorphic relation - author', function (done) {
+      Picture.findById(7, function(err, p) {
+        p.authors(function(err, authors) {
+          authors.should.have.length(2);
+          authors[0].name.should.equal('Author 1');
+          authors[1].name.should.equal('Author 2');
+          done();
+        });
+      });
+    });
+    
+    it('should get the inverse polymorphic relation - reader', function (done) {
+      Picture.findById(7, function(err, p) {
+        p.readers(function(err, readers) {
+          readers.should.have.length(1);
+          readers[0].name.should.equal('Reader 2');
+          done();
+        });
+      });
+    });
+    
+    it('should find polymorphic items - author', function (done) {
+      Author.findById(4, function(err, author) {
+        author.pictures(function(err, pics) {
+          pics.should.have.length(3);
+          pics[0].name.should.equal('Author Pic 1');
+          pics[1].name.should.equal('Author Pic 2');
+          pics[2].name.should.equal('Example');
+          done();
+        });
       });
     });
     
@@ -900,6 +958,17 @@ describe('relations', function () {
       Author.findById(4, function(err, author) {
         author.pictures.remove(7, function(err) {
           should.not.exist(err);
+          done();
+        });
+      });
+    });
+    
+    it('should find polymorphic items - author', function (done) {
+      Author.findById(4, function(err, author) {
+        author.pictures(function(err, pics) {
+          pics.should.have.length(2);
+          pics[0].name.should.equal('Author Pic 1');
+          pics[1].name.should.equal('Author Pic 2');
           done();
         });
       });
