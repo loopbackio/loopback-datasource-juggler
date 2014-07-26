@@ -528,6 +528,101 @@ describe('relations', function () {
   
   });
   
+  describe('polymorphic hasOne', function () {
+    before(function (done) {
+      db = getSchema();
+      Picture = db.define('Picture', {name: String});
+      Author = db.define('Author', {name: String});
+      Reader = db.define('Reader', {name: String});
+
+      db.automigrate(function () {
+        Picture.destroyAll(function () {
+          Author.destroyAll(function () {
+            Reader.destroyAll(done);
+          });
+        });
+      });
+    });
+
+    it('can be declared', function (done) {
+      Author.hasOne(Picture, { as: 'avatar', polymorphic: 'imageable' });
+      Reader.hasOne(Picture, { as: 'mugshot', polymorphic: 'imageable' });
+      Picture.belongsTo('imageable', { polymorphic: true });
+      db.automigrate(done);
+    });
+    
+    it('should create polymorphic relation - author', function (done) {
+      Author.create({ id: 8, name: 'Author 1' }, function (err, author) {
+        author.avatar.create({ name: 'Avatar' }, function (err, p) {
+          should.not.exist(err);
+          should.exist(p);
+          p.imageableId.should.equal(author.id);
+          p.imageableType.should.equal('Author');
+          done();
+        });
+      });
+    });
+    
+    it('should create polymorphic relation - reader', function (done) {
+      Reader.create({ id: 6, name: 'Reader 1' }, function (err, reader) {
+        reader.mugshot.create({ name: 'Mugshot' }, function (err, p) {
+          should.not.exist(err);
+          should.exist(p);
+          p.imageableId.should.equal(reader.id);
+          p.imageableType.should.equal('Reader');
+          done();
+        });
+      });
+    });
+    
+    it('should find polymorphic relation - author', function (done) {
+      Author.findOne(function (err, author) {
+        author.avatar(function (err, p) {
+          should.not.exist(err);
+          p.name.should.equal('Avatar');
+          p.imageableId.should.equal(author.id);
+          p.imageableType.should.equal('Author');
+          done();
+        });
+      });
+    });
+    
+    it('should find polymorphic relation - reader', function (done) {
+      Reader.findOne(function (err, reader) {
+        reader.mugshot(function (err, p) {
+          should.not.exist(err);
+          p.name.should.equal('Mugshot');
+          p.imageableId.should.equal(reader.id);
+          p.imageableType.should.equal('Reader');
+          done();
+        });
+      });
+    });
+    
+    it('should find inverse polymorphic relation - author', function (done) {
+      Picture.findOne({ where: { name: 'Avatar' } }, function (err, p) {
+        p.imageable(function (err, imageable) {
+          should.not.exist(err);
+          imageable.should.be.instanceof(Author);
+          imageable.name.should.equal('Author 1');
+          done();
+        });
+      });
+    });
+    
+    it('should find inverse polymorphic relation - reader', function (done) {
+      Picture.findOne({ where: { name: 'Mugshot' } }, function (err, p) {
+        p.imageable(function (err, imageable) {
+          should.not.exist(err);
+          imageable.should.be.instanceof(Reader);
+          imageable.name.should.equal('Reader 1');
+          done();
+        });
+      });
+    });
+    
+  });
+  
   describe('polymorphic hasMany', function () {
     before(function (done) {
       db = getSchema();
