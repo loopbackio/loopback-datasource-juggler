@@ -1380,7 +1380,7 @@ describe('relations', function () {
     });
 
     it('can be declared', function (done) {
-      Person.embedsMany(Address, { options: { autoId: false } });
+      Person.embedsMany(Address, { options: { autoId: false, validate: true } });
       db.automigrate(done);
     });
     
@@ -1447,6 +1447,19 @@ describe('relations', function () {
     it('should have embedded items - verify', function(done) {
       Person.findOne(function(err, p) {
         p.addresses.should.have.length(1);
+        done();
+      });
+    });
+    
+    it('should validate all embedded items', function(done) {
+      var addresses = [];
+      addresses.push({ id: 'home', street: 'Home Street' });
+      addresses.push({ id: 'work', street: '' });
+      Person.create({ name: 'Wilma', addresses: addresses }, function(err, p) {
+        err.name.should.equal('ValidationError');
+        var expected = 'The `Person` instance is not valid. ';
+        expected += 'Details: `addresses` contains invalid item: `work` (street can\'t be blank).';
+        err.message.should.equal(expected);
         done();
       });
     });
