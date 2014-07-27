@@ -4,6 +4,7 @@ var should = require('./init.js');
 var db, Book, Chapter, Author, Reader;
 var Category, Product;
 var Picture, PictureLink;
+var Person, Address;
 
 describe('relations', function () {
 
@@ -1197,6 +1198,259 @@ describe('relations', function () {
     it('should set targetClass on scope property', function() {
       should.equal(Article.prototype.tags._targetClass, 'Tag');
     });
+  });
+  
+  describe('embedsMany', function () {
+    before(function (done) {
+      db = getSchema();
+      Person = db.define('Person', {name: String});
+      Address = db.define('Address', {street: String});
+      Address.validatesPresenceOf('street');
+
+      db.automigrate(function () {
+        Person.destroyAll(done);
+      });
+    });
+
+    it('can be declared', function (done) {
+      Person.embedsMany(Address);
+      db.automigrate(done);
+    });
+    
+    it('should have setup embedded accessor/scope', function() {
+      var p = new Person({ name: 'Fred' });
+      p.addresses.should.be.an.array;
+      p.addresses.should.have.length(0);
+      p.addressList.should.be.a.function;
+      p.addressList.findById.should.be.a.function;
+      p.addressList.updateById.should.be.a.function;
+      p.addressList.destroy.should.be.a.function;
+      p.addressList.exists.should.be.a.function;
+      p.addressList.create.should.be.a.function;
+      p.addressList.build.should.be.a.function;
+    });
+    
+    it('should create embedded items on scope', function(done) {
+      Person.create({ name: 'Fred' }, function(err, p) {
+        p.addressList.create({ street: 'Street 1' }, function(err, addresses) {
+          should.not.exist(err);
+          addresses.should.have.length(1);
+          addresses[0].id.should.equal(1);
+          addresses[0].street.should.equal('Street 1');
+          done();
+        });
+      });
+    });
+    
+    it('should create embedded items on scope', function(done) {
+      Person.findOne(function(err, p) {
+        p.addressList.create({ street: 'Street 2' }, function(err, addresses) {
+          should.not.exist(err);
+          addresses.should.have.length(2);
+          addresses[0].id.should.equal(1);
+          addresses[0].street.should.equal('Street 1');
+          addresses[1].id.should.equal(2);
+          addresses[1].street.should.equal('Street 2');
+          done();
+        });
+      });
+    });
+    
+    it('should return embedded items from scope', function(done) {
+      Person.findOne(function(err, p) {
+        p.addressList(function(err, addresses) {
+          should.not.exist(err);
+          addresses.should.have.length(2);
+          addresses[0].id.should.equal(1);
+          addresses[0].street.should.equal('Street 1');
+          addresses[1].id.should.equal(2);
+          addresses[1].street.should.equal('Street 2');
+          done();
+        });
+      });
+    });
+    
+    it('should filter embedded items on scope', function(done) {
+      Person.findOne(function(err, p) {
+        p.addressList({ where: { street: 'Street 2' } }, function(err, addresses) {
+          should.not.exist(err);
+          addresses.should.have.length(1);
+          addresses[0].id.should.equal(2);
+          addresses[0].street.should.equal('Street 2');
+          done();
+        });
+      });
+    });
+    
+    it('should validate embedded items', function(done) {
+      Person.findOne(function(err, p) {
+        p.addressList.create({}, function(err, addresses) {
+          should.exist(err);
+          err.name.should.equal('ValidationError');
+          err.details.codes.street.should.eql(['presence']);
+          addresses.should.have.length(2);
+          done();
+        });
+      });
+    });
+    
+    it('should find embedded items by id', function(done) {
+      Person.findOne(function(err, p) {
+        p.addressList.findById(2, function(err, address) {
+          address.should.be.instanceof(Address);
+          address.id.should.equal(2);
+          address.street.should.equal('Street 2');
+          done();
+        });
+      });
+    });
+    
+    it('should check if item exists', function(done) {
+      Person.findOne(function(err, p) {
+        p.addressList.exists(2, function(err, exists) {
+          should.not.exist(err);
+          exists.should.be.true;
+          done();
+        });
+      });
+    });
+    
+    it('should update embedded items by id', function(done) {
+      Person.findOne(function(err, p) {
+        p.addressList.updateById(2, { street: 'New Street' }, function(err, address) {
+          address.should.be.instanceof(Address);
+          address.id.should.equal(2);
+          address.street.should.equal('New Street');
+          done();
+        });
+      });
+    });
+    
+    it('should validate the update of embedded items', function(done) {
+      Person.findOne(function(err, p) {
+        p.addressList.updateById(2, { street: null }, function(err, address) {
+          err.name.should.equal('ValidationError');
+          err.details.codes.street.should.eql(['presence']);
+          done();
+        });
+      });
+    });
+    
+    it('should find embedded items by id - verify', function(done) {
+      Person.findOne(function(err, p) {
+        p.addressList.findById(2, function(err, address) {
+          address.should.be.instanceof(Address);
+          address.id.should.equal(2);
+          address.street.should.equal('New Street');
+          done();
+        });
+      });
+    });
+    
+    it('should remove embedded items by id', function(done) {
+      Person.findOne(function(err, p) {
+        p.addresses.should.have.length(2);
+        p.addressList.destroy(1, function(err) {
+          should.not.exist(err);
+          p.addresses.should.have.length(1);
+          done();
+        });
+      });
+    });
+    
+    it('should have embedded items - verify', function(done) {
+      Person.findOne(function(err, p) {
+        p.addresses.should.have.length(1);
+        done();
+      });
+    });
+    
+  });
+  
+  describe('embedsMany - explicit ids', function () {
+    before(function (done) {
+      db = getSchema();
+      Person = db.define('Person', {name: String});
+      Address = db.define('Address', {id: { type: String, id: true }, street: String});
+      Address.validatesPresenceOf('street');
+
+      db.automigrate(function () {
+        Person.destroyAll(done);
+      });
+    });
+
+    it('can be declared', function (done) {
+      Person.embedsMany(Address, { options: { autoId: false } });
+      db.automigrate(done);
+    });
+    
+    it('should create embedded items on scope', function(done) {
+      Person.create({ name: 'Fred' }, function(err, p) {
+        p.addressList.create({ id: 'home', street: 'Street 1' }, function(err, addresses) {
+          should.not.exist(err);
+          p.addressList.create({ id: 'work', street: 'Work Street 2' }, function(err, addresses) {
+            addresses.should.have.length(2);
+            addresses[0].id.should.equal('home');
+            addresses[0].street.should.equal('Street 1');
+            addresses[1].id.should.equal('work');
+            addresses[1].street.should.equal('Work Street 2');
+            done();
+          });
+        });
+      });
+    });
+    
+    it('should find embedded items by id', function(done) {
+      Person.findOne(function(err, p) {
+        p.addressList.findById('work', function(err, address) {
+          address.should.be.instanceof(Address);
+          address.id.should.equal('work');
+          address.street.should.equal('Work Street 2');
+          done();
+        });
+      });
+    });
+    
+    it('should check for duplicate ids', function(done) {
+      Person.findOne(function(err, p) {
+        p.addressList.create({ id: 'home', street: 'Invalid' }, function(err, addresses) {
+          should.exist(err);
+          err.name.should.equal('ValidationError');
+          err.details.codes.addresses.should.eql(['uniqueness']);
+          done();
+        });
+      });
+    });
+    
+    it('should update embedded items by id', function(done) {
+      Person.findOne(function(err, p) {
+        p.addressList.updateById('home', { street: 'New Street' }, function(err, address) {
+          address.should.be.instanceof(Address);
+          address.id.should.equal('home');
+          address.street.should.equal('New Street');
+          done();
+        });
+      });
+    });
+    
+    it('should remove embedded items by id', function(done) {
+      Person.findOne(function(err, p) {
+        p.addresses.should.have.length(2);
+        p.addressList.destroy('home', function(err) {
+          should.not.exist(err);
+          p.addresses.should.have.length(1);
+          done();
+        });
+      });
+    });
+    
+    it('should have embedded items - verify', function(done) {
+      Person.findOne(function(err, p) {
+        p.addresses.should.have.length(1);
+        done();
+      });
+    });
+    
   });
 
 });
