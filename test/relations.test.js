@@ -1464,6 +1464,29 @@ describe('relations', function () {
       });
     });
     
+    it('should build embedded items', function(done) {
+      Person.create({ name: 'Wilma' }, function(err, p) {
+        p.addressList.build({ id: 'home', street: 'Home' });
+        p.addressList.build({ id: 'work', street: 'Work' });
+        p.addresses.should.have.length(2);
+        p.save(function(err, p) {
+          done();
+        });
+      });
+    });
+    
+    it('should have embedded items - verify', function(done) {
+      Person.findOne({ where: { name: 'Wilma' } }, function(err, p) {
+        p.name.should.equal('Wilma');
+        p.addresses.should.have.length(2);
+        p.addresses[0].id.should.equal('home');
+        p.addresses[0].street.should.equal('Home');
+        p.addresses[1].id.should.equal('work');
+        p.addresses[1].street.should.equal('Work');
+        done();
+      });
+    });
+    
   });
 
 });
