@@ -641,7 +641,10 @@ describe('relations', function () {
 
     it('can be declared', function (done) {
       Author.hasMany(Picture, { polymorphic: 'imageable' });
-      Reader.hasMany(Picture, { polymorphic: 'imageable' });
+      Reader.hasMany(Picture, { polymorphic: { // alt syntax
+        as: 'imageable', foreignKey: 'imageableId',
+        discriminator: 'imageableType'
+      } });
       Picture.belongsTo('imageable', { polymorphic: true });
       db.automigrate(done);
     });
