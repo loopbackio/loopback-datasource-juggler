@@ -581,7 +581,7 @@ describe('relations', function () {
         author.avatar(function (err, p) {
           should.not.exist(err);
           p.name.should.equal('Avatar');
-          p.imageableId.should.equal(author.id);
+          p.imageableId.should.eql(author.id);
           p.imageableType.should.equal('Author');
           done();
         });
@@ -593,7 +593,7 @@ describe('relations', function () {
         reader.mugshot(function (err, p) {
           should.not.exist(err);
           p.name.should.equal('Mugshot');
-          p.imageableId.should.equal(reader.id);
+          p.imageableId.should.eql(reader.id);
           p.imageableType.should.equal('Reader');
           done();
         });
@@ -655,7 +655,7 @@ describe('relations', function () {
         author.pictures.create({ name: 'Author Pic' }, function (err, p) {
           should.not.exist(err);
           should.exist(p);
-          p.imageableId.should.equal(author.id);
+          p.imageableId.should.eql(author.id);
           p.imageableType.should.equal('Author');
           done();
         });
@@ -667,7 +667,7 @@ describe('relations', function () {
         reader.pictures.create({ name: 'Reader Pic' }, function (err, p) {
           should.not.exist(err);
           should.exist(p);
-          p.imageableId.should.equal(reader.id);
+          p.imageableId.should.eql(reader.id);
           p.imageableType.should.equal('Reader');
           done();
         });
@@ -738,7 +738,7 @@ describe('relations', function () {
       Author.create({ name: 'Author 2' }, function(err, author) {
         var p = new Picture({ name: 'Sample' });
         p.imageable(author); // assign
-        p.imageableId.should.equal(author.id);
+        p.imageableId.should.eql(author.id);
         p.imageableType.should.equal('Author');
         p.save(done);
       });
@@ -1090,7 +1090,7 @@ describe('relations', function () {
     
     it('should find record on scope', function (done) {
       Passport.findOne(function (err, p) {
-        p.personId.should.equal(personCreated.id);
+        p.personId.should.eql(personCreated.id);
         p.person(function(err, person) {
           person.name.should.equal('Fred');
           person.should.not.have.property('age');
@@ -1248,13 +1248,15 @@ describe('relations', function () {
       p.addressList.create.should.be.a.function;
       p.addressList.build.should.be.a.function;
     });
-    
+
+    var address1, address2;
     it('should create embedded items on scope', function(done) {
       Person.create({ name: 'Fred' }, function(err, p) {
         p.addressList.create({ street: 'Street 1' }, function(err, addresses) {
           should.not.exist(err);
           addresses.should.have.length(1);
-          addresses[0].id.should.equal(1);
+          address1 = addresses[0];
+          should.exist(address1.id);
           addresses[0].street.should.equal('Street 1');
           done();
         });
@@ -1266,10 +1268,12 @@ describe('relations', function () {
         p.addressList.create({ street: 'Street 2' }, function(err, addresses) {
           should.not.exist(err);
           addresses.should.have.length(2);
-          addresses[0].id.should.equal(1);
-          addresses[0].street.should.equal('Street 1');
-          addresses[1].id.should.equal(2);
-          addresses[1].street.should.equal('Street 2');
+          address1 = addresses[0];
+          address2 = addresses[1];
+          should.exist(address1.id);
+          address1.street.should.equal('Street 1');
+          should.exist(address2.id);
+          address2.street.should.equal('Street 2');
           done();
         });
       });
@@ -1280,9 +1284,9 @@ describe('relations', function () {
         p.addressList(function(err, addresses) {
           should.not.exist(err);
           addresses.should.have.length(2);
-          addresses[0].id.should.equal(1);
+          addresses[0].id.should.eql(address1.id);
           addresses[0].street.should.equal('Street 1');
-          addresses[1].id.should.equal(2);
+          addresses[1].id.should.eql(address2.id);
           addresses[1].street.should.equal('Street 2');
           done();
         });
@@ -1294,7 +1298,7 @@ describe('relations', function () {
         p.addressList({ where: { street: 'Street 2' } }, function(err, addresses) {
           should.not.exist(err);
           addresses.should.have.length(1);
-          addresses[0].id.should.equal(2);
+          addresses[0].id.should.eql(address2.id);
           addresses[0].street.should.equal('Street 2');
           done();
         });
@@ -1315,9 +1319,9 @@ describe('relations', function () {
     
     it('should find embedded items by id', function(done) {
       Person.findOne(function(err, p) {
-        p.addressList.findById(2, function(err, address) {
+        p.addressList.findById(address2.id, function(err, address) {
           address.should.be.instanceof(Address);
-          address.id.should.equal(2);
+          address.id.should.eql(address2.id);
           address.street.should.equal('Street 2');
           done();
         });
@@ -1326,7 +1330,7 @@ describe('relations', function () {
     
     it('should check if item exists', function(done) {
       Person.findOne(function(err, p) {
-        p.addressList.exists(2, function(err, exists) {
+        p.addressList.exists(address2.id, function(err, exists) {
           should.not.exist(err);
           exists.should.be.true;
           done();
@@ -1336,9 +1340,9 @@ describe('relations', function () {
     
     it('should update embedded items by id', function(done) {
       Person.findOne(function(err, p) {
-        p.addressList.updateById(2, { street: 'New Street' }, function(err, address) {
+        p.addressList.updateById(address2.id, { street: 'New Street' }, function(err, address) {
           address.should.be.instanceof(Address);
-          address.id.should.equal(2);
+          address.id.should.eql(address2.id);
           address.street.should.equal('New Street');
           done();
         });
@@ -1347,7 +1351,7 @@ describe('relations', function () {
     
     it('should validate the update of embedded items', function(done) {
       Person.findOne(function(err, p) {
-        p.addressList.updateById(2, { street: null }, function(err, address) {
+        p.addressList.updateById(address2.id, { street: null }, function(err, address) {
           err.name.should.equal('ValidationError');
           err.details.codes.street.should.eql(['presence']);
           done();
@@ -1357,9 +1361,9 @@ describe('relations', function () {
     
     it('should find embedded items by id - verify', function(done) {
       Person.findOne(function(err, p) {
-        p.addressList.findById(2, function(err, address) {
+        p.addressList.findById(address2.id, function(err, address) {
           address.should.be.instanceof(Address);
-          address.id.should.equal(2);
+          address.id.should.eql(address2.id);
           address.street.should.equal('New Street');
           done();
         });
@@ -1369,7 +1373,7 @@ describe('relations', function () {
     it('should remove embedded items by id', function(done) {
       Person.findOne(function(err, p) {
         p.addresses.should.have.length(2);
-        p.addressList.destroy(1, function(err) {
+        p.addressList.destroy(address1.id, function(err) {
           should.not.exist(err);
           p.addresses.should.have.length(1);
           done();
