@@ -1843,6 +1843,8 @@ describe('relations', function () {
   
   describe('referencesMany', function () {
     
+    var product1, product2, product3;
+    
     before(function (done) {
       db = getSchema();
       Category = db.define('Category', {name: String});
@@ -1858,6 +1860,219 @@ describe('relations', function () {
     it('can be declared', function (done) {
       Category.referencesMany(Product);
       db.automigrate(done);
+    });
+    
+    it('should setup test records', function (done) {
+      Product.create({ name: 'Product 1' }, function(err, p) {
+        product1 = p;
+        Product.create({ name: 'Product 3' }, function(err, p) {
+          product3 = p;
+          done();
+        });
+      });
+    });
+    
+    it('should create record on scope', function (done) {
+      Category.create({ name: 'Category A' }, function(err, cat) {
+        cat.productIds.should.be.an.array;
+        cat.productIds.should.have.length(0);
+        cat.products.create({ name: 'Product 2' }, function(err, p) {
+          should.not.exist(err);
+          cat.productIds.should.have.length(1);
+          cat.productIds.should.eql([p.id]);
+          p.name.should.equal('Product 2');
+          product2 = p;
+          done();
+        });
+      });
+    });
+    
+    it('should not create duplicate record on scope', function (done) {
+      Category.findOne(function(err, cat) {
+        cat.productIds = [product2.id, product2.id];
+        cat.save(function(err, p) {
+          should.exist(err);
+          err.name.should.equal('ValidationError');
+          err.details.codes.products.should.eql(['uniqueness']);
+          var expected = 'The `Category` instance is not valid. ';
+          expected += 'Details: `products` Contains duplicate `Product` instance.';
+          err.message.should.equal(expected);
+          done();
+        });
+      });
+    });
+    
+    it('should find items on scope', function (done) {
+      Category.findOne(function(err, cat) {
+        cat.productIds.should.eql([product2.id]);
+        cat.products(function(err, products) {
+          should.not.exist(err);
+          var p = products[0];
+          p.id.should.eql(product2.id);
+          p.name.should.equal('Product 2');
+          done();
+        });
+      });
+    });
+    
+    it('should find items on scope - findById', function (done) {
+      Category.findOne(function(err, cat) {
+        cat.productIds.should.eql([product2.id]);
+        cat.products.findById(product2.id, function(err, p) {
+          should.not.exist(err);
+          p.should.be.instanceof(Product);
+          p.id.should.eql(product2.id);
+          p.name.should.equal('Product 2');
+          done();
+        });
+      });
+    });
+    
+    it('should check if a record exists on scope', function (done) {
+      Category.findOne(function(err, cat) {
+        cat.products.exists(product2.id, function(err, exists) {
+          should.not.exist(err);
+          should.exist(exists);
+          done();
+        });
+      });
+    });
+    
+    it('should update a record on scope', function (done) {
+      Category.findOne(function(err, cat) {
+        var attrs = { name: 'Product 2 - edit' };
+        cat.products.updateById(product2.id, attrs, function(err, p) {
+          should.not.exist(err);
+          p.name.should.equal(attrs.name);
+          done();
+        });
+      });
+    });
+    
+    it('should get a record by index - at', function (done) {
+      Category.findOne(function(err, cat) {
+        cat.products.at(0, function(err, p) {
+          should.not.exist(err);
+          p.should.be.instanceof(Product);
+          p.id.should.eql(product2.id);
+          p.name.should.equal('Product 2 - edit');
+          done();
+        });
+      });
+    });
+    
+    it('should add a record to scope - object', function (done) {
+      Category.findOne(function(err, cat) {
+        cat.products.add(product1, function(err, ids) {
+          should.not.exist(err);
+          cat.productIds.should.eql([product2.id, product1.id]);
+          ids.should.eql(cat.productIds);
+          done();
+        });
+      });
+    });
+    
+    it('should add a record to scope - object', function (done) {
+      Category.findOne(function(err, cat) {
+        cat.products.add(product3.id, function(err, ids) {
+          should.not.exist(err);
+          var expected = [product2.id, product1.id, product3.id];
+          cat.productIds.should.eql(expected);
+          ids.should.eql(cat.productIds);
+          done();
+        });
+      });
+    });
+    
+    it('should find items on scope - findById', function (done) {
+      Category.findOne(function(err, cat) {
+        cat.products.findById(product3.id, function(err, p) {
+          should.not.exist(err);
+          p.id.should.eql(product3.id);
+          p.name.should.equal('Product 3');
+          done();
+        });
+      });
+    });
+    
+    it('should find items on scope - filter', function (done) {
+      Category.findOne(function(err, cat) {
+        var filter = { where: { name: 'Product 1' } };
+        cat.products(filter, function(err, products) {
+          should.not.exist(err);
+          products.should.have.length(1);
+          var p = products[0];
+          p.id.should.eql(product1.id);
+          p.name.should.equal('Product 1');
+          done();
+        });
+      });
+    });
+    
+    it('should remove items from scope', function (done) {
+      Category.findOne(function(err, cat) {
+        cat.products.remove(product1.id, function(err, ids) {
+          should.not.exist(err);
+          var expected = [product2.id, product3.id];
+          cat.productIds.should.eql(expected);
+          ids.should.eql(cat.productIds);
+          done();
+        });
+      });
+    });
+    
+    it('should find items on scope - verify', function (done) {
+      Category.findOne(function(err, cat) {
+        var expected = [product2.id, product3.id];
+        cat.productIds.should.eql(expected);
+        cat.products(function(err, products) {
+          should.not.exist(err);
+          products.should.have.length(2);
+          products[0].id.should.eql(product2.id);
+          products[1].id.should.eql(product3.id);
+          done();
+        });
+      });
+    });
+    
+    it('should include related items from scope', function(done) {
+      Category.find({ include: 'products' }, function(err, categories) {
+        categories.should.have.length(1);
+        var cat = categories[0].toObject();
+        cat.name.should.equal('Category A');
+        cat.products.should.have.length(2);
+        cat.products[0].id.should.eql(product2.id);
+        cat.products[1].id.should.eql(product3.id);
+        done();
+      });
+    });
+    
+    it('should destroy items from scope - destroyById', function (done) {
+      Category.findOne(function(err, cat) {
+        cat.products.destroy(product2.id, function(err) {
+          should.not.exist(err);
+          var expected = [product3.id];
+          cat.productIds.should.eql(expected);
+          Product.exists(product2.id, function(err, exists) {
+            should.not.exist(err);
+            should.exist(exists);
+            done();
+          });
+        });
+      });
+    });
+    
+    it('should find items on scope - verify', function (done) {
+      Category.findOne(function(err, cat) {
+        var expected = [product3.id];
+        cat.productIds.should.eql(expected);
+        cat.products(function(err, products) {
+          should.not.exist(err);
+          products.should.have.length(1);
+          products[0].id.should.eql(product3.id);
+          done();
+        });
+      });
     });
   
   });
