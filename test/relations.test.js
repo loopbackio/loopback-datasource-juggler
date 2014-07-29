@@ -273,6 +273,34 @@ describe('relations', function () {
       }
     });
 
+    it('should allow to use include syntax on related data', function (done) {
+      var Address = db.define('Address', {name: String});
+      Patient.belongsTo(Address);
+      Physician.create(function (err, physician) {
+        physician.patients.create({name: 'a'}, function (err, patient) {
+          Address.create({name: 'z'}, function (err, address) {
+            patient.address(address);
+            patient.save(function() {
+              verify(physician);
+            });
+          });
+        });
+      });
+      function verify(physician) {
+        physician.patients({include: 'address'}, function (err, ch) {
+          should.not.exist(err);
+          should.exist(ch);
+          ch.should.have.lengthOf(1);
+          ch[0].addressId.should.equal(1);
+          var address = ch[0].address();
+          should.exist(address);
+          address.should.be.an.instanceof(Address);
+          address.name.should.equal('z');
+          done();
+        });
+      }
+    });
+
     it('should set targetClass on scope property', function() {
       should.equal(Physician.prototype.patients._targetClass, 'Patient');
     });
