@@ -1221,6 +1221,9 @@ describe('relations', function () {
   });
   
   describe('embedsMany', function () {
+    
+    var address1, address2;
+    
     before(function (done) {
       db = getSchema();
       Person = db.define('Person', {name: String});
@@ -1250,7 +1253,6 @@ describe('relations', function () {
       p.addressList.build.should.be.a.function;
     });
 
-    var address1, address2;
     it('should create embedded items on scope', function(done) {
       Person.create({ name: 'Fred' }, function(err, p) {
         p.addressList.create({ street: 'Street 1' }, function(err, addresses) {
@@ -1536,6 +1538,114 @@ describe('relations', function () {
         p.addressList.get('work').id.should.equal('work');
         p.addressList.set('work', { id: 'factory' }).id.should.equal('factory');
         done();
+      });
+    });
+    
+  });
+  
+  describe('embedsMany - relations, scope and properties', function () {
+    
+    var product1, product2;
+    
+    before(function (done) {
+      db = getSchema();
+      Category = db.define('Category', {name: String});
+      Product = db.define('Product', {name: String});
+      Link = db.define('Link');
+
+      db.automigrate(function () {
+        Person.destroyAll(done);
+      });
+    });
+
+    it('can be declared', function (done) {
+      Category.embedsMany(Link, { 
+        as: 'items', // rename
+        scope: { include: 'product' } // always include
+      });
+      Link.belongsTo(Product, { 
+        foreignKey: 'id', // re-use the actual product id
+        properties: { id: 'id', name: 'name' }, // denormalize, transfer id
+      });
+      db.automigrate(done);
+    });
+    
+    it('should setup related items', function(done) {
+      Product.create({ name: 'Product 1' }, function(err, p) {
+        product1 = p;
+        Product.create({ name: 'Product 2' }, function(err, p) {
+          product2 = p;
+          done();
+        });
+      });
+    });
+    
+    it('should create item on scope', function(done) {
+      Category.create({ name: 'Category A' }, function(err, cat) {
+        var link = cat.items.build();
+        link.product(product1);
+        var link = cat.items.build();
+        link.product(product2);
+        cat.save(function(err, cat) {
+          var product = cat.items.at(0);
+          product.id.should.equal(product1.id);
+          product.name.should.equal(product1.name);
+          var product = cat.items.at(1);
+          product.id.should.equal(product2.id);
+          product.name.should.equal(product2.name);
+          done();
+        });
+      });
+    });
+    
+    it('should include related items on scope', function(done) {
+      Category.findOne(function(err, cat) {
+        cat.links.should.have.length(2);
+        
+        // denormalized properties:
+        cat.items.at(0).id.should.equal(product1.id);
+        cat.items.at(0).name.should.equal(product1.name);
+        cat.items.at(1).id.should.equal(product2.id);
+        cat.items.at(1).name.should.equal(product2.name);
+        
+        // lazy-loaded relations
+        should.not.exist(cat.items.at(0).product());
+        should.not.exist(cat.items.at(1).product());
+        
+        cat.items(function(err, items) {
+          cat.items.at(0).product().should.be.instanceof(Product);
+          cat.items.at(1).product().should.be.instanceof(Product);
+          cat.items.at(1).product().name.should.equal('Product 2');
+          done();
+        });
+      });
+    });
+    
+    it('should remove embedded items by id', function(done) {
+      Category.findOne(function(err, cat) {
+        cat.links.should.have.length(2);
+        cat.items.destroy(product1.id, function(err) {
+          should.not.exist(err);
+          cat.links.should.have.length(1);
+          done();
+        });
+      });
+    });
+    
+    it('should find items on scope', function(done) {
+      Category.findOne(function(err, cat) {
+        cat.links.should.have.length(1);
+        cat.items.at(0).id.should.equal(product2.id);
+        cat.items.at(0).name.should.equal(product2.name);
+        
+        // lazy-loaded relations
+        should.not.exist(cat.items.at(0).product());
+        
+        cat.items(function(err, items) {
+          cat.items.at(0).product().should.be.instanceof(Product);
+          cat.items.at(0).product().name.should.equal('Product 2');
+          done();
+        });
       });
     });
     
