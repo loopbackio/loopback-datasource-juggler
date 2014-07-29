@@ -1858,7 +1858,16 @@ describe('relations', function () {
     });
 
     it('can be declared', function (done) {
-      Category.referencesMany(Product);
+      Category.referencesMany(Product, { scopeMethods: {
+        reverse: function(cb) {
+          var modelInstance = this.modelInstance;
+          var fk = this.definition.keyFrom;
+          var ids = modelInstance[fk] || [];
+          modelInstance.updateAttribute(fk, ids.reverse(), function(err, inst) {
+            cb(err, inst[fk] || []);
+          });
+        }
+      } });
       db.automigrate(done);
     });
     
@@ -1887,7 +1896,7 @@ describe('relations', function () {
       });
     });
     
-    it('should not create duplicate record on scope', function (done) {
+    it('should not allow duplicate record on scope', function (done) {
       Category.findOne(function(err, cat) {
         cat.productIds = [product2.id, product2.id];
         cat.save(function(err, p) {
@@ -2035,14 +2044,25 @@ describe('relations', function () {
       });
     });
     
+    it('should allow custom scope methods - reverse', function(done) {
+      Category.findOne(function(err, cat) {
+        cat.products.reverse(function(err, ids) {
+          var expected = [product3.id, product2.id];
+          ids.should.eql(expected);
+          cat.productIds.should.eql(expected);
+          done();
+        });
+      })
+    });
+    
     it('should include related items from scope', function(done) {
       Category.find({ include: 'products' }, function(err, categories) {
         categories.should.have.length(1);
         var cat = categories[0].toObject();
         cat.name.should.equal('Category A');
         cat.products.should.have.length(2);
-        cat.products[0].id.should.eql(product2.id);
-        cat.products[1].id.should.eql(product3.id);
+        cat.products[0].id.should.eql(product3.id);
+        cat.products[1].id.should.eql(product2.id);
         done();
       });
     });
