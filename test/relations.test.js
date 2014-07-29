@@ -1588,6 +1588,7 @@ describe('relations', function () {
         link.product(product2);
         cat.save(function(err, cat) {
           var product = cat.items.at(0);
+          product.should.not.have.property('productId');
           product.id.should.eql(product1.id);
           product.name.should.equal(product1.name);
           var product = cat.items.at(1);
@@ -1756,6 +1757,12 @@ describe('relations', function () {
     });
     
     it('should include nested related items on scope', function(done) {
+      
+      // There's some date duplication going on, so it might
+      // make sense to override toObject on a case-by-case basis
+      // to sort this out (delete links, keep people).
+      // In loopback, an afterRemote filter could do this as well.
+      
       Book.find({ include: 'people' }, function(err, books) {
         var obj = books[0].toObject();
         
@@ -1767,6 +1774,10 @@ describe('relations', function () {
         obj.links[1].name.should.equal('Reader 1');
         
         obj.people.should.have.length(2);
+        
+        obj.people[0].name.should.equal('Author 1');
+        obj.people[0].notes.should.equal('Something ...');
+        
         obj.people[0].linked.name.should.equal('Author 1');
         obj.people[1].linked.name.should.equal('Reader 1');
         
