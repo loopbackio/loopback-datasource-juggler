@@ -1580,7 +1580,7 @@ describe('relations', function () {
       });
     });
     
-    it('should create item on scope', function(done) {
+    it('should create items on scope', function(done) {
       Category.create({ name: 'Category A' }, function(err, cat) {
         var link = cat.items.build();
         link.product(product1);
@@ -1588,10 +1588,10 @@ describe('relations', function () {
         link.product(product2);
         cat.save(function(err, cat) {
           var product = cat.items.at(0);
-          product.id.should.equal(product1.id);
+          product.id.should.eql(product1.id);
           product.name.should.equal(product1.name);
           var product = cat.items.at(1);
-          product.id.should.equal(product2.id);
+          product.id.should.eql(product2.id);
           product.name.should.equal(product2.name);
           done();
         });
@@ -1603,9 +1603,9 @@ describe('relations', function () {
         cat.links.should.have.length(2);
         
         // denormalized properties:
-        cat.items.at(0).id.should.equal(product1.id);
+        cat.items.at(0).id.should.eql(product1.id);
         cat.items.at(0).name.should.equal(product1.name);
-        cat.items.at(1).id.should.equal(product2.id);
+        cat.items.at(1).id.should.eql(product2.id);
         cat.items.at(1).name.should.equal(product2.name);
         
         // lazy-loaded relations
@@ -1635,7 +1635,7 @@ describe('relations', function () {
     it('should find items on scope', function(done) {
       Category.findOne(function(err, cat) {
         cat.links.should.have.length(1);
-        cat.items.at(0).id.should.equal(product2.id);
+        cat.items.at(0).id.should.eql(product2.id);
         cat.items.at(0).name.should.equal(product2.name);
         
         // lazy-loaded relations
@@ -1646,6 +1646,131 @@ describe('relations', function () {
           cat.items.at(0).product().name.should.equal('Product 2');
           done();
         });
+      });
+    });
+    
+  });
+  
+  describe('embedsMany - polymorphic relations', function () {
+    
+    var person1, person2;
+    
+    before(function (done) {
+      db = getSchema();
+      Book = db.define('Book', {name: String});
+      Author = db.define('Author', {name: String});
+      Reader = db.define('Reader', {name: String});
+      
+      Link = db.define('Link'); // generic model
+      Link.validatesPresenceOf('linkedId');
+      Link.validatesPresenceOf('linkedType');
+
+      db.automigrate(function () {
+        Book.destroyAll(function() {
+          Author.destroyAll(function() {
+            Reader.destroyAll(done);
+          });
+        });
+      });
+    });
+
+    it('can be declared', function (done) {
+      Book.embedsMany(Link, { as: 'people',
+        polymorphic: 'linked',
+        scope: { include: 'linked' }
+      });      
+      Link.belongsTo('linked', {
+        polymorphic: true,
+        properties: { name: 'name' } // denormalized
+      });
+      db.automigrate(done);
+    });
+    
+    it('should setup related items', function(done) {
+      Author.create({ name: 'Author 1' }, function(err, p) {
+        person1 = p;
+        Reader.create({ name: 'Reader 1' }, function(err, p) {
+          person2 = p;
+          done();
+        });
+      });
+    });
+    
+    it('should create items on scope', function(done) {
+      Book.create({ name: 'Book' }, function(err, book) {
+        var link = book.people.build({ notes: 'Something ...' });
+        link.linked(person1);
+        var link = book.people.build();
+        link.linked(person2);
+        book.save(function(err, book) {
+          should.not.exist(err);
+          
+          var link = book.people.at(0);
+          link.should.be.instanceof(Link);
+          link.id.should.equal(1);
+          link.linkedId.should.eql(person1.id);
+          link.linkedType.should.equal('Author');
+          link.name.should.equal('Author 1');
+          
+          var link = book.people.at(1);
+          link.should.be.instanceof(Link);
+          link.id.should.equal(2);
+          link.linkedId.should.eql(person2.id);
+          link.linkedType.should.equal('Reader');
+          link.name.should.equal('Reader 1');
+          
+          done();
+        });
+      });
+    });
+    
+    it('should include related items on scope', function(done) {
+      Book.findOne(function(err, book) {
+        book.links.should.have.length(2);
+        
+        var link = book.people.at(0);
+        link.should.be.instanceof(Link);
+        link.id.should.equal(1);
+        link.linkedId.should.eql(person1.id);
+        link.linkedType.should.equal('Author');
+        link.notes.should.equal('Something ...');
+        
+        var link = book.people.at(1);
+        link.should.be.instanceof(Link);
+        link.id.should.equal(2);
+        link.linkedId.should.eql(person2.id);
+        link.linkedType.should.equal('Reader');
+        
+        // lazy-loaded relations
+        should.not.exist(book.people.at(0).linked());
+        should.not.exist(book.people.at(1).linked());
+        
+        book.people(function(err, people) {
+          people[0].linked().should.be.instanceof(Author);
+          people[0].linked().name.should.equal('Author 1');
+          people[1].linked().should.be.instanceof(Reader);
+          people[1].linked().name.should.equal('Reader 1');
+          done();
+        });
+      });
+    });
+    
+    it('should include nested related items on scope', function(done) {
+      Book.find({ include: 'people' }, function(err, books) {
+        var obj = books[0].toObject();
+        
+        obj.should.have.property('links');
+        obj.should.have.property('people');
+        
+        obj.links.should.have.length(2);
+        obj.links[0].name.should.equal('Author 1');
+        obj.links[1].name.should.equal('Reader 1');
+        
+        obj.people.should.have.length(2);
+        obj.people[0].linked.name.should.equal('Author 1');
+        obj.people[1].linked.name.should.equal('Reader 1');
+        
+        done();
       });
     });
     
