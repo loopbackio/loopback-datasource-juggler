@@ -1545,13 +1545,13 @@ describe('relations', function () {
   
   describe('embedsMany - relations, scope and properties', function () {
     
-    var product1, product2;
+    var product1, product2, product3;
     
     before(function (done) {
       db = getSchema();
       Category = db.define('Category', {name: String});
       Product = db.define('Product', {name: String});
-      Link = db.define('Link');
+      Link = db.define('Link', {name: String});
 
       db.automigrate(function () {
         Person.destroyAll(done);
@@ -1561,13 +1561,16 @@ describe('relations', function () {
     it('can be declared', function (done) {
       Category.embedsMany(Link, { 
         as: 'items', // rename
-        scope: { include: 'product' } // always include
+        scope: { include: 'product' }, // always include
+        options: { reference: 'product' } // optional, for add()/remove()
       });
       Link.belongsTo(Product, { 
         foreignKey: 'id', // re-use the actual product id
         properties: { id: 'id', name: 'name' }, // denormalize, transfer id
       });
-      db.automigrate(done);
+      db.automigrate(function() {
+        Product.create({ name: 'Product 0' }, done); // offset ids for tests
+      });
     });
     
     it('should setup related items', function(done) {
@@ -1575,7 +1578,10 @@ describe('relations', function () {
         product1 = p;
         Product.create({ name: 'Product 2' }, function(err, p) {
           product2 = p;
-          done();
+          Product.create({ name: 'Product 3' }, function(err, p) {
+            product3 = p;
+            done();
+          });
         });
       });
     });
@@ -1588,6 +1594,7 @@ describe('relations', function () {
         link.product(product2);
         cat.save(function(err, cat) {
           var product = cat.items.at(0);
+          product.should.be.instanceof(Link);
           product.should.not.have.property('productId');
           product.id.should.eql(product1.id);
           product.name.should.equal(product1.name);
@@ -1604,6 +1611,7 @@ describe('relations', function () {
         cat.links.should.have.length(2);
         
         // denormalized properties:
+        cat.items.at(0).should.be.instanceof(Link);
         cat.items.at(0).id.should.eql(product1.id);
         cat.items.at(0).name.should.equal(product1.name);
         cat.items.at(1).id.should.eql(product2.id);
@@ -1647,6 +1655,52 @@ describe('relations', function () {
           cat.items.at(0).product().name.should.equal('Product 2');
           done();
         });
+      });
+    });
+    
+    it('should add related items to scope', function(done) {
+      Category.findOne(function(err, cat) {
+        cat.links.should.have.length(1);
+        cat.items.add(product3, function(err, link) {
+          link.should.be.instanceof(Link);
+          link.id.should.equal(product3.id);
+          link.name.should.equal('Product 3');
+          
+          cat.links.should.have.length(2);
+          done();
+        });
+      });
+    });
+    
+    it('should find items on scope', function(done) {
+      Category.findOne(function(err, cat) {
+        cat.links.should.have.length(2);
+        
+        cat.items.at(0).should.be.instanceof(Link);
+        cat.items.at(0).id.should.eql(product2.id);
+        cat.items.at(0).name.should.equal(product2.name);
+        cat.items.at(1).id.should.eql(product3.id);
+        cat.items.at(1).name.should.equal(product3.name);
+        
+        done();
+      });
+    });
+    
+    it('should remove embedded items by reference id', function(done) {
+      Category.findOne(function(err, cat) {
+        cat.links.should.have.length(2);
+        cat.items.remove(product2.id, function(err) {
+          should.not.exist(err);
+          cat.links.should.have.length(1);
+          done();
+        });
+      });
+    });
+    
+    it('should remove embedded items by reference id', function(done) {
+      Category.findOne(function(err, cat) {
+        cat.links.should.have.length(1);
+        done();
       });
     });
     
