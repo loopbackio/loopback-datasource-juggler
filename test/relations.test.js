@@ -5,6 +5,7 @@ var db, Book, Chapter, Author, Reader;
 var Category, Product;
 var Picture, PictureLink;
 var Person, Address;
+var Link;
 
 describe('relations', function () {
 
@@ -1370,6 +1371,20 @@ describe('relations', function () {
       });
     });
     
+    it('should have accessors: at, get, set', function(done) {
+      Person.findOne(function(err, p) {
+        p.addressList.at(0).id.should.equal(address1.id);
+        p.addressList.get(address1.id).id.should.equal(address1.id);
+        p.addressList.set(address1.id, { street: 'Changed 1' });
+        p.addresses[0].street.should.equal('Changed 1');
+        p.addressList.at(1).id.should.equal(address2.id);
+        p.addressList.get(address2.id).id.should.equal(address2.id);
+        p.addressList.set(address2.id, { street: 'Changed 2' });
+        p.addresses[1].street.should.equal('Changed 2');
+        done();
+      });
+    });
+    
     it('should remove embedded items by id', function(done) {
       Person.findOne(function(err, p) {
         p.addresses.should.have.length(2);
@@ -1506,6 +1521,20 @@ describe('relations', function () {
         p.addresses[0].street.should.equal('Home');
         p.addresses[1].id.should.equal('work');
         p.addresses[1].street.should.equal('Work');
+        done();
+      });
+    });
+    
+    it('should have accessors: at, get, set', function(done) {
+      Person.findOne({ where: { name: 'Wilma' } }, function(err, p) {
+        p.name.should.equal('Wilma');
+        p.addresses.should.have.length(2);
+        p.addressList.at(0).id.should.equal('home');
+        p.addressList.get('home').id.should.equal('home');
+        p.addressList.set('home', { id: 'den' }).id.should.equal('den');
+        p.addressList.at(1).id.should.equal('work');
+        p.addressList.get('work').id.should.equal('work');
+        p.addressList.set('work', { id: 'factory' }).id.should.equal('factory');
         done();
       });
     });
