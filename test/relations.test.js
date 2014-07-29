@@ -1562,7 +1562,7 @@ describe('relations', function () {
       Category.embedsMany(Link, { 
         as: 'items', // rename
         scope: { include: 'product' }, // always include
-        options: { reference: 'product' } // optional, for add()/remove()
+        options: { belongsTo: 'product' } // optional, for add()/remove()
       });
       Link.belongsTo(Product, { 
         foreignKey: 'id', // re-use the actual product id
