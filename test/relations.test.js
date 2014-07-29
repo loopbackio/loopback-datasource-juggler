@@ -1681,7 +1681,7 @@ describe('relations', function () {
         scope: { include: 'linked' }
       });      
       Link.belongsTo('linked', {
-        polymorphic: true,
+        polymorphic: true, // needs unique auto-id
         properties: { name: 'name' } // denormalized
       });
       db.automigrate(done);
@@ -1785,6 +1785,27 @@ describe('relations', function () {
       });
     });
     
+  });
+  
+  describe('referencesMany', function () {
+    
+    before(function (done) {
+      db = getSchema();
+      Category = db.define('Category', {name: String});
+      Product = db.define('Product', {name: String});
+      
+      db.automigrate(function () {
+        Category.destroyAll(function() {
+          Product.destroyAll(done);
+        });
+      });
+    });
+
+    it('can be declared', function (done) {
+      Category.referencesMany(Product);
+      db.automigrate(done);
+    });
+  
   });
 
 });
