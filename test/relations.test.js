@@ -1861,12 +1861,15 @@ describe('relations', function () {
       };
       
       reverse.shared = true; // remoting
+      reverse.http = { verb: 'put', path: '/products/reverse' };
       
       Category.referencesMany(Product, { scopeMethods: {
         reverse: reverse
       } });
       
       Category.prototype['__reverse__products'].should.be.a.function;
+      should.exist(Category.prototype['__reverse__products'].shared);
+      Category.prototype['__reverse__products'].http.should.eql(reverse.http);
       
       db.automigrate(done);
     });
