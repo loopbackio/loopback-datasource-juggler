@@ -1255,12 +1255,11 @@ describe('relations', function () {
 
     it('should create embedded items on scope', function(done) {
       Person.create({ name: 'Fred' }, function(err, p) {
-        p.addressList.create({ street: 'Street 1' }, function(err, addresses) {
+        p.addressList.create({ street: 'Street 1' }, function(err, address) {
           should.not.exist(err);
-          addresses.should.have.length(1);
-          address1 = addresses[0];
+          address1 = address;
           should.exist(address1.id);
-          addresses[0].street.should.equal('Street 1');
+          address1.street.should.equal('Street 1');
           done();
         });
       });
@@ -1268,13 +1267,9 @@ describe('relations', function () {
     
     it('should create embedded items on scope', function(done) {
       Person.findOne(function(err, p) {
-        p.addressList.create({ street: 'Street 2' }, function(err, addresses) {
+        p.addressList.create({ street: 'Street 2' }, function(err, address) {
           should.not.exist(err);
-          addresses.should.have.length(2);
-          address1 = addresses[0];
-          address2 = addresses[1];
-          should.exist(address1.id);
-          address1.street.should.equal('Street 1');
+          address2 = address;
           should.exist(address2.id);
           address2.street.should.equal('Street 2');
           done();
@@ -1310,11 +1305,11 @@ describe('relations', function () {
     
     it('should validate embedded items', function(done) {
       Person.findOne(function(err, p) {
-        p.addressList.create({}, function(err, addresses) {
+        p.addressList.create({}, function(err, address) {
           should.exist(err);
+          should.not.exist(address);
           err.name.should.equal('ValidationError');
           err.details.codes.street.should.eql(['presence']);
-          addresses.should.have.length(2);
           done();
         });
       });
@@ -1428,12 +1423,10 @@ describe('relations', function () {
       Person.create({ name: 'Fred' }, function(err, p) {
         p.addressList.create({ id: 'home', street: 'Street 1' }, function(err, addresses) {
           should.not.exist(err);
-          p.addressList.create({ id: 'work', street: 'Work Street 2' }, function(err, addresses) {
-            addresses.should.have.length(2);
-            addresses[0].id.should.equal('home');
-            addresses[0].street.should.equal('Street 1');
-            addresses[1].id.should.equal('work');
-            addresses[1].street.should.equal('Work Street 2');
+          p.addressList.create({ id: 'work', street: 'Work Street 2' }, function(err, address) {
+            should.not.exist(err);
+            address.id.should.equal('work');
+            address.street.should.equal('Work Street 2');
             done();
           });
         });
@@ -1972,10 +1965,11 @@ describe('relations', function () {
     
     it('should add a record to scope - object', function (done) {
       Category.findOne(function(err, cat) {
-        cat.products.add(product1, function(err, ids) {
+        cat.products.add(product1, function(err, prod) {
           should.not.exist(err);
           cat.productIds.should.eql([product2.id, product1.id]);
-          ids.should.eql(cat.productIds);
+          prod.id.should.eql(product1.id);
+          prod.should.have.property('name');
           done();
         });
       });
@@ -1983,11 +1977,12 @@ describe('relations', function () {
     
     it('should add a record to scope - object', function (done) {
       Category.findOne(function(err, cat) {
-        cat.products.add(product3.id, function(err, ids) {
+        cat.products.add(product3.id, function(err, prod) {
           should.not.exist(err);
           var expected = [product2.id, product1.id, product3.id];
           cat.productIds.should.eql(expected);
-          ids.should.eql(cat.productIds);
+          prod.id.should.eql(product3.id);
+          prod.should.have.property('name');
           done();
         });
       });
