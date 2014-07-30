@@ -50,6 +50,45 @@ describe('basic-querying', function () {
     });
 
   });
+  
+  describe('findById', function () {
+
+    before(function(done) {
+      var people = [
+        { id: 1, name: 'a', vip: true },
+        { id: 2, name: 'b' },
+        { id: 3, name: 'c' },
+        { id: 4, name: 'd', vip: true },
+        { id: 5, name: 'e' },
+        { id: 6, name: 'f' }
+      ];
+      User.destroyAll(function() {
+        User.create(people, done);
+      });
+    });
+
+    it('should query by ids', function (done) {
+      User.findByIds([3, 2, 1], function (err, users) {
+        should.exist(users);
+        should.not.exist(err);
+        var names = users.map(function(u) { return u.name; });
+        names.should.eql(['c', 'b', 'a']);
+        done();
+      });
+    });
+    
+    it('should query by ids and condition', function (done) {
+      User.findByIds([4, 3, 2, 1], 
+        { where: { vip: true } }, function (err, users) {
+        should.exist(users);
+        should.not.exist(err);
+        var names = users.map(function(u) { return u.name; });
+        names.should.eql(['d', 'a']);
+        done();
+      });
+    });
+
+  });
 
   describe('find', function () {
 
