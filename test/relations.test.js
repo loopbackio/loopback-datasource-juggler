@@ -1663,7 +1663,7 @@ describe('relations', function () {
         cat.links.should.have.length(1);
         cat.items.add(product3, function(err, link) {
           link.should.be.instanceof(Link);
-          link.id.should.equal(product3.id);
+          link.id.should.eql(product3.id);
           link.name.should.equal('Product 3');
           
           cat.links.should.have.length(2);
