@@ -1851,16 +1851,23 @@ describe('relations', function () {
     });
 
     it('can be declared', function (done) {
+      var reverse = function(cb) {
+        var modelInstance = this.modelInstance;
+        var fk = this.definition.keyFrom;
+        var ids = modelInstance[fk] || [];
+        modelInstance.updateAttribute(fk, ids.reverse(), function(err, inst) {
+          cb(err, inst[fk] || []);
+        });
+      };
+      
+      reverse.shared = true; // remoting
+      
       Category.referencesMany(Product, { scopeMethods: {
-        reverse: function(cb) {
-          var modelInstance = this.modelInstance;
-          var fk = this.definition.keyFrom;
-          var ids = modelInstance[fk] || [];
-          modelInstance.updateAttribute(fk, ids.reverse(), function(err, inst) {
-            cb(err, inst[fk] || []);
-          });
-        }
+        reverse: reverse
       } });
+      
+      Category.prototype['__reverse__products'].should.be.a.function;
+      
       db.automigrate(done);
     });
     
