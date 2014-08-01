@@ -548,6 +548,28 @@ describe('DataSource define model', function () {
 
     done();
   });
+  
+  it('should allow an explicit remoting path', function () {
+    var ds = new DataSource('memory');
+    
+    var User = ds.define('User', {name: String, bio: String}, { path: 'accounts' });
+    User.http.path.should.equal('/accounts');
+  });
+  
+  it('should normalize the remoting path - option', function () {
+    var ds = new DataSource('memory');
+    
+    var User = ds.define('UserAccount', {name: String, bio: String}, { normalize: true });
+    User.http.path.should.equal('/user-accounts');
+  });
+  
+  it('should normalize the remoting path - modelBuilder', function () {
+    var ds = new DataSource('memory');
+    ds.modelBuilder.normalizePathName = true;
+    
+    var User = ds.define('UserAccount', {name: String, bio: String});
+    User.http.path.should.equal('/user-accounts');
+  });
 
 });
 
