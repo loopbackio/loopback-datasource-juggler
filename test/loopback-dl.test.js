@@ -350,6 +350,34 @@ describe('DataSource define model', function () {
 
   });
 
+  it('should emit events during attach', function() {
+    var ds = new DataSource('memory');
+    var modelBuilder = new ModelBuilder();
+
+    var User = modelBuilder.define('User', {
+      name: String
+    });
+
+    var seq = 0;
+    var dataAccessConfigured = -1;
+    var dataSourceAttached = -1;
+
+    User.on('dataAccessConfigured', function (model) {
+      dataAccessConfigured = seq++;
+      assert(User.create);
+      assert(User.hasMany);
+    });
+
+    User.on('dataSourceAttached', function (model) {
+      assert(User.dataSource instanceof DataSource);
+      dataSourceAttached = seq++;
+    });
+
+    ds.attach(User);
+    assert.equal(dataAccessConfigured, 0);
+    assert.equal(dataSourceAttached, 1);
+  });
+
   it('should not take unknown properties in strict mode', function (done) {
     var ds = new DataSource('memory');
 
