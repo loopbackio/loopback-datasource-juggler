@@ -552,7 +552,9 @@ describe('DataSource define model', function () {
   it('should allow an explicit remoting path', function () {
     var ds = new DataSource('memory');
     
-    var User = ds.define('User', {name: String, bio: String}, { path: 'accounts' });
+    var User = ds.define('User', {name: String, bio: String}, { 
+      http: { path: 'accounts' }
+    });
     User.http.path.should.equal('/accounts');
   });
 
