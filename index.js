@@ -1,3 +1,4 @@
+exports.mixins = require('./lib/mixins'); // require before ModelBuilder below - why?
 exports.ModelBuilder = exports.LDL = require('./lib/model-builder.js').ModelBuilder;
 exports.DataSource = exports.Schema = require('./lib/datasource.js').DataSource;
 exports.ModelBaseClass = require('./lib/model.js');
