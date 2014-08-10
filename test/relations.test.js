@@ -284,17 +284,17 @@ describe('relations', function () {
           Address.create({name: 'z'}, function (err, address) {
             patient.address(address);
             patient.save(function() {
-              verify(physician);
+              verify(physician, address.id);
             });
           });
         });
       });
-      function verify(physician) {
+      function verify(physician, addressId) {
         physician.patients({include: 'address'}, function (err, ch) {
           should.not.exist(err);
           should.exist(ch);
           ch.should.have.lengthOf(1);
-          ch[0].addressId.should.equal(1);
+          ch[0].addressId.should.eql(addressId);
           var address = ch[0].address();
           should.exist(address);
           address.should.be.an.instanceof(Address);

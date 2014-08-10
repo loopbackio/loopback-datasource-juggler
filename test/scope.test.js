@@ -9,6 +9,14 @@ describe('scope', function () {
     db = getSchema();
     Railway = db.define('Railway', {
       URID: {type: String, index: true}
+    }, {
+      scopes: {
+        highSpeed: {
+          where: {
+            highSpeed: true
+          }
+        }
+      }
     });
     Station = db.define('Station', {
       USID: {type: String, index: true},
@@ -24,9 +32,15 @@ describe('scope', function () {
       Station.destroyAll(done);
     });
   });
+  
+  it('should define scope using options.scopes', function () {
+    Railway.scopes.should.have.property('highSpeed');
+    Railway.highSpeed.should.be.function;
+  });
 
   it('should define scope with query', function (done) {
     Station.scope('active', {where: {isActive: true}});
+    Station.scopes.should.have.property('active');
     Station.active.create(function (err, station) {
       should.not.exist(err);
       should.exist(station);
