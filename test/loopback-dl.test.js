@@ -918,7 +918,7 @@ describe('Load models with relations', function () {
     var ds = new DataSource('memory');
   
     var Post = ds.define('Post', {userId: Number, content: String});
-    var User = ds.define('User', {name: String}, {relations: {posts: {type: 'embedsMany', model: 'Post'}}});
+    var User = ds.define('User', {name: String}, {relations: {posts: {type: 'embedsMany', model: 'Post' }}});
   
     assert(User.relations['posts']);
     done();
