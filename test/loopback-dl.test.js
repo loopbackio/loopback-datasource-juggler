@@ -903,6 +903,26 @@ describe('Load models with relations', function () {
     assert(Post.relations['user']);
     done();
   });
+  
+  it('should set up referencesMany relations', function (done) {
+    var ds = new DataSource('memory');
+  
+    var Post = ds.define('Post', {userId: Number, content: String});
+    var User = ds.define('User', {name: String}, {relations: {posts: {type: 'referencesMany', model: 'Post'}}});
+  
+    assert(User.relations['posts']);
+    done();
+  });
+  
+  it('should set up embedsMany relations', function (done) {
+    var ds = new DataSource('memory');
+  
+    var Post = ds.define('Post', {userId: Number, content: String});
+    var User = ds.define('User', {name: String}, {relations: {posts: {type: 'embedsMany', model: 'Post'}}});
+  
+    assert(User.relations['posts']);
+    done();
+  });
 
   it('should set up foreign key with the correct type', function (done) {
     var ds = new DataSource('memory');
