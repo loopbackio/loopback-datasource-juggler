@@ -537,6 +537,16 @@ describe('relations', function () {
         });
       });
     });
+
+    it('should find count of records on scope - scoped', function (done) {
+      Category.findOne(function (err, c) {
+        c.productType = 'tool'; // temporary, for scoping
+        c.products.count(function(err, count) {
+          count.should.equal(1);
+          done();
+        });
+      });
+    });
     
     it('should delete records on scope - scoped', function (done) {
       Category.findOne(function (err, c) {
