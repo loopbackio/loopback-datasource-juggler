@@ -76,3 +76,57 @@ describe('scope', function () {
     });
   });
 });
+
+describe('scope - order', function () {
+
+  before(function () {
+    db = getSchema();
+    Station = db.define('Station', {
+      name: {type: String, index: true},
+      order: {type: Number, index: true}
+    });
+    Station.scope('reverse', {order: 'order DESC'});
+  });
+
+  beforeEach(function (done) {
+    Station.destroyAll(done);
+  });
+  
+  beforeEach(function (done) {
+    Station.create({ name: 'a', order: 1 }, done);
+  });
+  
+  beforeEach(function (done) {
+    Station.create({ name: 'b', order: 2 }, done);
+  });
+    
+  beforeEach(function (done) {
+    Station.create({ name: 'c', order: 3 }, done);
+  });
+  
+  it('should define scope with default order', function (done) {
+    Station.reverse(function(err, stations) {
+      stations[0].name.should.equal('c');
+      stations[0].order.should.equal(3);
+      stations[1].name.should.equal('b');
+      stations[1].order.should.equal(2);
+      stations[2].name.should.equal('a');
+      stations[2].order.should.equal(1);
+      done();
+    });
+  });
+  
+  it('should override default scope order', function (done) {
+    Station.reverse({order: 'order ASC'}, function(err, stations) {
+      stations[0].name.should.equal('a');
+      stations[0].order.should.equal(1);
+      stations[1].name.should.equal('b');
+      stations[1].order.should.equal(2);
+      stations[2].name.should.equal('c');
+      stations[2].order.should.equal(3);
+      done();
+    });
+  });
+  
+});
+
