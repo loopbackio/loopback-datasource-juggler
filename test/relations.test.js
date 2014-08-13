@@ -2129,5 +2129,78 @@ describe('relations', function () {
     });
   
   });
+  
+  describe('custom relation/scope methods', function () {
+    
+    before(function (done) {
+      db = getSchema();
+      Category = db.define('Category', {name: String});
+      Product = db.define('Product', {name: String});
+      
+      db.automigrate(function () {
+        Category.destroyAll(function() {
+          Product.destroyAll(done);
+        });
+      });
+    });
+
+    it('can be declared', function (done) {
+      var relation = Category.hasMany(Product);
+      
+      var summarize = function(cb) {
+        var modelInstance = this.modelInstance;
+        this.fetch(function(err, items) {
+          if (err) return cb(err, []);
+          var summary = items.map(function(item) {
+            var obj = item.toObject();
+            obj.categoryName = modelInstance.name;
+            return obj;
+          });
+          cb(null, summary);
+        });
+      };
+      
+      summarize.shared = true; // remoting
+      summarize.http = { verb: 'get', path: '/products/summary' };
+      
+      relation.defineMethod('summarize', summarize);
+      
+      Category.prototype['__summarize__products'].should.be.a.function;
+      should.exist(Category.prototype['__summarize__products'].shared);
+      Category.prototype['__summarize__products'].http.should.eql(summarize.http);
+      
+      db.automigrate(done);
+    });
+    
+    it('should setup test records', function (done) {
+      Category.create({ name: 'Category A' }, function(err, cat) {
+        cat.products.create({ name: 'Product 1' }, function(err, p) {
+          cat.products.create({ name: 'Product 2' }, function(err, p) {
+            done();
+          });
+        })
+      });
+    });
+    
+    it('should allow custom scope methods - summarize', function(done) {
+      var expected = [
+        { name: 'Product 1', categoryId: 1, categoryName: 'Category A' },
+        { name: 'Product 2', categoryId: 1, categoryName: 'Category A' }
+      ];
+      
+      Category.findOne(function(err, cat) {
+        cat.products.summarize(function(err, summary) {
+          should.not.exist(err);
+          var result = summary.map(function(item) {
+            delete item.id;
+            return item;
+          });
+          result.should.eql(expected);
+          done();
+        });
+      })
+    });
+    
+  });
 
 });
