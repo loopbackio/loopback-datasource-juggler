@@ -42,11 +42,14 @@ mixins.define('TimeStamp', timestamps);
 
 describe('Model class', function () {
   
-  it('should define a mixin', function() {
+  it('should define mixins', function() {
     mixins.define('Example', function(Model, options) {
       Model.prototype.example = function() {
         return options;
       };
+    });
+    mixins.define('Demo', function(Model, options) {
+      Model.demoMixin = options.ok;
     });
   });
   
@@ -58,7 +61,7 @@ describe('Model class', function () {
 
     var memory = new DataSource('mem', {connector: Memory}, modelBuilder);
     var Item = memory.createModel('Item', { name: 'string' }, {
-      mixins: { TimeStamp: true, demo: true, Address: true }
+      mixins: { Address: true }
     });
 
     var properties = Item.definition.properties;
@@ -70,11 +73,12 @@ describe('Model class', function () {
   it('should apply mixins', function(done) {
     var memory = new DataSource('mem', {connector: Memory}, modelBuilder);
     var Item = memory.createModel('Item', { name: 'string' }, {
-      mixins: { TimeStamp: true, demo: { ok: true } }
+      mixins: { TimeStamp: true, Demo: { ok: true } }
     });
     
     Item.mixin('Example', { foo: 'bar' });
-    Item.mixin('other');
+    
+    Item.demoMixin.should.be.true;
     
     var properties = Item.definition.properties;
     properties.createdAt.should.eql({ type: Date });
