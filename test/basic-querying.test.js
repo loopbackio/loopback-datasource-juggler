@@ -97,16 +97,7 @@ describe('basic-querying', function () {
       });
     });
     
-    it('should sortByIds - partial ids (1)', function(done) {
-      User.find(function(err, users) {
-        sorted = User.sortByIds([6, 5, 4], users);
-        var names = sorted.map(function(u) { return u.name; });
-        names.should.eql(['f', 'e', 'd', 'a', 'b', 'c']);
-        done();
-      });
-    });
-    
-    it('should sortByIds - partial ids (2)', function(done) {
+    it('should sortByIds - partial ids', function(done) {
       User.find(function(err, users) {
         sorted = User.sortByIds([5, 3, 2], users);
         var names = sorted.map(function(u) { return u.name; });
