@@ -1758,14 +1758,12 @@ describe('relations', function () {
         category = cat;
         var link = cat.items.build({ notes: 'Some notes...' });
         link.product.create({ name: 'Product 1' }, function(err, p) {
-          cat.save(function(err, cat) { // save parent object!
-            cat.links[0].id.should.eql(p.id);
-            cat.links[0].name.should.equal('Product 1'); // denormalized
-            cat.links[0].notes.should.equal('Some notes...');
-            cat.items.at(0).should.equal(cat.links[0]);
-            done();
-          });
-        })
+          cat.links[0].id.should.eql(p.id);
+          cat.links[0].name.should.equal('Product 1'); // denormalized
+          cat.links[0].notes.should.equal('Some notes...');
+          cat.items.at(0).should.equal(cat.links[0]);
+          done();
+        });
       });
     });
     
@@ -1784,6 +1782,26 @@ describe('relations', function () {
             done();
           });
         });
+      });
+    });
+    
+    it('should update items on scope - and save parent', function(done) {
+      Category.findById(category.id, function(err, cat) {
+        var link = cat.items.at(0);
+        link.updateAttributes({notes: 'Updated notes...'}, function(err, link) {
+          link.notes.should.equal('Updated notes...');
+          done();
+        });
+      });
+    });
+    
+    it('should find items on scope - verify update', function(done) {
+      Category.findById(category.id, function(err, cat) {
+        cat.name.should.equal('Category B');
+        cat.links.toObject().should.eql([
+          {id: 5, name: 'Product 1', notes: 'Updated notes...'}
+        ]);
+        done();
       });
     });
     
