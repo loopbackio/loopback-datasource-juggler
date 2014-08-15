@@ -1805,6 +1805,23 @@ describe('relations', function () {
       });
     });
     
+    it('should remove items from scope - and save parent', function(done) {
+      Category.findById(category.id, function(err, cat) {
+        cat.items.at(0).destroy(function(err, link) {
+          cat.links.should.eql([]);
+          done();
+        });
+      });
+    });
+    
+    it('should find items on scope - verify destroy', function(done) {
+      Category.findById(category.id, function(err, cat) {
+        cat.name.should.equal('Category B');
+        cat.links.should.eql([]);
+        done();
+      });
+    });
+    
   });
   
   describe('embedsMany - polymorphic relations', function () {
