@@ -1109,11 +1109,9 @@ describe('relations', function () {
       p.person.create({name: 'Fred', age: 36 }, function(err, person) {
         personCreated = person;
         p.personId.should.equal(person.id);
-        p.save(function (err, p) {
-          person.name.should.equal('Fred');
-          person.passportNotes.should.equal('Some notes...');
-          done();
-        });
+        person.name.should.equal('Fred');
+        person.passportNotes.should.equal('Some notes...');
+        done();
       });
     });
     
@@ -1191,7 +1189,6 @@ describe('relations', function () {
       Article.create(function (e, article) {
         article.tags.create({name: 'popular'}, function (e, t) {
           t.should.be.an.instanceOf(Tag);
-          // console.log(t);
           ArticleTag.findOne(function (e, at) {
             should.exist(at);
             at.tagId.toString().should.equal(t.id.toString());
@@ -1566,19 +1563,15 @@ describe('relations', function () {
   
   describe('embedsMany - relations, scope and properties', function () {
     
-    var product1, product2, product3;
+    var category, product1, product2, product3;
     
-    before(function (done) {
+    before(function () {
       db = getSchema();
       Category = db.define('Category', {name: String});
       Product = db.define('Product', {name: String});
       Link = db.define('Link', {name: String});
-
-      db.automigrate(function () {
-        Person.destroyAll(done);
-      });
     });
-
+    
     it('can be declared', function (done) {
       Category.embedsMany(Link, { 
         as: 'items', // rename
@@ -1588,6 +1581,7 @@ describe('relations', function () {
       Link.belongsTo(Product, { 
         foreignKey: 'id', // re-use the actual product id
         properties: { id: 'id', name: 'name' }, // denormalize, transfer id
+        options: { invertProperties: true }
       });
       db.automigrate(function() {
         Product.create({ name: 'Product 0' }, done); // offset ids for tests
@@ -1607,7 +1601,7 @@ describe('relations', function () {
       });
     });
     
-    it('should create items on scope', function(done) {
+    it('should associate items on scope', function(done) {
       Category.create({ name: 'Category A' }, function(err, cat) {
         var link = cat.items.build();
         link.product(product1);
@@ -1718,10 +1712,44 @@ describe('relations', function () {
       });
     });
     
-    it('should remove embedded items by reference id', function(done) {
+    it('should have removed embedded items by reference id', function(done) {
       Category.findOne(function(err, cat) {
         cat.links.should.have.length(1);
         done();
+      });
+    });
+    
+    it('should create items on scope', function(done) {
+      Category.create({ name: 'Category B' }, function(err, cat) {
+        category = cat;
+        var link = cat.items.build({ notes: 'Some notes...' });
+        link.product.create({ name: 'Product 1' }, function(err, p) {
+          cat.save(function(err, cat) { // save parent object!
+            cat.links[0].id.should.eql(p.id);
+            cat.links[0].name.should.equal('Product 1'); // denormalized
+            cat.links[0].notes.should.equal('Some notes...');
+            cat.items.at(0).should.equal(cat.links[0]);
+            done();
+          });
+        })
+      });
+    });
+    
+    it('should find items on scope', function(done) {
+      Category.findById(category.id, function(err, cat) {
+        cat.name.should.equal('Category B');
+        cat.links.toObject().should.eql([
+          {id: 5, name: 'Product 1', notes: 'Some notes...'}
+        ]);
+        cat.items.at(0).should.equal(cat.links[0]);
+        cat.items(function(err, items) { // alternative access
+          items.should.be.an.array;
+          items.should.have.length(1);
+          items[0].product(function(err, p) {
+            p.name.should.equal('Product 1'); // actual value
+            done();
+          });
+        });
       });
     });
     
@@ -1757,7 +1785,8 @@ describe('relations', function () {
       });      
       Link.belongsTo('linked', {
         polymorphic: true, // needs unique auto-id
-        properties: { name: 'name' } // denormalized
+        properties: { name: 'name' }, // denormalized
+        options: { invertProperties: true }
       });
       db.automigrate(done);
     });
