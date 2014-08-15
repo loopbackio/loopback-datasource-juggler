@@ -206,9 +206,15 @@ describe('sortObjectsByIds', function () {
   });
 
   it('should sort - partial ids', function() {
-    var sorted =sortObjectsByIds('id', [5, 3, 2], items);
+    var sorted = sortObjectsByIds('id', [5, 3, 2], items);
     var names = sorted.map(function(u) { return u.name; });
     should.deepEqual(names, ['e', 'c', 'b', 'a', 'd', 'f']);
+  });
+  
+  it('should sort - strict', function() {
+    var sorted = sortObjectsByIds('id', [5, 3, 2], items, true);
+    var names = sorted.map(function(u) { return u.name; });
+    should.deepEqual(names, ['e', 'c', 'b']);
   });
 
 });
