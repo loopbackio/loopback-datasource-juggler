@@ -1030,6 +1030,40 @@ describe('relations', function () {
         });
       });
     });
+    
+    it('should create polymorphic item through relation scope', function (done) {
+      Picture.findById(anotherPicture.id, function(err, p) {
+        p.authors.create({ name: 'Author 3' }, function(err, a) {
+          should.not.exist(err);
+          author = a;
+          author.name.should.equal('Author 3');
+          done();
+        });
+      });
+    });
+    
+    it('should create polymorphic through model - new author', function (done) {
+      PictureLink.findOne({ where: { 
+          pictureId: anotherPicture.id, imageableId: author.id, imageableType: 'Author'
+        } }, function(err, link) {
+        should.not.exist(err);
+        link.pictureId.should.eql(anotherPicture.id);
+        link.imageableId.should.eql(author.id);
+        link.imageableType.should.equal('Author');
+        done();
+      });
+    });
+    
+    it('should find polymorphic items - new author', function (done) {
+      Author.findById(author.id, function(err, author) {
+        author.pictures(function(err, pics) {
+          pics.should.have.length(1);
+          pics[0].id.should.eql(anotherPicture.id);
+          pics[0].name.should.equal('Example');
+          done();
+        });
+      });
+    });
   
   });
 
