@@ -3,6 +3,7 @@ var utils = require('../lib/utils');
 var fieldsToArray = utils.fieldsToArray;
 var removeUndefined = utils.removeUndefined;
 var mergeSettings = utils.mergeSettings;
+var sortObjectsByIds = utils.sortObjectsByIds;
 
 describe('util.fieldsToArray', function () {
   it('Turn objects and strings into an array of fields to include when finding models', function () {
@@ -185,4 +186,35 @@ describe('mergeSettings', function () {
 
     should.deepEqual(dst.acls, expected.acls, 'Merged settings should match the expectation');
   });
+});
+
+describe('sortObjectsByIds', function () {
+  
+  var items = [
+    { id: 1, name: 'a' },
+    { id: 2, name: 'b' },
+    { id: 3, name: 'c' },
+    { id: 4, name: 'd' },
+    { id: 5, name: 'e' },
+    { id: 6, name: 'f' }
+  ];
+
+  it('should sort', function() {
+    var sorted = sortObjectsByIds('id', [6, 5, 4, 3, 2, 1], items);
+    var names = sorted.map(function(u) { return u.name; });
+    should.deepEqual(names, ['f', 'e', 'd', 'c', 'b', 'a']);
+  });
+
+  it('should sort - partial ids', function() {
+    var sorted = sortObjectsByIds('id', [5, 3, 2], items);
+    var names = sorted.map(function(u) { return u.name; });
+    should.deepEqual(names, ['e', 'c', 'b', 'a', 'd', 'f']);
+  });
+  
+  it('should sort - strict', function() {
+    var sorted = sortObjectsByIds('id', [5, 3, 2], items, true);
+    var names = sorted.map(function(u) { return u.name; });
+    should.deepEqual(names, ['e', 'c', 'b']);
+  });
+
 });

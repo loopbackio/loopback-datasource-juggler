@@ -537,6 +537,16 @@ describe('relations', function () {
         });
       });
     });
+
+    it('should find count of records on scope - scoped', function (done) {
+      Category.findOne(function (err, c) {
+        c.productType = 'tool'; // temporary, for scoping
+        c.products.count(function(err, count) {
+          count.should.equal(1);
+          done();
+        });
+      });
+    });
     
     it('should delete records on scope - scoped', function (done) {
       Category.findOne(function (err, c) {
@@ -1030,6 +1040,40 @@ describe('relations', function () {
         });
       });
     });
+    
+    it('should create polymorphic item through relation scope', function (done) {
+      Picture.findById(anotherPicture.id, function(err, p) {
+        p.authors.create({ name: 'Author 3' }, function(err, a) {
+          should.not.exist(err);
+          author = a;
+          author.name.should.equal('Author 3');
+          done();
+        });
+      });
+    });
+    
+    it('should create polymorphic through model - new author', function (done) {
+      PictureLink.findOne({ where: { 
+          pictureId: anotherPicture.id, imageableId: author.id, imageableType: 'Author'
+        } }, function(err, link) {
+        should.not.exist(err);
+        link.pictureId.should.eql(anotherPicture.id);
+        link.imageableId.should.eql(author.id);
+        link.imageableType.should.equal('Author');
+        done();
+      });
+    });
+    
+    it('should find polymorphic items - new author', function (done) {
+      Author.findById(author.id, function(err, author) {
+        author.pictures(function(err, pics) {
+          pics.should.have.length(1);
+          pics[0].id.should.eql(anotherPicture.id);
+          pics[0].name.should.equal('Example');
+          done();
+        });
+      });
+    });
   
   });
 
@@ -1109,11 +1153,9 @@ describe('relations', function () {
       p.person.create({name: 'Fred', age: 36 }, function(err, person) {
         personCreated = person;
         p.personId.should.equal(person.id);
-        p.save(function (err, p) {
-          person.name.should.equal('Fred');
-          person.passportNotes.should.equal('Some notes...');
-          done();
-        });
+        person.name.should.equal('Fred');
+        person.passportNotes.should.equal('Some notes...');
+        done();
       });
     });
     
@@ -1191,7 +1233,6 @@ describe('relations', function () {
       Article.create(function (e, article) {
         article.tags.create({name: 'popular'}, function (e, t) {
           t.should.be.an.instanceOf(Tag);
-          // console.log(t);
           ArticleTag.findOne(function (e, at) {
             should.exist(at);
             at.tagId.toString().should.equal(t.id.toString());
@@ -1566,19 +1607,15 @@ describe('relations', function () {
   
   describe('embedsMany - relations, scope and properties', function () {
     
-    var product1, product2, product3;
+    var category, product1, product2, product3;
     
-    before(function (done) {
+    before(function () {
       db = getSchema();
       Category = db.define('Category', {name: String});
       Product = db.define('Product', {name: String});
       Link = db.define('Link', {name: String});
-
-      db.automigrate(function () {
-        Person.destroyAll(done);
-      });
     });
-
+    
     it('can be declared', function (done) {
       Category.embedsMany(Link, { 
         as: 'items', // rename
@@ -1588,6 +1625,7 @@ describe('relations', function () {
       Link.belongsTo(Product, { 
         foreignKey: 'id', // re-use the actual product id
         properties: { id: 'id', name: 'name' }, // denormalize, transfer id
+        options: { invertProperties: true }
       });
       db.automigrate(function() {
         Product.create({ name: 'Product 0' }, done); // offset ids for tests
@@ -1607,7 +1645,7 @@ describe('relations', function () {
       });
     });
     
-    it('should create items on scope', function(done) {
+    it('should associate items on scope', function(done) {
       Category.create({ name: 'Category A' }, function(err, cat) {
         var link = cat.items.build();
         link.product(product1);
@@ -1718,9 +1756,81 @@ describe('relations', function () {
       });
     });
     
-    it('should remove embedded items by reference id', function(done) {
+    it('should have removed embedded items by reference id', function(done) {
       Category.findOne(function(err, cat) {
         cat.links.should.have.length(1);
+        done();
+      });
+    });
+
+    var productId;
+
+    it('should create items on scope', function(done) {
+      Category.create({ name: 'Category B' }, function(err, cat) {
+        category = cat;
+        var link = cat.items.build({ notes: 'Some notes...' });
+        link.product.create({ name: 'Product 1' }, function(err, p) {
+          productId = p.id;
+          cat.links[0].id.should.eql(p.id);
+          cat.links[0].name.should.equal('Product 1'); // denormalized
+          cat.links[0].notes.should.equal('Some notes...');
+          cat.items.at(0).should.equal(cat.links[0]);
+          done();
+        });
+      });
+    });
+    
+    it('should find items on scope', function(done) {
+      Category.findById(category.id, function(err, cat) {
+        cat.name.should.equal('Category B');
+        cat.links.toObject().should.eql([
+          {id: productId, name: 'Product 1', notes: 'Some notes...'}
+        ]);
+        cat.items.at(0).should.equal(cat.links[0]);
+        cat.items(function(err, items) { // alternative access
+          items.should.be.an.array;
+          items.should.have.length(1);
+          items[0].product(function(err, p) {
+            p.name.should.equal('Product 1'); // actual value
+            done();
+          });
+        });
+      });
+    });
+    
+    it('should update items on scope - and save parent', function(done) {
+      Category.findById(category.id, function(err, cat) {
+        var link = cat.items.at(0);
+        link.updateAttributes({notes: 'Updated notes...'}, function(err, link) {
+          link.notes.should.equal('Updated notes...');
+          done();
+        });
+      });
+    });
+    
+    it('should find items on scope - verify update', function(done) {
+      Category.findById(category.id, function(err, cat) {
+        cat.name.should.equal('Category B');
+        cat.links.toObject().should.eql([
+          {id: productId, name: 'Product 1', notes: 'Updated notes...'}
+        ]);
+        done();
+      });
+    });
+    
+    it('should remove items from scope - and save parent', function(done) {
+      Category.findById(category.id, function(err, cat) {
+        cat.items.at(0).destroy(function(err, link) {
+          cat.links.should.eql([]);
+          done();
+        });
+      });
+    });
+    
+    it('should find items on scope - verify destroy', function(done) {
+      Category.findById(category.id, function(err, cat) {
+        cat.name.should.equal('Category B');
+        cat.links.should.eql([]);
         done();
       });
     });
@@ -1757,7 +1867,8 @@ describe('relations', function () {
       });      
       Link.belongsTo('linked', {
         polymorphic: true, // needs unique auto-id
-        properties: { name: 'name' } // denormalized
+        properties: { name: 'name' }, // denormalized
+        options: { invertProperties: true }
       });
       db.automigrate(done);
     });
@@ -2128,6 +2239,81 @@ describe('relations', function () {
       });
     });
   
+  });
+  
+  describe('custom relation/scope methods', function () {
+    var categoryId;
+
+    before(function (done) {
+      db = getSchema();
+      Category = db.define('Category', {name: String});
+      Product = db.define('Product', {name: String});
+      
+      db.automigrate(function () {
+        Category.destroyAll(function() {
+          Product.destroyAll(done);
+        });
+      });
+    });
+
+    it('can be declared', function (done) {
+      var relation = Category.hasMany(Product);
+      
+      var summarize = function(cb) {
+        var modelInstance = this.modelInstance;
+        this.fetch(function(err, items) {
+          if (err) return cb(err, []);
+          var summary = items.map(function(item) {
+            var obj = item.toObject();
+            obj.categoryName = modelInstance.name;
+            return obj;
+          });
+          cb(null, summary);
+        });
+      };
+      
+      summarize.shared = true; // remoting
+      summarize.http = { verb: 'get', path: '/products/summary' };
+      
+      relation.defineMethod('summarize', summarize);
+      
+      Category.prototype['__summarize__products'].should.be.a.function;
+      should.exist(Category.prototype['__summarize__products'].shared);
+      Category.prototype['__summarize__products'].http.should.eql(summarize.http);
+      
+      db.automigrate(done);
+    });
+    
+    it('should setup test records', function (done) {
+      Category.create({ name: 'Category A' }, function(err, cat) {
+        categoryId = cat.id;
+        cat.products.create({ name: 'Product 1' }, function(err, p) {
+          cat.products.create({ name: 'Product 2' }, function(err, p) {
+            done();
+          });
+        })
+      });
+    });
+    
+    it('should allow custom scope methods - summarize', function(done) {
+      var expected = [
+        { name: 'Product 1', categoryId: categoryId, categoryName: 'Category A' },
+        { name: 'Product 2', categoryId: categoryId, categoryName: 'Category A' }
+      ];
+      
+      Category.findOne(function(err, cat) {
+        cat.products.summarize(function(err, summary) {
+          should.not.exist(err);
+          var result = summary.map(function(item) {
+            delete item.id;
+            return item;
+          });
+          result.should.eql(expected);
+          done();
+        });
+      })
+    });
+    
   });
 
 });
