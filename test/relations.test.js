@@ -1762,12 +1762,15 @@ describe('relations', function () {
         done();
       });
     });
-    
+
+    var productId;
+
     it('should create items on scope', function(done) {
       Category.create({ name: 'Category B' }, function(err, cat) {
         category = cat;
         var link = cat.items.build({ notes: 'Some notes...' });
         link.product.create({ name: 'Product 1' }, function(err, p) {
+          productId = p.id;
           cat.links[0].id.should.eql(p.id);
           cat.links[0].name.should.equal('Product 1'); // denormalized
           cat.links[0].notes.should.equal('Some notes...');
@@ -1781,7 +1784,7 @@ describe('relations', function () {
       Category.findById(category.id, function(err, cat) {
         cat.name.should.equal('Category B');
         cat.links.toObject().should.eql([
-          {id: 5, name: 'Product 1', notes: 'Some notes...'}
+          {id: productId, name: 'Product 1', notes: 'Some notes...'}
         ]);
         cat.items.at(0).should.equal(cat.links[0]);
         cat.items(function(err, items) { // alternative access
@@ -1809,7 +1812,7 @@ describe('relations', function () {
       Category.findById(category.id, function(err, cat) {
         cat.name.should.equal('Category B');
         cat.links.toObject().should.eql([
-          {id: 5, name: 'Product 1', notes: 'Updated notes...'}
+          {id: productId, name: 'Product 1', notes: 'Updated notes...'}
         ]);
         done();
       });
@@ -2239,7 +2242,8 @@ describe('relations', function () {
   });
   
   describe('custom relation/scope methods', function () {
-    
+    var categoryId;
+
     before(function (done) {
       db = getSchema();
       Category = db.define('Category', {name: String});
@@ -2282,6 +2286,7 @@ describe('relations', function () {
     
     it('should setup test records', function (done) {
       Category.create({ name: 'Category A' }, function(err, cat) {
+        categoryId = cat.id;
         cat.products.create({ name: 'Product 1' }, function(err, p) {
           cat.products.create({ name: 'Product 2' }, function(err, p) {
             done();
@@ -2292,8 +2297,8 @@ describe('relations', function () {
     
     it('should allow custom scope methods - summarize', function(done) {
       var expected = [
-        { name: 'Product 1', categoryId: 1, categoryName: 'Category A' },
-        { name: 'Product 2', categoryId: 1, categoryName: 'Category A' }
+        { name: 'Product 1', categoryId: categoryId, categoryName: 'Category A' },
+        { name: 'Product 2', categoryId: categoryId, categoryName: 'Category A' }
       ];
       
       Category.findOne(function(err, cat) {
