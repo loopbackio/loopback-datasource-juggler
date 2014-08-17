@@ -49,7 +49,11 @@ describe('Model class', function () {
       };
     });
     mixins.define('Demo', function(Model, options) {
-      Model.demoMixin = options.ok;
+      Model.demoMixin = options.value;
+    });
+    mixins.define('Multi', function(Model, options) {
+      Model.multiMixin = Model.multiMixin || {};
+      Model.multiMixin[options.key] = options.value;
     });
   });
   
@@ -73,12 +77,21 @@ describe('Model class', function () {
   it('should apply mixins', function(done) {
     var memory = new DataSource('mem', {connector: Memory}, modelBuilder);
     var Item = memory.createModel('Item', { name: 'string' }, {
-      mixins: { TimeStamp: true, Demo: { ok: true } }
+      mixins: { 
+        TimeStamp: true, Demo: { value: true },
+        Multi: [
+          { key: 'foo', value: 'bar' }, 
+          { key: 'fox', value: 'baz' }
+        ]
+      }
     });
     
     Item.mixin('Example', { foo: 'bar' });
     
     Item.demoMixin.should.be.true;
+    
+    Item.multiMixin.foo.should.equal('bar');
+    Item.multiMixin.fox.should.equal('baz');
     
     var properties = Item.definition.properties;
     properties.createdAt.should.eql({ type: Date });
