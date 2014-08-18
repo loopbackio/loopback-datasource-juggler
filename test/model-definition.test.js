@@ -36,7 +36,9 @@ describe('ModelDefinition class', function () {
     assert.equal(json.properties.approved.type, "Boolean");
     assert.equal(json.properties.joinedAt.type, "Date");
     assert.equal(json.properties.age.type, "Number");
-
+    
+    assert.deepEqual(User.toJSON(), json);
+    
     done();
 
   });
