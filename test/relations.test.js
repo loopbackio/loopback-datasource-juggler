@@ -1375,10 +1375,12 @@ describe('relations', function () {
       p.passport.toObject().should.eql({name: 'Anonymous'});
       p.passport.should.be.an.instanceOf(Passport);
     });
-    
+
+    var personId;
     it('should create an embedded item on scope', function(done) {
       Person.create({name: 'Fred'}, function(err, p) {
         should.not.exist(err);
+        personId = p.id;
         p.passportItem.create({name: 'Fredric'}, function(err, passport) {
           should.not.exist(err);
           p.passport.toObject().should.eql({name: 'Fredric'});
@@ -1389,7 +1391,7 @@ describe('relations', function () {
     });
     
     it('should get an embedded item on scope', function(done) {
-      Person.findOne(function(err, p) {
+      Person.findById(personId, function(err, p) {
         should.not.exist(err);
         var passport = p.passportItem();
         passport.toObject().should.eql({name: 'Fredric'});
@@ -1412,7 +1414,7 @@ describe('relations', function () {
     });
     
     it('should validate an embedded item on scope - on update', function(done) {
-      Person.findOne(function(err, p) {
+      Person.findById(personId, function(err, p) {
         var passport = p.passportItem();
         passport.name = null;
         p.save(function(err) {
@@ -1427,7 +1429,7 @@ describe('relations', function () {
     });
     
     it('should destroy an embedded item on scope', function(done) {
-      Person.findOne(function(err, p) {
+      Person.findById(personId, function(err, p) {
         p.passportItem.destroy(function(err) {
           should.not.exist(err);
           should.equal(p.passport, null);
@@ -1437,7 +1439,7 @@ describe('relations', function () {
     });
     
     it('should get an embedded item on scope - verify', function(done) {
-      Person.findOne(function(err, p) {
+      Person.findById(personId, function(err, p) {
         should.not.exist(err);
         should.equal(p.passport, null);
         done();
