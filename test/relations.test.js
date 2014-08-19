@@ -1337,8 +1337,7 @@ describe('relations', function () {
 
     it('can be declared using embedsOne method', function () {
       Person.embedsOne(Passport, {
-        default: {name: 'Anonymous'}, // a bit contrived
-        options: {validate: true}
+        default: {name: 'Anonymous'} // a bit contrived
       });
     });
     
@@ -1640,7 +1639,7 @@ describe('relations', function () {
     });
 
     it('can be declared', function (done) {
-      Person.embedsMany(Address, { options: { autoId: false, validate: true } });
+      Person.embedsMany(Address, { options: { autoId: false } });
       db.automigrate(done);
     });
     
