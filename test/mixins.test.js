@@ -38,7 +38,7 @@ function timestamps(Model, options) {
   };
 }
 
-mixins.define('TimeStamp', timestamps);
+mixins.define('time-stamp', timestamps);
 
 describe('Model class', function () {
   
@@ -55,6 +55,11 @@ describe('Model class', function () {
       Model.multiMixin = Model.multiMixin || {};
       Model.multiMixin[options.key] = options.value;
     });
+    mixins.define('check-access', function(Model, options) {
+      Model.accessMixin = Model.accessMixin || {};
+      Model.accessMixin[options.key] = options.value;
+    });
+    mixins.mixins['CheckAccess'].should.be.a.function;
   });
   
   it('should apply a mixin class', function() {
@@ -103,6 +108,19 @@ describe('Model class', function () {
       inst.example().should.eql({ foo: 'bar' });
       done();
     });
+  });
+  
+  it('should apply mixins using normalized names', function() {
+    var memory = new DataSource('mem', {connector: Memory}, modelBuilder);
+    var Item = memory.createModel('Item', { name: 'string' });
+    
+    Item.mixin('CheckAccess', { key: 'classified', value: true });
+    Item.mixin('check_access', { key: 'underscored', value: true });
+    Item.mixin('check-access', { key: 'dasherized', value: true });
+    
+    Item.accessMixin.classified.should.be.true;
+    Item.accessMixin.underscored.should.be.true;
+    Item.accessMixin.dasherized.should.be.true;
   });
   
 });
