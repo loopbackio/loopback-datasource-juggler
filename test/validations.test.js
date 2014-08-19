@@ -130,6 +130,14 @@ describe('validations', function () {
           done();
         });
       });
+      
+      it('should return validation metadata', function() {
+        var expected = {name:[{validation: 'presence', options: {}}]};
+        delete User._validations;
+        User.validatesPresenceOf('name');
+        var validations = User.validations();
+        validations.should.eql(expected);
+      });
     });
   });
 
