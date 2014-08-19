@@ -686,6 +686,37 @@ describe('relations', function () {
         discriminator: 'imageableType'
       } });
       Picture.belongsTo('imageable', { polymorphic: true });
+      
+      Author.relations['pictures'].toJSON().should.eql({
+        name: 'pictures',
+        type: 'hasMany',
+        modelFrom: 'Author',
+        keyFrom: 'id',
+        modelTo: 'Picture',
+        keyTo: 'imageableId',
+        multiple: true,
+        polymorphic: { 
+          as: 'imageable',
+          foreignKey: 'imageableId',
+          discriminator: 'imageableType'
+        }
+      });
+      
+      Picture.relations['imageable'].toJSON().should.eql({
+        name: 'imageable',
+        type: 'belongsTo',
+        modelFrom: 'Picture',
+        keyFrom: 'imageableId',
+        modelTo: '<polymorphic>',
+        keyTo: 'id',
+        multiple: false,
+        polymorphic: { 
+          as: 'imageable',
+          foreignKey: 'imageableId',
+          discriminator: 'imageableType'
+        }
+      });
+      
       db.automigrate(done);
     });
     
