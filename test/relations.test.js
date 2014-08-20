@@ -189,7 +189,7 @@ describe('relations', function () {
   });
 
   describe('hasMany through', function () {
-    var Physician, Patient, Appointment;
+    var Physician, Patient, Appointment, Address;
 
     before(function (done) {
       db = getSchema();
@@ -199,13 +199,15 @@ describe('relations', function () {
         default: function () {
           return new Date();
         }}});
-
+      Address = db.define('Address', {name: String});
+      
       Physician.hasMany(Patient, {through: Appointment});
       Patient.hasMany(Physician, {through: Appointment});
+      Patient.belongsTo(Address);
       Appointment.belongsTo(Patient);
       Appointment.belongsTo(Physician);
 
-      db.automigrate(['Physician', 'Patient', 'Appointment'], function (err) {
+      db.automigrate(['Physician', 'Patient', 'Appointment', 'Address'], function (err) {
         done(err);
       });
     });
@@ -277,11 +279,10 @@ describe('relations', function () {
     });
 
     it('should allow to use include syntax on related data', function (done) {
-      var Address = db.define('Address', {name: String});
-      Patient.belongsTo(Address);
       Physician.create(function (err, physician) {
         physician.patients.create({name: 'a'}, function (err, patient) {
           Address.create({name: 'z'}, function (err, address) {
+            should.not.exist(err);
             patient.address(address);
             patient.save(function() {
               verify(physician, address.id);
@@ -353,6 +354,7 @@ describe('relations', function () {
       var id;
       Physician.create(function (err, physician) {
         physician.patients.create({name: 'a'}, function (err, ch) {
+          should.not.exist(err);
           id = ch.id;
           physician.patients.create({name: 'z'}, function () {
             physician.patients.create({name: 'c'}, function () {
@@ -1169,7 +1171,7 @@ describe('relations', function () {
     var Person, Passport;
     
     it('can be declared with scope and properties', function (done) {
-      Person = db.define('Person', {name: String, age: Number});
+      Person = db.define('Person', {name: String, age: Number, passportNotes: String});
       Passport = db.define('Passport', {name: String, notes: String});
       Passport.belongsTo(Person, {
         properties: { notes: 'passportNotes' },
@@ -1644,7 +1646,7 @@ describe('relations', function () {
       db = getSchema();
       Category = db.define('Category', {name: String});
       Product = db.define('Product', {name: String});
-      Link = db.define('Link', {name: String});
+      Link = db.define('Link', {name: String, notes: String});
     });
     
     it('can be declared', function (done) {
@@ -1878,7 +1880,7 @@ describe('relations', function () {
       Author = db.define('Author', {name: String});
       Reader = db.define('Reader', {name: String});
       
-      Link = db.define('Link'); // generic model
+      Link = db.define('Link', {name: String, notes: String}); // generic model
       Link.validatesPresenceOf('linkedId');
       Link.validatesPresenceOf('linkedType');
 
