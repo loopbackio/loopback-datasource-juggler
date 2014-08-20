@@ -1322,6 +1322,133 @@ describe('relations', function () {
     });
   });
   
+  describe('embedsOne', function () {
+    
+    var person;
+    var Other;
+    
+    before(function () {
+      db = getSchema();
+      Person = db.define('Person', {name: String});
+      Passport = db.define('Passport', 
+        {name:{type:'string', required: true}}, 
+        {idInjection: false}
+      );
+      Other = db.define('Other', {name: String});
+    });
+
+    it('can be declared using embedsOne method', function (done) {
+      Person.embedsOne(Passport, {
+        default: {name: 'Anonymous'} // a bit contrived
+      });
+      db.automigrate(done);
+    });
+    
+    it('should have setup a property and accessor', function() {
+      var p = new Person();
+      p.passport.should.be.an.object; // because of default
+      p.passportItem.should.be.a.function;
+      p.passportItem.create.should.be.a.function;
+      p.passportItem.build.should.be.a.function;
+      p.passportItem.destroy.should.be.a.function;
+    });
+    
+    it('should return an instance with default values', function() {
+      var p = new Person();
+      p.passport.toObject().should.eql({name: 'Anonymous'});
+      p.passportItem().should.equal(p.passport);
+      p.passportItem(function(err, passport) {
+        should.not.exist(err);
+        passport.should.equal(p.passport);
+      });
+    });
+    
+    it('should embed a model instance', function() {
+      var p = new Person();
+      p.passportItem(new Passport({name: 'Fred'}));
+      p.passport.toObject().should.eql({name: 'Fred'});
+      p.passport.should.be.an.instanceOf(Passport);
+    });
+    
+    it('should not embed an invalid model type', function() {
+      var p = new Person();
+      p.passportItem(new Other());
+      p.passport.toObject().should.eql({name: 'Anonymous'});
+      p.passport.should.be.an.instanceOf(Passport);
+    });
+
+    var personId;
+    it('should create an embedded item on scope', function(done) {
+      Person.create({name: 'Fred'}, function(err, p) {
+        should.not.exist(err);
+        personId = p.id;
+        p.passportItem.create({name: 'Fredric'}, function(err, passport) {
+          should.not.exist(err);
+          p.passport.toObject().should.eql({name: 'Fredric'});
+          p.passport.should.be.an.instanceOf(Passport);
+          done();
+        });
+      });
+    });
+    
+    it('should get an embedded item on scope', function(done) {
+      Person.findById(personId, function(err, p) {
+        should.not.exist(err);
+        var passport = p.passportItem();
+        passport.toObject().should.eql({name: 'Fredric'});
+        passport.should.be.an.instanceOf(Passport);
+        passport.should.equal(p.passport);
+        done();
+      });
+    });
+    
+    it('should validate an embedded item on scope - on creation', function(done) {
+      var p = new Person({name: 'Fred'});
+      p.passportItem.create({}, function(err, passport) {
+        should.exist(err);
+        err.name.should.equal('ValidationError');
+        var msg = 'The `Passport` instance is not valid.';
+        msg += ' Details: `name` can\'t be blank.';
+        err.message.should.equal(msg);
+        done();
+      });
+    });
+    
+    it('should validate an embedded item on scope - on update', function(done) {
+      Person.findById(personId, function(err, p) {
+        var passport = p.passportItem();
+        passport.name = null;
+        p.save(function(err) {
+          should.exist(err);
+          err.name.should.equal('ValidationError');
+          var msg = 'The `Person` instance is not valid.';
+          msg += ' Details: `passportItem` is invalid: `name` can\'t be blank.';
+          err.message.should.equal(msg);
+          done();
+        });
+      });
+    });
+    
+    it('should destroy an embedded item on scope', function(done) {
+      Person.findById(personId, function(err, p) {
+        p.passportItem.destroy(function(err) {
+          should.not.exist(err);
+          should.equal(p.passport, null);
+          done();
+        });
+      });
+    });
+    
+    it('should get an embedded item on scope - verify', function(done) {
+      Person.findById(personId, function(err, p) {
+        should.not.exist(err);
+        should.equal(p.passport, null);
+        done();
+      });
+    });
+    
+  });
+  
   describe('embedsMany', function () {
     
     var address1, address2;
@@ -1517,7 +1644,7 @@ describe('relations', function () {
     });
 
     it('can be declared', function (done) {
-      Person.embedsMany(Address, { options: { autoId: false, validate: true } });
+      Person.embedsMany(Address, { options: { autoId: false } });
       db.automigrate(done);
     });
     
@@ -1593,7 +1720,7 @@ describe('relations', function () {
       Person.create({ name: 'Wilma', addresses: addresses }, function(err, p) {
         err.name.should.equal('ValidationError');
         var expected = 'The `Person` instance is not valid. ';
-        expected += 'Details: `addresses` contains invalid item: `work` (street can\'t be blank).';
+        expected += 'Details: `addresses` contains invalid item: `work` (`street` can\'t be blank).';
         err.message.should.equal(expected);
         done();
       });
