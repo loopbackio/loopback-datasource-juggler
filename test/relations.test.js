@@ -1110,6 +1110,8 @@ describe('relations', function () {
 
   describe('belongsTo', function () {
     var List, Item, Fear, Mind;
+    
+    var listId, itemId;
 
     it('can be declared in different ways', function () {
       List = db.define('List', {name: String});
@@ -1132,15 +1134,18 @@ describe('relations', function () {
     it('can be used to query data', function (done) {
       List.hasMany('todos', {model: Item});
       db.automigrate(function () {
-        List.create(function (e, list) {
+        List.create({name: 'List 1'}, function (e, list) {
+          listId = list.id;
           should.not.exist(e);
           should.exist(list);
-          list.todos.create(function (err, todo) {
+          list.todos.create({name: 'Item 1'},function (err, todo) {
+            itemId = todo.id;
             todo.list(function (e, l) {
               should.not.exist(e);
               should.exist(l);
               l.should.be.an.instanceOf(List);
               todo.list().id.should.equal(l.id);
+              todo.list().name.should.equal('List 1');
               done();
             });
           });
@@ -1160,6 +1165,55 @@ describe('relations', function () {
           item.__cachedRelations.list.should.equal(list);
           done();
         });
+      });
+    });
+    
+    it('should update related item on scope', function(done) {
+      Item.findById(itemId, function (e, todo) {
+        todo.list.update({name: 'List A'}, function(err, list) {
+          should.not.exist(err);
+          should.exist(list);
+          list.name.should.equal('List A');
+          done();
+        });
+      });
+    });
+    
+    it('should get related item on scope', function(done) {
+      Item.findById(itemId, function (e, todo) {
+        todo.list(function(err, list) {
+          should.not.exist(err);
+          should.exist(list);
+          list.name.should.equal('List A');
+          done();
+        });
+      });
+    });
+    
+    it('should destroy related item on scope', function(done) {
+      Item.findById(itemId, function (e, todo) {
+        todo.list.destroy(function(err) {
+          should.not.exist(err);
+          done();
+        });
+      });
+    });
+    
+    it('should get related item on scope - verify', function(done) {
+      Item.findById(itemId, function (e, todo) {
+        todo.list(function(err, list) {
+          should.not.exist(err);
+          should.not.exist(list);
+          done();
+        });
+      });
+    });
+    
+    it('should not have deleted related item', function(done) {
+      List.findById(listId, function (e, list) {
+        should.not.exist(e);
+        should.exist(list);
+        done();
       });
     });
 
@@ -1206,7 +1260,7 @@ describe('relations', function () {
 
   describe('hasOne', function () {
     var Supplier, Account;
-    var supplierId;
+    var supplierId, accountId;
 
     before(function () {
       db = getSchema();
@@ -1228,6 +1282,7 @@ describe('relations', function () {
           should.exist(supplier);
           supplier.account.create({accountNo: 'a01'}, function (err, account) {
             supplier.account(function (e, act) {
+              accountId = act.id;
               should.not.exist(e);
               should.exist(act);
               act.should.be.an.instanceOf(Account);
@@ -1289,6 +1344,14 @@ describe('relations', function () {
           should.not.exist(act);
           done();
         });
+      });
+    });
+    
+    it('should have deleted related item', function(done) {
+      Supplier.findById(supplierId, function (e, supplier) {
+        should.not.exist(e);
+        should.exist(supplier);
+        done();
       });
     });
     
