@@ -1337,10 +1337,11 @@ describe('relations', function () {
       Other = db.define('Other', {name: String});
     });
 
-    it('can be declared using embedsOne method', function () {
+    it('can be declared using embedsOne method', function (done) {
       Person.embedsOne(Passport, {
         default: {name: 'Anonymous'} // a bit contrived
       });
+      db.automigrate(done);
     });
     
     it('should have setup a property and accessor', function() {
