@@ -1429,6 +1429,28 @@ describe('relations', function () {
       });
     });
     
+    it('should update an embedded item on scope', function(done) {
+      Person.findById(personId, function(err, p) {
+        p.passportItem.update({name: 'Freddy'}, function(err, passport) {
+          should.not.exist(err);
+          var passport = p.passportItem();
+          passport.toObject().should.eql({name: 'Freddy'});
+          passport.should.be.an.instanceOf(Passport);
+          passport.should.equal(p.passport);
+          done();
+        });
+      });
+    });
+    
+    it('should get an embedded item on scope - verify', function(done) {
+      Person.findById(personId, function(err, p) {
+        should.not.exist(err);
+        var passport = p.passportItem();
+        passport.toObject().should.eql({name: 'Freddy'});
+        done();
+      });
+    });
+    
     it('should destroy an embedded item on scope', function(done) {
       Person.findById(personId, function(err, p) {
         p.passportItem.destroy(function(err) {
