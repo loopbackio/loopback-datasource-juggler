@@ -1206,6 +1206,7 @@ describe('relations', function () {
 
   describe('hasOne', function () {
     var Supplier, Account;
+    var supplierId;
 
     before(function () {
       db = getSchema();
@@ -1220,9 +1221,9 @@ describe('relations', function () {
     });
 
     it('can be used to query data', function (done) {
-      // Supplier.hasOne(Account);
       db.automigrate(function () {
         Supplier.create({name: 'Supplier 1'}, function (e, supplier) {
+          supplierId = supplier.id;
           should.not.exist(e);
           should.exist(supplier);
           supplier.account.create({accountNo: 'a01'}, function (err, account) {
@@ -1242,6 +1243,32 @@ describe('relations', function () {
     it('should set targetClass on scope property', function() {
       should.equal(Supplier.prototype.account._targetClass, 'Account');
     });
+    
+    it('should update the related item on scope', function(done) {
+      Supplier.findById(supplierId, function(e, supplier) {
+        should.not.exist(e);
+        should.exist(supplier);
+        supplier.account.update({supplierName: 'Supplier A'}, function(err, act) {
+          should.not.exist(e);
+          act.supplierName.should.equal('Supplier A');
+          done();
+        });
+      });
+    });
+    
+    it('should get the related item on scope', function(done) {
+      Supplier.findById(supplierId, function(e, supplier) {
+        should.not.exist(e);
+        should.exist(supplier);
+        supplier.account(function(err, act) {
+          should.not.exist(e);
+          should.exist(act);
+          act.supplierName.should.equal('Supplier A');
+          done();
+        });
+      });
+    });
+    
   });
 
   describe('hasAndBelongsToMany', function () {
