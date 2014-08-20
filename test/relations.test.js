@@ -1269,6 +1269,29 @@ describe('relations', function () {
       });
     });
     
+    it('should destroy the related item on scope', function(done) {
+      Supplier.findById(supplierId, function(e, supplier) {
+        should.not.exist(e);
+        should.exist(supplier);
+        supplier.account.destroy(function(err) {
+          should.not.exist(e);
+          done();
+        });
+      });
+    });
+    
+    it('should get the related item on scope - verify', function(done) {
+      Supplier.findById(supplierId, function(e, supplier) {
+        should.not.exist(e);
+        should.exist(supplier);
+        supplier.account(function(err, act) {
+          should.not.exist(e);
+          should.not.exist(act);
+          done();
+        });
+      });
+    });
+    
   });
 
   describe('hasAndBelongsToMany', function () {
