@@ -189,7 +189,7 @@ describe('relations', function () {
   });
 
   describe('hasMany through', function () {
-    var Physician, Patient, Appointment;
+    var Physician, Patient, Appointment, Address;
 
     before(function (done) {
       db = getSchema();
@@ -199,13 +199,15 @@ describe('relations', function () {
         default: function () {
           return new Date();
         }}});
-
+      Address = db.define('Address', {name: String});
+      
       Physician.hasMany(Patient, {through: Appointment});
       Patient.hasMany(Physician, {through: Appointment});
+      Patient.belongsTo(Address);
       Appointment.belongsTo(Patient);
       Appointment.belongsTo(Physician);
 
-      db.automigrate(['Physician', 'Patient', 'Appointment'], function (err) {
+      db.automigrate(['Physician', 'Patient', 'Appointment', 'Address'], function (err) {
         done(err);
       });
     });
@@ -277,11 +279,10 @@ describe('relations', function () {
     });
 
     it('should allow to use include syntax on related data', function (done) {
-      var Address = db.define('Address', {name: String});
-      Patient.belongsTo(Address);
       Physician.create(function (err, physician) {
         physician.patients.create({name: 'a'}, function (err, patient) {
           Address.create({name: 'z'}, function (err, address) {
+            should.not.exist(err);
             patient.address(address);
             patient.save(function() {
               verify(physician, address.id);
@@ -353,6 +354,7 @@ describe('relations', function () {
       var id;
       Physician.create(function (err, physician) {
         physician.patients.create({name: 'a'}, function (err, ch) {
+          should.not.exist(err);
           id = ch.id;
           physician.patients.create({name: 'z'}, function () {
             physician.patients.create({name: 'c'}, function () {
@@ -1110,6 +1112,8 @@ describe('relations', function () {
 
   describe('belongsTo', function () {
     var List, Item, Fear, Mind;
+    
+    var listId, itemId;
 
     it('can be declared in different ways', function () {
       List = db.define('List', {name: String});
@@ -1132,15 +1136,18 @@ describe('relations', function () {
     it('can be used to query data', function (done) {
       List.hasMany('todos', {model: Item});
       db.automigrate(function () {
-        List.create(function (e, list) {
+        List.create({name: 'List 1'}, function (e, list) {
+          listId = list.id;
           should.not.exist(e);
           should.exist(list);
-          list.todos.create(function (err, todo) {
+          list.todos.create({name: 'Item 1'},function (err, todo) {
+            itemId = todo.id;
             todo.list(function (e, l) {
               should.not.exist(e);
               should.exist(l);
               l.should.be.an.instanceOf(List);
               todo.list().id.should.equal(l.id);
+              todo.list().name.should.equal('List 1');
               done();
             });
           });
@@ -1162,6 +1169,55 @@ describe('relations', function () {
         });
       });
     });
+    
+    it('should update related item on scope', function(done) {
+      Item.findById(itemId, function (e, todo) {
+        todo.list.update({name: 'List A'}, function(err, list) {
+          should.not.exist(err);
+          should.exist(list);
+          list.name.should.equal('List A');
+          done();
+        });
+      });
+    });
+    
+    it('should get related item on scope', function(done) {
+      Item.findById(itemId, function (e, todo) {
+        todo.list(function(err, list) {
+          should.not.exist(err);
+          should.exist(list);
+          list.name.should.equal('List A');
+          done();
+        });
+      });
+    });
+    
+    it('should destroy related item on scope', function(done) {
+      Item.findById(itemId, function (e, todo) {
+        todo.list.destroy(function(err) {
+          should.not.exist(err);
+          done();
+        });
+      });
+    });
+    
+    it('should get related item on scope - verify', function(done) {
+      Item.findById(itemId, function (e, todo) {
+        todo.list(function(err, list) {
+          should.not.exist(err);
+          should.not.exist(list);
+          done();
+        });
+      });
+    });
+    
+    it('should not have deleted related item', function(done) {
+      List.findById(listId, function (e, list) {
+        should.not.exist(e);
+        should.exist(list);
+        done();
+      });
+    });
 
   });
   
@@ -1169,7 +1225,7 @@ describe('relations', function () {
     var Person, Passport;
     
     it('can be declared with scope and properties', function (done) {
-      Person = db.define('Person', {name: String, age: Number});
+      Person = db.define('Person', {name: String, age: Number, passportNotes: String});
       Passport = db.define('Passport', {name: String, notes: String});
       Passport.belongsTo(Person, {
         properties: { notes: 'passportNotes' },
@@ -1206,6 +1262,7 @@ describe('relations', function () {
 
   describe('hasOne', function () {
     var Supplier, Account;
+    var supplierId, accountId;
 
     before(function () {
       db = getSchema();
@@ -1220,13 +1277,14 @@ describe('relations', function () {
     });
 
     it('can be used to query data', function (done) {
-      // Supplier.hasOne(Account);
       db.automigrate(function () {
         Supplier.create({name: 'Supplier 1'}, function (e, supplier) {
+          supplierId = supplier.id;
           should.not.exist(e);
           should.exist(supplier);
           supplier.account.create({accountNo: 'a01'}, function (err, account) {
             supplier.account(function (e, act) {
+              accountId = act.id;
               should.not.exist(e);
               should.exist(act);
               act.should.be.an.instanceOf(Account);
@@ -1242,6 +1300,63 @@ describe('relations', function () {
     it('should set targetClass on scope property', function() {
       should.equal(Supplier.prototype.account._targetClass, 'Account');
     });
+    
+    it('should update the related item on scope', function(done) {
+      Supplier.findById(supplierId, function(e, supplier) {
+        should.not.exist(e);
+        should.exist(supplier);
+        supplier.account.update({supplierName: 'Supplier A'}, function(err, act) {
+          should.not.exist(e);
+          act.supplierName.should.equal('Supplier A');
+          done();
+        });
+      });
+    });
+    
+    it('should get the related item on scope', function(done) {
+      Supplier.findById(supplierId, function(e, supplier) {
+        should.not.exist(e);
+        should.exist(supplier);
+        supplier.account(function(err, act) {
+          should.not.exist(e);
+          should.exist(act);
+          act.supplierName.should.equal('Supplier A');
+          done();
+        });
+      });
+    });
+    
+    it('should destroy the related item on scope', function(done) {
+      Supplier.findById(supplierId, function(e, supplier) {
+        should.not.exist(e);
+        should.exist(supplier);
+        supplier.account.destroy(function(err) {
+          should.not.exist(e);
+          done();
+        });
+      });
+    });
+    
+    it('should get the related item on scope - verify', function(done) {
+      Supplier.findById(supplierId, function(e, supplier) {
+        should.not.exist(e);
+        should.exist(supplier);
+        supplier.account(function(err, act) {
+          should.not.exist(e);
+          should.not.exist(act);
+          done();
+        });
+      });
+    });
+    
+    it('should have deleted related item', function(done) {
+      Supplier.findById(supplierId, function (e, supplier) {
+        should.not.exist(e);
+        should.exist(supplier);
+        done();
+      });
+    });
+    
   });
 
   describe('hasAndBelongsToMany', function () {
@@ -1318,6 +1433,155 @@ describe('relations', function () {
     it('should set targetClass on scope property', function() {
       should.equal(Article.prototype.tags._targetClass, 'Tag');
     });
+  });
+  
+  describe('embedsOne', function () {
+    
+    var person;
+    var Other;
+    
+    before(function () {
+      db = getSchema();
+      Person = db.define('Person', {name: String});
+      Passport = db.define('Passport', 
+        {name:{type:'string', required: true}}, 
+        {idInjection: false}
+      );
+      Other = db.define('Other', {name: String});
+    });
+
+    it('can be declared using embedsOne method', function (done) {
+      Person.embedsOne(Passport, {
+        default: {name: 'Anonymous'} // a bit contrived
+      });
+      db.automigrate(done);
+    });
+    
+    it('should have setup a property and accessor', function() {
+      var p = new Person();
+      p.passport.should.be.an.object; // because of default
+      p.passportItem.should.be.a.function;
+      p.passportItem.create.should.be.a.function;
+      p.passportItem.build.should.be.a.function;
+      p.passportItem.destroy.should.be.a.function;
+    });
+    
+    it('should return an instance with default values', function() {
+      var p = new Person();
+      p.passport.toObject().should.eql({name: 'Anonymous'});
+      p.passportItem().should.equal(p.passport);
+      p.passportItem(function(err, passport) {
+        should.not.exist(err);
+        passport.should.equal(p.passport);
+      });
+    });
+    
+    it('should embed a model instance', function() {
+      var p = new Person();
+      p.passportItem(new Passport({name: 'Fred'}));
+      p.passport.toObject().should.eql({name: 'Fred'});
+      p.passport.should.be.an.instanceOf(Passport);
+    });
+    
+    it('should not embed an invalid model type', function() {
+      var p = new Person();
+      p.passportItem(new Other());
+      p.passport.toObject().should.eql({name: 'Anonymous'});
+      p.passport.should.be.an.instanceOf(Passport);
+    });
+
+    var personId;
+    it('should create an embedded item on scope', function(done) {
+      Person.create({name: 'Fred'}, function(err, p) {
+        should.not.exist(err);
+        personId = p.id;
+        p.passportItem.create({name: 'Fredric'}, function(err, passport) {
+          should.not.exist(err);
+          p.passport.toObject().should.eql({name: 'Fredric'});
+          p.passport.should.be.an.instanceOf(Passport);
+          done();
+        });
+      });
+    });
+    
+    it('should get an embedded item on scope', function(done) {
+      Person.findById(personId, function(err, p) {
+        should.not.exist(err);
+        var passport = p.passportItem();
+        passport.toObject().should.eql({name: 'Fredric'});
+        passport.should.be.an.instanceOf(Passport);
+        passport.should.equal(p.passport);
+        done();
+      });
+    });
+    
+    it('should validate an embedded item on scope - on creation', function(done) {
+      var p = new Person({name: 'Fred'});
+      p.passportItem.create({}, function(err, passport) {
+        should.exist(err);
+        err.name.should.equal('ValidationError');
+        var msg = 'The `Passport` instance is not valid.';
+        msg += ' Details: `name` can\'t be blank.';
+        err.message.should.equal(msg);
+        done();
+      });
+    });
+    
+    it('should validate an embedded item on scope - on update', function(done) {
+      Person.findById(personId, function(err, p) {
+        var passport = p.passportItem();
+        passport.name = null;
+        p.save(function(err) {
+          should.exist(err);
+          err.name.should.equal('ValidationError');
+          var msg = 'The `Person` instance is not valid.';
+          msg += ' Details: `passportItem` is invalid: `name` can\'t be blank.';
+          err.message.should.equal(msg);
+          done();
+        });
+      });
+    });
+    
+    it('should update an embedded item on scope', function(done) {
+      Person.findById(personId, function(err, p) {
+        p.passportItem.update({name: 'Freddy'}, function(err, passport) {
+          should.not.exist(err);
+          var passport = p.passportItem();
+          passport.toObject().should.eql({name: 'Freddy'});
+          passport.should.be.an.instanceOf(Passport);
+          passport.should.equal(p.passport);
+          done();
+        });
+      });
+    });
+    
+    it('should get an embedded item on scope - verify', function(done) {
+      Person.findById(personId, function(err, p) {
+        should.not.exist(err);
+        var passport = p.passportItem();
+        passport.toObject().should.eql({name: 'Freddy'});
+        done();
+      });
+    });
+    
+    it('should destroy an embedded item on scope', function(done) {
+      Person.findById(personId, function(err, p) {
+        p.passportItem.destroy(function(err) {
+          should.not.exist(err);
+          should.equal(p.passport, null);
+          done();
+        });
+      });
+    });
+    
+    it('should get an embedded item on scope - verify', function(done) {
+      Person.findById(personId, function(err, p) {
+        should.not.exist(err);
+        should.equal(p.passport, null);
+        done();
+      });
+    });
+    
   });
   
   describe('embedsMany', function () {
@@ -1515,7 +1779,7 @@ describe('relations', function () {
     });
 
     it('can be declared', function (done) {
-      Person.embedsMany(Address, { options: { autoId: false, validate: true } });
+      Person.embedsMany(Address, { options: { autoId: false } });
       db.automigrate(done);
     });
     
@@ -1591,7 +1855,7 @@ describe('relations', function () {
       Person.create({ name: 'Wilma', addresses: addresses }, function(err, p) {
         err.name.should.equal('ValidationError');
         var expected = 'The `Person` instance is not valid. ';
-        expected += 'Details: `addresses` contains invalid item: `work` (street can\'t be blank).';
+        expected += 'Details: `addresses` contains invalid item: `work` (`street` can\'t be blank).';
         err.message.should.equal(expected);
         done();
       });
@@ -1644,7 +1908,7 @@ describe('relations', function () {
       db = getSchema();
       Category = db.define('Category', {name: String});
       Product = db.define('Product', {name: String});
-      Link = db.define('Link', {name: String});
+      Link = db.define('Link', {name: String, notes: String});
     });
     
     it('can be declared', function (done) {
@@ -1878,7 +2142,7 @@ describe('relations', function () {
       Author = db.define('Author', {name: String});
       Reader = db.define('Reader', {name: String});
       
-      Link = db.define('Link'); // generic model
+      Link = db.define('Link', {name: String, notes: String}); // generic model
       Link.validatesPresenceOf('linkedId');
       Link.validatesPresenceOf('linkedType');
 
