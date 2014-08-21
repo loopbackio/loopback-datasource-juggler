@@ -28,12 +28,13 @@ describe('ModelBuilder define model', function () {
     modelBuilder.models.should.be.a('object').and.have.property('User', User);
     modelBuilder.definitions.should.be.a('object').and.have.property('User');
 
-    var user = new User({name: 'Joe', age: 20});
+    var user = new User({name: 'Joe', age: 20, xyz: false});
 
     User.modelName.should.equal('User');
     user.should.be.a('object').and.have.property('name', 'Joe');
     user.should.have.property('name', 'Joe');
     user.should.have.property('age', 20);
+    user.should.have.property('xyz', false);
     user.should.not.have.property('bio');
     done(null, User);
   });
