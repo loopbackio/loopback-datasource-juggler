@@ -186,6 +186,27 @@ describe('relations', function () {
         });
       }
     });
+    
+    it('should check ignore related data on creation - array', function (done) {
+      Book.create({ chapters: [] }, function (err, book) {
+        should.not.exist(err);
+        book.chapters.should.be.a.function;
+        var obj = book.toObject();
+        should.not.exist(obj.chapters);
+        done();
+      });
+    });
+    
+    it('should check ignore related data on creation - object', function (done) {
+      Book.create({ chapters: {} }, function (err, book) {
+        should.not.exist(err);
+        book.chapters.should.be.a.function;
+        var obj = book.toObject();
+        should.not.exist(obj.chapters);
+        done();
+      });
+    });
+    
   });
 
   describe('hasMany through', function () {
@@ -1894,6 +1915,31 @@ describe('relations', function () {
         p.addressList.at(1).id.should.equal('work');
         p.addressList.get('work').id.should.equal('work');
         p.addressList.set('work', { id: 'factory' }).id.should.equal('factory');
+        done();
+      });
+    });
+    
+    it('should create embedded from attributes - property name', function(done) {
+      var addresses = [
+        {id: 'home', street: 'Home Street'},
+        {id: 'work', street: 'Work Street'}
+      ];
+      Person.create({name: 'Wilma', addresses: addresses}, function(err, p) {
+        should.not.exist(err);
+        p.addressList.at(0).id.should.equal('home');
+        p.addressList.at(1).id.should.equal('work');
+        done();
+      });
+    });
+    
+    it('should not create embedded from attributes - relation name', function(done) {
+      var addresses = [
+        {id: 'home', street: 'Home Street'},
+        {id: 'work', street: 'Work Street'}
+      ];
+      Person.create({name: 'Wilma', addressList: addresses}, function(err, p) {
+        should.not.exist(err);
+        p.addresses.should.have.length(0);
         done();
       });
     });
