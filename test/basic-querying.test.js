@@ -7,7 +7,6 @@ describe('basic-querying', function () {
 
   before(function (done) {
     db = getSchema();
-
     User = db.define('User', {
       seq: {type: Number, index: true},
       name: {type: String, index: true, sort: true},
@@ -20,6 +19,15 @@ describe('basic-querying', function () {
 
     db.automigrate(done);
 
+  });
+
+  describe('ping', function () {
+    it('should be able to test connections', function (done) {
+      db.ping(function (err) {
+        should.not.exist(err);
+        done();
+      });
+    });
   });
 
   describe('findById', function () {
