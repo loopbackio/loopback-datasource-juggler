@@ -75,6 +75,7 @@ describe('scope', function () {
       });
     });
   });
+  
 });
 
 describe('scope - order', function () {
@@ -130,3 +131,101 @@ describe('scope - order', function () {
   
 });
 
+describe('scope - filtered count and destroyAll', function () {
+
+  before(function () {
+    db = getSchema();
+    Station = db.define('Station', {
+      name: {type: String, index: true},
+      order: {type: Number, index: true},
+      active: {type: Boolean, index: true, default: true}
+    });
+    Station.scope('ordered', {order: 'order'});
+    Station.scope('active', {where: { active: true}});
+    Station.scope('inactive', {where: { active: false}});
+  });
+
+  beforeEach(function (done) {
+    Station.destroyAll(done);
+  });
+  
+  beforeEach(function (done) {
+    Station.create({ name: 'b', order: 2, active: false }, done);
+  });
+  
+  beforeEach(function (done) {
+    Station.create({ name: 'a', order: 1 }, done);
+  });
+  
+  beforeEach(function (done) {
+    Station.create({ name: 'd', order: 4, active: false }, done);
+  });
+    
+  beforeEach(function (done) {
+    Station.create({ name: 'c', order: 3 }, done);
+  });
+  
+  it('should find all - verify', function(done) {
+    Station.ordered(function(err, stations) {
+        should.not.exist(err);
+        stations.should.have.length(4);
+        stations[0].name.should.equal('a');
+        stations[1].name.should.equal('b');
+        stations[2].name.should.equal('c');
+        stations[3].name.should.equal('d');
+        done();
+    });
+  });
+  
+  it('should count all in scope - active', function(done) {
+    Station.active.count(function(err, count) {
+        should.not.exist(err);
+        count.should.equal(2);
+        done();
+    });
+  });
+  
+  it('should count all in scope - inactive', function(done) {
+    Station.inactive.count(function(err, count) {
+        should.not.exist(err);
+        count.should.equal(2);
+        done();
+    });
+  });
+  
+  it('should count filtered - active', function(done) {
+    Station.active.count({ order: { gt: 1 } }, function(err, count) {
+        should.not.exist(err);
+        count.should.equal(1);
+        done();
+    });
+  });
+
+  it('should count filtered - inactive', function(done) {
+    Station.inactive.count({ order: 2 }, function(err, count) {
+        should.not.exist(err);
+        count.should.equal(1);
+        done();
+    });
+  });
+  
+  it('should allow filtered destroyAll', function(done) {
+    Station.ordered.destroyAll({ active: false }, function(err) {
+        should.not.exist(err);
+        verify();
+    });
+    
+    var verify = function() {
+      Station.ordered.count(function(err, count) {
+        should.not.exist(err);
+        count.should.equal(2);
+        Station.inactive.count(function(err, count) {
+            should.not.exist(err);
+            count.should.equal(0);
+            done();
+        });
+      });
+    };
+  });
+  
+});
