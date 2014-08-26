@@ -2,7 +2,7 @@
 var should = require('./init.js');
 
 var db, Book, Chapter, Author, Reader;
-var Category, Product;
+var Category, Job;
 var Picture, PictureLink;
 var Person, Address;
 var Link;
@@ -461,13 +461,13 @@ describe('relations', function () {
   describe('hasMany with scope and properties', function () {
     it('can be declared with properties', function (done) {
       db = getSchema();
-      Category = db.define('Category', {name: String, productType: String});
-      Product = db.define('Product', {name: String, type: String});
+      Category = db.define('Category', {name: String, jobType: String});
+      Job = db.define('Job', {name: String, type: String});
 
-      Category.hasMany(Product, {
+      Category.hasMany(Job, {
         properties: function(inst) {
-          if (!inst.productType) return; // skip
-          return { type: inst.productType };
+          if (!inst.jobType) return; // skip
+          return { type: inst.jobType };
         },
         scope: function(inst, filter) {
           var m = this.properties(inst); // re-use properties
@@ -479,10 +479,10 @@ describe('relations', function () {
     
     it('should create record on scope', function (done) {
       Category.create(function (err, c) {
-        c.products.create({ type: 'book' }, function(err, p) {
+        c.jobs.create({ type: 'book' }, function(err, p) {
           p.categoryId.should.equal(c.id);
           p.type.should.equal('book');
-          c.products.create({ type: 'widget' }, function(err, p) {
+          c.jobs.create({ type: 'widget' }, function(err, p) {
             p.categoryId.should.equal(c.id);
             p.type.should.equal('widget');
             done();
@@ -493,8 +493,8 @@ describe('relations', function () {
     
     it('should find records on scope', function (done) {
       Category.findOne(function (err, c) {
-        c.products(function(err, products) {
-          products.should.have.length(2);
+        c.jobs(function(err, jobs) {
+          jobs.should.have.length(2);
           done();
         });
       });
@@ -502,9 +502,9 @@ describe('relations', function () {
     
     it('should find record on scope - filtered', function (done) {
       Category.findOne(function (err, c) {
-        c.products({ where: { type: 'book' } }, function(err, products) {
-          products.should.have.length(1);
-          products[0].type.should.equal('book');
+        c.jobs({ where: { type: 'book' } }, function(err, jobs) {
+          jobs.should.have.length(1);
+          jobs[0].type.should.equal('book');
           done();
         });
       });
@@ -521,8 +521,8 @@ describe('relations', function () {
     
     it('should create record on scope - properties', function (done) {
       Category.findOne(function (err, c) {
-        c.productType = 'tool'; // temporary
-        c.products.create(function(err, p) {
+        c.jobType = 'tool'; // temporary
+        c.jobs.create(function(err, p) {
           p.categoryId.should.equal(c.id);
           p.type.should.equal('tool');
           done();
@@ -532,8 +532,8 @@ describe('relations', function () {
     
     it('should find records on scope', function (done) {
       Category.findOne(function (err, c) {
-        c.products(function(err, products) {
-          products.should.have.length(3);
+        c.jobs(function(err, jobs) {
+          jobs.should.have.length(3);
           done();
         });
       });
@@ -541,10 +541,10 @@ describe('relations', function () {
     
     it('should find record on scope - scoped', function (done) {
       Category.findOne(function (err, c) {
-        c.productType = 'book'; // temporary, for scoping
-        c.products(function(err, products) {
-          products.should.have.length(1);
-          products[0].type.should.equal('book');
+        c.jobType = 'book'; // temporary, for scoping
+        c.jobs(function(err, jobs) {
+          jobs.should.have.length(1);
+          jobs[0].type.should.equal('book');
           done();
         });
       });
@@ -552,10 +552,10 @@ describe('relations', function () {
     
     it('should find record on scope - scoped', function (done) {
       Category.findOne(function (err, c) {
-        c.productType = 'tool'; // temporary, for scoping
-        c.products(function(err, products) {
-          products.should.have.length(1);
-          products[0].type.should.equal('tool');
+        c.jobType = 'tool'; // temporary, for scoping
+        c.jobs(function(err, jobs) {
+          jobs.should.have.length(1);
+          jobs[0].type.should.equal('tool');
           done();
         });
       });
@@ -563,8 +563,8 @@ describe('relations', function () {
 
     it('should find count of records on scope - scoped', function (done) {
       Category.findOne(function (err, c) {
-        c.productType = 'tool'; // temporary, for scoping
-        c.products.count(function(err, count) {
+        c.jobType = 'tool'; // temporary, for scoping
+        c.jobs.count(function(err, count) {
           count.should.equal(1);
           done();
         });
@@ -573,8 +573,8 @@ describe('relations', function () {
     
     it('should delete records on scope - scoped', function (done) {
       Category.findOne(function (err, c) {
-        c.productType = 'tool'; // temporary, for scoping
-        c.products.destroyAll(function(err, result) {
+        c.jobType = 'tool'; // temporary, for scoping
+        c.jobs.destroyAll(function(err, result) {
           done();
         });
       });
@@ -582,8 +582,8 @@ describe('relations', function () {
     
     it('should find record on scope - verify', function (done) {
       Category.findOne(function (err, c) {
-        c.products(function(err, products) {
-          products.should.have.length(2);
+        c.jobs(function(err, jobs) {
+          jobs.should.have.length(2);
           done();
         });
       });
@@ -1948,38 +1948,38 @@ describe('relations', function () {
   
   describe('embedsMany - relations, scope and properties', function () {
     
-    var category, product1, product2, product3;
+    var category, job1, job2, job3;
     
     before(function () {
       db = getSchema();
       Category = db.define('Category', {name: String});
-      Product = db.define('Product', {name: String});
+      Job = db.define('Job', {name: String});
       Link = db.define('Link', {name: String, notes: String});
     });
     
     it('can be declared', function (done) {
       Category.embedsMany(Link, { 
         as: 'items', // rename
-        scope: { include: 'product' }, // always include
-        options: { belongsTo: 'product' } // optional, for add()/remove()
+        scope: { include: 'job' }, // always include
+        options: { belongsTo: 'job' } // optional, for add()/remove()
       });
-      Link.belongsTo(Product, { 
-        foreignKey: 'id', // re-use the actual product id
+      Link.belongsTo(Job, { 
+        foreignKey: 'id', // re-use the actual job id
         properties: { id: 'id', name: 'name' }, // denormalize, transfer id
         options: { invertProperties: true }
       });
       db.automigrate(function() {
-        Product.create({ name: 'Product 0' }, done); // offset ids for tests
+        Job.create({ name: 'Job 0' }, done); // offset ids for tests
       });
     });
     
     it('should setup related items', function(done) {
-      Product.create({ name: 'Product 1' }, function(err, p) {
-        product1 = p;
-        Product.create({ name: 'Product 2' }, function(err, p) {
-          product2 = p;
-          Product.create({ name: 'Product 3' }, function(err, p) {
-            product3 = p;
+      Job.create({ name: 'Job 1' }, function(err, p) {
+        job1 = p;
+        Job.create({ name: 'Job 2' }, function(err, p) {
+          job2 = p;
+          Job.create({ name: 'Job 3' }, function(err, p) {
+            job3 = p;
             done();
           });
         });
@@ -1989,18 +1989,18 @@ describe('relations', function () {
     it('should associate items on scope', function(done) {
       Category.create({ name: 'Category A' }, function(err, cat) {
         var link = cat.items.build();
-        link.product(product1);
+        link.job(job1);
         var link = cat.items.build();
-        link.product(product2);
+        link.job(job2);
         cat.save(function(err, cat) {
-          var product = cat.items.at(0);
-          product.should.be.instanceof(Link);
-          product.should.not.have.property('productId');
-          product.id.should.eql(product1.id);
-          product.name.should.equal(product1.name);
-          var product = cat.items.at(1);
-          product.id.should.eql(product2.id);
-          product.name.should.equal(product2.name);
+          var job = cat.items.at(0);
+          job.should.be.instanceof(Link);
+          job.should.not.have.property('jobId');
+          job.id.should.eql(job1.id);
+          job.name.should.equal(job1.name);
+          var job = cat.items.at(1);
+          job.id.should.eql(job2.id);
+          job.name.should.equal(job2.name);
           done();
         });
       });
@@ -2012,19 +2012,19 @@ describe('relations', function () {
         
         // denormalized properties:
         cat.items.at(0).should.be.instanceof(Link);
-        cat.items.at(0).id.should.eql(product1.id);
-        cat.items.at(0).name.should.equal(product1.name);
-        cat.items.at(1).id.should.eql(product2.id);
-        cat.items.at(1).name.should.equal(product2.name);
+        cat.items.at(0).id.should.eql(job1.id);
+        cat.items.at(0).name.should.equal(job1.name);
+        cat.items.at(1).id.should.eql(job2.id);
+        cat.items.at(1).name.should.equal(job2.name);
         
         // lazy-loaded relations
-        should.not.exist(cat.items.at(0).product());
-        should.not.exist(cat.items.at(1).product());
+        should.not.exist(cat.items.at(0).job());
+        should.not.exist(cat.items.at(1).job());
         
         cat.items(function(err, items) {
-          cat.items.at(0).product().should.be.instanceof(Product);
-          cat.items.at(1).product().should.be.instanceof(Product);
-          cat.items.at(1).product().name.should.equal('Product 2');
+          cat.items.at(0).job().should.be.instanceof(Job);
+          cat.items.at(1).job().should.be.instanceof(Job);
+          cat.items.at(1).job().name.should.equal('Job 2');
           done();
         });
       });
@@ -2033,7 +2033,7 @@ describe('relations', function () {
     it('should remove embedded items by id', function(done) {
       Category.findOne(function(err, cat) {
         cat.links.should.have.length(2);
-        cat.items.destroy(product1.id, function(err) {
+        cat.items.destroy(job1.id, function(err) {
           should.not.exist(err);
           cat.links.should.have.length(1);
           done();
@@ -2044,15 +2044,15 @@ describe('relations', function () {
     it('should find items on scope', function(done) {
       Category.findOne(function(err, cat) {
         cat.links.should.have.length(1);
-        cat.items.at(0).id.should.eql(product2.id);
-        cat.items.at(0).name.should.equal(product2.name);
+        cat.items.at(0).id.should.eql(job2.id);
+        cat.items.at(0).name.should.equal(job2.name);
         
         // lazy-loaded relations
-        should.not.exist(cat.items.at(0).product());
+        should.not.exist(cat.items.at(0).job());
         
         cat.items(function(err, items) {
-          cat.items.at(0).product().should.be.instanceof(Product);
-          cat.items.at(0).product().name.should.equal('Product 2');
+          cat.items.at(0).job().should.be.instanceof(Job);
+          cat.items.at(0).job().name.should.equal('Job 2');
           done();
         });
       });
@@ -2061,10 +2061,10 @@ describe('relations', function () {
     it('should add related items to scope', function(done) {
       Category.findOne(function(err, cat) {
         cat.links.should.have.length(1);
-        cat.items.add(product3, function(err, link) {
+        cat.items.add(job3, function(err, link) {
           link.should.be.instanceof(Link);
-          link.id.should.eql(product3.id);
-          link.name.should.equal('Product 3');
+          link.id.should.eql(job3.id);
+          link.name.should.equal('Job 3');
           
           cat.links.should.have.length(2);
           done();
@@ -2077,10 +2077,10 @@ describe('relations', function () {
         cat.links.should.have.length(2);
         
         cat.items.at(0).should.be.instanceof(Link);
-        cat.items.at(0).id.should.eql(product2.id);
-        cat.items.at(0).name.should.equal(product2.name);
-        cat.items.at(1).id.should.eql(product3.id);
-        cat.items.at(1).name.should.equal(product3.name);
+        cat.items.at(0).id.should.eql(job2.id);
+        cat.items.at(0).name.should.equal(job2.name);
+        cat.items.at(1).id.should.eql(job3.id);
+        cat.items.at(1).name.should.equal(job3.name);
         
         done();
       });
@@ -2089,7 +2089,7 @@ describe('relations', function () {
     it('should remove embedded items by reference id', function(done) {
       Category.findOne(function(err, cat) {
         cat.links.should.have.length(2);
-        cat.items.remove(product2.id, function(err) {
+        cat.items.remove(job2.id, function(err) {
           should.not.exist(err);
           cat.links.should.have.length(1);
           done();
@@ -2104,16 +2104,16 @@ describe('relations', function () {
       });
     });
 
-    var productId;
+    var jobId;
 
     it('should create items on scope', function(done) {
       Category.create({ name: 'Category B' }, function(err, cat) {
         category = cat;
         var link = cat.items.build({ notes: 'Some notes...' });
-        link.product.create({ name: 'Product 1' }, function(err, p) {
-          productId = p.id;
+        link.job.create({ name: 'Job 1' }, function(err, p) {
+          jobId = p.id;
           cat.links[0].id.should.eql(p.id);
-          cat.links[0].name.should.equal('Product 1'); // denormalized
+          cat.links[0].name.should.equal('Job 1'); // denormalized
           cat.links[0].notes.should.equal('Some notes...');
           cat.items.at(0).should.equal(cat.links[0]);
           done();
@@ -2125,14 +2125,14 @@ describe('relations', function () {
       Category.findById(category.id, function(err, cat) {
         cat.name.should.equal('Category B');
         cat.links.toObject().should.eql([
-          {id: productId, name: 'Product 1', notes: 'Some notes...'}
+          {id: jobId, name: 'Job 1', notes: 'Some notes...'}
         ]);
         cat.items.at(0).should.equal(cat.links[0]);
         cat.items(function(err, items) { // alternative access
           items.should.be.an.array;
           items.should.have.length(1);
-          items[0].product(function(err, p) {
-            p.name.should.equal('Product 1'); // actual value
+          items[0].job(function(err, p) {
+            p.name.should.equal('Job 1'); // actual value
             done();
           });
         });
@@ -2153,7 +2153,7 @@ describe('relations', function () {
       Category.findById(category.id, function(err, cat) {
         cat.name.should.equal('Category B');
         cat.links.toObject().should.eql([
-          {id: productId, name: 'Product 1', notes: 'Updated notes...'}
+          {id: jobId, name: 'Job 1', notes: 'Updated notes...'}
         ]);
         done();
       });
@@ -2316,16 +2316,16 @@ describe('relations', function () {
   
   describe('referencesMany', function () {
     
-    var product1, product2, product3;
+    var job1, job2, job3;
     
     before(function (done) {
       db = getSchema();
       Category = db.define('Category', {name: String});
-      Product = db.define('Product', {name: String});
+      Job = db.define('Job', {name: String});
       
       db.automigrate(function () {
         Category.destroyAll(function() {
-          Product.destroyAll(done);
+          Job.destroyAll(done);
         });
       });
     });
@@ -2341,24 +2341,24 @@ describe('relations', function () {
       };
       
       reverse.shared = true; // remoting
-      reverse.http = { verb: 'put', path: '/products/reverse' };
+      reverse.http = { verb: 'put', path: '/jobs/reverse' };
       
-      Category.referencesMany(Product, { scopeMethods: {
+      Category.referencesMany(Job, { scopeMethods: {
         reverse: reverse
       } });
       
-      Category.prototype['__reverse__products'].should.be.a.function;
-      should.exist(Category.prototype['__reverse__products'].shared);
-      Category.prototype['__reverse__products'].http.should.eql(reverse.http);
+      Category.prototype['__reverse__jobs'].should.be.a.function;
+      should.exist(Category.prototype['__reverse__jobs'].shared);
+      Category.prototype['__reverse__jobs'].http.should.eql(reverse.http);
       
       db.automigrate(done);
     });
     
     it('should setup test records', function (done) {
-      Product.create({ name: 'Product 1' }, function(err, p) {
-        product1 = p;
-        Product.create({ name: 'Product 3' }, function(err, p) {
-          product3 = p;
+      Job.create({ name: 'Job 1' }, function(err, p) {
+        job1 = p;
+        Job.create({ name: 'Job 3' }, function(err, p) {
+          job3 = p;
           done();
         });
       });
@@ -2366,14 +2366,14 @@ describe('relations', function () {
     
     it('should create record on scope', function (done) {
       Category.create({ name: 'Category A' }, function(err, cat) {
-        cat.productIds.should.be.an.array;
-        cat.productIds.should.have.length(0);
-        cat.products.create({ name: 'Product 2' }, function(err, p) {
+        cat.jobIds.should.be.an.array;
+        cat.jobIds.should.have.length(0);
+        cat.jobs.create({ name: 'Job 2' }, function(err, p) {
           should.not.exist(err);
-          cat.productIds.should.have.length(1);
-          cat.productIds.should.eql([p.id]);
-          p.name.should.equal('Product 2');
-          product2 = p;
+          cat.jobIds.should.have.length(1);
+          cat.jobIds.should.eql([p.id]);
+          p.name.should.equal('Job 2');
+          job2 = p;
           done();
         });
       });
@@ -2381,13 +2381,13 @@ describe('relations', function () {
     
     it('should not allow duplicate record on scope', function (done) {
       Category.findOne(function(err, cat) {
-        cat.productIds = [product2.id, product2.id];
+        cat.jobIds = [job2.id, job2.id];
         cat.save(function(err, p) {
           should.exist(err);
           err.name.should.equal('ValidationError');
-          err.details.codes.products.should.eql(['uniqueness']);
+          err.details.codes.jobs.should.eql(['uniqueness']);
           var expected = 'The `Category` instance is not valid. ';
-          expected += 'Details: `products` Contains duplicate `Product` instance.';
+          expected += 'Details: `jobs` Contains duplicate `Job` instance.';
           err.message.should.equal(expected);
           done();
         });
@@ -2396,12 +2396,12 @@ describe('relations', function () {
     
     it('should find items on scope', function (done) {
       Category.findOne(function(err, cat) {
-        cat.productIds.should.eql([product2.id]);
-        cat.products(function(err, products) {
+        cat.jobIds.should.eql([job2.id]);
+        cat.jobs(function(err, jobs) {
           should.not.exist(err);
-          var p = products[0];
-          p.id.should.eql(product2.id);
-          p.name.should.equal('Product 2');
+          var p = jobs[0];
+          p.id.should.eql(job2.id);
+          p.name.should.equal('Job 2');
           done();
         });
       });
@@ -2409,12 +2409,12 @@ describe('relations', function () {
     
     it('should find items on scope - findById', function (done) {
       Category.findOne(function(err, cat) {
-        cat.productIds.should.eql([product2.id]);
-        cat.products.findById(product2.id, function(err, p) {
+        cat.jobIds.should.eql([job2.id]);
+        cat.jobs.findById(job2.id, function(err, p) {
           should.not.exist(err);
-          p.should.be.instanceof(Product);
-          p.id.should.eql(product2.id);
-          p.name.should.equal('Product 2');
+          p.should.be.instanceof(Job);
+          p.id.should.eql(job2.id);
+          p.name.should.equal('Job 2');
           done();
         });
       });
@@ -2422,7 +2422,7 @@ describe('relations', function () {
     
     it('should check if a record exists on scope', function (done) {
       Category.findOne(function(err, cat) {
-        cat.products.exists(product2.id, function(err, exists) {
+        cat.jobs.exists(job2.id, function(err, exists) {
           should.not.exist(err);
           should.exist(exists);
           done();
@@ -2432,8 +2432,8 @@ describe('relations', function () {
     
     it('should update a record on scope', function (done) {
       Category.findOne(function(err, cat) {
-        var attrs = { name: 'Product 2 - edit' };
-        cat.products.updateById(product2.id, attrs, function(err, p) {
+        var attrs = { name: 'Job 2 - edit' };
+        cat.jobs.updateById(job2.id, attrs, function(err, p) {
           should.not.exist(err);
           p.name.should.equal(attrs.name);
           done();
@@ -2443,11 +2443,11 @@ describe('relations', function () {
     
     it('should get a record by index - at', function (done) {
       Category.findOne(function(err, cat) {
-        cat.products.at(0, function(err, p) {
+        cat.jobs.at(0, function(err, p) {
           should.not.exist(err);
-          p.should.be.instanceof(Product);
-          p.id.should.eql(product2.id);
-          p.name.should.equal('Product 2 - edit');
+          p.should.be.instanceof(Job);
+          p.id.should.eql(job2.id);
+          p.name.should.equal('Job 2 - edit');
           done();
         });
       });
@@ -2455,10 +2455,10 @@ describe('relations', function () {
     
     it('should add a record to scope - object', function (done) {
       Category.findOne(function(err, cat) {
-        cat.products.add(product1, function(err, prod) {
+        cat.jobs.add(job1, function(err, prod) {
           should.not.exist(err);
-          cat.productIds.should.eql([product2.id, product1.id]);
-          prod.id.should.eql(product1.id);
+          cat.jobIds.should.eql([job2.id, job1.id]);
+          prod.id.should.eql(job1.id);
           prod.should.have.property('name');
           done();
         });
@@ -2467,11 +2467,11 @@ describe('relations', function () {
     
     it('should add a record to scope - object', function (done) {
       Category.findOne(function(err, cat) {
-        cat.products.add(product3.id, function(err, prod) {
+        cat.jobs.add(job3.id, function(err, prod) {
           should.not.exist(err);
-          var expected = [product2.id, product1.id, product3.id];
-          cat.productIds.should.eql(expected);
-          prod.id.should.eql(product3.id);
+          var expected = [job2.id, job1.id, job3.id];
+          cat.jobIds.should.eql(expected);
+          prod.id.should.eql(job3.id);
           prod.should.have.property('name');
           done();
         });
@@ -2480,10 +2480,10 @@ describe('relations', function () {
     
     it('should find items on scope - findById', function (done) {
       Category.findOne(function(err, cat) {
-        cat.products.findById(product3.id, function(err, p) {
+        cat.jobs.findById(job3.id, function(err, p) {
           should.not.exist(err);
-          p.id.should.eql(product3.id);
-          p.name.should.equal('Product 3');
+          p.id.should.eql(job3.id);
+          p.name.should.equal('Job 3');
           done();
         });
       });
@@ -2491,13 +2491,13 @@ describe('relations', function () {
     
     it('should find items on scope - filter', function (done) {
       Category.findOne(function(err, cat) {
-        var filter = { where: { name: 'Product 1' } };
-        cat.products(filter, function(err, products) {
+        var filter = { where: { name: 'Job 1' } };
+        cat.jobs(filter, function(err, jobs) {
           should.not.exist(err);
-          products.should.have.length(1);
-          var p = products[0];
-          p.id.should.eql(product1.id);
-          p.name.should.equal('Product 1');
+          jobs.should.have.length(1);
+          var p = jobs[0];
+          p.id.should.eql(job1.id);
+          p.name.should.equal('Job 1');
           done();
         });
       });
@@ -2505,11 +2505,11 @@ describe('relations', function () {
     
     it('should remove items from scope', function (done) {
       Category.findOne(function(err, cat) {
-        cat.products.remove(product1.id, function(err, ids) {
+        cat.jobs.remove(job1.id, function(err, ids) {
           should.not.exist(err);
-          var expected = [product2.id, product3.id];
-          cat.productIds.should.eql(expected);
-          ids.should.eql(cat.productIds);
+          var expected = [job2.id, job3.id];
+          cat.jobIds.should.eql(expected);
+          ids.should.eql(cat.jobIds);
           done();
         });
       });
@@ -2517,13 +2517,13 @@ describe('relations', function () {
     
     it('should find items on scope - verify', function (done) {
       Category.findOne(function(err, cat) {
-        var expected = [product2.id, product3.id];
-        cat.productIds.should.eql(expected);
-        cat.products(function(err, products) {
+        var expected = [job2.id, job3.id];
+        cat.jobIds.should.eql(expected);
+        cat.jobs(function(err, jobs) {
           should.not.exist(err);
-          products.should.have.length(2);
-          products[0].id.should.eql(product2.id);
-          products[1].id.should.eql(product3.id);
+          jobs.should.have.length(2);
+          jobs[0].id.should.eql(job2.id);
+          jobs[1].id.should.eql(job3.id);
           done();
         });
       });
@@ -2531,34 +2531,34 @@ describe('relations', function () {
     
     it('should allow custom scope methods - reverse', function(done) {
       Category.findOne(function(err, cat) {
-        cat.products.reverse(function(err, ids) {
-          var expected = [product3.id, product2.id];
+        cat.jobs.reverse(function(err, ids) {
+          var expected = [job3.id, job2.id];
           ids.should.eql(expected);
-          cat.productIds.should.eql(expected);
+          cat.jobIds.should.eql(expected);
           done();
         });
       })
     });
     
     it('should include related items from scope', function(done) {
-      Category.find({ include: 'products' }, function(err, categories) {
+      Category.find({ include: 'jobs' }, function(err, categories) {
         categories.should.have.length(1);
         var cat = categories[0].toObject();
         cat.name.should.equal('Category A');
-        cat.products.should.have.length(2);
-        cat.products[0].id.should.eql(product3.id);
-        cat.products[1].id.should.eql(product2.id);
+        cat.jobs.should.have.length(2);
+        cat.jobs[0].id.should.eql(job3.id);
+        cat.jobs[1].id.should.eql(job2.id);
         done();
       });
     });
     
     it('should destroy items from scope - destroyById', function (done) {
       Category.findOne(function(err, cat) {
-        cat.products.destroy(product2.id, function(err) {
+        cat.jobs.destroy(job2.id, function(err) {
           should.not.exist(err);
-          var expected = [product3.id];
-          cat.productIds.should.eql(expected);
-          Product.exists(product2.id, function(err, exists) {
+          var expected = [job3.id];
+          cat.jobIds.should.eql(expected);
+          Job.exists(job2.id, function(err, exists) {
             should.not.exist(err);
             should.exist(exists);
             done();
@@ -2569,12 +2569,12 @@ describe('relations', function () {
     
     it('should find items on scope - verify', function (done) {
       Category.findOne(function(err, cat) {
-        var expected = [product3.id];
-        cat.productIds.should.eql(expected);
-        cat.products(function(err, products) {
+        var expected = [job3.id];
+        cat.jobIds.should.eql(expected);
+        cat.jobs(function(err, jobs) {
           should.not.exist(err);
-          products.should.have.length(1);
-          products[0].id.should.eql(product3.id);
+          jobs.should.have.length(1);
+          jobs[0].id.should.eql(job3.id);
           done();
         });
       });
@@ -2588,17 +2588,17 @@ describe('relations', function () {
     before(function (done) {
       db = getSchema();
       Category = db.define('Category', {name: String});
-      Product = db.define('Product', {name: String});
+      Job = db.define('Job', {name: String});
       
       db.automigrate(function () {
         Category.destroyAll(function() {
-          Product.destroyAll(done);
+          Job.destroyAll(done);
         });
       });
     });
 
     it('can be declared', function (done) {
-      var relation = Category.hasMany(Product);
+      var relation = Category.hasMany(Job);
       
       var summarize = function(cb) {
         var modelInstance = this.modelInstance;
@@ -2614,13 +2614,13 @@ describe('relations', function () {
       };
       
       summarize.shared = true; // remoting
-      summarize.http = { verb: 'get', path: '/products/summary' };
+      summarize.http = { verb: 'get', path: '/jobs/summary' };
       
       relation.defineMethod('summarize', summarize);
       
-      Category.prototype['__summarize__products'].should.be.a.function;
-      should.exist(Category.prototype['__summarize__products'].shared);
-      Category.prototype['__summarize__products'].http.should.eql(summarize.http);
+      Category.prototype['__summarize__jobs'].should.be.a.function;
+      should.exist(Category.prototype['__summarize__jobs'].shared);
+      Category.prototype['__summarize__jobs'].http.should.eql(summarize.http);
       
       db.automigrate(done);
     });
@@ -2628,8 +2628,8 @@ describe('relations', function () {
     it('should setup test records', function (done) {
       Category.create({ name: 'Category A' }, function(err, cat) {
         categoryId = cat.id;
-        cat.products.create({ name: 'Product 1' }, function(err, p) {
-          cat.products.create({ name: 'Product 2' }, function(err, p) {
+        cat.jobs.create({ name: 'Job 1' }, function(err, p) {
+          cat.jobs.create({ name: 'Job 2' }, function(err, p) {
             done();
           });
         })
@@ -2638,12 +2638,12 @@ describe('relations', function () {
     
     it('should allow custom scope methods - summarize', function(done) {
       var expected = [
-        { name: 'Product 1', categoryId: categoryId, categoryName: 'Category A' },
-        { name: 'Product 2', categoryId: categoryId, categoryName: 'Category A' }
+        { name: 'Job 1', categoryId: categoryId, categoryName: 'Category A' },
+        { name: 'Job 2', categoryId: categoryId, categoryName: 'Category A' }
       ];
       
       Category.findOne(function(err, cat) {
-        cat.products.summarize(function(err, summary) {
+        cat.jobs.summarize(function(err, summary) {
           should.not.exist(err);
           var result = summary.map(function(item) {
             delete item.id;
