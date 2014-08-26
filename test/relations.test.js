@@ -119,6 +119,30 @@ describe('relations', function () {
         });
       }
     });
+    
+    it('should count scoped records - all and filtered', function (done) {
+      Book.create(function (err, book) {
+        book.chapters.create({name: 'a'}, function (err, ch) {
+          book.chapters.create({name: 'b'}, function () {
+            book.chapters.create({name: 'c'}, function () {
+              verify(book);
+            });
+          });
+        });
+      });
+
+      function verify(book) {
+        book.chapters.count(function (err, count) {
+          should.not.exist(err);
+          count.should.equal(3);
+          book.chapters.count({ name: 'b' }, function (err, count) {
+            should.not.exist(err);
+            count.should.equal(1);
+            done();
+          });
+        });
+      }
+    });
 
     it('should set targetClass on scope property', function() {
       should.equal(Book.prototype.chapters._targetClass, 'Chapter');
