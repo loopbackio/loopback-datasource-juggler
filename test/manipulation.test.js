@@ -102,7 +102,7 @@ describe('manipulation', function () {
 
         Person.validatesPresenceOf('name');
         Person.create(batch,function (errors, persons) {
-          delete Person._validations;
+          delete Person.validations;
           should.exist(errors);
           errors.should.have.lengthOf(batch.length);
           should.not.exist(errors[0]);
