@@ -1,6 +1,6 @@
 {
   "name": "loopback-datasource-juggler",
-  "version": "2.6.1",
+  "version": "2.7.0",
   "description": "LoopBack DataSoure Juggler",
   "keywords": [
     "StrongLoop",
