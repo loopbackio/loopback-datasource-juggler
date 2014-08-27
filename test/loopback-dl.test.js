@@ -245,6 +245,38 @@ describe('ModelBuilder define model', function () {
 
 });
 
+describe('DataSource ping', function() {
+  var ds = new DataSource('memory');
+  ds.settings.connectionTimeout = 50; // ms
+  ds.connector.connect = function(cb) {
+    // Mock up the long delay
+    setTimeout(cb, 100);
+  };
+  ds.connector.ping = function(cb) {
+    cb(new Error('bad connection 2'));
+  }
+
+  it('should report connection errors during ping', function(done) {
+    ds.ping(function(err) {
+      (!!err).should.be.true;
+      err.message.should.be.eql('bad connection 2');
+      done();
+    });
+  });
+
+  it('should cancel invocation after timeout', function(done) {
+    ds.connected = false; // Force connect
+    var Post = ds.define('Post', {
+      title: { type: String, length: 255 }
+    });
+    Post.create(function(err) {
+      (!!err).should.be.true;
+      err.message.should.be.eql('Timeout in connecting after 50 ms');
+      done();
+    });
+  });
+});
+
 describe('DataSource define model', function () {
   it('should be able to define plain models', function () {
     var ds = new DataSource('memory');
