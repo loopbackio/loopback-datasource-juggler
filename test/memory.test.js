@@ -199,6 +199,30 @@ describe('Memory connector', function () {
       });
     });
 
+    it('should support neq operator for number', function (done) {
+      User.find({where: {order: {neq: 6}}}, function (err, users) {
+        should.not.exist(err);
+        users.length.should.be.equal(5);
+        for (var i = 0; i < users.length; i++) {
+          users[i].order.should.not.be.equal(6);
+        }
+        done();
+      });
+    });
+
+    it('should support neq operator for string', function (done) {
+      User.find({where: {role: {neq: 'lead'}}}, function (err, users) {
+        should.not.exist(err);
+        users.length.should.be.equal(4);
+        for (var i = 0; i < users.length; i++) {
+          if (users[i].role) {
+            users[i].role.not.be.equal('lead');
+          }
+        }
+        done();
+      });
+    });
+
     function seed(done) {
       var beatles = [
         {
