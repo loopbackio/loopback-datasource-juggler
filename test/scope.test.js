@@ -229,3 +229,88 @@ describe('scope - filtered count and destroyAll', function () {
   });
   
 });
+
+describe('scope - dynamic target class', function () {
+  
+  var Collection, Media, Image, Video;
+  
+  
+  before(function () {
+    db = getSchema();
+    Image = db.define('Image', {name: String});
+    Video = db.define('Video', {name: String});
+    
+    Collection = db.define('Collection', {name: String, modelName: String});
+    Collection.scope('items', {}, null, {}, { isStatic: false, modelTo: function(receiver) {
+      return db.models[receiver.modelName];
+    } });
+  });
+  
+  beforeEach(function (done) {
+    Collection.destroyAll(function() {
+      Image.destroyAll(function() {
+        Video.destroyAll(done);
+      })
+    });
+  });
+  
+  beforeEach(function (done) {
+    Collection.create({ name: 'Images', modelName: 'Image' }, done);
+  });
+  
+  beforeEach(function (done) {
+    Collection.create({ name: 'Videos', modelName: 'Video' }, done);
+  });
+  
+  beforeEach(function (done) {
+    Collection.create({ name: 'Things', modelName: 'Unknown' }, done);
+  });
+  
+  beforeEach(function (done) {
+    Image.create({ name: 'Image A' }, done);
+  });
+  
+  beforeEach(function (done) {
+    Video.create({ name: 'Video A' }, done);
+  });
+  
+  it('should deduce modelTo at runtime - Image', function(done) {
+    Collection.findOne({ where: { modelName: 'Image' } }, function(err, coll) {
+      should.not.exist(err);
+      coll.name.should.equal('Images');
+      coll.items(function(err, items) {
+        should.not.exist(err);
+        items.length.should.equal(1);
+        items[0].name.should.equal('Image A');
+        items[0].should.be.instanceof(Image);
+        done();
+      });
+    });
+  });
+
+  it('should deduce modelTo at runtime - Video', function(done) {
+    Collection.findOne({ where: { modelName: 'Video' } }, function(err, coll) {
+      should.not.exist(err);
+      coll.name.should.equal('Videos');
+      coll.items(function(err, items) {
+        should.not.exist(err);
+        items.length.should.equal(1);
+        items[0].name.should.equal('Video A');
+        items[0].should.be.instanceof(Video);
+        done();
+      });
+    });
+  });
+  
+  it('should throw if modelTo is invalid', function(done) {
+    Collection.findOne({ where: { name: 'Things' } }, function(err, coll) {
+      should.not.exist(err);
+      coll.modelName.should.equal('Unknown');
+      (function () {
+        coll.items(function(err, items) {});
+      }).should.throw();
+      done();
+    });
+  });
+  
+});
