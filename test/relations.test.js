@@ -1,7 +1,7 @@
 // This test written in mocha+should.js
 var should = require('./init.js');
 
-var db, Book, Chapter, Author, Reader;
+var db, tmp, Book, Chapter, Author, Reader;
 var Category, Job;
 var Picture, PictureLink;
 var Person, Address;
