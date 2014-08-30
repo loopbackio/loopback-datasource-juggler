@@ -64,7 +64,6 @@ describe('Transient connector', function () {
     
     Item.create({ name: 'Example' }, function(err, inst) {
       should.not.exist(err);
-      inst.id.should.be.a.number;
       inst.name.should.equal('Example');
       
       Item.count(function(err, count) {
