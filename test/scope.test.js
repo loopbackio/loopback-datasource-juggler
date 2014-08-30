@@ -241,7 +241,9 @@ describe('scope - dynamic target class', function () {
     Video = db.define('Video', {name: String});
     
     Collection = db.define('Collection', {name: String, modelName: String});
-    Collection.scope('items', {}, null, {}, { isStatic: false, modelTo: function(receiver) {
+    Collection.scope('items', function() {
+      return {}; // could return a scope based on `this` (receiver)
+    }, null, {}, { isStatic: false, modelTo: function(receiver) {
       return db.models[receiver.modelName];
     } });
   });
