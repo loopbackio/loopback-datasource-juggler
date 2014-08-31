@@ -39,7 +39,7 @@ describe('validations', function () {
 
   beforeEach(function (done) {
     User.destroyAll(function () {
-      delete User._validations;
+      delete User.validations;
       done();
     });
   });
@@ -67,7 +67,7 @@ describe('validations', function () {
     describe('lifecycle', function () {
 
       it('should work on create', function (done) {
-        delete User._validations;
+        delete User.validations;
         User.validatesPresenceOf('name');
         User.create(function (e, u) {
           should.exist(e);
@@ -79,7 +79,7 @@ describe('validations', function () {
       });
 
       it('should work on update', function (done) {
-        delete User._validations;
+        delete User.validations;
         User.validatesPresenceOf('name');
         User.create({name: 'Valid'}, function (e, d) {
           d.updateAttribute('name', null, function (e) {
@@ -95,7 +95,7 @@ describe('validations', function () {
       });
 
       it('should return error code', function (done) {
-        delete User._validations;
+        delete User.validations;
         User.validatesPresenceOf('name');
         User.create(function (e, u) {
           should.exist(e);
@@ -112,7 +112,7 @@ describe('validations', function () {
       });
 
       it('should include validation messages in err.message', function(done) {
-        delete User._validations;
+        delete User.validations;
         User.validatesPresenceOf('name');
         User.create(function (e, u) {
           should.exist(e);
@@ -122,13 +122,21 @@ describe('validations', function () {
       });
 
       it('should include model name in err.message', function(done) {
-        delete User._validations;
+        delete User.validations;
         User.validatesPresenceOf('name');
         User.create(function (e, u) {
           should.exist(e);
           e.message.should.match(/`User` instance/i);
           done();
         });
+      });
+      
+      it('should return validation metadata', function() {
+        var expected = {name:[{validation: 'presence', options: {}}]};
+        delete User.validations;
+        User.validatesPresenceOf('name');
+        var validations = User.validations;
+        validations.should.eql(expected);
       });
     });
   });
