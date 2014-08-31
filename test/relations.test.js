@@ -2411,7 +2411,7 @@ describe('relations', function () {
           err.name.should.equal('ValidationError');
           err.details.codes.jobs.should.eql(['uniqueness']);
           var expected = 'The `Category` instance is not valid. ';
-          expected += 'Details: `jobs` Contains duplicate `Job` instance.';
+          expected += 'Details: `jobs` contains duplicate `Job` instance.';
           err.message.should.equal(expected);
           done();
         });
