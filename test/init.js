@@ -12,10 +12,17 @@ module.exports = require('should');
  }
  */
 
+var ModelBuilder = require('../').ModelBuilder;
 var Schema = require('../').Schema;
 
 if (!('getSchema' in global)) {
-  global.getSchema = function () {
-    return new Schema('memory');
+  global.getSchema = function (connector, settings) {
+    return new Schema(connector || 'memory', settings);
+  };
+}
+
+if (!('getModelBuilder' in global)) {
+  global.getModelBuilder = function () {
+    return new ModelBuilder();
   };
 }
