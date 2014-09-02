@@ -223,6 +223,17 @@ describe('Memory connector', function () {
       });
     });
 
+    it('should support neq operator for null', function (done) {
+      User.find({where: {role: {neq: null}}}, function (err, users) {
+        should.not.exist(err);
+        users.length.should.be.equal(2);
+        for (var i = 0; i < users.length; i++) {
+          should.exist(users[i].role);
+        }
+        done();
+      });
+    });
+
     function seed(done) {
       var beatles = [
         {
