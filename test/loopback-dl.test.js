@@ -1110,6 +1110,27 @@ describe('Load models with relations', function () {
     done();
   });
 
+  it('should handle hasMany through options', function (done) {
+    var ds = new DataSource('memory');
+    var Physician = ds.createModel('Physician', {
+      name: String
+    }, {relations: {patients: {model: 'Patient', type: 'hasMany', foreignKey: 'leftId', through: 'Appointment'}}});
+
+    var Patient = ds.createModel('Patient', {
+      name: String
+    }, {relations: {physicians: {model: 'Physician', type: 'hasMany', foreignKey: 'rightId', through: 'Appointment'}}});
+
+    var Appointment = ds.createModel('Appointment', {
+      physicianId: Number,
+      patientId: Number,
+      appointmentDate: Date
+    }, {relations: {patient: {type: 'belongsTo', model: 'Patient'}, physician: {type: 'belongsTo', model: 'Physician'}}});
+
+    assert(Physician.relations['patients'].keyTo === 'leftId');
+    assert(Patient.relations['physicians'].keyTo === 'rightId');
+    done();
+  });
+
   it('should set up relations after attach', function (done) {
     var ds = new DataSource('memory');
     var modelBuilder = new ModelBuilder();
