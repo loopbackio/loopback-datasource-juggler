@@ -433,6 +433,24 @@ describe('relations', function () {
       });
     });
 
+    it('should allow to add connection with through data', function (done) {
+      Physician.create({name: 'ph1'}, function (e, physician) {
+        Patient.create({name: 'pa1'}, function (e, patient) {
+          var now = Date.now();
+          physician.patients.add(patient, { date: new Date(now) }, function (e, app) {
+            should.not.exist(e);
+            should.exist(app);
+            app.should.be.an.instanceOf(Appointment);
+            app.physicianId.should.equal(physician.id);
+            app.patientId.should.equal(patient.id);
+            app.patientId.should.equal(patient.id);
+            app.date.getTime().should.equal(now);
+            done();
+          });
+        });
+      });
+    });
+
     it('should allow to remove connection with instance', function (done) {
       var id;
       Physician.create(function (err, physician) {
