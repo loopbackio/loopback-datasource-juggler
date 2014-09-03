@@ -263,7 +263,7 @@ describe('relations', function () {
         should.exist(physician);
         var scope = physician.patients._scope;
         scope.should.have.property('collect', 'patient');
-        scope.should.have.property('include').eql(['patient']);
+        scope.should.have.property('include', 'patient');
         done(err);
       });
     });
@@ -473,7 +473,6 @@ describe('relations', function () {
     });
 
   });
-  
 
   describe('hasMany through with custom relation name', function () {
     var Physician, Patient, Appointment, Address;
@@ -507,7 +506,7 @@ describe('relations', function () {
           should.exist(physician);
           var scope = physician.xxx._scope;
           scope.should.have.property('collect', 'patient');
-          scope.should.have.property('include').eql(['bar']);
+          scope.should.have.property('include', 'bar');
           done(err);
         });
       });
@@ -560,7 +559,7 @@ describe('relations', function () {
           should.exist(physician);
           var scope = physician.xxx._scope;
           scope.should.have.property('collect', 'patient');
-          scope.should.have.property('include').eql(['bar']);
+          scope.should.have.property('include', 'bar');
           done(err);
         });
       });
@@ -594,7 +593,7 @@ describe('relations', function () {
           should.exist(physician);
           var scope = physician.xxx._scope;
           scope.should.have.property('collect', 'patient');
-          scope.should.have.property('include').eql(['bar', 'car']);
+          scope.should.have.property('include', 'bar,car');
           done(err);
         });
       });
@@ -623,16 +622,16 @@ describe('relations', function () {
       });
     });
 
-    it('should have scope that includes', function (done) {
+    it('should have scope that includes corresponding relation name', function (done) {
       User.create(function (err, user) {
         should.not.exist(err);
         should.exist(user);
         var scope1 = user.followers._scope;
         scope1.should.have.property('collect', 'user');
-        scope1.should.have.property('include').eql(['follower']);
+        scope1.should.have.property('include', 'follower');
         var scope2 = user.following._scope;
         scope2.should.have.property('collect', 'user');
-        scope2.should.have.property('include').eql(['followee']);
+        scope2.should.have.property('include', 'followee');
         done();
       });
     });
