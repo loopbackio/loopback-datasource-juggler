@@ -601,7 +601,7 @@ describe('relations', function () {
     });
   });
 
-  describe.only('hasMany through between same model', function () {
+  describe('hasMany through between same model', function () {
     var User, Follow, Address;
 
     before(function (done) {
