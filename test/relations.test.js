@@ -480,7 +480,159 @@ describe('relations', function () {
     });
 
   });
-  
+
+  describe('hasMany through - collect', function () {
+    var Physician, Patient, Appointment, Address;
+
+    beforeEach(function (done) {
+      db = getSchema();
+      Physician = db.define('Physician', {name: String});
+      Patient = db.define('Patient', {name: String});
+      Appointment = db.define('Appointment', {date: {type: Date,
+        default: function () {
+          return new Date();
+        }}});
+      Address = db.define('Address', {name: String});
+
+      db.automigrate(['Physician', 'Patient', 'Appointment', 'Address'], function (err) {
+        done(err);
+      });
+    });
+
+    describe('with default options', function () {
+      it('can determine the collect by modelTo\'s name as default', function () {
+        Physician.hasMany(Patient, {through: Appointment});
+        Patient.hasMany(Physician, {through: Appointment, as: 'yyy'});
+        Patient.belongsTo(Address);
+        Appointment.belongsTo(Physician);
+        Appointment.belongsTo(Patient);
+        var physician = new Physician({id: 1});
+        var scope1 = physician.patients._scope;
+        scope1.should.have.property('collect', 'patient');
+        scope1.should.have.property('include', 'patient');
+        var patient = new Patient({id: 1});
+        var scope2 = patient.yyy._scope;
+        scope2.should.have.property('collect', 'physician');
+        scope2.should.have.property('include', 'physician');
+      });
+    });
+
+    describe('when custom reverse belongsTo names for both sides', function () {
+      it('can determine the collect via keyThrough', function () {
+        Physician.hasMany(Patient, {through: Appointment, foreignKey: 'fooId', keyThrough: 'barId'});
+        Patient.hasMany(Physician, {through: Appointment, foreignKey: 'barId', keyThrough: 'fooId', as: 'yyy'});
+        Appointment.belongsTo(Physician, {as: 'foo'});
+        Appointment.belongsTo(Patient, {as: 'bar'});
+        Patient.belongsTo(Address); // jam.
+        Appointment.belongsTo(Patient, {as: 'car'}); // jam. Should we complain in this case???
+
+        var physician = new Physician({id: 1});
+        var scope1 = physician.patients._scope;
+        scope1.should.have.property('collect', 'bar');
+        scope1.should.have.property('include', 'bar');
+        var patient = new Patient({id: 1});
+        var scope2 = patient.yyy._scope;
+        scope2.should.have.property('collect', 'foo');
+        scope2.should.have.property('include', 'foo');
+      });
+
+      it('can determine the collect via modelTo name', function () {
+        Physician.hasMany(Patient, {through: Appointment});
+        Patient.hasMany(Physician, {through: Appointment, as: 'yyy'});
+        Appointment.belongsTo(Physician, {as: 'foo', foreignKey: 'physicianId'});
+        Appointment.belongsTo(Patient, {as: 'bar', foreignKey: 'patientId'});
+        Patient.belongsTo(Address); // jam.
+
+        var physician = new Physician({id: 1});
+        var scope1 = physician.patients._scope;
+        scope1.should.have.property('collect', 'bar');
+        scope1.should.have.property('include', 'bar');
+        var patient = new Patient({id: 1});
+        var scope2 = patient.yyy._scope;
+        scope2.should.have.property('collect', 'foo');
+        scope2.should.have.property('include', 'foo');
+      });
+
+      it('can determine the collect via modelTo name (with jams)', function () {
+        Physician.hasMany(Patient, {through: Appointment});
+        Patient.hasMany(Physician, {through: Appointment, as: 'yyy'});
+        Appointment.belongsTo(Physician, {as: 'foo', foreignKey: 'physicianId'});
+        Appointment.belongsTo(Patient, {as: 'bar', foreignKey: 'patientId'});
+        Patient.belongsTo(Address); // jam.
+        Appointment.belongsTo(Physician, {as: 'goo', foreignKey: 'physicianId'}); // jam. Should we complain in this case???
+        Appointment.belongsTo(Patient, {as: 'car', foreignKey: 'patientId'}); // jam. Should we complain in this case???
+
+        var physician = new Physician({id: 1});
+        var scope1 = physician.patients._scope;
+        scope1.should.have.property('collect', 'bar');
+        scope1.should.have.property('include', 'bar');
+        var patient = new Patient({id: 1});
+        var scope2 = patient.yyy._scope;
+        scope2.should.have.property('collect', 'foo'); // first matched relation
+        scope2.should.have.property('include', 'foo'); // first matched relation
+      });
+    });
+
+    describe('when custom reverse belongsTo name for one side only', function () {
+
+      beforeEach(function () {
+        Physician.hasMany(Patient, {as: 'xxx', through: Appointment, foreignKey: 'fooId'});
+        Patient.hasMany(Physician, {as: 'yyy', through: Appointment, keyThrough: 'fooId'});
+        Appointment.belongsTo(Physician, {as: 'foo'});
+        Appointment.belongsTo(Patient);
+        Patient.belongsTo(Address); // jam.
+        Appointment.belongsTo(Physician, {as: 'bar'}); // jam. Should we complain in this case???
+      });
+
+      it('can determine the collect via model name', function () {
+        var physician = new Physician({id: 1});
+        var scope1 = physician.xxx._scope;
+        scope1.should.have.property('collect', 'patient');
+        scope1.should.have.property('include', 'patient');
+      });
+
+      it('can determine the collect via keyThrough', function () {
+        var patient = new Patient({id: 1});
+        var scope2 = patient.yyy._scope;
+        scope2.should.have.property('collect', 'foo');
+        scope2.should.have.property('include', 'foo');
+      });
+    });
+  });
+
+  describe('hasMany through - between same model', function () {
+    var User, Follow, Address;
+
+    before(function (done) {
+      db = getSchema();
+      User = db.define('User', {name: String});
+      Follow = db.define('Follow', {date: {type: Date,
+        default: function () {
+          return new Date();
+        }}});
+      Address = db.define('Address', {name: String});
+
+      User.hasMany(User, {as: 'followers', foreignKey: 'followeeId', keyThrough: 'followerId', through: Follow});
+      User.hasMany(User, {as: 'following', foreignKey: 'followerId', keyThrough: 'followeeId', through: Follow});
+      User.belongsTo(Address);
+      Follow.belongsTo(User, {as: 'follower'});
+      Follow.belongsTo(User, {as: 'followee'});
+      db.automigrate(['User', 'Follow', 'Address'], function (err) {
+        done(err);
+      });
+    });
+
+    it('can determine the collect via keyThrough for each side', function () {
+      var user = new User({id: 1});
+      var scope1 = user.followers._scope;
+      scope1.should.have.property('collect', 'follower');
+      scope1.should.have.property('include', 'follower');
+      var scope2 = user.following._scope;
+      scope2.should.have.property('collect', 'followee');
+      scope2.should.have.property('include', 'followee');
+    });
+  });
+
   describe('hasMany with properties', function () {
     it('can be declared with properties', function (done) {
       Book.hasMany(Chapter, { properties: { type: 'bookType' } });
@@ -931,6 +1083,29 @@ describe('relations', function () {
       Picture.hasMany(Author, { through: PictureLink, polymorphic: 'imageable', invert: true });
       Picture.hasMany(Reader, { through: PictureLink, polymorphic: 'imageable', invert: true });
       db.automigrate(done);
+    });
+
+    it('can determine the collect via modelTo name', function () {
+      Author.hasAndBelongsToMany(Picture, { through: PictureLink, polymorphic: 'imageable' });
+      Reader.hasAndBelongsToMany(Picture, { through: PictureLink, polymorphic: 'imageable' });
+      // Optionally, define inverse relations:
+      Picture.hasMany(Author, { through: PictureLink, polymorphic: 'imageable', invert: true });
+      Picture.hasMany(Reader, { through: PictureLink, polymorphic: 'imageable', invert: true });
+      var author = new Author({id: 1});
+      var scope1 = author.pictures._scope;
+      scope1.should.have.property('collect', 'picture');
+      scope1.should.have.property('include', 'picture');
+      var reader = new Reader({id: 1});
+      var scope2 = reader.pictures._scope;
+      scope2.should.have.property('collect', 'picture');
+      scope2.should.have.property('include', 'picture');
+      var picture = new Picture({id: 1});
+      var scope3 = picture.authors._scope;
+      scope3.should.have.property('collect', 'imageable');
+      scope3.should.have.property('include', 'imageable');
+      var scope4 = picture.readers._scope;
+      scope4.should.have.property('collect', 'imageable');
+      scope4.should.have.property('include', 'imageable');
     });
 
     var author, reader, pictures = [];
