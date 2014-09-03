@@ -257,17 +257,6 @@ describe('relations', function () {
       });
     });
 
-    it('should have scope that includes a relation name which is derived from model\'s name', function (done) {
-      Physician.create(function (err, physician) {
-        should.not.exist(err);
-        should.exist(physician);
-        var scope = physician.patients._scope;
-        scope.should.have.property('collect', 'patient');
-        scope.should.have.property('include', 'patient');
-        done(err);
-      });
-    });
-
     it('should build record on scope', function (done) {
       Physician.create(function (err, physician) {
         var patient = physician.patients.build();
@@ -474,133 +463,159 @@ describe('relations', function () {
 
   });
 
-  describe('hasMany through with custom relation name', function () {
+  describe('hasMany through - collect', function () {
     var Physician, Patient, Appointment, Address;
 
-    describe('and with keyThrough', function () {
-      before(function (done) {
-        db = getSchema();
-        Physician = db.define('Physician', {name: String});
-        Patient = db.define('Patient', {name: String});
-        Appointment = db.define('Appointment', {date: {type: Date,
-          default: function () {
-            return new Date();
-          }}});
-        Address = db.define('Address', {name: String});
+    beforeEach(function (done) {
+      db = getSchema();
+      Physician = db.define('Physician', {name: String});
+      Patient = db.define('Patient', {name: String});
+      Appointment = db.define('Appointment', {date: {type: Date,
+        default: function () {
+          return new Date();
+        }}});
+      Address = db.define('Address', {name: String});
 
+      db.automigrate(['Physician', 'Patient', 'Appointment', 'Address'], function (err) {
+        done(err);
+      });
+    });
+
+    describe('with default options', function () {
+      it('can determine the collect by modelTo\'s name as default', function () {
+        Physician.hasMany(Patient, {through: Appointment});
+        Patient.hasMany(Physician, {through: Appointment});
+        Patient.belongsTo(Address);
+        Appointment.belongsTo(Physician);
+        Appointment.belongsTo(Patient);
+        var physician = new Physician({id: 1});
+        var scope1 = physician.patients._scope;
+        scope1.should.have.property('collect', 'patient');
+        scope1.should.have.property('include', 'patient');
+        var patient = new Patient({id: 1});
+        var scope2 = patient.physicians._scope;
+        scope2.should.have.property('collect', 'physician');
+        scope2.should.have.property('include', 'physician');
+      });
+
+      it('should be irrelevant to the name of hasManyThrough relation', function () {
+        Physician.hasMany(Patient, {through: Appointment, as: 'xxx'});
+        Patient.hasMany(Physician, {through: Appointment, as: 'yyy'});
+        Patient.belongsTo(Address);
+        Appointment.belongsTo(Physician);
+        Appointment.belongsTo(Patient);
+        var physician = new Physician({id: 1});
+        var scope1 = physician.xxx._scope;
+        scope1.should.have.property('collect', 'patient');
+        scope1.should.have.property('include', 'patient');
+        var patient = new Patient({id: 1});
+        var scope2 = patient.yyy._scope;
+        scope2.should.have.property('collect', 'physician');
+        scope2.should.have.property('include', 'physician');
+      });
+    });
+
+    describe('when custom reverse belongsTo names for both sides', function () {
+      it('can determine the collect via keyThrough', function () {
         Physician.hasMany(Patient, {as: 'xxx', foreignKey: 'fooId', keyThrough: 'barId', through: Appointment});
         Patient.hasMany(Physician, {as: 'yyy', foreignKey: 'barId', keyThrough: 'fooId', through: Appointment});
+        Appointment.belongsTo(Physician, {as: 'foo'});
+        Appointment.belongsTo(Patient, {as: 'bar'});
+        Patient.belongsTo(Address); // jam.
+        Appointment.belongsTo(Patient, {as: 'car'}); // jam. Should we complain in this case???
+
+        var physician = new Physician({id: 1});
+        var scope1 = physician.xxx._scope;
+        scope1.should.have.property('collect', 'bar');
+        scope1.should.have.property('include', 'bar');
+        var patient = new Patient({id: 1});
+        var scope2 = patient.yyy._scope;
+        scope2.should.have.property('collect', 'foo');
+        scope2.should.have.property('include', 'foo');
+      });
+
+      it('can determine the collect via modelTo name', function () {
+        Physician.hasMany(Patient, {through: Appointment});
+        Patient.hasMany(Physician, {through: Appointment});
+        Appointment.belongsTo(Physician, {as: 'foo', foreignKey: 'physicianId'});
+        Appointment.belongsTo(Patient, {as: 'bar', foreignKey: 'patientId'});
+        Patient.belongsTo(Address); // jam.
+
+        var physician = new Physician({id: 1});
+        var scope1 = physician.patients._scope;
+        scope1.should.have.property('collect', 'bar');
+        scope1.should.have.property('include', 'bar');
+        var patient = new Patient({id: 1});
+        var scope2 = patient.physicians._scope;
+        scope2.should.have.property('collect', 'foo');
+        scope2.should.have.property('include', 'foo');
+      });
+
+      it('can determine the collect via modelTo name - error', function () {
+        Physician.hasMany(Patient, {through: Appointment});
+        Patient.hasMany(Physician, {through: Appointment});
+        Appointment.belongsTo(Physician, {as: 'foo', foreignKey: 'physicianId'});
+        Appointment.belongsTo(Patient, {as: 'bar', foreignKey: 'patientId'});
+        Patient.belongsTo(Address); // jam.
+        Appointment.belongsTo(Physician, {as: 'goo', foreignKey: 'physicianId'}); // jam. Should we complain in this case???
+        Appointment.belongsTo(Patient, {as: 'car', foreignKey: 'patientId'}); // jam. Should we complain in this case???
+
+        var physician = new Physician({id: 1});
+        var scope1 = physician.patients._scope;
+        scope1.should.have.property('collect', 'bar');
+        scope1.should.have.property('include', 'bar');
+        var patient = new Patient({id: 1});
+        var scope2 = patient.physicians._scope;
+        scope2.should.have.property('collect', 'foo');
+        scope2.should.have.property('include', 'foo');
+      });
+
+      it('should be irrelevant to the name of hasManyThrough relation', function () {
+        Physician.hasMany(Patient, {foreignKey: 'fooId', keyThrough: 'barId', through: Appointment});
+        Patient.hasMany(Physician, {foreignKey: 'barId', keyThrough: 'fooId', through: Appointment});
         Patient.belongsTo(Address);
         Appointment.belongsTo(Physician, {as: 'foo'});
         Appointment.belongsTo(Patient, {as: 'bar'});
-        Appointment.belongsTo(Patient, {as: 'car'});
-        Appointment.belongsTo(Patient, {as: 'dar'});
-        db.automigrate(['Physician', 'Patient', 'Appointment', 'Address'], function (err) {
-          done(err);
-        });
-      });
 
-      it('should have scope that includes relation name which matches keyThrough', function (done) {
-        Physician.create(function (err, physician) {
-          should.not.exist(err);
-          should.exist(physician);
-          var scope = physician.xxx._scope;
-          scope.should.have.property('collect', 'patient');
-          scope.should.have.property('include', 'bar');
-          done(err);
-        });
-      });
-
-      it('should fetch all scoped instances', function (done) {
-        Physician.create(function (err, physician) {
-          physician.xxx.create({name: 'a'}, function () {
-            physician.xxx.create({name: 'z'}, function () {
-              physician.xxx.create({name: 'c'}, function () {
-                verify(physician);
-              });
-            });
-          });
-        });
-        function verify(physician) {
-          physician.xxx(true, function (err, ch) {
-            should.not.exist(err);
-            should.exist(ch);
-            ch.should.have.lengthOf(3);
-            done();
-          });
-        }
+        var physician = new Physician({id: 1});
+        var scope1 = physician.patients._scope;
+        scope1.should.have.property('collect', 'bar');
+        scope1.should.have.property('include', 'bar');
+        var patient = new Patient({id: 1});
+        var scope2 = patient.physicians._scope;
+        scope2.should.have.property('collect', 'foo');
+        scope2.should.have.property('include', 'foo');
       });
     });
 
-    describe('and without keyThrough', function () {
-      before(function (done) {
-        db = getSchema();
-        Physician = db.define('Physician', {name: String});
-        Patient = db.define('Patient', {name: String});
-        Appointment = db.define('Appointment', {date: {type: Date,
-          default: function () {
-            return new Date();
-          }}});
-        Address = db.define('Address', {name: String});
+    describe('when custom reverse belongsTo name for one side only', function () {
 
-        Physician.hasMany(Patient, {as: 'xxx', foreignKey: 'fooId', through: Appointment});
-        Patient.hasMany(Physician, {as: 'yyy', foreignKey: 'barId', through: Appointment});
-        Patient.belongsTo(Address);
+      beforeEach(function () {
+        Physician.hasMany(Patient, {as: 'xxx', through: Appointment, foreignKey: 'fooId'});
+        Patient.hasMany(Physician, {as: 'yyy', through: Appointment, keyThrough: 'fooId'});
         Appointment.belongsTo(Physician, {as: 'foo'});
-        Appointment.belongsTo(Patient, {as: 'bar'});
-        db.automigrate(['Physician', 'Patient', 'Appointment', 'Address'], function (err) {
-          done(err);
-        });
+        Appointment.belongsTo(Patient);
+        Patient.belongsTo(Address); // jam.
+        Appointment.belongsTo(Physician, {as: 'bar'}); // jam. Should we complain in this case???
       });
 
-      it('should have scope that includes relation name which matches the name of modelTo', function (done) {
-        Physician.create(function (err, physician) {
-          should.not.exist(err);
-          should.exist(physician);
-          var scope = physician.xxx._scope;
-          scope.should.have.property('collect', 'patient');
-          scope.should.have.property('include', 'bar');
-          done(err);
-        });
-      });
-    });
-
-    describe('and with multiple relations for same model', function () {
-      before(function (done) {
-        db = getSchema();
-        Physician = db.define('Physician', {name: String});
-        Patient = db.define('Patient', {name: String});
-        Appointment = db.define('Appointment', {date: {type: Date,
-          default: function () {
-            return new Date();
-          }}});
-        Address = db.define('Address', {name: String});
-
-        Physician.hasMany(Patient, {as: 'xxx', foreignKey: 'fooId', through: Appointment});
-        Patient.hasMany(Physician, {as: 'yyy', foreignKey: 'barId', through: Appointment});
-        Patient.belongsTo(Address);
-        Appointment.belongsTo(Physician, {as: 'foo'});
-        Appointment.belongsTo(Patient, {as: 'bar'});
-        Appointment.belongsTo(Patient, {as: 'car'});
-        db.automigrate(['Physician', 'Patient', 'Appointment', 'Address'], function (err) {
-          done(err);
-        });
+      it('can determine the collect via model name', function () {
+        var physician = new Physician({id: 1});
+        var scope1 = physician.xxx._scope;
+        scope1.should.have.property('collect', 'patient');
+        scope1.should.have.property('include', 'patient');
       });
 
-      it('should have scope that includes all relation names which matches the name of modelTo', function (done) {
-        Physician.create(function (err, physician) {
-          should.not.exist(err);
-          should.exist(physician);
-          var scope = physician.xxx._scope;
-          scope.should.have.property('collect', 'patient');
-          scope.should.have.property('include', 'bar,car');
-          done(err);
-        });
+      it('can determine the collect via keyThrough', function () {
+        var patient = new Patient({id: 1});
+        var scope2 = patient.yyy._scope;
+        scope2.should.have.property('collect', 'foo');
+        scope2.should.have.property('include', 'foo');
       });
     });
   });
 
-  describe('hasMany through between same model', function () {
+  describe('hasMany through - between same model', function () {
     var User, Follow, Address;
 
     before(function (done) {
@@ -622,18 +637,14 @@ describe('relations', function () {
       });
     });
 
-    it('should have scope that includes corresponding relation name', function (done) {
-      User.create(function (err, user) {
-        should.not.exist(err);
-        should.exist(user);
-        var scope1 = user.followers._scope;
-        scope1.should.have.property('collect', 'user');
-        scope1.should.have.property('include', 'follower');
-        var scope2 = user.following._scope;
-        scope2.should.have.property('collect', 'user');
-        scope2.should.have.property('include', 'followee');
-        done();
-      });
+    it('can determine the collect via keyThrough for each side', function () {
+      var user = new User({id: 1});
+      var scope1 = user.followers._scope;
+      scope1.should.have.property('collect', 'follower');
+      scope1.should.have.property('include', 'follower');
+      var scope2 = user.following._scope;
+      scope2.should.have.property('collect', 'followee');
+      scope2.should.have.property('include', 'followee');
     });
   });
 
@@ -1087,6 +1098,29 @@ describe('relations', function () {
       Picture.hasMany(Author, { through: PictureLink, polymorphic: 'imageable', invert: true });
       Picture.hasMany(Reader, { through: PictureLink, polymorphic: 'imageable', invert: true });
       db.automigrate(done);
+    });
+
+    it('can determine the collect via modelTo name', function () {
+      Author.hasAndBelongsToMany(Picture, { through: PictureLink, polymorphic: 'imageable' });
+      Reader.hasAndBelongsToMany(Picture, { through: PictureLink, polymorphic: 'imageable' });
+      // Optionally, define inverse relations:
+      Picture.hasMany(Author, { through: PictureLink, polymorphic: 'imageable', invert: true });
+      Picture.hasMany(Reader, { through: PictureLink, polymorphic: 'imageable', invert: true });
+      var author = new Author({id: 1});
+      var scope1 = author.pictures._scope;
+      scope1.should.have.property('collect', 'picture');
+      scope1.should.have.property('include', 'picture');
+      var reader = new Reader({id: 1});
+      var scope2 = reader.pictures._scope;
+      scope2.should.have.property('collect', 'picture');
+      scope2.should.have.property('include', 'picture');
+      var picture = new Picture({id: 1});
+      var scope3 = picture.authors._scope;
+      scope3.should.have.property('collect', 'imageable');
+      scope3.should.have.property('include', 'imageable');
+      var scope4 = picture.readers._scope;
+      scope4.should.have.property('collect', 'imageable');
+      scope4.should.have.property('include', 'imageable');
     });
 
     var author, reader, pictures = [];
