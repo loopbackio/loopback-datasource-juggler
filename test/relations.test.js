@@ -257,6 +257,17 @@ describe('relations', function () {
       });
     });
 
+    it('should have scope that includes a relation name which is derived from model\'s name', function (done) {
+      Physician.create(function (err, physician) {
+        should.not.exist(err);
+        should.exist(physician);
+        var scope = physician.patients._scope;
+        scope.should.have.property('collect', 'patient');
+        scope.should.have.property('include').eql(['patient']);
+        done(err);
+      });
+    });
+
     it('should build record on scope', function (done) {
       Physician.create(function (err, physician) {
         var patient = physician.patients.build();
@@ -463,6 +474,133 @@ describe('relations', function () {
 
   });
   
+
+  describe('hasMany through with custom relation name', function () {
+    var Physician, Patient, Appointment, Address;
+
+    describe('and with keyThrough', function () {
+      before(function (done) {
+        db = getSchema();
+        Physician = db.define('Physician', {name: String});
+        Patient = db.define('Patient', {name: String});
+        Appointment = db.define('Appointment', {date: {type: Date,
+          default: function () {
+            return new Date();
+          }}});
+        Address = db.define('Address', {name: String});
+
+        Physician.hasMany(Patient, {as: 'xxx', foreignKey: 'fooId', keyThrough: 'barId', through: Appointment});
+        Patient.hasMany(Physician, {as: 'yyy', foreignKey: 'barId', keyThrough: 'fooId', through: Appointment});
+        Patient.belongsTo(Address);
+        Appointment.belongsTo(Physician, {as: 'foo'});
+        Appointment.belongsTo(Patient, {as: 'bar'});
+        Appointment.belongsTo(Patient, {as: 'car'});
+        Appointment.belongsTo(Patient, {as: 'dar'});
+        db.automigrate(['Physician', 'Patient', 'Appointment', 'Address'], function (err) {
+          done(err);
+        });
+      });
+
+      it('should have scope that includes relation name which matches keyThrough', function (done) {
+        Physician.create(function (err, physician) {
+          should.not.exist(err);
+          should.exist(physician);
+          var scope = physician.xxx._scope;
+          scope.should.have.property('collect', 'patient');
+          scope.should.have.property('include').eql(['bar']);
+          done(err);
+        });
+      });
+
+      it('should fetch all scoped instances', function (done) {
+        Physician.create(function (err, physician) {
+          physician.xxx.create({name: 'a'}, function () {
+            physician.xxx.create({name: 'z'}, function () {
+              physician.xxx.create({name: 'c'}, function () {
+                verify(physician);
+              });
+            });
+          });
+        });
+        function verify(physician) {
+          physician.xxx(true, function (err, ch) {
+            should.not.exist(err);
+            should.exist(ch);
+            ch.should.have.lengthOf(3);
+            done();
+          });
+        }
+      });
+    });
+
+    describe('and without keyThrough', function () {
+      before(function (done) {
+        db = getSchema();
+        Physician = db.define('Physician', {name: String});
+        Patient = db.define('Patient', {name: String});
+        Appointment = db.define('Appointment', {date: {type: Date,
+          default: function () {
+            return new Date();
+          }}});
+        Address = db.define('Address', {name: String});
+
+        Physician.hasMany(Patient, {as: 'xxx', foreignKey: 'fooId', through: Appointment});
+        Patient.hasMany(Physician, {as: 'yyy', foreignKey: 'barId', through: Appointment});
+        Patient.belongsTo(Address);
+        Appointment.belongsTo(Physician, {as: 'foo'});
+        Appointment.belongsTo(Patient, {as: 'bar'});
+        db.automigrate(['Physician', 'Patient', 'Appointment', 'Address'], function (err) {
+          done(err);
+        });
+      });
+
+      it('should have scope that includes relation name which matches the name of modelTo', function (done) {
+        Physician.create(function (err, physician) {
+          should.not.exist(err);
+          should.exist(physician);
+          var scope = physician.xxx._scope;
+          scope.should.have.property('collect', 'patient');
+          scope.should.have.property('include').eql(['bar']);
+          done(err);
+        });
+      });
+    });
+
+    describe('and with multiple relations for same model', function () {
+      before(function (done) {
+        db = getSchema();
+        Physician = db.define('Physician', {name: String});
+        Patient = db.define('Patient', {name: String});
+        Appointment = db.define('Appointment', {date: {type: Date,
+          default: function () {
+            return new Date();
+          }}});
+        Address = db.define('Address', {name: String});
+
+        Physician.hasMany(Patient, {as: 'xxx', foreignKey: 'fooId', through: Appointment});
+        Patient.hasMany(Physician, {as: 'yyy', foreignKey: 'barId', through: Appointment});
+        Patient.belongsTo(Address);
+        Appointment.belongsTo(Physician, {as: 'foo'});
+        Appointment.belongsTo(Patient, {as: 'bar'});
+        Appointment.belongsTo(Patient, {as: 'car'});
+        db.automigrate(['Physician', 'Patient', 'Appointment', 'Address'], function (err) {
+          done(err);
+        });
+      });
+
+      it('should have scope that includes all relation names which matches the name of modelTo', function (done) {
+        Physician.create(function (err, physician) {
+          should.not.exist(err);
+          should.exist(physician);
+          var scope = physician.xxx._scope;
+          scope.should.have.property('collect', 'patient');
+          scope.should.have.property('include').eql(['bar', 'car']);
+          done(err);
+        });
+      });
+    });
+  });
+
   describe('hasMany with properties', function () {
     it('can be declared with properties', function (done) {
       Book.hasMany(Chapter, { properties: { type: 'bookType' } });
