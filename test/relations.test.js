@@ -601,6 +601,43 @@ describe('relations', function () {
     });
   });
 
+  describe.only('hasMany through between same model', function () {
+    var User, Follow, Address;
+
+    before(function (done) {
+      db = getSchema();
+      User = db.define('User', {name: String});
+      Follow = db.define('Follow', {date: {type: Date,
+        default: function () {
+          return new Date();
+        }}});
+      Address = db.define('Address', {name: String});
+
+      User.hasMany(User, {as: 'followers', foreignKey: 'followeeId', keyThrough: 'followerId', through: Follow});
+      User.hasMany(User, {as: 'following', foreignKey: 'followerId', keyThrough: 'followeeId', through: Follow});
+      User.belongsTo(Address);
+      Follow.belongsTo(User, {as: 'follower'});
+      Follow.belongsTo(User, {as: 'followee'});
+      db.automigrate(['User', 'Follow', 'Address'], function (err) {
+        done(err);
+      });
+    });
+
+    it('should have scope that includes', function (done) {
+      User.create(function (err, user) {
+        should.not.exist(err);
+        should.exist(user);
+        var scope1 = user.followers._scope;
+        scope1.should.have.property('collect', 'user');
+        scope1.should.have.property('include').eql(['follower']);
+        var scope2 = user.following._scope;
+        scope2.should.have.property('collect', 'user');
+        scope2.should.have.property('include').eql(['followee']);
+        done();
+      });
+    });
+  });
+
   describe('hasMany with properties', function () {
     it('can be declared with properties', function (done) {
       Book.hasMany(Chapter, { properties: { type: 'bookType' } });
