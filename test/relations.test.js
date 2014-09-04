@@ -983,6 +983,10 @@ describe('relations', function () {
       Author.findOne(function (err, author) {
         author.pictures(function (err, pics) {
           should.not.exist(err);
+          
+          var pictures = author.pictures();
+          pictures.should.eql(pics);
+          
           pics.should.have.length(1);
           pics[0].name.should.equal('Author Pic');
           done();
