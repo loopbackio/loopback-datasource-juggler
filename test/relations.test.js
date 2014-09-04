@@ -1775,6 +1775,7 @@ describe('relations', function () {
         passport.toObject().should.eql({name: 'Fredric'});
         passport.should.be.an.instanceOf(Passport);
         passport.should.equal(p.passport);
+        passport.should.equal(p.passportItem.value());
         done();
       });
     });
@@ -1910,6 +1911,11 @@ describe('relations', function () {
       Person.findOne(function(err, p) {
         p.addressList(function(err, addresses) {
           should.not.exist(err);
+          
+          var list = p.addressList();
+          list.should.equal(addresses);
+          list.should.equal(p.addresses);
+          
           addresses.should.have.length(2);
           addresses[0].id.should.eql(address1.id);
           addresses[0].street.should.equal('Street 1');
