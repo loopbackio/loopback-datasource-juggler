@@ -1,11 +1,16 @@
 // This test written in mocha+should.js
 var should = require('./init.js');
+var Schema = require('../').Schema;
 
 var db, tmp, Book, Chapter, Author, Reader;
 var Category, Job;
 var Picture, PictureLink;
 var Person, Address;
 var Link;
+
+var getTransientSchema = function(settings) {
+    return new Schema('transient', settings);
+};
 
 describe('relations', function () {
 
@@ -1679,7 +1684,7 @@ describe('relations', function () {
     var Other;
     
     before(function () {
-      tmp = getSchema('transient');
+      tmp = getTransientSchema();
       db = getSchema();
       Person = db.define('Person', {name: String});
       Passport = tmp.define('Passport',
@@ -1828,7 +1833,7 @@ describe('relations', function () {
     var address1, address2;
     
     before(function (done) {
-      tmp = getSchema('transient', {defaultIdType: Number});
+      tmp = getTransientSchema({defaultIdType: Number});
       db = getSchema();
       Person = db.define('Person', {name: String});
       Address = tmp.define('Address', {street: String});
@@ -2008,7 +2013,7 @@ describe('relations', function () {
   
   describe('embedsMany - explicit ids', function () {
     before(function (done) {
-      tmp = getSchema('transient');
+      tmp = getTransientSchema();
       db = getSchema();
       Person = db.define('Person', {name: String});
       Address = tmp.define('Address', {street: String});

@@ -1,15 +1,20 @@
 var jdb = require('../');
+var Schema = jdb.Schema;
 var DataSource = jdb.DataSource;
 var assert = require('assert');
 var async = require('async');
 var should = require('./init.js');
+
+var getTransientSchema = function(settings) {
+    return new Schema('transient', settings);
+};
 
 var db, TransientModel, Person, Widget, Item;
 
 describe('Transient connector', function () {
   
   before(function () {
-    db = getSchema('transient');
+    db = getTransientSchema();
     TransientModel = db.define('TransientModel', {}, { idInjection: false });
     
     Person = TransientModel.extend('Person', {name: String});
