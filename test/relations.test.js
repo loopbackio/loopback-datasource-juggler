@@ -1654,6 +1654,9 @@ describe('relations', function () {
         article.tags(function (e, tags) {
           should.not.exist(e);
           should.exist(tags);
+          
+          article.tags().should.eql(tags);
+          
           done();
         });
       });
