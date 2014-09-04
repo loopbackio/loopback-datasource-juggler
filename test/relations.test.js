@@ -91,10 +91,14 @@ describe('relations', function () {
           should.not.exist(err);
           should.exist(ch);
           ch.should.have.lengthOf(3);
-
+          
+          var chapters = book.chapters();
+          chapters.should.eql(ch);
+          
           book.chapters({order: 'name DESC'}, function (e, c) {
             should.not.exist(e);
             should.exist(c);
+            
             c.shift().name.should.equal('z');
             c.pop().name.should.equal('a');
             done();
