@@ -1,5 +1,4 @@
 var jdb = require('../');
-var Schema = jdb.Schema;
 var DataSource = jdb.DataSource;
 var assert = require('assert');
 var async = require('async');
@@ -8,7 +7,7 @@ var should = require('./init.js');
 var db, TransientModel, Person, Widget, Item;
 
 var getTransientDataSource = function(settings) {
-    return new Schema('transient', settings);
+    return new DataSource('transient', settings);
 };
 
 describe('Transient connector', function () {

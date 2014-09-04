@@ -1,7 +1,7 @@
 // This test written in mocha+should.js
 var should = require('./init.js');
 var jdb = require('../');
-var Schema = jdb.Schema;
+var DataSource = jdb.DataSource;
 
 var db, tmp, Book, Chapter, Author, Reader;
 var Category, Job;
@@ -10,7 +10,7 @@ var Person, Address;
 var Link;
 
 var getTransientDataSource = function(settings) {
-    return new Schema('transient', settings, db.modelBuilder);
+    return new DataSource('transient', settings, db.modelBuilder);
 };
 
 describe('relations', function () {
