@@ -850,6 +850,10 @@ describe('relations', function () {
       Author.findOne(function (err, author) {
         author.avatar(function (err, p) {
           should.not.exist(err);
+          
+          var avatar = author.avatar();
+          avatar.should.equal(p);
+          
           p.name.should.equal('Avatar');
           p.imageableId.should.eql(author.id);
           p.imageableType.should.equal('Author');
