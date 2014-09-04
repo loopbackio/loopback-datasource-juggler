@@ -9,7 +9,7 @@ var Picture, PictureLink;
 var Person, Address;
 var Link;
 
-var getTransientSchema = function(settings) {
+var getTransientDataSource = function(settings) {
     return new Schema('transient', settings, db.modelBuilder);
 };
 
@@ -1685,7 +1685,7 @@ describe('relations', function () {
     var Other;
     
     before(function () {
-      tmp = getTransientSchema();
+      tmp = getTransientDataSource();
       db = getSchema();
       Person = db.define('Person', {name: String});
       Passport = tmp.define('Passport',
@@ -1834,7 +1834,7 @@ describe('relations', function () {
     var address1, address2;
     
     before(function (done) {
-      tmp = getTransientSchema({defaultIdType: Number});
+      tmp = getTransientDataSource({defaultIdType: Number});
       db = getSchema();
       Person = db.define('Person', {name: String});
       Address = tmp.define('Address', {street: String});
@@ -2014,7 +2014,7 @@ describe('relations', function () {
   
   describe('embedsMany - explicit ids', function () {
     before(function (done) {
-      tmp = getTransientSchema();
+      tmp = getTransientDataSource();
       db = getSchema();
       Person = db.define('Person', {name: String});
       Address = tmp.define('Address', {street: String});
@@ -2421,7 +2421,7 @@ describe('relations', function () {
     
     before(function (done) {
       db = getSchema();
-      tmp = getTransientSchema();
+      tmp = getTransientDataSource();
       
       Book = db.define('Book', {name: String});
       Author = db.define('Author', {name: String});
