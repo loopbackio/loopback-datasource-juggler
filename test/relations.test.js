@@ -1916,6 +1916,8 @@ describe('relations', function () {
           list.should.equal(addresses);
           list.should.equal(p.addresses);
           
+          p.addressList.value().should.equal(list);
+          
           addresses.should.have.length(2);
           addresses[0].id.should.eql(address1.id);
           addresses[0].street.should.equal('Street 1');
