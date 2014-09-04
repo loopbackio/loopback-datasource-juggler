@@ -5,11 +5,11 @@ var assert = require('assert');
 var async = require('async');
 var should = require('./init.js');
 
+var db, TransientModel, Person, Widget, Item;
+
 var getTransientSchema = function(settings) {
     return new Schema('transient', settings);
 };
-
-var db, TransientModel, Person, Widget, Item;
 
 describe('Transient connector', function () {
   

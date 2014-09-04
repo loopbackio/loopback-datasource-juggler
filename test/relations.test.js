@@ -10,7 +10,7 @@ var Person, Address;
 var Link;
 
 var getTransientSchema = function(settings) {
-    return new Schema('transient', settings);
+    return new Schema('transient', settings, db.modelBuilder);
 };
 
 describe('relations', function () {
@@ -2422,10 +2422,6 @@ describe('relations', function () {
     before(function (done) {
       db = getSchema();
       tmp = getTransientSchema();
-      
-      // register here, so transient models
-      // can lookup related models (polymorphic)
-      jdb.registerDataSource(db);
       
       Book = db.define('Book', {name: String});
       Author = db.define('Author', {name: String});
