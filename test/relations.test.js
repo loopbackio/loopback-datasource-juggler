@@ -302,6 +302,10 @@ describe('relations', function () {
       });
       function verify(physician) {
         physician.patients(function (err, ch) {
+          
+          var patients = physician.patients();
+          patients.should.eql(ch);
+          
           should.not.exist(err);
           should.exist(ch);
           ch.should.have.lengthOf(3);
