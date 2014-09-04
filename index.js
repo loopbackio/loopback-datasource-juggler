@@ -4,6 +4,12 @@ exports.ModelBaseClass = require('./lib/model.js');
 exports.GeoPoint = require('./lib/geo.js').GeoPoint;
 exports.ValidationError = require('./lib/validations.js').ValidationError;
 
+var dataSources = exports.dataSources = {};
+
+exports.registerDataSource = function(ds) {
+  dataSources[ds.name] = ds;
+};
+
 exports.__defineGetter__('version', function () {
     return require('./package.json').version;
 });

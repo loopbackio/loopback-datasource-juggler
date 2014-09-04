@@ -1,6 +1,7 @@
 // This test written in mocha+should.js
 var should = require('./init.js');
-var Schema = require('../').Schema;
+var jdb = require('../');
+var Schema = jdb.Schema;
 
 var db, tmp, Book, Chapter, Author, Reader;
 var Category, Job;
@@ -2420,11 +2421,20 @@ describe('relations', function () {
     
     before(function (done) {
       db = getSchema();
+      tmp = getTransientSchema();
+      
+      // register here, so transient models
+      // can lookup related models (polymorphic)
+      jdb.registerDataSource(db);
+      
       Book = db.define('Book', {name: String});
       Author = db.define('Author', {name: String});
       Reader = db.define('Reader', {name: String});
       
-      Link = db.define('Link', {name: String, notes: String}); // generic model
+      Link = tmp.define('Link', {
+        id: {type: Number, id: true},
+        name: String, notes: String
+      }); // generic model
       Link.validatesPresenceOf('linkedId');
       Link.validatesPresenceOf('linkedType');
 
@@ -2438,13 +2448,15 @@ describe('relations', function () {
     });
 
     it('can be declared', function (done) {
+      var idType = db.connector.getDefaultIdType();
+      
       Book.embedsMany(Link, { as: 'people',
         polymorphic: 'linked',
         scope: { include: 'linked' }
       });      
       Link.belongsTo('linked', {
-        polymorphic: true, // needs unique auto-id
-        properties: { name: 'name' }, // denormalized
+        polymorphic: { idType: idType },  // native type
+        properties: { name: 'name' },     // denormalized
         options: { invertProperties: true }
       });
       db.automigrate(done);
