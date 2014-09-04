@@ -6,10 +6,14 @@ var should = require('./init.js');
 
 var db, TransientModel, Person, Widget, Item;
 
+var getTransientDataSource = function(settings) {
+    return new DataSource('transient', settings);
+};
+
 describe('Transient connector', function () {
   
   before(function () {
-    db = getSchema('transient');
+    db = getTransientDataSource();
     TransientModel = db.define('TransientModel', {}, { idInjection: false });
     
     Person = TransientModel.extend('Person', {name: String});

@@ -1,11 +1,17 @@
 // This test written in mocha+should.js
 var should = require('./init.js');
+var jdb = require('../');
+var DataSource = jdb.DataSource;
 
 var db, tmp, Book, Chapter, Author, Reader;
 var Category, Job;
 var Picture, PictureLink;
 var Person, Address;
 var Link;
+
+var getTransientDataSource = function(settings) {
+    return new DataSource('transient', settings, db.modelBuilder);
+};
 
 describe('relations', function () {
 
@@ -1679,7 +1685,7 @@ describe('relations', function () {
     var Other;
     
     before(function () {
-      tmp = getSchema('transient');
+      tmp = getTransientDataSource();
       db = getSchema();
       Person = db.define('Person', {name: String});
       Passport = tmp.define('Passport',
@@ -1828,7 +1834,7 @@ describe('relations', function () {
     var address1, address2;
     
     before(function (done) {
-      tmp = getSchema('transient', {defaultIdType: Number});
+      tmp = getTransientDataSource({defaultIdType: Number});
       db = getSchema();
       Person = db.define('Person', {name: String});
       Address = tmp.define('Address', {street: String});
@@ -2008,7 +2014,7 @@ describe('relations', function () {
   
   describe('embedsMany - explicit ids', function () {
     before(function (done) {
-      tmp = getSchema('transient');
+      tmp = getTransientDataSource();
       db = getSchema();
       Person = db.define('Person', {name: String});
       Address = tmp.define('Address', {street: String});
@@ -2415,11 +2421,16 @@ describe('relations', function () {
     
     before(function (done) {
       db = getSchema();
+      tmp = getTransientDataSource();
+      
       Book = db.define('Book', {name: String});
       Author = db.define('Author', {name: String});
       Reader = db.define('Reader', {name: String});
       
-      Link = db.define('Link', {name: String, notes: String}); // generic model
+      Link = tmp.define('Link', {
+        id: {type: Number, id: true},
+        name: String, notes: String
+      }); // generic model
       Link.validatesPresenceOf('linkedId');
       Link.validatesPresenceOf('linkedType');
 
@@ -2433,13 +2444,15 @@ describe('relations', function () {
     });
 
     it('can be declared', function (done) {
+      var idType = db.connector.getDefaultIdType();
+      
       Book.embedsMany(Link, { as: 'people',
         polymorphic: 'linked',
         scope: { include: 'linked' }
       });      
       Link.belongsTo('linked', {
-        polymorphic: true, // needs unique auto-id
-        properties: { name: 'name' }, // denormalized
+        polymorphic: { idType: idType },  // native type
+        properties: { name: 'name' },     // denormalized
         options: { invertProperties: true }
       });
       db.automigrate(done);
