@@ -145,9 +145,15 @@ describe('validations', function () {
 
     it('should validate presence', function () {
       User.validatesPresenceOf('name', 'email');
+      
+      var validations = User.validations;
+      validations.name.should.eql([{validation: 'presence', options: {}}]);
+      validations.email.should.eql([{validation: 'presence', options: {}}]);
+      
       var u = new User;
       u.isValid().should.not.be.true;
       u.name = 1;
+      u.isValid().should.not.be.true;
       u.email = 2;
       u.isValid().should.be.true;
     });
