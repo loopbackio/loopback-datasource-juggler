@@ -82,7 +82,6 @@ describe('manipulation', function () {
         err.should.be.instanceof(ValidationError);
         err.message.should.equal('The `Person` instance is not valid. Details: `id` can\'t be set.');
         err.statusCode.should.equal(422);
-        inst.isNewRecord().should.be.true;
         inst.id.should.equal(123456);
         inst.isNewRecord().should.be.true;
         done();
