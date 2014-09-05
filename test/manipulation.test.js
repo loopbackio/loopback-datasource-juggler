@@ -16,7 +16,7 @@ describe('manipulation', function () {
       age: {type: Number, index: true},
       dob: Date,
       createdAt: {type: Number, default: Date.now}
-    });
+    }, { forceId: true });
 
     db.automigrate(done);
 
@@ -49,6 +49,17 @@ describe('manipulation', function () {
       should.exist(person);
       person.should.be.an.instanceOf(Person);
       should.not.exist(person.id);
+    });
+    
+    it('should not allow user-defined value for the id of object', function (done) {
+      Person.create({ id: 123456 }, function (err, p) {
+        err.should.be.instanceof(ValidationError);
+        err.message.should.equal('The `Person` instance is not valid. Details: `id` can\'t be set.');
+        err.statusCode.should.equal(422);
+        p.should.be.instanceof(Person);
+        p.id.should.equal(123456);
+        done();
+      });
     });
 
     it('should work when called without callback', function (done) {
