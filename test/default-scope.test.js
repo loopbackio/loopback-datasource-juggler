@@ -2,7 +2,7 @@
 var should = require('./init.js');
 var async = require('async');
 
-var db, Product, Tool, Widget, Thing;
+var db, Category, Product, Tool, Widget, Thing;
 
 // This test requires a connector that can
 // handle a custom collection or table name
@@ -49,6 +49,10 @@ describe('default scope', function () {
   
   before(function (done) {
     db = getSchema();
+    
+    Category = db.define('Category', {
+      name: String
+    });
 
     Product = db.define('Product', {
       name: String,
@@ -86,6 +90,16 @@ describe('default scope', function () {
         mongodb: { collection: 'Product' },
         memory: { collection: 'Product' }
     });
+    
+    Category.hasMany(Product);
+    Category.hasMany(Tool, {scope: {order: 'name DESC'}});
+    Category.hasMany(Widget);
+    Category.hasMany(Thing);
+    
+    Product.belongsTo(Category);
+    Tool.belongsTo(Category);
+    Widget.belongsTo(Category);
+    Thing.belongsTo(Category);
     
     db.automigrate(done);
   });
@@ -643,6 +657,120 @@ describe('default scope', function () {
       });
     });
   
+  });
+  
+  describe('relations', function() {
+    
+    var ids = {};
+    
+    before(function (done) {
+      db.automigrate(done);
+    });
+    
+    before(function (done) {
+      Category.create({name: 'Category A'}, function(err, cat) {
+        ids.categoryA = cat.id;
+        async.series([
+          function(next) {
+            cat.widgets.create({name: 'Widget B', kind: 'ignored'}, next);
+          },
+          function(next) {
+            cat.widgets.create({name: 'Widget A'}, next);
+          },
+          function(next) {
+            cat.tools.create({name: 'Tool A'}, next);
+          },
+          function(next) {
+            cat.things.create({name: 'Thing A'}, next);
+          }
+        ], done);
+      });
+    });
+    
+    it('should apply default scope - products', function(done) {
+      Category.findById(ids.categoryA, function(err, cat) {
+        should.not.exist(err);
+        cat.products(function(err, products) {
+          should.not.exist(err);
+          products.should.have.length(4);
+          products[0].should.be.instanceof(Product);
+          products[0].name.should.equal('Thing A');
+          products[1].name.should.equal('Tool A');
+          products[2].name.should.equal('Widget A');
+          products[3].name.should.equal('Widget B');
+          done();
+        });
+      });
+    });
+    
+    it('should apply default scope - widgets', function(done) {
+      Category.findById(ids.categoryA, function(err, cat) {
+        should.not.exist(err);
+        cat.widgets(function(err, products) {
+          should.not.exist(err);
+          products.should.have.length(2);
+          products[0].should.be.instanceof(Widget);
+          products[0].name.should.equal('Widget A');
+          products[1].name.should.equal('Widget B');
+          products[0].category(function(err, inst) {
+            inst.name.should.equal('Category A');
+            done();
+          });
+        });
+      });
+    });
+    
+    it('should apply default scope - tools', function(done) {
+      Category.findById(ids.categoryA, function(err, cat) {
+        should.not.exist(err);
+        cat.tools(function(err, products) {
+          should.not.exist(err);
+          products.should.have.length(1);
+          products[0].should.be.instanceof(Tool);
+          products[0].name.should.equal('Tool A');
+          products[0].category(function(err, inst) {
+            inst.name.should.equal('Category A');
+            done();
+          });
+        });
+      });
+    });
+    
+    it('should apply default scope - things', function(done) {
+      Category.findById(ids.categoryA, function(err, cat) {
+        should.not.exist(err);
+        cat.things(function(err, products) {
+          should.not.exist(err);
+          products.should.have.length(1);
+          products[0].should.be.instanceof(Thing);
+          products[0].name.should.equal('Thing A');
+          products[0].category(function(err, inst) {
+            inst.name.should.equal('Category A');
+            done();
+          });
+        });
+      });
+    });
+    
+    it('should create related item with default scope', function(done) {
+      Category.findById(ids.categoryA, function(err, cat) {
+        cat.tools.create({name: 'Tool B'}, done);
+      });
+    });
+    
+    it('should use relation scope order', function(done) {
+      Category.findById(ids.categoryA, function(err, cat) {
+        should.not.exist(err);
+        cat.tools(function(err, products) {
+          should.not.exist(err);
+          products.should.have.length(2);
+          products[0].name.should.equal('Tool B');
+          products[1].name.should.equal('Tool A');
+          done();
+        });
+      });
+    });
+    
   });
   
 });
