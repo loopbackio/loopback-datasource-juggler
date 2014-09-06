@@ -335,7 +335,7 @@ describe('relations', function () {
         physician.patients.findById(id, function (err, ch) {
           should.not.exist(err);
           should.exist(ch);
-          ch.id.should.equal(id);
+          ch.id.should.eql(id);
           done();
         });
       }
@@ -387,7 +387,7 @@ describe('relations', function () {
         physician.patients.findById(id, function (err, ch) {
           should.not.exist(err);
           should.exist(ch);
-          ch.id.should.equal(id);
+          ch.id.should.eql(id);
           ch.name.should.equal('aa');
           done();
         });
