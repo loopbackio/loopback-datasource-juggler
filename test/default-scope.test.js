@@ -2,12 +2,13 @@
 var should = require('./init.js');
 var async = require('async');
 
-var db, Product, Tool, Widget;
+var db, Product, Tool, Widget, Thing;
 
 // This test requires a connector that can
 // handle a custom collection or table name
 
 // TODO [fabien] add table for pgsql/mysql
+// TODO [fabien] change model definition - see #293
 
 var setupProducts = function(ids, done) {
   async.series([
@@ -59,32 +60,33 @@ describe('default scope', function () {
       scopes: { active: { where: { active: true } } }
     });
     
-    Tool = db.define('Tool', { 
-        name: String, 
-        kind: String,
-        description: String,
-        active: { type: Boolean, default: true }
-      }, {
+    Tool = db.define('Tool', Product.definition.properties, {
         base: 'Product',
-        scope: { where: { kind: 'tool' }, order: 'name' },
+        scope: { where: { kind: 'Tool' }, order: 'name' },
         scopes: { active: { where: { active: true } } },
         mongodb: { collection: 'Product' },
         memory: { collection: 'Product' }
     });
     
-    Widget = db.define('Widget', { 
-        name: String, 
-        kind: String,
-        description: String,
-        active: { type: Boolean, default: true }
-      }, {
+    Widget = db.define('Widget', Product.definition.properties, {
         base: 'Product',
-        scope: { where: { kind: 'widget' }, order: 'name' },
+        scope: { where: { kind: 'Widget' }, order: 'name' },
         scopes: { active: { where: { active: true } } },
         mongodb: { collection: 'Product' },
         memory: { collection: 'Product' }
     });
-
+    
+    var scopeFn = function(target, isData) {
+      return { where: { kind: this.modelName } };
+    };
+    
+    Thing = db.define('Thing', Product.definition.properties, {
+        base: 'Product',
+        scope: scopeFn,
+        mongodb: { collection: 'Product' },
+        memory: { collection: 'Product' }
+    });
+    
     db.automigrate(done);
   });
   
@@ -99,9 +101,9 @@ describe('default scope', function () {
     it('should return a scoped instance', function() {
       var p = new Tool({name: 'Product A', kind:'ignored'});
       p.name.should.equal('Product A');
-      p.kind.should.equal('tool');
+      p.kind.should.equal('Tool');
       p.setAttributes({ kind: 'ignored' });
-      p.kind.should.equal('tool');
+      p.kind.should.equal('Tool');
       
       p.setAttribute('kind', 'other'); // currently not enforced
       p.kind.should.equal('other');
@@ -111,7 +113,7 @@ describe('default scope', function () {
       Tool.create({name: 'Product A', kind: 'ignored'}, function(err, p) {
         should.not.exist(err);
         p.name.should.equal('Product A');
-        p.kind.should.equal('tool');
+        p.kind.should.equal('Tool');
         ids.productA = p.id;
         done();
       });
@@ -121,7 +123,7 @@ describe('default scope', function () {
       Widget.create({name: 'Product B', kind: 'ignored'}, function(err, p) {
         should.not.exist(err);
         p.name.should.equal('Product B');
-        p.kind.should.equal('widget');
+        p.kind.should.equal('Widget');
         ids.productB = p.id;
         done();
       });
@@ -132,7 +134,7 @@ describe('default scope', function () {
         p.updateAttributes({description: 'A thing...', kind: 'ingored'}, function(err, inst) {
           should.not.exist(err);
           p.name.should.equal('Product A');
-          p.kind.should.equal('tool');
+          p.kind.should.equal('Tool');
           p.description.should.equal('A thing...');
           done();
         });
@@ -146,10 +148,10 @@ describe('default scope', function () {
         p.save(function(err, inst) {
           should.not.exist(err);
           p.name.should.equal('Product A');
-          p.kind.should.equal('tool');
+          p.kind.should.equal('Tool');
           p.description.should.equal('Something...');
           Tool.findById(ids.productA, function(err, p) {
-            p.kind.should.equal('tool');
+            p.kind.should.equal('Tool');
             done();
           });
         });
@@ -161,7 +163,7 @@ describe('default scope', function () {
       Tool.updateOrCreate(data, function(err, p) {
           should.not.exist(err);
           p.name.should.equal('Product A');
-          p.kind.should.equal('tool');
+          p.kind.should.equal('Tool');
           p.description.should.equal('Anything...');
           done();
       });
@@ -589,6 +591,58 @@ describe('default scope', function () {
       });
     });
     
+  });
+  
+  describe('scope function', function() {
+    
+    before(function(done) {
+      db.automigrate(done);
+    });
+    
+    it('should create a scoped instance - widget', function(done) {
+      Widget.create({name: 'Product', kind:'ignored'}, function(err, p) {
+        p.name.should.equal('Product');
+        p.kind.should.equal('Widget');
+        done();
+      });
+    });
+    
+    it('should create a scoped instance - thing', function(done) {
+      Thing.create({name: 'Product', kind:'ignored'}, function(err, p) {
+        p.name.should.equal('Product');
+        p.kind.should.equal('Thing');
+        done();
+      });
+    });
+    
+    it('should find a scoped instance - widget', function(done) {
+      Widget.findOne({where: {name: 'Product'}}, function(err, p) {
+        p.name.should.equal('Product');
+        p.kind.should.equal('Widget');
+        done();
+      });
+    });
+    
+    it('should find a scoped instance - thing', function(done) {
+      Thing.findOne({where: {name: 'Product'}}, function(err, p) {
+        p.name.should.equal('Product');
+        p.kind.should.equal('Thing');
+        done();
+      });
+    });
+    
+    it('should find a scoped instance - thing', function(done) {
+      Product.find({where: {name: 'Product'}}, function(err, products) {
+        products.should.have.length(2);
+        products[0].name.should.equal('Product');
+        products[1].name.should.equal('Product');
+        var kinds = products.map(function(p) { return p.kind; })
+        kinds.sort();
+        kinds.should.eql(['Thing', 'Widget']);
+        done();
+      });
+    });
+  
   });
   
 });
