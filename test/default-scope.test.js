@@ -64,6 +64,12 @@ describe('default scope', function () {
       scopes: { active: { where: { active: true } } }
     });
     
+    Product.lookupModel = function(data) {
+      var m = this.dataSource.models[data.kind];
+      if (m.base === this) return m;
+      return this;
+    };
+    
     Tool = db.define('Tool', Product.definition.properties, {
         base: 'Product',
         scope: { where: { kind: 'Tool' }, order: 'name' },
@@ -94,7 +100,7 @@ describe('default scope', function () {
     
     Thing = db.define('Thing', Product.definition.properties, {
         base: 'Product',
-        properties: propertiesFn,
+        attributes: propertiesFn,
         scope: scopeFn,
         mongodb: { collection: 'Product' },
         memory: { collection: 'Product' }
@@ -206,6 +212,7 @@ describe('default scope', function () {
       Product.findById(ids.toolA, function(err, inst) {
         should.not.exist(err);
         inst.name.should.equal('Tool A');
+        inst.should.be.instanceof(Tool);
         done();
       });
     });
@@ -245,6 +252,13 @@ describe('default scope', function () {
         products[2].name.should.equal('Widget A');
         products[3].name.should.equal('Widget B');
         products[4].name.should.equal('Widget Z');
+        
+        products[0].should.be.instanceof(Product);
+        products[0].should.be.instanceof(Tool);
+        
+        products[2].should.be.instanceof(Product);
+        products[2].should.be.instanceof(Widget);
+        
         done();
       });
     });
@@ -702,11 +716,20 @@ describe('default scope', function () {
         cat.products(function(err, products) {
           should.not.exist(err);
           products.should.have.length(4);
-          products[0].should.be.instanceof(Product);
           products[0].name.should.equal('Thing A');
           products[1].name.should.equal('Tool A');
           products[2].name.should.equal('Widget A');
           products[3].name.should.equal('Widget B');
+          
+          products[0].should.be.instanceof(Product);
+          products[0].should.be.instanceof(Thing);
+          
+          products[1].should.be.instanceof(Product);
+          products[1].should.be.instanceof(Tool);
+          
+          products[2].should.be.instanceof(Product);
+          products[2].should.be.instanceof(Widget);
+          
           done();
         });
       });
