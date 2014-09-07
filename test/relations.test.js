@@ -2186,6 +2186,7 @@ describe('relations', function () {
   describe('embedsMany - persisted model', function () {
     
     var address0, address1, address2;
+    var person;
     
     before(function (done) {
       db = getSchema();
@@ -2199,7 +2200,7 @@ describe('relations', function () {
     });
 
     it('can be declared', function (done) {
-      Person.embedsMany(Address);
+      Person.embedsMany(Address, {scope: {order: 'street'}});
       db.automigrate(done);
     });
     
@@ -2224,18 +2225,43 @@ describe('relations', function () {
       });
     });
     
-    it('should create embedded items on scope', function(done) {
+    it('should add embedded items on scope', function(done) {
       Person.create({ name: 'Fred' }, function(err, p) {
+        person = p;
         p.addressList.create(address1.toObject(), function(err, address) {
           should.not.exist(err);
           address.id.should.eql(address1.id);
-          address1.street.should.equal('Street 1');
+          address.street.should.equal('Street 1');
           p.addressList.create(address2.toObject(), function(err, address) {
             should.not.exist(err);
             address.id.should.eql(address2.id);
-            address2.street.should.equal('Street 2');
+            address.street.should.equal('Street 2');
             done();
           });
+        });
+      });
+    });
+    
+    it('should create embedded items on scope', function(done) {
+      Person.findById(person.id, function(err, p) {
+        p.addressList.create({ street: 'Street 3' }, function(err, address) {
+          should.not.exist(err);
+          address.should.have.property('id'); // not within Address seq!
+          address.street.should.equal('Street 3');
+          done();
+        });
+      });
+    });
+    
+    it('should have embedded items on scope', function(done) {
+      Person.findById(person.id, function(err, p) {
+        p.addressList(function(err, addresses) {
+          should.not.exist(err);
+          addresses.should.have.length(3);
+          addresses[0].street.should.equal('Street 1');
+          addresses[1].street.should.equal('Street 2');
+          addresses[2].street.should.equal('Street 3');
+          done();
         });
       });
     });
