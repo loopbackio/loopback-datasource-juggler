@@ -81,12 +81,20 @@ describe('default scope', function () {
         memory: { collection: 'Product' }
     });
     
-    var scopeFn = function(target, isData) {
+    // inst is only valid for instance methods
+    // like save, updateAttributes
+    
+    var scopeFn = function(target, inst) {
       return { where: { kind: this.modelName } };
+    };
+    
+    var propertiesFn = function(target, inst) {
+      return { kind: this.modelName };
     };
     
     Thing = db.define('Thing', Product.definition.properties, {
         base: 'Product',
+        properties: propertiesFn,
         scope: scopeFn,
         mongodb: { collection: 'Product' },
         memory: { collection: 'Product' }
