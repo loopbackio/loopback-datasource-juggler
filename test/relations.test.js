@@ -2091,6 +2091,45 @@ describe('relations', function () {
     
   });
   
+  describe('embedsMany - numeric ids + forceId', function () {
+    
+    before(function (done) {
+      tmp = getTransientDataSource();
+      db = getSchema();
+      Person = db.define('Person', {name: String});
+      Address = tmp.define('Address', {
+        id: {type: Number, id:true},
+        street: String
+      });
+
+      db.automigrate(function () {
+        Person.destroyAll(done);
+      });
+    });
+
+    it('can be declared', function (done) {
+      Person.embedsMany(Address, {options: {forceId: true}});
+      db.automigrate(done);
+    });
+    
+    it('should create embedded items on scope', function(done) {
+      Person.create({ name: 'Fred' }, function(err, p) {
+        p.addressList.create({ street: 'Street 1' }, function(err, address) {
+          should.not.exist(err);
+          address.id.should.equal(1);
+          p.addressList.create({ street: 'Street 2' }, function(err, address) {
+            address.id.should.equal(2);
+            p.addressList.create({ id: 12345, street: 'Street 3' }, function(err, address) {
+              address.id.should.equal(3);
+              done();
+            });
+          });
+        });
+      });
+    });
+    
+  });
+  
   describe('embedsMany - explicit ids', function () {
     before(function (done) {
       tmp = getTransientDataSource();
