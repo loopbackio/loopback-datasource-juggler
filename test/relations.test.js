@@ -1833,6 +1833,50 @@ describe('relations', function () {
     
   });
   
+  describe('embedsOne - persisted model', function () {
+    
+    // This test spefically uses the Memory connector
+    // in order to test the use of the auto-generated
+    // id, in the sequence of the related model.
+    
+    before(function () {
+      db = getMemoryDataSource();
+      Person = db.define('Person', {name: String});
+      Passport = db.define('Passport',
+        {name:{type:'string', required: true}}
+      );
+    });
+
+    it('can be declared using embedsOne method', function (done) {
+      Person.embedsOne(Passport, {
+        options: {persistent: true}
+      });
+      db.automigrate(done);
+    });
+    
+    it('should create an item - to offset id', function(done) {
+      Passport.create({name:'Wilma'}, function(err, p) {
+        should.not.exist(err);
+        p.id.should.equal(1);
+        p.name.should.equal('Wilma');
+        done();
+      });
+    });
+    
+    it('should create an embedded item on scope', function(done) {
+      Person.create({name: 'Fred'}, function(err, p) {
+        should.not.exist(err);
+        p.passportItem.create({name: 'Fredric'}, function(err, passport) {
+          should.not.exist(err);
+          p.passport.id.should.eql(2);
+          p.passport.name.should.equal('Fredric');
+          done();
+        });
+      });
+    });
+    
+  });
+  
   describe('embedsMany', function () {
     
     var address1, address2;
