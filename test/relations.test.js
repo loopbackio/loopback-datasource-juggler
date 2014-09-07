@@ -1877,6 +1877,37 @@ describe('relations', function () {
     
   });
   
+  describe('embedsOne - generated id', function () {
+    
+    before(function () {
+      tmp = getTransientDataSource();
+      db = getSchema();
+      Person = db.define('Person', {name: String});
+      Passport = tmp.define('Passport',
+        {id: {type:'string', id: true, generated:true}},
+        {name: {type:'string', required: true}}
+      );
+    });
+
+    it('can be declared using embedsOne method', function (done) {
+      Person.embedsOne(Passport);
+      db.automigrate(done);
+    });
+    
+    it('should create an embedded item on scope', function(done) {
+      Person.create({name: 'Fred'}, function(err, p) {
+        should.not.exist(err);
+        p.passportItem.create({name: 'Fredric'}, function(err, passport) {
+          should.not.exist(err);
+          passport.id.should.match(/^[0-9a-fA-F]{24}$/);
+          p.passport.name.should.equal('Fredric');
+          done();
+        });
+      });
+    });
+    
+  });
+  
   describe('embedsMany', function () {
     
     var address1, address2;
