@@ -2183,6 +2183,93 @@ describe('relations', function () {
     
   });
   
+  describe('embedsMany - persisted model', function () {
+    
+    var address0, address1, address2;
+    
+    before(function (done) {
+      db = getSchema();
+      Person = db.define('Person', {name: String});
+      Address = db.define('Address', {street: String});
+      Address.validatesPresenceOf('street');
+
+      db.automigrate(function () {
+        Person.destroyAll(done);
+      });
+    });
+
+    it('can be declared', function (done) {
+      Person.embedsMany(Address);
+      db.automigrate(done);
+    });
+    
+    it('should create individual items (0)', function(done) {
+      Address.create({ street: 'Street 0' }, function(err, inst) {
+        address0 = inst;
+        done();
+      });
+    });
+    
+    it('should create individual items (1)', function(done) {
+      Address.create({ street: 'Street 1' }, function(err, inst) {
+        address1 = inst;
+        done();
+      });
+    });
+    
+    it('should create individual items (2)', function(done) {
+      Address.create({ street: 'Street 2' }, function(err, inst) {
+        address2 = inst;
+        done();
+      });
+    });
+    
+    it('should create embedded items on scope', function(done) {
+      Person.create({ name: 'Fred' }, function(err, p) {
+        p.addressList.create(address1.toObject(), function(err, address) {
+          should.not.exist(err);
+          address.id.should.eql(address1.id);
+          address1.street.should.equal('Street 1');
+          p.addressList.create(address2.toObject(), function(err, address) {
+            should.not.exist(err);
+            address.id.should.eql(address2.id);
+            address2.street.should.equal('Street 2');
+            done();
+          });
+        });
+      });
+    });
+    
+    it('should validate embedded items on scope - id', function(done) {
+      Person.create({ name: 'Wilma' }, function(err, p) {
+        p.addressList.create({ id: null, street: 'Street 1' }, function(err, address) {
+          should.exist(err);
+          err.name.should.equal('ValidationError');
+          err.details.codes.addresses.should.eql(['invalid']);
+          var expected = 'The `Person` instance is not valid. ';
+          expected += 'Details: `addresses` contains invalid item at index `0`: `id` is blank.';
+          err.message.should.equal(expected);
+          done();
+        });
+      });
+    });
+    
+    it('should validate embedded items on scope - street', function(done) {
+      Person.create({ name: 'Wilma' }, function(err, p) {
+        p.addressList.create({ id: 1234 }, function(err, address) {
+          should.exist(err);
+          err.name.should.equal('ValidationError');
+          err.details.codes.street.should.eql(['presence']);
+          var expected = 'The `Address` instance is not valid. ';
+          expected += 'Details: `street` can\'t be blank.';
+          err.message.should.equal(expected);
+          done();
+        });
+      });
+    });
+    
+  });
+  
   describe('embedsMany - relations, scope and properties', function () {
     
     var category, job1, job2, job3;
