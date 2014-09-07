@@ -74,6 +74,7 @@ describe('default scope', function () {
     
     Widget = db.define('Widget', Product.definition.properties, {
         base: 'Product',
+        properties: { kind: 'Widget' },
         scope: { where: { kind: 'Widget' }, order: 'name' },
         scopes: { active: { where: { active: true } } },
         mongodb: { collection: 'Product' },
