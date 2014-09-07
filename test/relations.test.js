@@ -13,6 +13,10 @@ var getTransientDataSource = function(settings) {
     return new DataSource('transient', settings, db.modelBuilder);
 };
 
+var getMemoryDataSource = function(settings) {
+    return new DataSource('memory', settings, db.modelBuilder);
+};
+
 describe('relations', function () {
 
   describe('hasMany', function () {
@@ -2188,8 +2192,12 @@ describe('relations', function () {
     var address0, address1, address2;
     var person;
     
+    // This test spefically uses the Memory connector
+    // in order to test the use of the auto-generated
+    // id, in the sequence of the related model.
+    
     before(function (done) {
-      db = getSchema();
+      db = getMemoryDataSource();
       Person = db.define('Person', {name: String});
       Address = db.define('Address', {street: String});
       Address.validatesPresenceOf('street');
@@ -2200,12 +2208,18 @@ describe('relations', function () {
     });
 
     it('can be declared', function (done) {
-      Person.embedsMany(Address, {scope: {order: 'street'}});
+      // to save related model itself, set
+      // persistent: true
+      Person.embedsMany(Address, {
+        scope: {order: 'street'}, 
+        options: {persistent: true}
+      });
       db.automigrate(done);
     });
     
     it('should create individual items (0)', function(done) {
       Address.create({ street: 'Street 0' }, function(err, inst) {
+        inst.id.should.equal(1); // offset sequence
         address0 = inst;
         done();
       });
@@ -2213,6 +2227,7 @@ describe('relations', function () {
     
     it('should create individual items (1)', function(done) {
       Address.create({ street: 'Street 1' }, function(err, inst) {
+        inst.id.should.equal(2);
         address1 = inst;
         done();
       });
@@ -2220,7 +2235,15 @@ describe('relations', function () {
     
     it('should create individual items (2)', function(done) {
       Address.create({ street: 'Street 2' }, function(err, inst) {
+        inst.id.should.equal(3);
         address2 = inst;
+        done();
+      });
+    });
+    
+    it('should create individual items (3)', function(done) {
+      Address.create({ street: 'Street 3' }, function(err, inst) {
+        inst.id.should.equal(4); // offset sequence
         done();
       });
     });
@@ -2230,11 +2253,11 @@ describe('relations', function () {
         person = p;
         p.addressList.create(address1.toObject(), function(err, address) {
           should.not.exist(err);
-          address.id.should.eql(address1.id);
+          address.id.should.eql(2);
           address.street.should.equal('Street 1');
           p.addressList.create(address2.toObject(), function(err, address) {
             should.not.exist(err);
-            address.id.should.eql(address2.id);
+            address.id.should.eql(3);
             address.street.should.equal('Street 2');
             done();
           });
@@ -2244,10 +2267,10 @@ describe('relations', function () {
     
     it('should create embedded items on scope', function(done) {
       Person.findById(person.id, function(err, p) {
-        p.addressList.create({ street: 'Street 3' }, function(err, address) {
+        p.addressList.create({ street: 'Street 4' }, function(err, address) {
           should.not.exist(err);
-          address.should.have.property('id'); // not within Address seq!
-          address.street.should.equal('Street 3');
+          address.id.should.equal(5); // in Address sequence, correct offset
+          address.street.should.equal('Street 4');
           done();
         });
       });
@@ -2260,7 +2283,7 @@ describe('relations', function () {
           addresses.should.have.length(3);
           addresses[0].street.should.equal('Street 1');
           addresses[1].street.should.equal('Street 2');
-          addresses[2].street.should.equal('Street 3');
+          addresses[2].street.should.equal('Street 4');
           done();
         });
       });
@@ -2269,12 +2292,8 @@ describe('relations', function () {
     it('should validate embedded items on scope - id', function(done) {
       Person.create({ name: 'Wilma' }, function(err, p) {
         p.addressList.create({ id: null, street: 'Street 1' }, function(err, address) {
-          should.exist(err);
-          err.name.should.equal('ValidationError');
-          err.details.codes.addresses.should.eql(['invalid']);
-          var expected = 'The `Person` instance is not valid. ';
-          expected += 'Details: `addresses` contains invalid item at index `0`: `id` is blank.';
-          err.message.should.equal(expected);
+          should.not.exist(err);
+          address.street.should.equal('Street 1');
           done();
         });
       });
