@@ -1,7 +1,28 @@
 var assert = require('assert');
-var ModelBuilder = require('../lib/model-builder').ModelBuilder;
+var ModelBuilder = require('..').ModelBuilder;
+var DataSource = require('../').DataSource;
 var introspectType = require('../lib/introspection')(ModelBuilder);
 var traverse = require('traverse');
+
+var json = {
+  name: 'Joe',
+  age: 30,
+  birthday: new Date(),
+  vip: true,
+  address: {
+    street: '1 Main St',
+    city: 'San Jose',
+    state: 'CA',
+    zipcode: '95131',
+    country: 'US'
+  },
+  friends: ['John', 'Mary'],
+  emails: [
+    {label: 'work', id: 'x@sample.com'},
+    {label: 'home', id: 'x@home.com'}
+  ],
+  tags: []
+};
 
 describe('Introspection of model definitions from JSON', function () {
 
@@ -61,27 +82,6 @@ describe('Introspection of model definitions from JSON', function () {
   });
 
   it('should build a model from the introspected schema', function (done) {
-
-    var json = {
-      name: 'Joe',
-      age: 30,
-      birthday: new Date(),
-      vip: true,
-      address: {
-        street: '1 Main St',
-        city: 'San Jose',
-        state: 'CA',
-        zipcode: '95131',
-        country: 'US'
-      },
-      friends: ['John', 'Mary'],
-      emails: [
-        {label: 'work', id: 'x@sample.com'},
-        {label: 'home', id: 'x@home.com'}
-      ],
-      tags: []
-    };
-
     var copy = traverse(json).clone();
 
     var schema = introspectType(json);
@@ -97,5 +97,33 @@ describe('Introspection of model definitions from JSON', function () {
     assert.deepEqual(obj, copy);
     done();
   });
+
+  it('should build a model using buildModelFromInstance', function (done) {
+    var copy = traverse(json).clone();
+
+    var builder = new ModelBuilder();
+    var Model = builder.buildModelFromInstance('MyModel', copy, {idInjection: false});
+
+    var obj = new Model(json);
+    obj = obj.toObject();
+    assert.deepEqual(obj, copy);
+    done();
+  });
+
+  it('should build a model using DataSource.buildModelFromInstance', function (done) {
+    var copy = traverse(json).clone();
+
+    var builder = new DataSource('memory');
+    var Model = builder.buildModelFromInstance('MyModel', copy,
+      {idInjection: false});
+
+    assert.equal(Model.dataSource, builder);
+
+    var obj = new Model(json);
+    obj = obj.toObject();
+    assert.deepEqual(obj, copy);
+    done();
+  });
+
 });
 
