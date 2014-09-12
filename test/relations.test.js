@@ -91,10 +91,14 @@ describe('relations', function () {
           should.not.exist(err);
           should.exist(ch);
           ch.should.have.lengthOf(3);
-
+          
+          var chapters = book.chapters();
+          chapters.should.eql(ch);
+          
           book.chapters({order: 'name DESC'}, function (e, c) {
             should.not.exist(e);
             should.exist(c);
+            
             c.shift().name.should.equal('z');
             c.pop().name.should.equal('a');
             done();
@@ -298,6 +302,10 @@ describe('relations', function () {
       });
       function verify(physician) {
         physician.patients(function (err, ch) {
+          
+          var patients = physician.patients();
+          patients.should.eql(ch);
+          
           should.not.exist(err);
           should.exist(ch);
           ch.should.have.lengthOf(3);
@@ -842,6 +850,10 @@ describe('relations', function () {
       Author.findOne(function (err, author) {
         author.avatar(function (err, p) {
           should.not.exist(err);
+          
+          var avatar = author.avatar();
+          avatar.should.equal(p);
+          
           p.name.should.equal('Avatar');
           p.imageableId.should.eql(author.id);
           p.imageableType.should.equal('Author');
@@ -971,6 +983,10 @@ describe('relations', function () {
       Author.findOne(function (err, author) {
         author.pictures(function (err, pics) {
           should.not.exist(err);
+          
+          var pictures = author.pictures();
+          pictures.should.eql(pics);
+          
           pics.should.have.length(1);
           pics[0].name.should.equal('Author Pic');
           done();
@@ -1638,6 +1654,9 @@ describe('relations', function () {
         article.tags(function (e, tags) {
           should.not.exist(e);
           should.exist(tags);
+          
+          article.tags().should.eql(tags);
+          
           done();
         });
       });
@@ -1756,6 +1775,7 @@ describe('relations', function () {
         passport.toObject().should.eql({name: 'Fredric'});
         passport.should.be.an.instanceOf(Passport);
         passport.should.equal(p.passport);
+        passport.should.equal(p.passportItem.value());
         done();
       });
     });
@@ -1891,6 +1911,13 @@ describe('relations', function () {
       Person.findOne(function(err, p) {
         p.addressList(function(err, addresses) {
           should.not.exist(err);
+          
+          var list = p.addressList();
+          list.should.equal(addresses);
+          list.should.equal(p.addresses);
+          
+          p.addressList.value().should.equal(list);
+          
           addresses.should.have.length(2);
           addresses[0].id.should.eql(address1.id);
           addresses[0].street.should.equal('Street 1');
