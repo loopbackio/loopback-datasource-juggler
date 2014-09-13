@@ -16,7 +16,7 @@ describe('manipulation', function () {
       age: {type: Number, index: true},
       dob: Date,
       createdAt: {type: Number, default: Date.now}
-    });
+    }, { forceId: true });
 
     db.automigrate(done);
 
@@ -40,6 +40,18 @@ describe('manipulation', function () {
         });
       });
     });
+    
+    it('should instantiate an object', function (done) {
+      var p = new Person({name: 'Anatoliy'});
+      p.name.should.equal('Anatoliy');
+      p.isNewRecord().should.be.true;
+      p.save(function(err, inst) {
+        should.not.exist(err);
+        inst.isNewRecord().should.be.false;
+        inst.should.equal(p);
+        done();
+      });
+    });
 
     it('should return instance of object', function (done) {
       var person = Person.create(function (err, p) {
@@ -49,6 +61,31 @@ describe('manipulation', function () {
       should.exist(person);
       person.should.be.an.instanceOf(Person);
       should.not.exist(person.id);
+    });
+    
+    it('should not allow user-defined value for the id of object - create', function (done) {
+      Person.create({id: 123456}, function (err, p) {
+        err.should.be.instanceof(ValidationError);
+        err.message.should.equal('The `Person` instance is not valid. Details: `id` can\'t be set.');
+        err.statusCode.should.equal(422);
+        p.should.be.instanceof(Person);
+        p.id.should.equal(123456);
+        p.isNewRecord().should.be.true;
+        done();
+      });
+    });
+    
+    it('should not allow user-defined value for the id of object - save', function (done) {
+      var p = new Person({id: 123456});
+      p.isNewRecord().should.be.true;
+      p.save(function(err, inst) {
+        err.should.be.instanceof(ValidationError);
+        err.message.should.equal('The `Person` instance is not valid. Details: `id` can\'t be set.');
+        err.statusCode.should.equal(422);
+        inst.id.should.equal(123456);
+        inst.isNewRecord().should.be.true;
+        done();
+      });
     });
 
     it('should work when called without callback', function (done) {

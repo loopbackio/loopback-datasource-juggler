@@ -13,6 +13,10 @@ var getTransientDataSource = function(settings) {
     return new DataSource('transient', settings, db.modelBuilder);
 };
 
+var getMemoryDataSource = function(settings) {
+    return new DataSource('memory', settings, db.modelBuilder);
+};
+
 describe('relations', function () {
 
   describe('hasMany', function () {
@@ -91,10 +95,14 @@ describe('relations', function () {
           should.not.exist(err);
           should.exist(ch);
           ch.should.have.lengthOf(3);
-
+          
+          var chapters = book.chapters();
+          chapters.should.eql(ch);
+          
           book.chapters({order: 'name DESC'}, function (e, c) {
             should.not.exist(e);
             should.exist(c);
+            
             c.shift().name.should.equal('z');
             c.pop().name.should.equal('a');
             done();
@@ -298,6 +306,10 @@ describe('relations', function () {
       });
       function verify(physician) {
         physician.patients(function (err, ch) {
+          
+          var patients = physician.patients();
+          patients.should.eql(ch);
+          
           should.not.exist(err);
           should.exist(ch);
           ch.should.have.lengthOf(3);
@@ -842,6 +854,10 @@ describe('relations', function () {
       Author.findOne(function (err, author) {
         author.avatar(function (err, p) {
           should.not.exist(err);
+          
+          var avatar = author.avatar();
+          avatar.should.equal(p);
+          
           p.name.should.equal('Avatar');
           p.imageableId.should.eql(author.id);
           p.imageableType.should.equal('Author');
@@ -971,6 +987,10 @@ describe('relations', function () {
       Author.findOne(function (err, author) {
         author.pictures(function (err, pics) {
           should.not.exist(err);
+          
+          var pictures = author.pictures();
+          pictures.should.eql(pics);
+          
           pics.should.have.length(1);
           pics[0].name.should.equal('Author Pic');
           done();
@@ -1638,6 +1658,9 @@ describe('relations', function () {
         article.tags(function (e, tags) {
           should.not.exist(e);
           should.exist(tags);
+          
+          article.tags().should.eql(tags);
+          
           done();
         });
       });
@@ -1756,6 +1779,7 @@ describe('relations', function () {
         passport.toObject().should.eql({name: 'Fredric'});
         passport.should.be.an.instanceOf(Passport);
         passport.should.equal(p.passport);
+        passport.should.equal(p.passportItem.value());
         done();
       });
     });
@@ -1829,6 +1853,81 @@ describe('relations', function () {
     
   });
   
+  describe('embedsOne - persisted model', function () {
+    
+    // This test spefically uses the Memory connector
+    // in order to test the use of the auto-generated
+    // id, in the sequence of the related model.
+    
+    before(function () {
+      db = getMemoryDataSource();
+      Person = db.define('Person', {name: String});
+      Passport = db.define('Passport',
+        {name:{type:'string', required: true}}
+      );
+    });
+
+    it('can be declared using embedsOne method', function (done) {
+      Person.embedsOne(Passport, {
+        options: {persistent: true}
+      });
+      db.automigrate(done);
+    });
+    
+    it('should create an item - to offset id', function(done) {
+      Passport.create({name:'Wilma'}, function(err, p) {
+        should.not.exist(err);
+        p.id.should.equal(1);
+        p.name.should.equal('Wilma');
+        done();
+      });
+    });
+    
+    it('should create an embedded item on scope', function(done) {
+      Person.create({name: 'Fred'}, function(err, p) {
+        should.not.exist(err);
+        p.passportItem.create({name: 'Fredric'}, function(err, passport) {
+          should.not.exist(err);
+          p.passport.id.should.eql(2);
+          p.passport.name.should.equal('Fredric');
+          done();
+        });
+      });
+    });
+    
+  });
+  
+  describe('embedsOne - generated id', function () {
+    
+    before(function () {
+      tmp = getTransientDataSource();
+      db = getSchema();
+      Person = db.define('Person', {name: String});
+      Passport = tmp.define('Passport',
+        {id: {type:'string', id: true, generated:true}},
+        {name: {type:'string', required: true}}
+      );
+    });
+
+    it('can be declared using embedsOne method', function (done) {
+      Person.embedsOne(Passport);
+      db.automigrate(done);
+    });
+    
+    it('should create an embedded item on scope', function(done) {
+      Person.create({name: 'Fred'}, function(err, p) {
+        should.not.exist(err);
+        p.passportItem.create({name: 'Fredric'}, function(err, passport) {
+          should.not.exist(err);
+          passport.id.should.match(/^[0-9a-fA-F]{24}$/);
+          p.passport.name.should.equal('Fredric');
+          done();
+        });
+      });
+    });
+    
+  });
+  
   describe('embedsMany', function () {
     
     var address1, address2;
@@ -1891,6 +1990,13 @@ describe('relations', function () {
       Person.findOne(function(err, p) {
         p.addressList(function(err, addresses) {
           should.not.exist(err);
+          
+          var list = p.addressList();
+          list.should.equal(addresses);
+          list.should.equal(p.addresses);
+          
+          p.addressList.value().should.equal(list);
+          
           addresses.should.have.length(2);
           addresses[0].id.should.eql(address1.id);
           addresses[0].street.should.equal('Street 1');
@@ -2007,6 +2113,45 @@ describe('relations', function () {
       Person.findOne(function(err, p) {
         p.addresses.should.have.length(1);
         done();
+      });
+    });
+    
+  });
+  
+  describe('embedsMany - numeric ids + forceId', function () {
+    
+    before(function (done) {
+      tmp = getTransientDataSource();
+      db = getSchema();
+      Person = db.define('Person', {name: String});
+      Address = tmp.define('Address', {
+        id: {type: Number, id:true},
+        street: String
+      });
+
+      db.automigrate(function () {
+        Person.destroyAll(done);
+      });
+    });
+
+    it('can be declared', function (done) {
+      Person.embedsMany(Address, {options: {forceId: true}});
+      db.automigrate(done);
+    });
+    
+    it('should create embedded items on scope', function(done) {
+      Person.create({ name: 'Fred' }, function(err, p) {
+        p.addressList.create({ street: 'Street 1' }, function(err, address) {
+          should.not.exist(err);
+          address.id.should.equal(1);
+          p.addressList.create({ street: 'Street 2' }, function(err, address) {
+            address.id.should.equal(2);
+            p.addressList.create({ id: 12345, street: 'Street 3' }, function(err, address) {
+              address.id.should.equal(3);
+              done();
+            });
+          });
+        });
       });
     });
     
@@ -2176,6 +2321,134 @@ describe('relations', function () {
           should.not.exist(err);
           address.id.should.match(/^[0-9a-fA-F]{24}$/);
           address.street.should.equal('Home Street 1');
+          done();
+        });
+      });
+    });
+    
+  });
+  
+  describe('embedsMany - persisted model', function () {
+    
+    var address0, address1, address2;
+    var person;
+    
+    // This test spefically uses the Memory connector
+    // in order to test the use of the auto-generated
+    // id, in the sequence of the related model.
+    
+    before(function (done) {
+      db = getMemoryDataSource();
+      Person = db.define('Person', {name: String});
+      Address = db.define('Address', {street: String});
+      Address.validatesPresenceOf('street');
+
+      db.automigrate(function () {
+        Person.destroyAll(done);
+      });
+    });
+
+    it('can be declared', function (done) {
+      // to save related model itself, set
+      // persistent: true
+      Person.embedsMany(Address, {
+        scope: {order: 'street'}, 
+        options: {persistent: true}
+      });
+      db.automigrate(done);
+    });
+    
+    it('should create individual items (0)', function(done) {
+      Address.create({ street: 'Street 0' }, function(err, inst) {
+        inst.id.should.equal(1); // offset sequence
+        address0 = inst;
+        done();
+      });
+    });
+    
+    it('should create individual items (1)', function(done) {
+      Address.create({ street: 'Street 1' }, function(err, inst) {
+        inst.id.should.equal(2);
+        address1 = inst;
+        done();
+      });
+    });
+    
+    it('should create individual items (2)', function(done) {
+      Address.create({ street: 'Street 2' }, function(err, inst) {
+        inst.id.should.equal(3);
+        address2 = inst;
+        done();
+      });
+    });
+    
+    it('should create individual items (3)', function(done) {
+      Address.create({ street: 'Street 3' }, function(err, inst) {
+        inst.id.should.equal(4); // offset sequence
+        done();
+      });
+    });
+    
+    it('should add embedded items on scope', function(done) {
+      Person.create({ name: 'Fred' }, function(err, p) {
+        person = p;
+        p.addressList.create(address1.toObject(), function(err, address) {
+          should.not.exist(err);
+          address.id.should.eql(2);
+          address.street.should.equal('Street 1');
+          p.addressList.create(address2.toObject(), function(err, address) {
+            should.not.exist(err);
+            address.id.should.eql(3);
+            address.street.should.equal('Street 2');
+            done();
+          });
+        });
+      });
+    });
+    
+    it('should create embedded items on scope', function(done) {
+      Person.findById(person.id, function(err, p) {
+        p.addressList.create({ street: 'Street 4' }, function(err, address) {
+          should.not.exist(err);
+          address.id.should.equal(5); // in Address sequence, correct offset
+          address.street.should.equal('Street 4');
+          done();
+        });
+      });
+    });
+    
+    it('should have embedded items on scope', function(done) {
+      Person.findById(person.id, function(err, p) {
+        p.addressList(function(err, addresses) {
+          should.not.exist(err);
+          addresses.should.have.length(3);
+          addresses[0].street.should.equal('Street 1');
+          addresses[1].street.should.equal('Street 2');
+          addresses[2].street.should.equal('Street 4');
+          done();
+        });
+      });
+    });
+    
+    it('should validate embedded items on scope - id', function(done) {
+      Person.create({ name: 'Wilma' }, function(err, p) {
+        p.addressList.create({ id: null, street: 'Street 1' }, function(err, address) {
+          should.not.exist(err);
+          address.street.should.equal('Street 1');
+          done();
+        });
+      });
+    });
+    
+    it('should validate embedded items on scope - street', function(done) {
+      Person.create({ name: 'Wilma' }, function(err, p) {
+        p.addressList.create({ id: 1234 }, function(err, address) {
+          should.exist(err);
+          err.name.should.equal('ValidationError');
+          err.details.codes.street.should.eql(['presence']);
+          var expected = 'The `Address` instance is not valid. ';
+          expected += 'Details: `street` can\'t be blank.';
+          err.message.should.equal(expected);
           done();
         });
       });
