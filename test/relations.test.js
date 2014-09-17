@@ -1604,15 +1604,15 @@ describe('relations', function () {
   });
 
   describe('hasAndBelongsToMany', function () {
-    var Article, Tag, ArticleTag;
+    var Article, TagName, ArticleTag;
     it('can be declared', function (done) {
       Article = db.define('Article', {title: String});
-      Tag = db.define('Tag', {name: String});
-      Article.hasAndBelongsToMany('tags');
-      ArticleTag = db.models.ArticleTag;
+      TagName = db.define('TagName', {name: String});
+      Article.hasAndBelongsToMany('tagNames');
+      ArticleTag = db.models.ArticleTagName;
       db.automigrate(function () {
         Article.destroyAll(function () {
-          Tag.destroyAll(function () {
+          TagName.destroyAll(function () {
             ArticleTag.destroyAll(done)
           });
         });
@@ -1621,11 +1621,11 @@ describe('relations', function () {
 
     it('should allow to create instances on scope', function (done) {
       Article.create(function (e, article) {
-        article.tags.create({name: 'popular'}, function (e, t) {
-          t.should.be.an.instanceOf(Tag);
+        article.tagNames.create({name: 'popular'}, function (e, t) {
+          t.should.be.an.instanceOf(TagName);
           ArticleTag.findOne(function (e, at) {
             should.exist(at);
-            at.tagId.toString().should.equal(t.id.toString());
+            at.tagNameId.toString().should.equal(t.id.toString());
             at.articleId.toString().should.equal(article.id.toString());
             done();
           });
@@ -1635,7 +1635,7 @@ describe('relations', function () {
 
     it('should allow to fetch scoped instances', function (done) {
       Article.findOne(function (e, article) {
-        article.tags(function (e, tags) {
+        article.tagNames(function (e, tags) {
           should.not.exist(e);
           should.exist(tags);
           done();
@@ -1645,12 +1645,12 @@ describe('relations', function () {
 
     it('should allow to add connection with instance', function (done) {
       Article.findOne(function (e, article) {
-        Tag.create({name: 'awesome'}, function (e, tag) {
-          article.tags.add(tag, function (e, at) {
+        TagName.create({name: 'awesome'}, function (e, tag) {
+          article.tagNames.add(tag, function (e, at) {
             should.not.exist(e);
             should.exist(at);
             at.should.be.an.instanceOf(ArticleTag);
-            at.tagId.should.equal(tag.id);
+            at.tagNameId.should.equal(tag.id);
             at.articleId.should.equal(article.id);
             done();
           });
@@ -1660,12 +1660,12 @@ describe('relations', function () {
 
     it('should allow to remove connection with instance', function (done) {
       Article.findOne(function (e, article) {
-        article.tags(function (e, tags) {
+        article.tagNames(function (e, tags) {
           var len = tags.length;
           tags.should.not.be.empty;
-          article.tags.remove(tags[0], function (e) {
+          article.tagNames.remove(tags[0], function (e) {
             should.not.exist(e);
-            article.tags(true, function (e, tags) {
+            article.tagNames(true, function (e, tags) {
               tags.should.have.lengthOf(len - 1);
               done();
             });
@@ -1675,7 +1675,7 @@ describe('relations', function () {
     });
 
     it('should set targetClass on scope property', function() {
-      should.equal(Article.prototype.tags._targetClass, 'Tag');
+      should.equal(Article.prototype.tagNames._targetClass, 'TagName');
     });
   });
   
