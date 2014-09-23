@@ -1418,27 +1418,30 @@ describe('DataAccessObject', function () {
 });
 
 describe('Load models from json', function () {
-  it('should be able to define models from json', function () {
-    var path = require('path'),
-      fs = require('fs');
+  var path = require('path'),
+    fs = require('fs');
 
-    /**
-     * Load LDL schemas from a json doc
-     * @param schemaFile The dataSource json file
-     * @returns A map of schemas keyed by name
-     */
-    function loadSchemasSync(schemaFile, dataSource) {
-      // Set up the data source
-      if (!dataSource) {
-        dataSource = new DataSource('memory');
-      }
-
-      // Read the dataSource JSON file
-      var schemas = JSON.parse(fs.readFileSync(schemaFile));
-
-      return dataSource.modelBuilder.buildModels(schemas);
-
+  /**
+   * Load LDL schemas from a json doc
+   * @param schemaFile The dataSource json file
+   * @returns A map of schemas keyed by name
+   */
+  function loadSchemasSync(schemaFile, dataSource) {
+    var modelBuilder, createModel;
+    // Set up the data source
+    if (!dataSource) {
+      modelBuilder = new ModelBuilder();
+    } else {
+      modelBuilder = dataSource.modelBuilder;
+      createModel = dataSource.createModel.bind(dataSource);
     }
+
+    // Read the dataSource JSON file
+    var schemas = JSON.parse(fs.readFileSync(schemaFile));
+    return modelBuilder.buildModels(schemas, createModel);
+  }
+
+  it('should be able to define models from json', function () {
 
     var models = loadSchemasSync(path.join(__dirname, 'test1-schemas.json'));
 
@@ -1457,6 +1460,16 @@ describe('Load models from json', function () {
       var m = models[s];
       assert(new m());
     }
+  });
+
+  it('should be able to define models from json using dataSource', function() {
+    var ds = new DataSource('memory');
+
+    var models = loadSchemasSync(path.join(__dirname, 'test2-schemas.json'), ds);
+    models.should.have.property('Address');
+    models.should.have.property('Account');
+    models.should.have.property('Customer');
+    assert.equal(models.Address.dataSource, ds);
   });
 
   it('should allow customization of default model base class', function () {
