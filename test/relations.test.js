@@ -1659,7 +1659,7 @@ describe('relations', function () {
           should.not.exist(e);
           should.exist(tags);
           
-          article.tags().should.eql(tags);
+          article.tagNames().should.eql(tags);
           
           done();
         });
