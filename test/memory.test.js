@@ -269,6 +269,48 @@ describe('Memory connector', function () {
     }
 
   });
+  
+  it('should use collection setting', function (done) {
+    var ds = new DataSource({
+      connector: 'memory'
+    });
+    
+    var Product = ds.createModel('Product', {
+      name: String
+    });
+    
+    var Tool = ds.createModel('Tool', {
+      name: String
+    }, {memory: {collection: 'Product'}});
+    
+    var Widget = ds.createModel('Widget', {
+      name: String
+    }, {memory: {collection: 'Product'}});
+    
+    ds.connector.getCollection('Tool').should.equal('Product');
+    ds.connector.getCollection('Widget').should.equal('Product');
+    
+    async.series([
+      function(next) {
+        Tool.create({ name: 'Tool A' }, next);
+      },
+      function(next) {
+        Tool.create({ name: 'Tool B' }, next);
+      },
+      function(next) {
+        Widget.create({ name: 'Widget A' }, next);
+      }
+    ], function(err) {
+      Product.find(function(err, products) {
+        should.not.exist(err);
+        products.should.have.length(3);
+        products[0].toObject().should.eql({ name: 'Tool A', id: 1 });
+        products[1].toObject().should.eql({ name: 'Tool B', id: 2 });
+        products[2].toObject().should.eql({ name: 'Widget A', id: 3 });
+        done();
+      });
+    });
+  });
 
 });
 
