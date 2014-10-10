@@ -253,8 +253,9 @@ describe('manipulation', function () {
     });
 
     it('should destroy all records', function (done) {
-      Person.destroyAll(function (err) {
+      Person.destroyAll(function (err, count) {
         should.not.exist(err);
+        count.should.equal(1);
         Person.all(function (err, posts) {
           posts.should.have.lengthOf(0);
           Person.count(function (err, count) {
