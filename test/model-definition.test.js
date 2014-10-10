@@ -250,6 +250,26 @@ describe('ModelDefinition class', function () {
     assert(anotherChild.prototype instanceof baseChild);
   });
 
+  it('should ignore inherited options.base', function() {
+    var memory = new DataSource({connector: Memory});
+    var modelBuilder = memory.modelBuilder;
+    var base = modelBuilder.define('base');
+    var child = base.extend('child', {}, { base: 'base' });
+    var grandChild = child.extend('grand-child');
+    assert.equal('child', grandChild.base.modelName);
+    assert(grandChild.prototype instanceof child);
+  });
+
+  it('should ignore inherited options.super', function() {
+    var memory = new DataSource({connector: Memory});
+    var modelBuilder = memory.modelBuilder;
+    var base = modelBuilder.define('base');
+    var child = base.extend('child', {}, { super: 'base' });
+    var grandChild = child.extend('grand-child');
+    assert.equal('child', grandChild.base.modelName);
+    assert(grandChild.prototype instanceof child);
+  });
+
   it('should not serialize hidden properties into JSON', function () {
     var memory = new DataSource({connector: Memory});
     var modelBuilder = memory.modelBuilder;
