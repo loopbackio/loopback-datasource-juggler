@@ -97,6 +97,7 @@ describe('include', function () {
           user.id.should.equal(p.ownerId);
           user.__cachedRelations.should.have.property('posts');
           user.__cachedRelations.posts.forEach(function (pp) {
+            pp.should.have.property('id');
             pp.userId.should.equal(user.id);
             pp.should.have.property('author');
             pp.__cachedRelations.should.have.property('author');
@@ -105,6 +106,41 @@ describe('include', function () {
           });
         }
       });
+      done();
+    });
+  });
+  
+  it('should fetch Passports with include scope on Posts', function (done) {
+    Passport.find({
+      include: {owner: {relation: 'posts', scope:{
+        fields: ['title'], include: ['author'],
+        order: 'title DESC'
+      }}}
+    }, function (err, passports) {
+      should.not.exist(err);
+      should.exist(passports);
+      passports.length.should.equal(3);
+      
+      var passport = passports[0];
+      passport.number.should.equal('1');
+      passport.owner().name.should.equal('User A');
+      var owner = passport.owner().toObject();
+      
+      var posts = passport.owner().posts();
+      posts.should.be.an.array;
+      posts.should.have.length(3);
+      
+      posts[0].title.should.equal('Post C');
+      posts[0].should.not.have.property('id'); // omitted
+      posts[0].author().should.be.instanceOf(User);
+      posts[0].author().name.should.equal('User A');
+      
+      posts[1].title.should.equal('Post B');
+      posts[1].author().name.should.equal('User A');
+      
+      posts[2].title.should.equal('Post A');
+      posts[2].author().name.should.equal('User A');
+      
       done();
     });
   });
