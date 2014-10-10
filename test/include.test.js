@@ -79,6 +79,17 @@ describe('include', function () {
       done();
     });
   });
+  
+  it('should fetch Passport - Owner - Posts - alternate syntax', function (done) {
+    Passport.find({include: {owner: {relation: 'posts'}}}, function (err, passports) {
+      should.not.exist(err);
+      should.exist(passports);
+      passports.length.should.be.ok;
+      var posts = passports[0].owner().posts();
+      posts.should.have.length(3);
+      done();
+    });
+  });
 
   it('should fetch Passports - User - Posts - User', function (done) {
     Passport.find({
