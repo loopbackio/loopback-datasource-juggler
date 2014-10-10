@@ -144,6 +144,57 @@ describe('include', function () {
       done();
     });
   });
+  
+  it('should fetch Users with include scope on Posts', function (done) {
+    User.find({
+      include: {relation: 'posts', scope:{
+        order: 'title DESC'
+      }}
+    }, function (err, users) {
+      should.not.exist(err);
+      should.exist(users);
+      users.length.should.equal(5);
+      
+      users[0].name.should.equal('User A');
+      users[1].name.should.equal('User B');
+      
+      var posts = users[0].posts();
+      posts.should.be.an.array;
+      posts.should.have.length(3);
+      
+      posts[0].title.should.equal('Post C');
+      posts[1].title.should.equal('Post B');
+      posts[2].title.should.equal('Post A');
+      
+      var posts = users[1].posts();
+      posts.should.be.an.array;
+      posts.should.have.length(1);
+      posts[0].title.should.equal('Post D');
+      
+      done();
+    });
+  });
+  
+  it('should fetch Users with include scope on Passports', function (done) {
+    User.find({
+      include: {relation: 'passports', scope:{
+        where: { number: '2' }
+      }}
+    }, function (err, users) {
+      should.not.exist(err);
+      should.exist(users);
+      users.length.should.equal(5);
+      
+      users[0].name.should.equal('User A');
+      users[0].passports().should.be.empty;
+      
+      users[1].name.should.equal('User B');
+      var passports = users[1].passports();
+      passports[0].number.should.equal('2');
+      
+      done();
+    });
+  });
 
   it('should fetch User - Posts AND Passports', function (done) {
     User.find({include: ['posts', 'passports']}, function (err, users) {
