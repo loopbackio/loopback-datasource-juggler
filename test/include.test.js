@@ -156,7 +156,24 @@ describe('include', function () {
     });
   });
   
-  it('should fetch Users with include scope on Posts', function (done) {
+  it('should fetch Users with include scope on Posts - belongsTo', function (done) {
+      Post.find({
+        include: { relation: 'author', scope:{ fields: ['name'] }}
+      }, function (err, posts) {
+        should.not.exist(err);
+        should.exist(posts);
+        posts.length.should.equal(5);
+        
+        var author = posts[0].author();
+        author.name.should.equal('User A');
+        author.should.have.property('id');
+        author.should.not.have.property('age');
+        
+        done();
+      });
+    });
+  
+  it('should fetch Users with include scope on Posts - hasMany', function (done) {
     User.find({
       include: {relation: 'posts', scope:{
         order: 'title DESC'
@@ -186,7 +203,7 @@ describe('include', function () {
     });
   });
   
-  it('should fetch Users with include scope on Passports', function (done) {
+  it('should fetch Users with include scope on Passports - hasMany', function (done) {
     User.find({
       include: {relation: 'passports', scope:{
         where: { number: '2' }
@@ -253,37 +270,44 @@ describe('include', function () {
   });
 
   it('should support hasAndBelongsToMany', function (done) {
-
-    Assembly.destroyAll(function(err) {
-      Part.destroyAll(function(err) {
-        Assembly.relations.parts.modelThrough.destroyAll(function(err) {
-        Assembly.create({name: 'car'}, function (err, assembly) {
-          Part.create({partNumber: 'engine'}, function (err, part) {
-            assembly.parts.add(part, function (err, data) {
-              assembly.parts(function (err, parts) {
-                should.not.exist(err);
-                should.exists(parts);
-                parts.length.should.equal(1);
-                parts[0].partNumber.should.equal('engine');
-
-                // Create a part
-                assembly.parts.create({partNumber: 'door'}, function (err, part4) {
-
-                  Assembly.find({include: 'parts'}, function (err, assemblies) {
-                    assemblies.length.should.equal(1);
-                    assemblies[0].parts.length.should.equal(2);
-                    done();
-                  });
-
-                });
+    Assembly.create({name: 'car'}, function (err, assembly) {
+      Part.create({partNumber: 'engine'}, function (err, part) {
+        assembly.parts.add(part, function (err, data) {
+          assembly.parts(function (err, parts) {
+            should.not.exist(err);
+            should.exists(parts);
+            parts.length.should.equal(1);
+            parts[0].partNumber.should.equal('engine');
+            
+            // Create a part
+            assembly.parts.create({partNumber: 'door'}, function (err, part4) {
+              
+              Assembly.find({include: 'parts'}, function (err, assemblies) {
+                assemblies.length.should.equal(1);
+                assemblies[0].parts().length.should.equal(2);
+                done();
               });
+              
             });
           });
-        });
         });
       });
     });
   });
+  
+  // Not implemented correctly, see: loopback-datasource-juggler/issues/166
+  //
+  // it('should support include scope on hasAndBelongsToMany', function (done) {
+  //   Assembly.find({include: { relation: 'parts', scope: {
+  //     where: { partNumber: 'engine' }
+  //   }}}, function (err, assemblies) {
+  //     assemblies.length.should.equal(1);
+  //     var parts = assemblies[0].parts();
+  //     parts.should.have.length(1);
+  //     parts[0].partNumber.should.equal('engine');
+  //     done();
+  //   });
+  // });
 
 });
 
