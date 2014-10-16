@@ -312,6 +312,44 @@ describe('Memory connector', function () {
     });
   });
 
+  describe('automigrate', function() {
+    var ds;
+    beforeEach(function() {
+      ds = new DataSource({
+        connector: 'memory'
+      });
+
+      ds.createModel('m1', {
+        name: String
+      });
+    });
+
+    it('automigrate all models', function(done) {
+      ds.automigrate(function(err) {
+        done(err);
+      });
+    });
+
+    it('automigrate one model', function(done) {
+      ds.automigrate('m1', function(err) {
+        done(err);
+      });
+    });
+
+    it('automigrate one or more models in an array', function(done) {
+      ds.automigrate(['m1'], function(err) {
+        done(err);
+      });
+    });
+
+    it('automigrate reports errors for models not attached', function(done) {
+      ds.automigrate(['m1', 'm2'], function(err) {
+        err.should.be.an.instanceOf(Error);
+        done();
+      });
+    });
+  });
+
 });
 
 
