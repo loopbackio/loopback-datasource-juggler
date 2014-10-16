@@ -220,6 +220,21 @@ describe('validations', function () {
       })).should.not.be.ok;
     });
 
+    it('should handle same object modeifications with custom primaryKey', function (done) {
+      User.validatesUniquenessOf('name', { primaryKey: 'email' });
+      var u = new User({email: 'hey', name: 'Ann'});
+      Boolean(u.isValid(function (valid) {
+        valid.should.be.true;
+        u.save(function () {
+          var u2 = new User({email: 'hey', name: 'Ann'});
+          u2.isValid(function (valid) {
+            valid.should.be.true;
+            done();
+          });
+        });
+      })).should.be.false;
+    });
+
     it('should support multi-key constraint', function(done) {
       var EMAIL = 'user@xample.com';
       var SiteUser = db.define('SiteUser', {
