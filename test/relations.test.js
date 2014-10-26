@@ -1483,6 +1483,16 @@ describe('relations', function () {
       });
     });
 
+    it('should get list synchronously',function(done){
+      List.create({name:'a llist'},function(err,list){
+        should.not.exist(err);
+        list.todos.create({name:'a item'},function(err,item){
+          should.not.exist(err);
+          should.exist(item.list());
+          done();
+        })
+      });
+    });
   });
   
   describe('belongsTo with scope', function () {
