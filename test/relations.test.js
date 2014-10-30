@@ -902,6 +902,130 @@ describe('relations', function () {
     
   });
   
+  describe('polymorphic hasOne with non standard ids', function () {
+    before(function (done) {
+      db = getSchema();
+      Picture = db.define('Picture', {name: String});
+      Author = db.define('Author', {
+        username: {type: String, id: true},
+        name: String
+      });
+      Reader = db.define('Reader', {
+        username: {type: String, id: true},
+        name: String
+      });
+      
+      db.automigrate(function () {
+        Picture.destroyAll(function () {
+          Author.destroyAll(function () {
+            Reader.destroyAll(done);
+          });
+        });
+      });
+    });
+    
+    it('can be declared with non standard foreign key', function (done) {
+      Author.hasOne(Picture, {
+        as: 'avatar',
+        polymorphic: {
+          foreignKey: 'oid',
+          discriminator: 'type'
+        }
+      });
+      Reader.hasOne(Picture, {
+        as: 'mugshot',
+        polymorphic: {
+          foreignKey: 'oid',
+          discriminator: 'type'
+        }
+      });
+      Picture.belongsTo('owner', {
+        idName: 'username',
+        polymorphic: {
+          idType: String,
+          foreignKey: 'oid',
+          discriminator: 'type'
+        }
+      });
+      db.automigrate(done);
+    });
+    
+    it('should create polymorphic relation - author', function (done) {
+      Author.create({name: 'Author 1' }, function (err, author) {
+        author.avatar.create({ name: 'Avatar' }, function (err, p) {
+          should.not.exist(err);
+          should.exist(p);
+          p.oid.should.equal(author.username);
+          p.type.should.equal('Author');
+          done();
+        });
+      });
+    });
+    
+    it('should create polymorphic relation - reader', function (done) {
+      Reader.create({name: 'Reader 1' }, function (err, reader) {
+        reader.mugshot.create({ name: 'Mugshot' }, function (err, p) {
+          should.not.exist(err);
+          should.exist(p);
+          p.oid.should.equal(reader.username);
+          p.type.should.equal('Reader');
+          done();
+        });
+      });
+    });
+    
+    it('should find polymorphic relation - author', function (done) {
+      Author.findOne(function (err, author) {
+        author.avatar(function (err, p) {
+          should.not.exist(err);
+          
+          var avatar = author.avatar();
+          avatar.should.equal(p);
+          
+          p.name.should.equal('Avatar');
+          p.oid.should.eql(author.username);
+          p.type.should.equal('Author');
+          done();
+        });
+      });
+    });
+    
+    it('should find polymorphic relation - reader', function (done) {
+      Reader.findOne(function (err, reader) {
+        reader.mugshot(function (err, p) {
+          should.not.exist(err);
+          p.name.should.equal('Mugshot');
+          p.oid.should.eql(reader.username);
+          p.type.should.equal('Reader');
+          done();
+        });
+      });
+    });
+    
+    it('should find inverse polymorphic relation - author', function (done) {
+      Picture.findOne({ where: { name: 'Avatar' } }, function (err, p) {
+        p.owner(function (err, owner) {
+          should.not.exist(err);
+          owner.should.be.instanceof(Author);
+          owner.name.should.equal('Author 1');
+          done();
+        });
+      });
+    });
+    
+    it('should find inverse polymorphic relation - reader', function (done) {
+      Picture.findOne({ where: { name: 'Mugshot' } }, function (err, p) {
+        p.owner(function (err, owner) {
+          should.not.exist(err);
+          owner.should.be.instanceof(Reader);
+          owner.name.should.equal('Reader 1');
+          done();
+        });
+      });
+    });
+  
+  });
+  
   describe('polymorphic hasMany', function () {
     before(function (done) {
       db = getSchema();
@@ -1622,7 +1746,93 @@ describe('relations', function () {
     });
     
   });
-
+  
+  describe('hasOne with non standard id', function () {
+    var Supplier, Account;
+    var supplierId, accountId;
+    
+    before(function () {
+      db = getSchema();
+      Supplier = db.define('Supplier', {
+        sid: {
+          type: String,
+          id: true
+        },
+        name: String
+      });
+      Account = db.define('Account', {
+        accid: {
+          type: String,
+          id: true,
+          generated: false
+        },
+        supplierName: String
+      });
+    });
+    
+    it('can be declared with non standard foreignKey', function () {
+      Supplier.hasOne(Account, {
+        properties: {name: 'supplierName'},
+        foreignKey: 'sid'
+      });
+      Object.keys((new Account()).toObject()).should.include('sid');
+      (new Supplier()).account.should.be.an.instanceOf(Function);
+    });
+    
+    it('can be used to query data', function (done) {
+      db.automigrate(function () {
+        Supplier.create({name: 'Supplier 1'}, function (e, supplier) {
+          supplierId = supplier.sid;
+          should.not.exist(e);
+          should.exist(supplier);
+          supplier.account.create({accid: 'a01'}, function (err, account) {
+            supplier.account(function (e, act) {
+              accountId = act.accid;
+              should.not.exist(e);
+              should.exist(act);
+              act.should.be.an.instanceOf(Account);
+              supplier.account().accid.should.equal(act.accid);
+              act.supplierName.should.equal(supplier.name);
+              done();
+            });
+          });
+        });
+      });
+    });
+    
+    it('should destroy the related item on scope', function(done) {
+      Supplier.findById(supplierId, function(e, supplier) {
+        should.not.exist(e);
+        should.exist(supplier);
+        supplier.account.destroy(function(err) {
+          should.not.exist(e);
+          done();
+        });
+      });
+    });
+    
+    it('should get the related item on scope - verify', function(done) {
+      Supplier.findById(supplierId, function(e, supplier) {
+        should.not.exist(e);
+        should.exist(supplier);
+        supplier.account(function(err, act) {
+          should.not.exist(e);
+          should.not.exist(act);
+          done();
+        });
+      });
+    });
+    
+    it('should have deleted related item', function(done) {
+      Supplier.findById(supplierId, function (e, supplier) {
+        should.not.exist(e);
+        should.exist(supplier);
+        done();
+      });
+    });
+  
+  });
+  
   describe('hasAndBelongsToMany', function () {
     var Article, TagName, ArticleTag;
     it('can be declared', function (done) {
