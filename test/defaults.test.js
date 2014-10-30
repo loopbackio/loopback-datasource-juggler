@@ -35,4 +35,18 @@ describe('defaults', function () {
       done();
     });
   });
+  
+  it('should ignore defaults with limited fields', function (done) {
+    Server.create({ host: 'localhost', port: 8080 }, function(err, s) {
+      should.not.exist(err);
+      s.port.should.equal(8080);
+      Server.find({ fields: ['host'] }, function (err, servers) {
+        servers[0].host.should.equal('localhost');
+        servers[0].should.have.property('host');
+        servers[0].should.not.have.property('port');
+        done();
+      });
+    });
+  });
+  
 });
