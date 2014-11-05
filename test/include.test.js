@@ -256,6 +256,45 @@ describe('include', function () {
     });
   });
 
+  it('should fetch User - Posts AND Passports in relation syntax',
+    function(done) {
+      User.find({include: [
+        {relation: 'posts', scope: {
+          where: {title: 'Post A'}
+        }},
+        'passports'
+      ]}, function(err, users) {
+        should.not.exist(err);
+        should.exist(users);
+        users.length.should.be.ok;
+        users.forEach(function(user) {
+          // The relation should be promoted as the 'owner' property
+          user.should.have.property('posts');
+          user.should.have.property('passports');
+
+          var userObj = user.toJSON();
+          userObj.should.have.property('posts');
+          userObj.should.have.property('passports');
+          userObj.posts.should.be.an.instanceOf(Array);
+          userObj.passports.should.be.an.instanceOf(Array);
+
+          // The __cachedRelations should be removed from json output
+          userObj.should.not.have.property('__cachedRelations');
+
+          user.__cachedRelations.should.have.property('posts');
+          user.__cachedRelations.should.have.property('passports');
+          user.__cachedRelations.posts.forEach(function(p) {
+            p.userId.should.equal(user.id);
+            p.title.should.be.equal('Post A');
+          });
+          user.__cachedRelations.passports.forEach(function(pp) {
+            pp.ownerId.should.equal(user.id);
+          });
+        });
+        done();
+      });
+    });
+
   it('should not fetch User - AccessTokens', function (done) {
     User.find({include: ['accesstokens']}, function (err, users) {
       should.not.exist(err);
