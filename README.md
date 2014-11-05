@@ -16,6 +16,6 @@ Also install the appropriated connector, for example for mongodb:
 
     npm install loopback-connector-mongodb
 
-See [StrongLoop Suite Documentation](http://docs.strongloop.com/) for up-to-date list of connectors supported.
+See [StrongLoop Documentation](http://docs.strongloop.com/) for more information.
 
 
