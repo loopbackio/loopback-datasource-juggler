@@ -61,190 +61,198 @@ describe('relations', function () {
       db.autoupdate(done);
     });
 
-    it('should build record on scope', function (done) {
-      Book.create(function (err, book) {
-        var c = book.chapters.build();
-        c.bookId.should.equal(book.id);
-        c.save(done);
-      });
-    });
+    describe('with scope', function() {
 
-    it('should create record on scope', function (done) {
-      Book.create(function (err, book) {
-        book.chapters.create(function (err, c) {
-          should.not.exist(err);
-          should.exist(c);
+      before(function (done) {
+        Book.hasMany(Chapter);
+        done();
+      });
+
+      it('should build record on scope', function (done) {
+        Book.create(function (err, book) {
+          var c = book.chapters.build();
           c.bookId.should.equal(book.id);
-          done();
-        });
-      });
-    });
-
-    it('should fetch all scoped instances', function (done) {
-      Book.create(function (err, book) {
-        book.chapters.create({name: 'a'}, function () {
-          book.chapters.create({name: 'z'}, function () {
-            book.chapters.create({name: 'c'}, function () {
-              verify(book);
-            });
-          });
-        });
-      });
-      function verify(book) {
-        book.chapters(function (err, ch) {
-          should.not.exist(err);
-          should.exist(ch);
-          ch.should.have.lengthOf(3);
-          
-          var chapters = book.chapters();
-          chapters.should.eql(ch);
-          
-          book.chapters({order: 'name DESC'}, function (e, c) {
-            should.not.exist(e);
-            should.exist(c);
-            
-            c.shift().name.should.equal('z');
-            c.pop().name.should.equal('a');
-            done();
-          });
-        });
-      }
-    });
-
-    it('should find scoped record', function (done) {
-      var id;
-      Book.create(function (err, book) {
-        book.chapters.create({name: 'a'}, function (err, ch) {
-          id = ch.id;
-          book.chapters.create({name: 'z'}, function () {
-            book.chapters.create({name: 'c'}, function () {
-              verify(book);
-            });
-          });
+          c.save(done);
         });
       });
 
-      function verify(book) {
-        book.chapters.findById(id, function (err, ch) {
-          should.not.exist(err);
-          should.exist(ch);
-          ch.id.should.eql(id);
-          done();
-        });
-      }
-    });
-    
-    it('should count scoped records - all and filtered', function (done) {
-      Book.create(function (err, book) {
-        book.chapters.create({name: 'a'}, function (err, ch) {
-          book.chapters.create({name: 'b'}, function () {
-            book.chapters.create({name: 'c'}, function () {
-              verify(book);
-            });
-          });
-        });
-      });
-
-      function verify(book) {
-        book.chapters.count(function (err, count) {
-          should.not.exist(err);
-          count.should.equal(3);
-          book.chapters.count({ name: 'b' }, function (err, count) {
+      it('should create record on scope', function (done) {
+        Book.create(function (err, book) {
+          book.chapters.create(function (err, c) {
             should.not.exist(err);
-            count.should.equal(1);
+            should.exist(c);
+            c.bookId.should.equal(book.id);
             done();
           });
         });
-      }
-    });
-
-    it('should set targetClass on scope property', function() {
-      should.equal(Book.prototype.chapters._targetClass, 'Chapter');
-    });
-
-    it('should update scoped record', function (done) {
-      var id;
-      Book.create(function (err, book) {
-        book.chapters.create({name: 'a'}, function (err, ch) {
-          id = ch.id;
-          book.chapters.updateById(id, {name: 'aa'}, function(err, ch) {
-            verify(book);
-          });
-        });
       });
 
-      function verify(book) {
-        book.chapters.findById(id, function (err, ch) {
-          should.not.exist(err);
-          should.exist(ch);
-          ch.id.should.eql(id);
-          ch.name.should.equal('aa');
-          done();
-        });
-      }
-    });
-
-    it('should destroy scoped record', function (done) {
-      var id;
-      Book.create(function (err, book) {
-        book.chapters.create({name: 'a'}, function (err, ch) {
-          id = ch.id;
-          book.chapters.destroy(id, function(err, ch) {
-            verify(book);
+      it('should fetch all scoped instances', function (done) {
+        Book.create(function (err, book) {
+          book.chapters.create({name: 'a'}, function () {
+            book.chapters.create({name: 'z'}, function () {
+              book.chapters.create({name: 'c'}, function () {
+                verify(book);
+              });
+            });
           });
         });
+        function verify(book) {
+          book.chapters(function (err, ch) {
+            should.not.exist(err);
+            should.exist(ch);
+            ch.should.have.lengthOf(3);
+
+            var chapters = book.chapters();
+            chapters.should.eql(ch);
+
+            book.chapters({order: 'name DESC'}, function (e, c) {
+              should.not.exist(e);
+              should.exist(c);
+
+              c.shift().name.should.equal('z');
+              c.pop().name.should.equal('a');
+              done();
+            });
+          });
+        }
       });
 
-      function verify(book) {
-        book.chapters.findById(id, function (err, ch) {
-          should.exist(err);
-          done();
+      it('should find scoped record', function (done) {
+        var id;
+        Book.create(function (err, book) {
+          book.chapters.create({name: 'a'}, function (err, ch) {
+            id = ch.id;
+            book.chapters.create({name: 'z'}, function () {
+              book.chapters.create({name: 'c'}, function () {
+                verify(book);
+              });
+            });
+          });
         });
-      }
-    });
 
-    it('should check existence of a scoped record', function (done) {
-      var id;
-      Book.create(function (err, book) {
-        book.chapters.create({name: 'a'}, function (err, ch) {
-          id = ch.id;
-          book.chapters.create({name: 'z'}, function () {
-            book.chapters.create({name: 'c'}, function () {
+        function verify(book) {
+          book.chapters.findById(id, function (err, ch) {
+            should.not.exist(err);
+            should.exist(ch);
+            ch.id.should.eql(id);
+            done();
+          });
+        }
+      });
+
+      it('should count scoped records - all and filtered', function (done) {
+        Book.create(function (err, book) {
+          book.chapters.create({name: 'a'}, function (err, ch) {
+            book.chapters.create({name: 'b'}, function () {
+              book.chapters.create({name: 'c'}, function () {
+                verify(book);
+              });
+            });
+          });
+        });
+
+        function verify(book) {
+          book.chapters.count(function (err, count) {
+            should.not.exist(err);
+            count.should.equal(3);
+            book.chapters.count({ name: 'b' }, function (err, count) {
+              should.not.exist(err);
+              count.should.equal(1);
+              done();
+            });
+          });
+        }
+      });
+
+      it('should set targetClass on scope property', function() {
+        should.equal(Book.prototype.chapters._targetClass, 'Chapter');
+      });
+
+      it('should update scoped record', function (done) {
+        var id;
+        Book.create(function (err, book) {
+          book.chapters.create({name: 'a'}, function (err, ch) {
+            id = ch.id;
+            book.chapters.updateById(id, {name: 'aa'}, function(err, ch) {
               verify(book);
             });
           });
         });
+
+        function verify(book) {
+          book.chapters.findById(id, function (err, ch) {
+            should.not.exist(err);
+            should.exist(ch);
+            ch.id.should.eql(id);
+            ch.name.should.equal('aa');
+            done();
+          });
+        }
       });
 
-      function verify(book) {
-        book.chapters.exists(id, function (err, flag) {
+      it('should destroy scoped record', function (done) {
+        var id;
+        Book.create(function (err, book) {
+          book.chapters.create({name: 'a'}, function (err, ch) {
+            id = ch.id;
+            book.chapters.destroy(id, function(err, ch) {
+              verify(book);
+            });
+          });
+        });
+
+        function verify(book) {
+          book.chapters.findById(id, function (err, ch) {
+            should.exist(err);
+            done();
+          });
+        }
+      });
+
+      it('should check existence of a scoped record', function (done) {
+        var id;
+        Book.create(function (err, book) {
+          book.chapters.create({name: 'a'}, function (err, ch) {
+            id = ch.id;
+            book.chapters.create({name: 'z'}, function () {
+              book.chapters.create({name: 'c'}, function () {
+                verify(book);
+              });
+            });
+          });
+        });
+
+        function verify(book) {
+          book.chapters.exists(id, function (err, flag) {
+            should.not.exist(err);
+            flag.should.be.eql(true);
+            done();
+          });
+        }
+      });
+
+      it('should check ignore related data on creation - array', function (done) {
+        Book.create({ chapters: [] }, function (err, book) {
           should.not.exist(err);
-          flag.should.be.eql(true);
+          book.chapters.should.be.a.function;
+          var obj = book.toObject();
+          should.not.exist(obj.chapters);
           done();
         });
-      }
-    });
-    
-    it('should check ignore related data on creation - array', function (done) {
-      Book.create({ chapters: [] }, function (err, book) {
-        should.not.exist(err);
-        book.chapters.should.be.a.function;
-        var obj = book.toObject();
-        should.not.exist(obj.chapters);
-        done();
+      });
+
+      it('should check ignore related data on creation - object', function (done) {
+        Book.create({ chapters: {} }, function (err, book) {
+          should.not.exist(err);
+          book.chapters.should.be.a.function;
+          var obj = book.toObject();
+          should.not.exist(obj.chapters);
+          done();
+        });
       });
     });
-    
-    it('should check ignore related data on creation - object', function (done) {
-      Book.create({ chapters: {} }, function (err, book) {
-        should.not.exist(err);
-        book.chapters.should.be.a.function;
-        var obj = book.toObject();
-        should.not.exist(obj.chapters);
-        done();
-      });
-    });
-    
+
   });
 
   describe('hasMany through', function () {
