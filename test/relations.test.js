@@ -87,6 +87,25 @@ describe('relations', function () {
         });
       });
 
+      it('should create a batch of records on scope', function (done) {
+        var chapters = [
+          {name: 'a'},
+          {name: 'z'},
+          {name: 'c'}
+        ];
+        Book.create(function (err, book) {
+          book.chapters.create(chapters, function (err, chs) {
+            should.not.exist(err);
+            should.exist(chs);
+            chs.should.have.lengthOf(chapters.length);
+            chs.forEach(function(c) {
+              c.bookId.should.equal(book.id);
+            });
+            done();
+          });
+        });
+      });
+
       it('should fetch all scoped instances', function (done) {
         Book.create(function (err, book) {
           book.chapters.create({name: 'a'}, function () {
