@@ -294,6 +294,29 @@ describe('relations', function () {
       });
     });
 
+    it('should create multiple records on scope', function (done) {
+      var async = require('async');
+      Physician.create(function (err, physician) {
+        physician.patients.create([{}, {}], function (err, patients) {
+          should.not.exist(err);
+          should.exist(patients);
+          patients.should.have.lengthOf(2);
+          function verifyPatient(patient, next) {
+            Appointment.find({where: {
+              physicianId: physician.id,
+              patientId: patient.id
+            }},
+              function(err, apps) {
+                should.not.exist(err);
+                apps.should.have.lengthOf(1);
+                next();
+            });
+          }
+          async.forEach(patients, verifyPatient, done);
+        });
+      });
+    });
+
     it('should fetch all scoped instances', function (done) {
       Physician.create(function (err, physician) {
         physician.patients.create({name: 'a'}, function () {
