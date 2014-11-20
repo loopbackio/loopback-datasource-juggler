@@ -1794,7 +1794,53 @@ describe('relations', function () {
         done();
       });
     });
-    
+
+  });
+
+  describe('hasOne with scope', function () {
+
+    var Supplier, Account;
+    var supplierId, accountId;
+
+    before(function () {
+      db = getSchema();
+      Supplier = db.define('Supplier', {name: String});
+      Account = db.define('Account', {accountNo: String, supplierName: String, block: Boolean});
+      Supplier.hasOne(Account, { scope: { where: { block: false } }, properties: { name: 'supplierName' } });
+    });
+
+    it('can be used to query data', function (done) {
+      db.automigrate(function () {
+        Supplier.create({name: 'Supplier 1'}, function (e, supplier) {
+          supplierId = supplier.id;
+          should.not.exist(e);
+          should.exist(supplier);
+          supplier.account.create({accountNo: 'a01'}, function (err, account) {
+            supplier.account(function (e, act) {
+              accountId = act.id;
+              should.not.exist(e);
+              should.exist(act);
+              act.should.be.an.instanceOf(Account);
+              supplier.account().id.should.equal(act.id);
+              act.supplierName.should.equal(supplier.name);
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('should find record that match scope', function (done) {
+      Account.updateAll({ block: true }, function (err) {
+        Supplier.findById(supplierId, function (err, supplier) {
+          supplier.account(function (err, account) {
+            should.not.exists(account);
+            done();
+          });
+        });
+      });
+    });
+
   });
   
   describe('hasOne with non standard id', function () {
