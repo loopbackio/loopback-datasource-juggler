@@ -1657,6 +1657,23 @@ describe('relations', function () {
       });
     });
 
+    it('should allow to create belongsTo model in beforeCreate hook', function (done) {
+      var mind;
+      Fear.beforeCreate = function (next) {
+        this.mind.create(function (err, m) {
+          mind = m;
+          if (err) next(err); else next();
+        });
+      };
+      Fear.create(function (err, fear) {
+        should.not.exists(err);
+        should.exists(fear);
+        fear.mindId.should.be.equal(mind.id);
+        should.exists(fear.mind());
+        done();
+      });
+    });
+
   });
   
   describe('belongsTo with scope', function () {
@@ -1680,7 +1697,10 @@ describe('relations', function () {
         p.personId.should.equal(person.id);
         person.name.should.equal('Fred');
         person.passportNotes.should.equal('Some notes...');
-        done();
+        p.save(function (err, passport) {
+          should.not.exists(err);
+          done();
+        });
       });
     });
     
