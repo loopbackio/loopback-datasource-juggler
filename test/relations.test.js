@@ -61,190 +61,217 @@ describe('relations', function () {
       db.autoupdate(done);
     });
 
-    it('should build record on scope', function (done) {
-      Book.create(function (err, book) {
-        var c = book.chapters.build();
-        c.bookId.should.equal(book.id);
-        c.save(done);
-      });
-    });
+    describe('with scope', function() {
 
-    it('should create record on scope', function (done) {
-      Book.create(function (err, book) {
-        book.chapters.create(function (err, c) {
-          should.not.exist(err);
-          should.exist(c);
+      before(function (done) {
+        Book.hasMany(Chapter);
+        done();
+      });
+
+      it('should build record on scope', function (done) {
+        Book.create(function (err, book) {
+          var c = book.chapters.build();
           c.bookId.should.equal(book.id);
-          done();
-        });
-      });
-    });
-
-    it('should fetch all scoped instances', function (done) {
-      Book.create(function (err, book) {
-        book.chapters.create({name: 'a'}, function () {
-          book.chapters.create({name: 'z'}, function () {
-            book.chapters.create({name: 'c'}, function () {
-              verify(book);
-            });
-          });
-        });
-      });
-      function verify(book) {
-        book.chapters(function (err, ch) {
-          should.not.exist(err);
-          should.exist(ch);
-          ch.should.have.lengthOf(3);
-          
-          var chapters = book.chapters();
-          chapters.should.eql(ch);
-          
-          book.chapters({order: 'name DESC'}, function (e, c) {
-            should.not.exist(e);
-            should.exist(c);
-            
-            c.shift().name.should.equal('z');
-            c.pop().name.should.equal('a');
-            done();
-          });
-        });
-      }
-    });
-
-    it('should find scoped record', function (done) {
-      var id;
-      Book.create(function (err, book) {
-        book.chapters.create({name: 'a'}, function (err, ch) {
-          id = ch.id;
-          book.chapters.create({name: 'z'}, function () {
-            book.chapters.create({name: 'c'}, function () {
-              verify(book);
-            });
-          });
+          c.save(done);
         });
       });
 
-      function verify(book) {
-        book.chapters.findById(id, function (err, ch) {
-          should.not.exist(err);
-          should.exist(ch);
-          ch.id.should.eql(id);
-          done();
-        });
-      }
-    });
-    
-    it('should count scoped records - all and filtered', function (done) {
-      Book.create(function (err, book) {
-        book.chapters.create({name: 'a'}, function (err, ch) {
-          book.chapters.create({name: 'b'}, function () {
-            book.chapters.create({name: 'c'}, function () {
-              verify(book);
-            });
-          });
-        });
-      });
-
-      function verify(book) {
-        book.chapters.count(function (err, count) {
-          should.not.exist(err);
-          count.should.equal(3);
-          book.chapters.count({ name: 'b' }, function (err, count) {
+      it('should create record on scope', function (done) {
+        Book.create(function (err, book) {
+          book.chapters.create(function (err, c) {
             should.not.exist(err);
-            count.should.equal(1);
+            should.exist(c);
+            c.bookId.should.equal(book.id);
             done();
           });
         });
-      }
-    });
+      });
 
-    it('should set targetClass on scope property', function() {
-      should.equal(Book.prototype.chapters._targetClass, 'Chapter');
-    });
-
-    it('should update scoped record', function (done) {
-      var id;
-      Book.create(function (err, book) {
-        book.chapters.create({name: 'a'}, function (err, ch) {
-          id = ch.id;
-          book.chapters.updateById(id, {name: 'aa'}, function(err, ch) {
-            verify(book);
+      it('should create a batch of records on scope', function (done) {
+        var chapters = [
+          {name: 'a'},
+          {name: 'z'},
+          {name: 'c'}
+        ];
+        Book.create(function (err, book) {
+          book.chapters.create(chapters, function (err, chs) {
+            should.not.exist(err);
+            should.exist(chs);
+            chs.should.have.lengthOf(chapters.length);
+            chs.forEach(function(c) {
+              c.bookId.should.equal(book.id);
+            });
+            done();
           });
         });
       });
 
-      function verify(book) {
-        book.chapters.findById(id, function (err, ch) {
-          should.not.exist(err);
-          should.exist(ch);
-          ch.id.should.eql(id);
-          ch.name.should.equal('aa');
-          done();
-        });
-      }
-    });
-
-    it('should destroy scoped record', function (done) {
-      var id;
-      Book.create(function (err, book) {
-        book.chapters.create({name: 'a'}, function (err, ch) {
-          id = ch.id;
-          book.chapters.destroy(id, function(err, ch) {
-            verify(book);
+      it('should fetch all scoped instances', function (done) {
+        Book.create(function (err, book) {
+          book.chapters.create({name: 'a'}, function () {
+            book.chapters.create({name: 'z'}, function () {
+              book.chapters.create({name: 'c'}, function () {
+                verify(book);
+              });
+            });
           });
         });
+        function verify(book) {
+          book.chapters(function (err, ch) {
+            should.not.exist(err);
+            should.exist(ch);
+            ch.should.have.lengthOf(3);
+
+            var chapters = book.chapters();
+            chapters.should.eql(ch);
+
+            book.chapters({order: 'name DESC'}, function (e, c) {
+              should.not.exist(e);
+              should.exist(c);
+
+              c.shift().name.should.equal('z');
+              c.pop().name.should.equal('a');
+              done();
+            });
+          });
+        }
       });
 
-      function verify(book) {
-        book.chapters.findById(id, function (err, ch) {
-          should.exist(err);
-          done();
+      it('should find scoped record', function (done) {
+        var id;
+        Book.create(function (err, book) {
+          book.chapters.create({name: 'a'}, function (err, ch) {
+            id = ch.id;
+            book.chapters.create({name: 'z'}, function () {
+              book.chapters.create({name: 'c'}, function () {
+                verify(book);
+              });
+            });
+          });
         });
-      }
-    });
 
-    it('should check existence of a scoped record', function (done) {
-      var id;
-      Book.create(function (err, book) {
-        book.chapters.create({name: 'a'}, function (err, ch) {
-          id = ch.id;
-          book.chapters.create({name: 'z'}, function () {
-            book.chapters.create({name: 'c'}, function () {
+        function verify(book) {
+          book.chapters.findById(id, function (err, ch) {
+            should.not.exist(err);
+            should.exist(ch);
+            ch.id.should.eql(id);
+            done();
+          });
+        }
+      });
+
+      it('should count scoped records - all and filtered', function (done) {
+        Book.create(function (err, book) {
+          book.chapters.create({name: 'a'}, function (err, ch) {
+            book.chapters.create({name: 'b'}, function () {
+              book.chapters.create({name: 'c'}, function () {
+                verify(book);
+              });
+            });
+          });
+        });
+
+        function verify(book) {
+          book.chapters.count(function (err, count) {
+            should.not.exist(err);
+            count.should.equal(3);
+            book.chapters.count({ name: 'b' }, function (err, count) {
+              should.not.exist(err);
+              count.should.equal(1);
+              done();
+            });
+          });
+        }
+      });
+
+      it('should set targetClass on scope property', function() {
+        should.equal(Book.prototype.chapters._targetClass, 'Chapter');
+      });
+
+      it('should update scoped record', function (done) {
+        var id;
+        Book.create(function (err, book) {
+          book.chapters.create({name: 'a'}, function (err, ch) {
+            id = ch.id;
+            book.chapters.updateById(id, {name: 'aa'}, function(err, ch) {
               verify(book);
             });
           });
         });
+
+        function verify(book) {
+          book.chapters.findById(id, function (err, ch) {
+            should.not.exist(err);
+            should.exist(ch);
+            ch.id.should.eql(id);
+            ch.name.should.equal('aa');
+            done();
+          });
+        }
       });
 
-      function verify(book) {
-        book.chapters.exists(id, function (err, flag) {
+      it('should destroy scoped record', function (done) {
+        var id;
+        Book.create(function (err, book) {
+          book.chapters.create({name: 'a'}, function (err, ch) {
+            id = ch.id;
+            book.chapters.destroy(id, function(err, ch) {
+              verify(book);
+            });
+          });
+        });
+
+        function verify(book) {
+          book.chapters.findById(id, function (err, ch) {
+            should.exist(err);
+            done();
+          });
+        }
+      });
+
+      it('should check existence of a scoped record', function (done) {
+        var id;
+        Book.create(function (err, book) {
+          book.chapters.create({name: 'a'}, function (err, ch) {
+            id = ch.id;
+            book.chapters.create({name: 'z'}, function () {
+              book.chapters.create({name: 'c'}, function () {
+                verify(book);
+              });
+            });
+          });
+        });
+
+        function verify(book) {
+          book.chapters.exists(id, function (err, flag) {
+            should.not.exist(err);
+            flag.should.be.eql(true);
+            done();
+          });
+        }
+      });
+
+      it('should check ignore related data on creation - array', function (done) {
+        Book.create({ chapters: [] }, function (err, book) {
           should.not.exist(err);
-          flag.should.be.eql(true);
+          book.chapters.should.be.a.function;
+          var obj = book.toObject();
+          should.not.exist(obj.chapters);
           done();
         });
-      }
-    });
-    
-    it('should check ignore related data on creation - array', function (done) {
-      Book.create({ chapters: [] }, function (err, book) {
-        should.not.exist(err);
-        book.chapters.should.be.a.function;
-        var obj = book.toObject();
-        should.not.exist(obj.chapters);
-        done();
+      });
+
+      it('should check ignore related data on creation - object', function (done) {
+        Book.create({ chapters: {} }, function (err, book) {
+          should.not.exist(err);
+          book.chapters.should.be.a.function;
+          var obj = book.toObject();
+          should.not.exist(obj.chapters);
+          done();
+        });
       });
     });
-    
-    it('should check ignore related data on creation - object', function (done) {
-      Book.create({ chapters: {} }, function (err, book) {
-        should.not.exist(err);
-        book.chapters.should.be.a.function;
-        var obj = book.toObject();
-        should.not.exist(obj.chapters);
-        done();
-      });
-    });
-    
+
   });
 
   describe('hasMany through', function () {
@@ -290,6 +317,29 @@ describe('relations', function () {
               apps.should.have.lengthOf(1);
               done();
           });
+        });
+      });
+    });
+
+    it('should create multiple records on scope', function (done) {
+      var async = require('async');
+      Physician.create(function (err, physician) {
+        physician.patients.create([{}, {}], function (err, patients) {
+          should.not.exist(err);
+          should.exist(patients);
+          patients.should.have.lengthOf(2);
+          function verifyPatient(patient, next) {
+            Appointment.find({where: {
+              physicianId: physician.id,
+              patientId: patient.id
+            }},
+              function(err, apps) {
+                should.not.exist(err);
+                apps.should.have.lengthOf(1);
+                next();
+            });
+          }
+          async.forEach(patients, verifyPatient, done);
         });
       });
     });
@@ -900,6 +950,130 @@ describe('relations', function () {
       });
     });
     
+  });
+  
+  describe('polymorphic hasOne with non standard ids', function () {
+    before(function (done) {
+      db = getSchema();
+      Picture = db.define('Picture', {name: String});
+      Author = db.define('Author', {
+        username: {type: String, id: true},
+        name: String
+      });
+      Reader = db.define('Reader', {
+        username: {type: String, id: true},
+        name: String
+      });
+      
+      db.automigrate(function () {
+        Picture.destroyAll(function () {
+          Author.destroyAll(function () {
+            Reader.destroyAll(done);
+          });
+        });
+      });
+    });
+    
+    it('can be declared with non standard foreign key', function (done) {
+      Author.hasOne(Picture, {
+        as: 'avatar',
+        polymorphic: {
+          foreignKey: 'oid',
+          discriminator: 'type'
+        }
+      });
+      Reader.hasOne(Picture, {
+        as: 'mugshot',
+        polymorphic: {
+          foreignKey: 'oid',
+          discriminator: 'type'
+        }
+      });
+      Picture.belongsTo('owner', {
+        idName: 'username',
+        polymorphic: {
+          idType: String,
+          foreignKey: 'oid',
+          discriminator: 'type'
+        }
+      });
+      db.automigrate(done);
+    });
+    
+    it('should create polymorphic relation - author', function (done) {
+      Author.create({name: 'Author 1' }, function (err, author) {
+        author.avatar.create({ name: 'Avatar' }, function (err, p) {
+          should.not.exist(err);
+          should.exist(p);
+          p.oid.should.equal(author.username);
+          p.type.should.equal('Author');
+          done();
+        });
+      });
+    });
+    
+    it('should create polymorphic relation - reader', function (done) {
+      Reader.create({name: 'Reader 1' }, function (err, reader) {
+        reader.mugshot.create({ name: 'Mugshot' }, function (err, p) {
+          should.not.exist(err);
+          should.exist(p);
+          p.oid.should.equal(reader.username);
+          p.type.should.equal('Reader');
+          done();
+        });
+      });
+    });
+    
+    it('should find polymorphic relation - author', function (done) {
+      Author.findOne(function (err, author) {
+        author.avatar(function (err, p) {
+          should.not.exist(err);
+          
+          var avatar = author.avatar();
+          avatar.should.equal(p);
+          
+          p.name.should.equal('Avatar');
+          p.oid.should.eql(author.username);
+          p.type.should.equal('Author');
+          done();
+        });
+      });
+    });
+    
+    it('should find polymorphic relation - reader', function (done) {
+      Reader.findOne(function (err, reader) {
+        reader.mugshot(function (err, p) {
+          should.not.exist(err);
+          p.name.should.equal('Mugshot');
+          p.oid.should.eql(reader.username);
+          p.type.should.equal('Reader');
+          done();
+        });
+      });
+    });
+    
+    it('should find inverse polymorphic relation - author', function (done) {
+      Picture.findOne({ where: { name: 'Avatar' } }, function (err, p) {
+        p.owner(function (err, owner) {
+          should.not.exist(err);
+          owner.should.be.instanceof(Author);
+          owner.name.should.equal('Author 1');
+          done();
+        });
+      });
+    });
+    
+    it('should find inverse polymorphic relation - reader', function (done) {
+      Picture.findOne({ where: { name: 'Mugshot' } }, function (err, p) {
+        p.owner(function (err, owner) {
+          should.not.exist(err);
+          owner.should.be.instanceof(Reader);
+          owner.name.should.equal('Reader 1');
+          done();
+        });
+      });
+    });
+  
   });
   
   describe('polymorphic hasMany', function () {
@@ -1630,9 +1804,141 @@ describe('relations', function () {
         done();
       });
     });
-    
+
   });
 
+  describe('hasOne with scope', function () {
+
+    var Supplier, Account;
+    var supplierId, accountId;
+
+    before(function () {
+      db = getSchema();
+      Supplier = db.define('Supplier', {name: String});
+      Account = db.define('Account', {accountNo: String, supplierName: String, block: Boolean});
+      Supplier.hasOne(Account, { scope: { where: { block: false } }, properties: { name: 'supplierName' } });
+    });
+
+    it('can be used to query data', function (done) {
+      db.automigrate(function () {
+        Supplier.create({name: 'Supplier 1'}, function (e, supplier) {
+          supplierId = supplier.id;
+          should.not.exist(e);
+          should.exist(supplier);
+          supplier.account.create({accountNo: 'a01'}, function (err, account) {
+            supplier.account(function (e, act) {
+              accountId = act.id;
+              should.not.exist(e);
+              should.exist(act);
+              act.should.be.an.instanceOf(Account);
+              supplier.account().id.should.equal(act.id);
+              act.supplierName.should.equal(supplier.name);
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('should find record that match scope', function (done) {
+      Account.updateAll({ block: true }, function (err) {
+        Supplier.findById(supplierId, function (err, supplier) {
+          supplier.account(function (err, account) {
+            should.not.exists(account);
+            done();
+          });
+        });
+      });
+    });
+
+  });
+  
+  describe('hasOne with non standard id', function () {
+    var Supplier, Account;
+    var supplierId, accountId;
+    
+    before(function () {
+      db = getSchema();
+      Supplier = db.define('Supplier', {
+        sid: {
+          type: String,
+          id: true
+        },
+        name: String
+      });
+      Account = db.define('Account', {
+        accid: {
+          type: String,
+          id: true,
+          generated: false
+        },
+        supplierName: String
+      });
+    });
+    
+    it('can be declared with non standard foreignKey', function () {
+      Supplier.hasOne(Account, {
+        properties: {name: 'supplierName'},
+        foreignKey: 'sid'
+      });
+      Object.keys((new Account()).toObject()).should.include('sid');
+      (new Supplier()).account.should.be.an.instanceOf(Function);
+    });
+    
+    it('can be used to query data', function (done) {
+      db.automigrate(function () {
+        Supplier.create({name: 'Supplier 1'}, function (e, supplier) {
+          supplierId = supplier.sid;
+          should.not.exist(e);
+          should.exist(supplier);
+          supplier.account.create({accid: 'a01'}, function (err, account) {
+            supplier.account(function (e, act) {
+              accountId = act.accid;
+              should.not.exist(e);
+              should.exist(act);
+              act.should.be.an.instanceOf(Account);
+              supplier.account().accid.should.equal(act.accid);
+              act.supplierName.should.equal(supplier.name);
+              done();
+            });
+          });
+        });
+      });
+    });
+    
+    it('should destroy the related item on scope', function(done) {
+      Supplier.findById(supplierId, function(e, supplier) {
+        should.not.exist(e);
+        should.exist(supplier);
+        supplier.account.destroy(function(err) {
+          should.not.exist(e);
+          done();
+        });
+      });
+    });
+    
+    it('should get the related item on scope - verify', function(done) {
+      Supplier.findById(supplierId, function(e, supplier) {
+        should.not.exist(e);
+        should.exist(supplier);
+        supplier.account(function(err, act) {
+          should.not.exist(e);
+          should.not.exist(act);
+          done();
+        });
+      });
+    });
+    
+    it('should have deleted related item', function(done) {
+      Supplier.findById(supplierId, function (e, supplier) {
+        should.not.exist(e);
+        should.exist(supplier);
+        done();
+      });
+    });
+  
+  });
+  
   describe('hasAndBelongsToMany', function () {
     var Article, TagName, ArticleTag;
     it('can be declared', function (done) {
