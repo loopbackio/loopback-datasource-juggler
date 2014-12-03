@@ -2011,6 +2011,7 @@ describe('relations', function () {
   describe('embedsOne', function () {
     
     var person;
+    var Passport;
     var Other;
     
     before(function () {
@@ -2021,6 +2022,7 @@ describe('relations', function () {
         {name:{type:'string', required: true}}, 
         {idInjection: false}
       );
+      Address = tmp.define('Address', { street: String }, { idInjection: false });
       Other = db.define('Other', {name: String});
     });
 
@@ -2028,6 +2030,7 @@ describe('relations', function () {
       Person.embedsOne(Passport, {
         default: {name: 'Anonymous'} // a bit contrived
       });
+      Person.embedsOne(Address); // all by default
       db.automigrate(done);
     });
     
@@ -2038,6 +2041,19 @@ describe('relations', function () {
       p.passportItem.create.should.be.a.function;
       p.passportItem.build.should.be.a.function;
       p.passportItem.destroy.should.be.a.function;
+    });
+
+    it('should behave properly without default or being set', function (done) {
+      var p = new Person();
+      should.not.exist(p.address);
+      var a = p.addressItem();
+      should.not.exist(a);
+      Person.create({}, function (err, p) {
+        should.not.exist(p.address);
+        var a = p.addressItem();
+        should.not.exist(a);
+        done();
+      });
     });
     
     it('should return an instance with default values', function() {
