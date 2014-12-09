@@ -52,14 +52,104 @@ describe('validations', function () {
 
     describe('skipping', function () {
 
-      it('should allow to skip using if: attribute', function () {
+      it('should NOT skip when `if` is fulfilled', function () {
         User.validatesPresenceOf('pendingPeriod', {if: 'createdByAdmin'});
         var user = new User;
         user.createdByAdmin = true;
         user.isValid().should.be.false;
         user.errors.pendingPeriod.should.eql(['can\'t be blank']);
-        user.pendingPeriod = 1
+        user.pendingPeriod = 1;
         user.isValid().should.be.true;
+      });
+
+      it('should skip when `if` is NOT fulfilled', function () {
+        User.validatesPresenceOf('pendingPeriod', {if: 'createdByAdmin'});
+        var user = new User;
+        user.createdByAdmin = false;
+        user.isValid().should.be.true;
+        user.errors.should.be.false;
+        user.pendingPeriod = 1;
+        user.isValid().should.be.true;
+      });
+
+      it('should NOT skip when `unless` is fulfilled', function () {
+        User.validatesPresenceOf('pendingPeriod', {unless: 'createdByAdmin'});
+        var user = new User;
+        user.createdByAdmin = false;
+        user.isValid().should.be.false;
+        user.errors.pendingPeriod.should.eql(['can\'t be blank']);
+        user.pendingPeriod = 1;
+        user.isValid().should.be.true;
+      });
+
+      it('should skip when `unless` is NOT fulfilled', function () {
+        User.validatesPresenceOf('pendingPeriod', {unless: 'createdByAdmin'});
+        var user = new User;
+        user.createdByAdmin = true;
+        user.isValid().should.be.true;
+        user.errors.should.be.false;
+        user.pendingPeriod = 1;
+        user.isValid().should.be.true;
+      });
+
+    });
+
+    describe('skipping in async validation', function () {
+
+      it('should skip when `if` is NOT fulfilled', function (done) {
+        User.validateAsync('pendingPeriod', function (err, done) {
+          if (!this.pendingPeriod) err();
+          done();
+        }, {if: 'createdByAdmin', code: 'presence', message: 'can\'t be blank'});
+        var user = new User;
+        user.createdByAdmin = false;
+        user.isValid(function (valid) {
+          valid.should.be.true;
+          user.errors.should.be.false;
+          done();
+        });
+      });
+
+      it('should NOT skip when `if` is fulfilled', function (done) {
+        User.validateAsync('pendingPeriod', function (err, done) {
+          if (!this.pendingPeriod) err();
+          done();
+        }, {if: 'createdByAdmin', code: 'presence', message: 'can\'t be blank'});
+        var user = new User;
+        user.createdByAdmin = true;
+        user.isValid(function (valid) {
+          valid.should.be.false;
+          user.errors.pendingPeriod.should.eql(['can\'t be blank']);
+          done();
+        });
+      });
+
+      it('should skip when `unless` is NOT fulfilled', function (done) {
+        User.validateAsync('pendingPeriod', function (err, done) {
+          if (!this.pendingPeriod) err();
+          done();
+        }, {unless: 'createdByAdmin', code: 'presence', message: 'can\'t be blank'});
+        var user = new User;
+        user.createdByAdmin = true;
+        user.isValid(function (valid) {
+          valid.should.be.true;
+          user.errors.should.be.false;
+          done();
+        });
+      });
+
+      it('should NOT skip when `unless` is fulfilled', function (done) {
+        User.validateAsync('pendingPeriod', function (err, done) {
+          if (!this.pendingPeriod) err();
+          done();
+        }, {unless: 'createdByAdmin', code: 'presence', message: 'can\'t be blank'});
+        var user = new User;
+        user.createdByAdmin = false;
+        user.isValid(function (valid) {
+          valid.should.be.false;
+          user.errors.pendingPeriod.should.eql(['can\'t be blank']);
+          done();
+        });
       });
 
     });

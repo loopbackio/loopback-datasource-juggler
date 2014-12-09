@@ -1,10 +1,11 @@
 {
     "content": [
         "lib/datasource.js",
-        "lib/geo.js",        
+        "lib/model.js",
+        "lib/geo.js",
         "lib/hooks.js",
         "lib/include.js",
-        "lib/model-builder.js",        
+        "lib/model-builder.js",
         "lib/relations.js",
         "lib/validations.js"
     ],

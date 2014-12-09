@@ -1005,7 +1005,7 @@ describe('relations', function () {
         author.avatar.create({ name: 'Avatar' }, function (err, p) {
           should.not.exist(err);
           should.exist(p);
-          p.oid.should.equal(author.username);
+          p.oid.toString().should.equal(author.username.toString());
           p.type.should.equal('Author');
           done();
         });
@@ -1017,7 +1017,7 @@ describe('relations', function () {
         reader.mugshot.create({ name: 'Mugshot' }, function (err, p) {
           should.not.exist(err);
           should.exist(p);
-          p.oid.should.equal(reader.username);
+          p.oid.toString().should.equal(reader.username.toString());
           p.type.should.equal('Reader');
           done();
         });
@@ -1794,7 +1794,53 @@ describe('relations', function () {
         done();
       });
     });
-    
+
+  });
+
+  describe('hasOne with scope', function () {
+
+    var Supplier, Account;
+    var supplierId, accountId;
+
+    before(function () {
+      db = getSchema();
+      Supplier = db.define('Supplier', {name: String});
+      Account = db.define('Account', {accountNo: String, supplierName: String, block: Boolean});
+      Supplier.hasOne(Account, { scope: { where: { block: false } }, properties: { name: 'supplierName' } });
+    });
+
+    it('can be used to query data', function (done) {
+      db.automigrate(function () {
+        Supplier.create({name: 'Supplier 1'}, function (e, supplier) {
+          supplierId = supplier.id;
+          should.not.exist(e);
+          should.exist(supplier);
+          supplier.account.create({accountNo: 'a01'}, function (err, account) {
+            supplier.account(function (e, act) {
+              accountId = act.id;
+              should.not.exist(e);
+              should.exist(act);
+              act.should.be.an.instanceOf(Account);
+              supplier.account().id.should.equal(act.id);
+              act.supplierName.should.equal(supplier.name);
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('should find record that match scope', function (done) {
+      Account.updateAll({ block: true }, function (err) {
+        Supplier.findById(supplierId, function (err, supplier) {
+          supplier.account(function (err, account) {
+            should.not.exists(account);
+            done();
+          });
+        });
+      });
+    });
+
   });
   
   describe('hasOne with non standard id', function () {
@@ -1965,6 +2011,7 @@ describe('relations', function () {
   describe('embedsOne', function () {
     
     var person;
+    var Passport;
     var Other;
     
     before(function () {
@@ -1975,6 +2022,7 @@ describe('relations', function () {
         {name:{type:'string', required: true}}, 
         {idInjection: false}
       );
+      Address = tmp.define('Address', { street: String }, { idInjection: false });
       Other = db.define('Other', {name: String});
     });
 
@@ -1982,6 +2030,7 @@ describe('relations', function () {
       Person.embedsOne(Passport, {
         default: {name: 'Anonymous'} // a bit contrived
       });
+      Person.embedsOne(Address); // all by default
       db.automigrate(done);
     });
     
@@ -1992,6 +2041,19 @@ describe('relations', function () {
       p.passportItem.create.should.be.a.function;
       p.passportItem.build.should.be.a.function;
       p.passportItem.destroy.should.be.a.function;
+    });
+
+    it('should behave properly without default or being set', function (done) {
+      var p = new Person();
+      should.not.exist(p.address);
+      var a = p.addressItem();
+      should.not.exist(a);
+      Person.create({}, function (err, p) {
+        should.not.exist(p.address);
+        var a = p.addressItem();
+        should.not.exist(a);
+        done();
+      });
     });
     
     it('should return an instance with default values', function() {
