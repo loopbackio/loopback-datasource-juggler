@@ -206,7 +206,7 @@ describe('validations', function () {
         User.validatesPresenceOf('name');
         User.create(function (e, u) {
           should.exist(e);
-          e.message.should.match(/`name` can't be blank/);
+          e.message.should.match(/`name: undefined` can't be blank/);
           done();
         });
       });

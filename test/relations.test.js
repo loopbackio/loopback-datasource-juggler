@@ -2112,7 +2112,7 @@ describe('relations', function () {
         should.exist(err);
         err.name.should.equal('ValidationError');
         var msg = 'The `Passport` instance is not valid.';
-        msg += ' Details: `name` can\'t be blank.';
+        msg += ' Details: `name: undefined` can\'t be blank.';
         err.message.should.equal(msg);
         done();
       });
@@ -2569,7 +2569,7 @@ describe('relations', function () {
       Person.create({ name: 'Wilma', addresses: addresses }, function(err, p) {
         err.name.should.equal('ValidationError');
         var expected = 'The `Person` instance is not valid. ';
-        expected += 'Details: `addresses` contains invalid item: `work` (`street` can\'t be blank).';
+        expected += 'Details: `addresses: [ { id: \u001b[32m\'home\'\u001b[39m, street: \u001b[32m\'Home Street\'\u001b[39m },\n  { id: \u001b[32m\'work\'\u001b[39m, street: \u001b[32m\'\'\u001b[39m } ]` contains invalid item: `work` (`street` can\'t be blank).';
         err.message.should.equal(expected);
         done();
       });
@@ -2769,7 +2769,7 @@ describe('relations', function () {
           err.name.should.equal('ValidationError');
           err.details.codes.street.should.eql(['presence']);
           var expected = 'The `Address` instance is not valid. ';
-          expected += 'Details: `street` can\'t be blank.';
+          expected += 'Details: `street: undefined` can\'t be blank.';
           err.message.should.equal(expected);
           done();
         });
