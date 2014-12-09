@@ -1005,7 +1005,7 @@ describe('relations', function () {
         author.avatar.create({ name: 'Avatar' }, function (err, p) {
           should.not.exist(err);
           should.exist(p);
-          p.oid.should.equal(author.username);
+          p.oid.toString().should.equal(author.username.toString());
           p.type.should.equal('Author');
           done();
         });
@@ -1017,7 +1017,7 @@ describe('relations', function () {
         reader.mugshot.create({ name: 'Mugshot' }, function (err, p) {
           should.not.exist(err);
           should.exist(p);
-          p.oid.should.equal(reader.username);
+          p.oid.toString().should.equal(reader.username.toString());
           p.type.should.equal('Reader');
           done();
         });
