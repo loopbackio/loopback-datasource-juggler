@@ -6,16 +6,16 @@ require('should');
 var GeoPoint = require('../lib/geo').GeoPoint;
 
 describe('GeoPoint', function () {
-	describe('distance calculation between two points', function () {
+  describe('distance calculation between two points', function () {
 
     var here = new GeoPoint({ lat: 40.77492964101182, lng: -73.90950187151662 });
     var there = new GeoPoint({ lat: 40.7753227, lng: -73.909217 });
 
-		it('should return value in miles by default', function () {
+    it('should return value in miles by default', function () {
 
-    	var distance = GeoPoint.distanceBetween(here, there);
+      var distance = GeoPoint.distanceBetween(here, there);
       distance.should.be.a.Number;
-    	distance.should.equal(0.03097916611592679);
+      distance.should.equal(0.03097916611592679);
     });
 
     it('should return value using specified unit', function () {
@@ -53,5 +53,5 @@ describe('GeoPoint', function () {
       distance.should.be.a.Number;
       distance.should.equal(0.0004483676593058972);
     });
-	});
+  });
 });
