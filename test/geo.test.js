@@ -50,6 +50,16 @@ describe('GeoPoint', function () {
 
   });
 
+  describe('toString()', function() {
+
+    it('should return a string in the form "lat,lng"', function() {
+
+      var point = new GeoPoint({ lat: -34, lng: 150 });
+      point.toString().should.equal('-34,150');
+    });
+
+  });
+
   describe('distance calculation between two points', function () {
 
     var here = new GeoPoint({ lat: 40.77492964101182, lng: -73.90950187151662 });
@@ -97,5 +107,7 @@ describe('GeoPoint', function () {
       distance.should.be.a.Number;
       distance.should.equal(0.0004483676593058972);
     });
+
   });
+
 });
