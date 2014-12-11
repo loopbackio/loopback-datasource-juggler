@@ -2,7 +2,7 @@
 var should = require('./init.js');
 var async = require('async');
 
-var db, Category, Product, Tool, Widget, Thing;
+var db, Category, Product, Tool, Widget, Thing, Person;
 
 // This test requires a connector that can
 // handle a custom collection or table name
@@ -86,6 +86,10 @@ describe('default scope', function () {
         mongodb: { collection: 'Product' },
         memory: { collection: 'Product' }
     });
+
+    Person = db.define('Person', { name: String }, {
+      scope: { include: 'things' }
+    });
     
     // inst is only valid for instance methods
     // like save, updateAttributes
@@ -115,6 +119,9 @@ describe('default scope', function () {
     Tool.belongsTo(Category);
     Widget.belongsTo(Category);
     Thing.belongsTo(Category);
+
+    Person.hasMany(Thing);
+    Thing.belongsTo(Person);
     
     db.automigrate(done);
   });
@@ -802,7 +809,33 @@ describe('default scope', function () {
         });
       });
     });
-    
+
   });
-  
+
+  describe('with include option', function() {
+
+    before(function (done) {
+      db.automigrate(done);
+    });
+
+    before(function (done) {
+      Person.create({ id: 1, name: 'Person A' }, function(err, person) {
+        person.things.create({ name: 'Thing A' }, done);
+      });
+    });
+
+    it('should find a scoped instance with included relation - things', function(done) {
+      Person.findById(1, function(err, person) {
+        should.not.exist(err);
+        should.exist(person);
+        var things = person.things();
+        should.exist(things);
+        things.should.be.an.instanceOf(Array);
+        things.should.have.length(1);
+        done();
+      });
+    });
+
+  });
+
 });
