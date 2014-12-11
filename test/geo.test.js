@@ -1,11 +1,55 @@
 /*global describe,it*/
-/*jshint expr:true*/
+/*jshint expr:true */
 
 require('should');
 
 var GeoPoint = require('../lib/geo').GeoPoint;
 
 describe('GeoPoint', function () {
+
+  describe('constructor', function() {
+
+    it('should support a valid array', function () {
+      var point = new GeoPoint([-34, 150]);
+
+      point.lat.should.equal(-34);
+      point.lng.should.equal(150);
+    });
+
+    it('should support a valid object', function () {
+      var point = new GeoPoint({ lat: -34, lng: 150 });
+
+      point.lat.should.equal(-34);
+      point.lng.should.equal(150);
+    });
+
+    it('should support valid string geo coordinates', function () {
+      var point = new GeoPoint('-34,150');
+
+      point.lat.should.equal(-34);
+      point.lng.should.equal(150);
+    });
+
+    it('should reject invalid parameters', function () {
+      /*jshint -W024 */
+      var fn = function() {
+        new GeoPoint('150,-34');
+      };
+      fn.should.throw();
+
+      fn = function() {
+        new GeoPoint('150,-34');
+      };
+      fn.should.throw();
+
+      fn = function() {
+        new GeoPoint();
+      };
+      fn.should.throw();
+    });
+
+  });
+
   describe('distance calculation between two points', function () {
 
     var here = new GeoPoint({ lat: 40.77492964101182, lng: -73.90950187151662 });
