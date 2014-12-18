@@ -30,6 +30,13 @@ describe('GeoPoint', function () {
       point.lng.should.equal(150);
     });
 
+    it('should support coordinates as inline parameters', function () {
+      var point = new GeoPoint(-34, 150);
+
+      point.lat.should.equal(-34);
+      point.lng.should.equal(150);
+    });
+
     it('should reject invalid parameters', function () {
       /*jshint -W024 */
       var fn = function() {
@@ -38,7 +45,25 @@ describe('GeoPoint', function () {
       fn.should.throw();
 
       fn = function() {
-        new GeoPoint('150,-34');
+        new GeoPoint('invalid_string');
+      };
+      fn.should.throw();
+
+      fn = function() {
+        new GeoPoint([150, -34]);
+      };
+      fn.should.throw();
+
+      fn = function() {
+        new GeoPoint({
+          lat: 150,
+          lng: null
+        });
+      };
+      fn.should.throw();
+
+      fn = function() {
+        new GeoPoint(150, -34);
       };
       fn.should.throw();
 
