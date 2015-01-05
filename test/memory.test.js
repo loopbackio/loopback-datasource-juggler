@@ -183,11 +183,22 @@ describe('Memory connector', function () {
       });
     });
 
-    it('support order with multiple fields', function (done) {
+    it('should support order with multiple fields', function (done) {
       User.find({order: 'vip ASC, seq DESC'}, function (err, posts) {
         should.not.exist(err);
         posts[0].seq.should.be.eql(4);
         posts[1].seq.should.be.eql(3);
+        done();
+      });
+    });
+
+    it('should sort undefined values to the end when ordered DESC', function (done) {
+      User.find({order: 'vip ASC, order DESC'}, function (err, posts) {
+        console.log(posts);
+        should.not.exist(err);
+
+        posts[4].seq.should.be.eql(1);
+        posts[5].seq.should.be.eql(0);
         done();
       });
     });
@@ -200,11 +211,11 @@ describe('Memory connector', function () {
     });
 
     it('should support neq operator for number', function (done) {
-      User.find({where: {order: {neq: 6}}}, function (err, users) {
+      User.find({where: {seq: {neq: 4}}}, function (err, users) {
         should.not.exist(err);
         users.length.should.be.equal(5);
         for (var i = 0; i < users.length; i++) {
-          users[i].order.should.not.be.equal(6);
+          users[i].seq.should.not.be.equal(4);
         }
         done();
       });
@@ -242,7 +253,6 @@ describe('Memory connector', function () {
           email: 'john@b3atl3s.co.uk',
           role: 'lead',
           birthday: new Date('1980-12-08'),
-          order: 2,
           vip: true
         },
         {
