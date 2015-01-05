@@ -4,6 +4,7 @@
 require('should');
 
 var GeoPoint = require('../lib/geo').GeoPoint;
+var DELTA = 0.0000001;
 
 describe('GeoPoint', function () {
 
@@ -94,7 +95,7 @@ describe('GeoPoint', function () {
 
       var distance = GeoPoint.distanceBetween(here, there);
       distance.should.be.a.Number;
-      distance.should.equal(0.03097916611592679);
+      distance.should.be.approximately(0.03097916611592679, DELTA);
     });
 
     it('should return value using specified unit', function () {
@@ -110,27 +111,27 @@ describe('GeoPoint', function () {
 
       var distance = here.distanceTo(there, { type: 'radians'});
       distance.should.be.a.Number;
-      distance.should.equal(0.000007825491914348416);
+      distance.should.be.approximately(0.000007825491914348416, DELTA);
 
       distance = here.distanceTo(there, { type: 'kilometers'});
       distance.should.be.a.Number;
-      distance.should.equal(0.04985613511367009);
+      distance.should.be.approximately(0.04985613511367009, DELTA);
 
       distance = here.distanceTo(there, { type: 'meters'});
       distance.should.be.a.Number;
-      distance.should.equal(49.856135113670085);
+      distance.should.be.approximately(49.856135113670085, DELTA);
 
       distance = here.distanceTo(there, { type: 'miles'});
       distance.should.be.a.Number;
-      distance.should.equal(0.03097916611592679);
+      distance.should.be.approximately(0.03097916611592679, DELTA);
 
       distance = here.distanceTo(there, { type: 'feet'});
       distance.should.be.a.Number;
-      distance.should.equal(163.56999709209347);
+      distance.should.be.approximately(163.56999709209347, DELTA);
 
       distance = here.distanceTo(there, { type: 'degrees'});
       distance.should.be.a.Number;
-      distance.should.equal(0.0004483676593058972);
+      distance.should.be.approximately(0.0004483676593058972, DELTA);
     });
 
   });
