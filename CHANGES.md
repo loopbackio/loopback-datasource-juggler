@@ -1,4 +1,42 @@
-2014-12-09, Version 2.12.0
+2015-01-07, Version 2.13.0
+==========================
+
+ * added test for sorting undefined values (Christian Vette)
+
+ * Fix the floating number comparison (Raymond Feng)
+
+ * Fix bad CLA URL in CONTRIBUTING.md (Ryan Graham)
+
+ * replace deprecated function __defineGetter__ (bitmage)
+
+ * add a flag to callback of findOrCreate to indicate find or create (Clark Wang)
+
+ * fix sorting of undefined values with multiple columns (Christian Vette)
+
+ * code style (cvette)
+
+ * fix sorting with undefined in memory connector (cvette)
+
+ * Added support for inline parameters like: new GeoPoint(-34, 150) (Simo Moujami)
+
+ * fix default include in default scope fails findById (Clark Wang)
+
+ * Added test for toString() (Simo Moujami)
+
+ * Additional formatting (Simo Moujami)
+
+ * Fixed constructor parameters and added bdd tests for constructor validation (Simo Moujami)
+
+ * Fixed indentation (Simo Moujami)
+
+ * Added mocha tests for GeoPoint (Simo Moujami)
+
+ * renamed intermediary variable (Simo Moujami)
+
+ * Fixed the haversine formula to calculate distance between 2 points properly (Simo Moujami)
+
+
+2014-12-08, Version 2.12.0
 ==========================
 
  * Relax the id comparison (Raymond Feng)
@@ -391,18 +429,15 @@
 
  * Cleanup mixin tests (Fabien Franzen)
 
- * Fix a name conflict in scope metadata (Raymond Feng)
-
-
-2014-08-08, Version 2.3.0
-=========================
-
-
 
 2014-08-08, Version 2.3.1
 =========================
 
  * Fix a name conflict in scope metadata (Raymond Feng)
+
+
+2014-08-08, Version 2.3.0
+=========================
 
  * Fix the test case so that it works with other DBs (Raymond Feng)
 
@@ -516,6 +551,8 @@
 
  * Implemented embedsMany relation (Fabien Franzen)
 
+ * Fix a regression where undefined id should not match any record (Raymond Feng)
+
  * Minor tweaks; pass-through properties/scope for hasAndBelongsToMany (Fabien Franzen)
 
  * Implemented polymorphic hasMany through inverse (Fabien Franzen)
@@ -531,18 +568,17 @@
  * Implemented polymorphic hasMany (Fabien Franzen)
 
 
+2014-07-27, Version 2.1.0
+=========================
+
+
+
 2014-07-27, Version 2.1.1
 =========================
 
  * Bump version (Raymond Feng)
 
  * Fix a regression where undefined id should not match any record (Raymond Feng)
-
-
-2014-07-27, Version 2.1.0
-=========================
-
- * Bump version (Raymond Feng)
 
  * datasource: support connectors without `getTypes` (Miroslav Bajtoš)
 
@@ -628,6 +664,10 @@
 
  * Add missing inflection dep back (Raymond Feng)
 
+
+2014-07-15, Version 2.0.0-beta3
+===============================
+
  * Bump version (Raymond Feng)
 
  * 2.0.0-beta2 (Miroslav Bajtoš)
@@ -664,16 +704,11 @@
 2014-07-15, Version 1.7.0
 =========================
 
-
-
-2014-07-15, Version 2.0.0-beta3
-===============================
-
- * Bump version (Raymond Feng)
-
  * Make sure related properties are defined for RDBMS (Raymond Feng)
 
  * Test instance or id by the model type (Raymond Feng)
+
+ * Bump version (Raymond Feng)
 
  * Allow before hooks to pass arguments to next() (Raymond Feng)
 
@@ -698,36 +733,6 @@
  * Allows default model class to be configured (Raymond Feng)
 
  * DAO.prototype.exists should return 'boolean' type. (Samuel Reed)
-
- * 2.0.0-beta2 (Miroslav Bajtoš)
-
- * validations: support non-V8 browsers (Miroslav Bajtoš)
-
- * Remove remoting metadata (Raymond Feng)
-
- * Fix the forEach closure (Raymond Feng)
-
- * ModelBuilder: add `prototype.defineValueType` (Miroslav Bajtoš)
-
- * Replace connector base with loopback-connector (Miroslav Bajtoš)
-
- * Remove unsupported connectors (Miroslav Bajtoš)
-
- * 2.0.0-beta1 (Ritchie Martori)
-
- * Keep undefined/null values for the array type (Raymond Feng)
-
- * Remove JSDocs for scopeMethods.add(acInst) and scopeMethods.remove(acInst) (crandmck)
-
- * Copy info from api-model.md to JSDoc (crandmck)
-
- * !fixup Remove additional remoting (Ritchie Martori)
-
- * !fixup Require ._delegate for fn override (Ritchie Martori)
-
- * Remove relation remoting (Ritchie Martori)
-
- * Remove remoting metadata (Ritchie Martori)
 
 
 2014-07-03, Version 1.6.3
@@ -1091,18 +1096,11 @@
 
  * Simplify the test case (Raymond Feng)
 
- * Revert the inflection version due to regression in camelize (Raymond Feng)
-
  * Add unit test for datatype handling in updateAttributes. (arlaneenalra)
 
  * Move new var into thunk. (arlaneenalra)
 
  * Use type converted data when writing back to database. (arlaneenalra)
-
-
-2014-02-11, Version 1.3.0
-=========================
-
 
 
 2014-02-11, Version 1.3.1
@@ -1111,6 +1109,10 @@
  * Bump version (Raymond Feng)
 
  * Revert the inflection version due to regression in camelize (Raymond Feng)
+
+
+2014-02-11, Version 1.3.0
+=========================
 
  * Bump version and update deps (Raymond Feng)
 
