@@ -2111,9 +2111,7 @@ describe('relations', function () {
       p.passportItem.create({}, function(err, passport) {
         should.exist(err);
         err.name.should.equal('ValidationError');
-        var msg = 'The `Passport` instance is not valid.';
-        msg += ' Details: `name` can\'t be blank.';
-        err.message.should.equal(msg);
+        err.details.messages.name.should.eql(['can\'t be blank']);
         done();
       });
     });
@@ -2125,9 +2123,8 @@ describe('relations', function () {
         p.save(function(err) {
           should.exist(err);
           err.name.should.equal('ValidationError');
-          var msg = 'The `Person` instance is not valid.';
-          msg += ' Details: `passportItem` is invalid: `name` can\'t be blank.';
-          err.message.should.equal(msg);
+          err.details.messages.passportItem
+            .should.eql(['is invalid: `name` can\'t be blank']);
           done();
         });
       });
@@ -2568,9 +2565,9 @@ describe('relations', function () {
       addresses.push({ id: 'work', street: '' });
       Person.create({ name: 'Wilma', addresses: addresses }, function(err, p) {
         err.name.should.equal('ValidationError');
-        var expected = 'The `Person` instance is not valid. ';
-        expected += 'Details: `addresses` contains invalid item: `work` (`street` can\'t be blank).';
-        err.message.should.equal(expected);
+        err.details.messages.addresses.should.eql([
+          'contains invalid item: `work` (`street` can\'t be blank)'
+        ]);
         done();
       });
     });
@@ -2769,7 +2766,7 @@ describe('relations', function () {
           err.name.should.equal('ValidationError');
           err.details.codes.street.should.eql(['presence']);
           var expected = 'The `Address` instance is not valid. ';
-          expected += 'Details: `street` can\'t be blank.';
+          expected += 'Details: `street` can\'t be blank (value: undefined).';
           err.message.should.equal(expected);
           done();
         });
@@ -3225,9 +3222,6 @@ describe('relations', function () {
           should.exist(err);
           err.name.should.equal('ValidationError');
           err.details.codes.jobs.should.eql(['uniqueness']);
-          var expected = 'The `Category` instance is not valid. ';
-          expected += 'Details: `jobs` contains duplicate `Job` instance.';
-          err.message.should.equal(expected);
           done();
         });
       });

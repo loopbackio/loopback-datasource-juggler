@@ -211,6 +211,16 @@ describe('validations', function () {
         });
       });
 
+      it('should include property value in err.message', function(done) {
+        delete User.validations;
+        User.validatesPresenceOf('name');
+        User.create(function (e, u) {
+          should.exist(e);
+          e.message.should.match(/`name` can't be blank \(value: undefined\)/);
+          done();
+        });
+      });
+
       it('should include model name in err.message', function(done) {
         delete User.validations;
         User.validatesPresenceOf('name');
@@ -431,5 +441,66 @@ describe('validations', function () {
         done();
       })).should.be.false;
     });
+  });
+
+  describe('invalid value formatting', function() {
+    var origMaxLen;
+    beforeEach(function saveAndSetMaxLen() {
+      origMaxLen = ValidationError.maxPropertyStringLength;
+    });
+
+    afterEach(function restoreMaxLen() {
+      ValidationError.maxPropertyStringLength = origMaxLen;
+    });
+
+    it('should truncate long strings', function() {
+      ValidationError.maxPropertyStringLength = 9;
+      var err = givenValidationError('prop', '1234567890abc', 'is invalid');
+      getErrorDetails(err)
+        .should.equal('`prop` is invalid (value: "12...abc").');
+    });
+
+    it('should truncate long objects', function() {
+      ValidationError.maxPropertyStringLength = 12;
+      var err = givenValidationError('prop', { foo: 'bar' }, 'is invalid');
+      getErrorDetails(err)
+        .should.equal('`prop` is invalid (value: { foo:... }).');
+    });
+
+    it('should truncate long arrays', function() {
+      ValidationError.maxPropertyStringLength = 12;
+      var err = givenValidationError('prop', [{ a: 1, b: 2}], 'is invalid');
+      getErrorDetails(err)
+        .should.equal('`prop` is invalid (value: [ { a...} ]).');
+    });
+
+    it('should print only top-level object properties', function() {
+      var err = givenValidationError('prop', { a: { b: 'c' }}, 'is invalid');
+      getErrorDetails(err)
+        .should.equal('`prop` is invalid (value: { a: [Object] }).');
+    });
+
+    it('should print only top-level props of objects in array', function() {
+      var err = givenValidationError('prop', [{ a: { b: 'c' }}], 'is invalid');
+      getErrorDetails(err)
+        .should.equal('`prop` is invalid (value: [ { a: [Object] } ]).');
+    });
+
+    function givenValidationError(propertyName, propertyValue, errorMessage) {
+      var jsonVal = {};
+      jsonVal[propertyName] = propertyValue;
+      var errorVal = {};
+      errorVal[propertyName] = [errorMessage];
+
+      var obj = {
+        errors: errorVal,
+        toJSON: function() { return jsonVal; }
+      };
+      return new ValidationError(obj);
+    }
+
+    function getErrorDetails(err) {
+      return err.message.replace(/^.*Details: /, '');
+    }
   });
 });
