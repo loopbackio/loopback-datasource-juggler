@@ -66,8 +66,8 @@ describe('manipulation', function () {
     it('should not allow user-defined value for the id of object - create', function (done) {
       Person.create({id: 123456}, function (err, p) {
         err.should.be.instanceof(ValidationError);
-        err.message.should.equal('The `Person` instance is not valid. Details: `id` can\'t be set.');
         err.statusCode.should.equal(422);
+        err.details.messages.id.should.eql(['can\'t be set']);
         p.should.be.instanceof(Person);
         p.id.should.equal(123456);
         p.isNewRecord().should.be.true;
@@ -80,8 +80,8 @@ describe('manipulation', function () {
       p.isNewRecord().should.be.true;
       p.save(function(err, inst) {
         err.should.be.instanceof(ValidationError);
-        err.message.should.equal('The `Person` instance is not valid. Details: `id` can\'t be set.');
         err.statusCode.should.equal(422);
+        err.details.messages.id.should.eql(['can\'t be set']);
         inst.id.should.equal(123456);
         inst.isNewRecord().should.be.true;
         done();

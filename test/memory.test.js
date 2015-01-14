@@ -194,7 +194,6 @@ describe('Memory connector', function () {
 
     it('should sort undefined values to the end when ordered DESC', function (done) {
       User.find({order: 'vip ASC, order DESC'}, function (err, posts) {
-        console.log(posts);
         should.not.exist(err);
 
         posts[4].seq.should.be.eql(1);

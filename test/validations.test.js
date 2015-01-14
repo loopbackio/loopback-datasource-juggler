@@ -211,6 +211,16 @@ describe('validations', function () {
         });
       });
 
+      it('should include property value in err.message', function(done) {
+        delete User.validations;
+        User.validatesPresenceOf('name');
+        User.create(function (e, u) {
+          should.exist(e);
+          e.message.should.match(/`name` can't be blank \(value: undefined\)/);
+          done();
+        });
+      });
+
       it('should include model name in err.message', function(done) {
         delete User.validations;
         User.validatesPresenceOf('name');
@@ -220,7 +230,7 @@ describe('validations', function () {
           done();
         });
       });
-      
+
       it('should return validation metadata', function() {
         var expected = {name:[{validation: 'presence', options: {}}]};
         delete User.validations;
@@ -235,11 +245,11 @@ describe('validations', function () {
 
     it('should validate presence', function () {
       User.validatesPresenceOf('name', 'email');
-      
+
       var validations = User.validations;
       validations.name.should.eql([{validation: 'presence', options: {}}]);
       validations.email.should.eql([{validation: 'presence', options: {}}]);
-      
+
       var u = new User;
       u.isValid().should.not.be.true;
       u.name = 1;
@@ -263,7 +273,7 @@ describe('validations', function () {
     });
 
   });
-  
+
   describe('absence', function () {
 
     it('should validate absence', function () {
@@ -345,7 +355,7 @@ describe('validations', function () {
         done(err);
       });
     });
-    
+
     it('should skip blank values', function (done) {
       User.validatesUniquenessOf('email');
       var u = new User({email: '  '});
@@ -360,9 +370,9 @@ describe('validations', function () {
         });
       })).should.be.false;
     });
-    
+
     it('should work with if/unless', function (done) {
-      User.validatesUniquenessOf('email', { 
+      User.validatesUniquenessOf('email', {
         if: function() { return true; },
         unless: function() { return false; }
       });
@@ -404,7 +414,7 @@ describe('validations', function () {
       Boolean(u.isValid()).should.be.false;
       u.errors.codes.should.eql({ email: ['invalid-email'] });
     });
-    
+
     it('should validate and return detailed error messages', function() {
       User.validate('global', function (err) {
         if (this.email === 'hello' || this.email === 'hey') {
@@ -417,11 +427,11 @@ describe('validations', function () {
       u.errors.should.eql({ email: ['Cannot be `hello`'] });
       u.errors.codes.should.eql({ email: ['invalid-email'] });
     });
-    
+
     it('should validate using custom async validation', function(done) {
       User.validateAsync('email', function (err, next) {
         process.nextTick(next);
-      }, { 
+      }, {
         if: function() { return true; },
         unless: function() { return false; }
       });
@@ -431,5 +441,74 @@ describe('validations', function () {
         done();
       })).should.be.false;
     });
+  });
+
+  describe('invalid value formatting', function() {
+    var origMaxLen;
+    beforeEach(function saveAndSetMaxLen() {
+      origMaxLen = ValidationError.maxPropertyStringLength;
+    });
+
+    afterEach(function restoreMaxLen() {
+      ValidationError.maxPropertyStringLength = origMaxLen;
+    });
+
+    it('should truncate long strings', function() {
+      ValidationError.maxPropertyStringLength = 9;
+      var err = givenValidationError('prop', '1234567890abc', 'is invalid');
+      getErrorDetails(err)
+        .should.equal('`prop` is invalid (value: "12...abc").');
+    });
+
+    it('should truncate long objects', function() {
+      ValidationError.maxPropertyStringLength = 12;
+      var err = givenValidationError('prop', { foo: 'bar' }, 'is invalid');
+      getErrorDetails(err)
+        .should.equal('`prop` is invalid (value: { foo:... }).');
+    });
+
+    it('should truncate long arrays', function() {
+      ValidationError.maxPropertyStringLength = 12;
+      var err = givenValidationError('prop', [{ a: 1, b: 2}], 'is invalid');
+      getErrorDetails(err)
+        .should.equal('`prop` is invalid (value: [ { a...} ]).');
+    });
+
+    it('should print only top-level object properties', function() {
+      var err = givenValidationError('prop', { a: { b: 'c' }}, 'is invalid');
+      getErrorDetails(err)
+        .should.equal('`prop` is invalid (value: { a: [Object] }).');
+    });
+
+    it('should print only top-level props of objects in array', function() {
+      var err = givenValidationError('prop', [{ a: { b: 'c' }}], 'is invalid');
+      getErrorDetails(err)
+        .should.equal('`prop` is invalid (value: [ { a: [Object] } ]).');
+    });
+
+    it('should exclude colors from Model values', function() {
+      var obj = new User();
+      obj.email = 'test@example.com';
+      var err = givenValidationError('user', obj, 'is invalid');
+      getErrorDetails(err).should.equal(
+        '`user` is invalid (value: { email: \'test@example.com\' }).');
+    });
+
+    function givenValidationError(propertyName, propertyValue, errorMessage) {
+      var jsonVal = {};
+      jsonVal[propertyName] = propertyValue;
+      var errorVal = {};
+      errorVal[propertyName] = [errorMessage];
+
+      var obj = {
+        errors: errorVal,
+        toJSON: function() { return jsonVal; }
+      };
+      return new ValidationError(obj);
+    }
+
+    function getErrorDetails(err) {
+      return err.message.replace(/^.*Details: /, '');
+    }
   });
 });

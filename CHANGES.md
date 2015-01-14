@@ -1,3 +1,23 @@
+2015-01-14, Version 2.14.0
+==========================
+
+ * Remove console.log (Raymond Feng)
+
+ * Fix for #369 (Dallon Feldner)
+
+ * Fix virtual id get function. (Berkeley Martinez)
+
+ * Fix Model.prototype.inspect (Miroslav Bajtoš)
+
+ * Include property value in the error message (Miroslav Bajtoš)
+
+ * Update datasource.js (Rand McKinney)
+
+ * Change Model to BaseModel for clarity (Fabien Franzen)
+
+ * Don't coerce nested objects into Model instances (Fabien Franzen)
+
+
 2015-01-07, Version 2.13.0
 ==========================
 
@@ -368,13 +388,6 @@
 
  * Properly handle LDL for polymorphic relations (Fabien Franzen)
 
- * Check null (Raymond Feng)
-
-
-2014-08-15, Version 2.4.0
-=========================
-
-
 
 2014-08-15, Version 2.4.1
 =========================
@@ -382,6 +395,12 @@
  * Bump version (Raymond Feng)
 
  * Check null (Raymond Feng)
+
+
+2014-08-15, Version 2.4.0
+=========================
+
+ * Bump version (Raymond Feng)
 
  * Fix the test cases to avoid hard-coded ids (Raymond Feng)
 
@@ -429,15 +448,18 @@
 
  * Cleanup mixin tests (Fabien Franzen)
 
-
-2014-08-08, Version 2.3.1
-=========================
-
  * Fix a name conflict in scope metadata (Raymond Feng)
 
 
 2014-08-08, Version 2.3.0
 =========================
+
+
+
+2014-08-08, Version 2.3.1
+=========================
+
+ * Fix a name conflict in scope metadata (Raymond Feng)
 
  * Fix the test case so that it works with other DBs (Raymond Feng)
 
