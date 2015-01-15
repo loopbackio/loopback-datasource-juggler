@@ -1122,12 +1122,14 @@ function testOrm(dataSource) {
 
   it('should find or create', function (test) {
     var email = 'some email ' + Math.random();
-    User.findOrCreate({where: {email: email}}, function (err, u) {
+    User.findOrCreate({where: {email: email}}, function (err, u, created) {
       test.ok(u);
       test.ok(!u.age);
-      User.findOrCreate({where: {email: email}}, {age: 21}, function (err, u2) {
+      test.ok(created);
+      User.findOrCreate({where: {email: email}}, {age: 21}, function (err, u2, created) {
         test.equals(u.id.toString(), u2.id.toString(), 'Same user ids');
         test.ok(!u2.age);
+        test.ok(!created);
         test.done();
       });
     });

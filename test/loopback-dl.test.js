@@ -639,7 +639,7 @@ describe('Load models with base', function () {
     assert(Customer.prototype.instanceMethod === User.prototype.instanceMethod);
     assert.equal(Customer.base, User);
     assert.equal(Customer.base, Customer.super_);
-
+    
     try {
       var Customer1 = ds.define('Customer1', {vip: Boolean}, {base: 'User1'});
     } catch (e) {

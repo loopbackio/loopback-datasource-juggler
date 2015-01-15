@@ -183,11 +183,21 @@ describe('Memory connector', function () {
       });
     });
 
-    it('support order with multiple fields', function (done) {
+    it('should support order with multiple fields', function (done) {
       User.find({order: 'vip ASC, seq DESC'}, function (err, posts) {
         should.not.exist(err);
         posts[0].seq.should.be.eql(4);
         posts[1].seq.should.be.eql(3);
+        done();
+      });
+    });
+
+    it('should sort undefined values to the end when ordered DESC', function (done) {
+      User.find({order: 'vip ASC, order DESC'}, function (err, posts) {
+        should.not.exist(err);
+
+        posts[4].seq.should.be.eql(1);
+        posts[5].seq.should.be.eql(0);
         done();
       });
     });
@@ -200,11 +210,11 @@ describe('Memory connector', function () {
     });
 
     it('should support neq operator for number', function (done) {
-      User.find({where: {order: {neq: 6}}}, function (err, users) {
+      User.find({where: {seq: {neq: 4}}}, function (err, users) {
         should.not.exist(err);
         users.length.should.be.equal(5);
         for (var i = 0; i < users.length; i++) {
-          users[i].order.should.not.be.equal(6);
+          users[i].seq.should.not.be.equal(4);
         }
         done();
       });
@@ -242,7 +252,6 @@ describe('Memory connector', function () {
           email: 'john@b3atl3s.co.uk',
           role: 'lead',
           birthday: new Date('1980-12-08'),
-          order: 2,
           vip: true
         },
         {
@@ -268,6 +277,86 @@ describe('Memory connector', function () {
       ], done);
     }
 
+  });
+  
+  it('should use collection setting', function (done) {
+    var ds = new DataSource({
+      connector: 'memory'
+    });
+    
+    var Product = ds.createModel('Product', {
+      name: String
+    });
+    
+    var Tool = ds.createModel('Tool', {
+      name: String
+    }, {memory: {collection: 'Product'}});
+    
+    var Widget = ds.createModel('Widget', {
+      name: String
+    }, {memory: {collection: 'Product'}});
+    
+    ds.connector.getCollection('Tool').should.equal('Product');
+    ds.connector.getCollection('Widget').should.equal('Product');
+    
+    async.series([
+      function(next) {
+        Tool.create({ name: 'Tool A' }, next);
+      },
+      function(next) {
+        Tool.create({ name: 'Tool B' }, next);
+      },
+      function(next) {
+        Widget.create({ name: 'Widget A' }, next);
+      }
+    ], function(err) {
+      Product.find(function(err, products) {
+        should.not.exist(err);
+        products.should.have.length(3);
+        products[0].toObject().should.eql({ name: 'Tool A', id: 1 });
+        products[1].toObject().should.eql({ name: 'Tool B', id: 2 });
+        products[2].toObject().should.eql({ name: 'Widget A', id: 3 });
+        done();
+      });
+    });
+  });
+
+  describe('automigrate', function() {
+    var ds;
+    beforeEach(function() {
+      ds = new DataSource({
+        connector: 'memory'
+      });
+
+      ds.createModel('m1', {
+        name: String
+      });
+    });
+
+    it('automigrate all models', function(done) {
+      ds.automigrate(function(err) {
+        done(err);
+      });
+    });
+
+    it('automigrate one model', function(done) {
+      ds.automigrate('m1', function(err) {
+        done(err);
+      });
+    });
+
+    it('automigrate one or more models in an array', function(done) {
+      ds.automigrate(['m1'], function(err) {
+        done(err);
+      });
+    });
+
+    it('automigrate reports errors for models not attached', function(done) {
+      ds.automigrate(['m1', 'm2'], function(err) {
+        err.should.be.an.instanceOf(Error);
+        done();
+      });
+    });
   });
 
 });

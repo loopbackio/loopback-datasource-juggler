@@ -5,8 +5,9 @@ for interacting with databases, REST APIs, and other data sources. It was
 initially forked from [JugglingDB](https://github.com/1602/jugglingdb).
 
 **For full documentation, see the official StrongLoop documentation**:
- * [Data sources and connectors](http://docs.strongloop.com/display/LB/Data+sources+and+connectors)
- * [Creating data sources and connected models](http://docs.strongloop.com/display/LB/Creating+data+sources+and+connected+models).
+ [Connecting models to data sources](http://docs.strongloop.com/display/LB/Connecting+models+to+data+sources)
+ 
+For information on creating data sources programmatically, see [Advanced topics: data sources](http://docs.strongloop.com/display/LB/Advanced+topics%3A+data+sources). 
 
 ## Installation
 
@@ -16,6 +17,6 @@ Also install the appropriated connector, for example for mongodb:
 
     npm install loopback-connector-mongodb
 
-See [StrongLoop Suite Documentation](http://docs.strongloop.com/) for up-to-date list of connectors supported.
+See [StrongLoop Documentation](http://docs.strongloop.com/) for more information.
 
 
