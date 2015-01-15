@@ -1,3 +1,11 @@
+2015-01-15, Version 2.14.1
+==========================
+
+ * Fix detection of `util.inspect` version (Miroslav Bajtoš)
+
+ * fix recursive calls if create belongsTo model in beforeCreate hook (Clark Wang)
+
+
 2015-01-14, Version 2.14.0
 ==========================
 
@@ -321,14 +329,7 @@
 
  * Emit deleted event on delete for embedsMany relations (Jaka Hudoklin)
 
- * Make sure falsy value is kept for properties not predefined (Raymond Feng)
-
  * Add ping() to test connections (Raymond Feng)
-
-
-2014-08-21, Version 2.5.1
-=========================
-
 
 
 2014-08-21, Version 2.5.2
@@ -337,6 +338,12 @@
  * Bump version (Raymond Feng)
 
  * Make sure falsy value is kept for properties not predefined (Raymond Feng)
+
+
+2014-08-21, Version 2.5.1
+=========================
+
+ * Bump version (Raymond Feng)
 
  * Fix side-effects of PR #237 - see #242 (Fabien Franzen)
 
@@ -902,14 +909,6 @@
 
  * JSDoc improvements (Rand McKinney)
 
- * validations: include more details in `err.message` (Miroslav Bajtoš)
-
-
-2014-05-27, Version 1.5.4
-=========================
-
- * Bump version (Raymond Feng)
-
  * Keep undefined/null values for the array type (Raymond Feng)
 
  * Remove JSDocs for scopeMethods.add(acInst) and scopeMethods.remove(acInst) (crandmck)
@@ -943,6 +942,24 @@
  * Remove relation remoting (Ritchie Martori)
 
  * Remove remoting metadata (Ritchie Martori)
+
+
+2014-05-27, Version 1.5.4
+=========================
+
+ * Bump version (Raymond Feng)
+
+ * Keep undefined/null values for the array type (Raymond Feng)
+
+ * Remove JSDocs for scopeMethods.add(acInst) and scopeMethods.remove(acInst) (crandmck)
+
+ * Copy info from api-model.md to JSDoc (crandmck)
+
+ * validations: include more details in `err.message` (Miroslav Bajtoš)
+
+ * Add a path to show customer.orders(query, cb) (Raymond Feng)
+
+ * Add support for logical operator (AND/OR) (Raymond Feng)
 
 
 2014-05-20, Version 1.5.2
