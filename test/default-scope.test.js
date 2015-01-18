@@ -433,22 +433,25 @@ describe('default scope', function () {
     });
     
     it('should apply default scope', function(done) {
-      Product.removeById(ids.widgetZ, function(err) {
+      Product.removeById(ids.widgetZ, function(err, deleted) {
         should.not.exist(err);
+        deleted.should.be.true;
         isDeleted(ids.widgetZ, done);
       });
     });
     
     it('should apply default scope - tool', function(done) {
-      Tool.removeById(ids.toolA, function(err) {
+      Tool.removeById(ids.toolA, function(err, deleted) {
         should.not.exist(err);
+        deleted.should.be.true;
         isDeleted(ids.toolA, done);
       });
     });
     
     it('should apply default scope - no match', function(done) {
-      Tool.removeById(ids.widgetA, function(err) {
+      Tool.removeById(ids.widgetA, function(err, deleted) {
         should.not.exist(err);
+        deleted.should.be.false;
         Product.exists(ids.widgetA, function(err, exists) {
           should.not.exist(err);
           exists.should.be.true;
@@ -458,8 +461,9 @@ describe('default scope', function () {
     });
     
     it('should apply default scope - widget', function(done) {
-      Widget.removeById(ids.widgetA, function(err) {
+      Widget.removeById(ids.widgetA, function(err, deleted) {
         should.not.exist(err);
+        deleted.should.be.true;
         isDeleted(ids.widgetA, done);
       });
     });

@@ -53,7 +53,8 @@ describe('Memory connector', function () {
       });
     }, function (err, results) {
       // Now try to delete one
-      User.deleteById(ids[0], function (err) {
+      User.deleteById(ids[0], function (err, deleted) {
+        assert(deleted);
         readModels(function (err, json) {
           assert.equal(Object.keys(json.models.User).length, 2);
           User.upsert({id: ids[1], name: 'John'}, function(err, result) {
