@@ -1718,6 +1718,45 @@ describe('relations', function () {
   
   });
 
+  describe('belongsTo with embed', function () {
+    var Person, Passport;
+
+    it('can be declared with embed and properties', function (done) {
+      Person = db.define('Person', {name: String, age: Number});
+      Passport = db.define('Passport', {name: String, notes: String});
+      Passport.belongsTo(Person, {
+        properties: ['name'],
+        options: { embedsProperties: true, invertProperties: true }
+      });
+      db.automigrate(done);
+    });
+
+    it('should create record with embedded data', function (done) {
+      Person.create({name: 'Fred', age: 36 }, function(err, person) {
+        var p = new Passport({ name: 'Passport', notes: 'Some notes...' });
+        p.person(person);
+        p.personId.should.equal(person.id);
+        var data = p.toObject(true);
+        data.person.id.should.equal(person.id);
+        data.person.name.should.equal('Fred');
+        p.save(function (err) {
+          should.not.exists(err);
+          done();
+        });
+      });
+    });
+
+    it('should find record with embedded data', function (done) {
+      Passport.findOne(function (err, p) {
+        should.not.exists(err);
+        var data = p.toObject(true);
+        data.person.id.should.equal(p.personId);
+        data.person.name.should.equal('Fred');
+        done();
+      });
+    });
+  });
+
   describe('hasOne', function () {
     var Supplier, Account;
     var supplierId, accountId;
