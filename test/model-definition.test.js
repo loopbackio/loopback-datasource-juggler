@@ -271,7 +271,7 @@ describe('ModelDefinition class', function () {
   });
 
   it('should serialize protected properties into JSON', function() {
-    var memory = new DataSoruce({connector: Memory});
+    var memory = new DataSource({connector: Memory});
     var modelBuilder = memory.modelBuilder;
     var ProtectedModel = memory.createModel('protected', {}, {
       protected: ['protectedProperty']
@@ -285,7 +285,7 @@ describe('ModelDefinition class', function () {
     });
   });
 
-  it('should not serialized protected properties of nested models into JSON', function(done){
+  it('should not serialize protected properties of nested models into JSON', function(done){
     var memory = new DataSource({connector: Memory});
     var modelBuilder = memory.modelBuilder;
     var Parent = memory.createModel('parent');
