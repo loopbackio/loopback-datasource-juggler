@@ -5,6 +5,7 @@ var fs = require('fs');
 var assert = require('assert');
 var async = require('async');
 var should = require('./init.js');
+var Memory = require('../lib/connectors/memory').Memory;
 
 describe('Memory connector', function () {
   var file = path.join(__dirname, 'memory.json');
@@ -278,27 +279,27 @@ describe('Memory connector', function () {
     }
 
   });
-  
+
   it('should use collection setting', function (done) {
     var ds = new DataSource({
       connector: 'memory'
     });
-    
+
     var Product = ds.createModel('Product', {
       name: String
     });
-    
+
     var Tool = ds.createModel('Tool', {
       name: String
     }, {memory: {collection: 'Product'}});
-    
+
     var Widget = ds.createModel('Widget', {
       name: String
     }, {memory: {collection: 'Product'}});
-    
+
     ds.connector.getCollection('Tool').should.equal('Product');
     ds.connector.getCollection('Widget').should.equal('Product');
-    
+
     async.series([
       function(next) {
         Tool.create({ name: 'Tool A' }, next);
@@ -359,6 +360,17 @@ describe('Memory connector', function () {
     });
   });
 
+  require('./persistence-hooks.suite')(
+    new DataSource({ connector: Memory }),
+    should);
+});
+
+describe('Unoptimized connector', function() {
+  var ds = new DataSource({ connector: Memory });
+  // disable optimized methods
+  ds.connector.updateOrCreate = false;
+
+  require('./persistence-hooks.suite')(ds, should);
 });
 
 
