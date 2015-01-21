@@ -215,6 +215,28 @@ describe('ModelDefinition class', function () {
     done();
   });
 
+  it('should sort id properties by its index', function () {
+    var modelBuilder = new ModelBuilder();
+
+    var User = new ModelDefinition(modelBuilder, 'User', {
+      userId: {type: String, id: 2},
+      userType: {type: String, id: 1},
+      name: "string",
+      bio: ModelBuilder.Text,
+      approved: Boolean,
+      joinedAt: Date,
+      age: "number"
+    });
+
+    var ids = User.ids();
+    assert.ok(Array.isArray(ids));
+    assert.equal(ids.length, 2);
+    assert.equal(ids[0].id, 1);
+    assert.equal(ids[0].name, 'userType');
+    assert.equal(ids[1].id, 2);
+    assert.equal(ids[1].name, 'userId');
+  });
+
   it('should report correct table/column names', function (done) {
     var modelBuilder = new ModelBuilder();
 
