@@ -727,7 +727,7 @@ describe('relations', function () {
       Job = db.define('Job', {name: String, type: String});
 
       Category.hasMany(Job, {
-        properties: function(inst) {
+        properties: function(inst, target) {
           if (!inst.jobType) return; // skip
           return { type: inst.jobType };
         },
