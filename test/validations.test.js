@@ -387,6 +387,30 @@ describe('validations', function () {
   describe('format', function () {
     it('should validate format');
     it('should overwrite default blank message with custom format message');
+
+    it('should skip missing values when allowing null', function () {
+      User.validatesFormatOf('email', { with: /^\S+@\S+\.\S+$/, allowNull: true });
+      var u = new User({});
+      u.isValid().should.be.true;
+    });
+
+    it('should skip null values when allowing null', function () {
+      User.validatesFormatOf('email', { with: /^\S+@\S+\.\S+$/, allowNull: true });
+      var u = new User({ email: null });
+      u.isValid().should.be.true;
+    });
+
+    it('should not skip missing values', function () {
+      User.validatesFormatOf('email', { with: /^\S+@\S+\.\S+$/ });
+      var u = new User({});
+      u.isValid().should.be.false;
+    });
+
+    it('should not skip null values', function () {
+      User.validatesFormatOf('email', { with: /^\S+@\S+\.\S+$/ });
+      var u = new User({ email: null });
+      u.isValid().should.be.false;
+    });
   });
 
   describe('numericality', function () {
