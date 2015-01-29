@@ -153,6 +153,29 @@ describe('manipulation', function () {
         }).should.be.instanceOf(Array);
       }).should.have.lengthOf(3);
     });
+
+    it('should create batch of objects with beforeCreate', function(done) {
+      Person.beforeCreate = function(next, data) {
+        if (data && data.name === 'A') {
+          return next(null, {id: 'a', name: 'A'});
+        } else {
+          return next();
+        }
+      };
+      var batch = [
+        {name: 'A'},
+        {name: 'B'},
+        undefined
+      ];
+      Person.create(batch, function(e, ps) {
+        should.not.exist(e);
+        should.exist(ps);
+        ps.should.be.instanceOf(Array);
+        ps.should.have.lengthOf(batch.length);
+        ps[0].should.be.eql({id: 'a', name: 'A'});
+        done();
+      });
+    });
   });
 
   describe('save', function () {
