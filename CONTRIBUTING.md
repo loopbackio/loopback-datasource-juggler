@@ -14,7 +14,7 @@ Contributing to `loopback-datasource-juggler` is easy. In a few simple steps:
   * Adhere to code style outlined in the [Google C++ Style Guide][] and
     [Google Javascript Style Guide][].
 
-  * Sign the [Contributor License Agreement](https://cla.strongloop.com/strongloop/loopback-datasource-juggler)
+  * Sign the [Contributor License Agreement](https://cla.strongloop.com/agreements/strongloop/loopback-datasource-juggler)
 
   * Submit a pull request through Github.
 

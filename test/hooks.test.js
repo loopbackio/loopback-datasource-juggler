@@ -445,7 +445,7 @@ function addHooks(name, done) {
   };
   User['after' + name] = function (next) {
     (new Boolean(called)).should.equal(true);
-    this.email.should.equal(random);
+    this.should.have.property('email', random);
     done();
   };
 }

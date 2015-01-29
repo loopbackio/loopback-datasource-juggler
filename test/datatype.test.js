@@ -7,13 +7,16 @@ describe('datatypes', function () {
 
   before(function (done) {
     db = getSchema();
+    Nested = db.define('Nested', {});
+    
     Model = db.define('Model', {
       str: String,
       date: Date,
       num: Number,
       bool: Boolean,
       list: {type: [String]},
-      arr: Array
+      arr: Array,
+      nested: Nested
     });
     db.automigrate(function () {
       Model.destroyAll(done);
@@ -114,4 +117,10 @@ describe('datatypes', function () {
       });
     }
   });
+  
+  it('should not coerce nested objects into ModelConstructor types', function() {
+      var coerced = Model._coerce({ nested: { foo: 'bar' } });
+      coerced.nested.constructor.name.should.equal('Object');
+  });
+  
 });
