@@ -244,7 +244,7 @@ describe('manipulation', function () {
 
     before(function (done) {
       Person.destroyAll(function () {
-        person = Person.create(done);
+        person = Person.create({name: 'Mary', age: 15}, done);
       });
     });
 
@@ -259,6 +259,33 @@ describe('manipulation', function () {
         });
       });
     });
+
+    it('should ignore undefined values on updateAttributes', function(done) {
+      person.updateAttributes({'name': 'John', age: undefined},
+        function(err, p) {
+          should.not.exist(err);
+          Person.findById(p.id, function(e, p) {
+            should.not.exist(err);
+            p.name.should.equal('John');
+            p.age.should.equal(15);
+            done();
+          });
+        });
+    });
+
+    it('should allows model instance on updateAttributes', function(done) {
+      person.updateAttributes(new Person({'name': 'John', age: undefined}),
+        function(err, p) {
+          should.not.exist(err);
+          Person.findById(p.id, function(e, p) {
+            should.not.exist(err);
+            p.name.should.equal('John');
+            p.age.should.equal(15);
+            done();
+          });
+        });
+    });
+
   });
 
   describe('destroy', function () {
