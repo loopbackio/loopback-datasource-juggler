@@ -320,19 +320,132 @@ describe('validations', function () {
       })).should.not.be.ok;
     });
 
-    it('should handle same object modeifications with custom primaryKey', function (done) {
-      User.validatesUniquenessOf('name', { primaryKey: 'email' });
-      var u = new User({email: 'hey', name: 'Ann'});
-      Boolean(u.isValid(function (valid) {
-        valid.should.be.true;
-        u.save(function () {
-          var u2 = new User({email: 'hey', name: 'Ann'});
-          u2.isValid(function (valid) {
+    it('should validate uniqueness for custom ids', function(done) {
+      var SiteUser = db.define('SiteUser', {
+        userId: { type:String, id: true },
+        email: String
+      });
+      SiteUser.validatesUniquenessOf('email');
+      async.waterfall([
+        function automigrate(next) {
+          db.automigrate(next);
+        },
+        function validateDuplicateUser(next) {
+          var u = new SiteUser({ userId: '1', email: 'hey'});
+          Boolean(u.isValid(function (valid) {
             valid.should.be.true;
-            done();
-          });
-        });
-      })).should.be.false;
+            u.save(function () {
+              var u2 = new SiteUser({ userId: '2', email: 'hey'});
+              u2.isValid(function (valid) {
+                valid.should.be.false;
+                next();
+              });
+            });
+          })).should.be.false;
+        }
+      ], function(err) {
+        if (err && err.name == 'ValidationError') {
+          console.error('ValidationError:', err.details.messages);
+        }
+        done(err);
+      });
+    });
+
+    it('should handle same object modifications for custom ids', function(done) {
+       var SiteUser = db.define('SiteUser', {
+        userId: { type:String, id: true },
+        email: String,
+        name: String
+      });
+      SiteUser.validatesUniquenessOf('email');
+      async.waterfall([
+        function automigrate(next) {
+          db.automigrate(next);
+        },
+        function validateDuplicateUser(next) {
+          var u = new SiteUser({ userId: '1', email: 'hey', name: 'jude' });
+          Boolean(u.isValid(function (valid) {
+            valid.should.be.true;
+            u.save(function () {
+              u.name = 'Goghi';
+              u.isValid(function(valid) {
+                valid.should.be.true;
+                u.save(next);
+              });
+            });
+          })).should.not.be.ok;
+        }
+      ], function(err) {
+        if (err && err.name == 'ValidationError') {
+          console.error('ValidationError:', err.details.messages);
+        }
+        done(err);
+      });
+    });
+
+    it('should validate uniqueness across compound ids', function(done) {
+       var SiteUser = db.define('SiteUser', {
+        userId: { type:String, id: true },
+        userId2: { type:String, id: true },
+        email: String
+      });
+      SiteUser.validatesUniquenessOf('email');
+      async.waterfall([
+        function automigrate(next) {
+          db.automigrate(next);
+        },
+        function validateDuplicateUser(next) {
+          var u = new SiteUser({ userId:'1', userId2:'1', email: 'hey'});
+          Boolean(u.isValid(function (valid) {
+            valid.should.be.true;
+            u.save(function () {
+              var u2 = new SiteUser({ userId:'1', userId2:'2', email: 'hey'});
+              u2.isValid(function (valid) {
+                valid.should.be.false;
+                next();
+              });
+            });
+          })).should.be.false;
+        }
+      ], function(err) {
+        if (err && err.name == 'ValidationError') {
+          console.error('ValidationError:', err.details.messages);
+        }
+        done(err);
+      });
+    });
+
+    it('should handle same object modifications across compound ids', function(done) {
+       var SiteUser = db.define('SiteUser', {
+        userId: { type:String, id: true },
+        userId2: { type:String, id: true },
+        email: String,
+        name: String
+      });
+      SiteUser.validatesUniquenessOf('email');
+      async.waterfall([
+        function automigrate(next) {
+          db.automigrate(next);
+        },
+        function validateDuplicateUser(next) {
+          var u = new SiteUser({ userId:'1', userId2:'2', email: 'hey', name: 'jude' });
+          Boolean(u.isValid(function (valid) {
+            valid.should.be.true;
+            u.save(function () {
+              u.name = 'Goghi';
+              u.isValid(function(valid) {
+                valid.should.be.true;
+                u.save(next);
+              });
+            });
+          })).should.not.be.ok;
+        }
+      ], function(err) {
+        if (err && err.name == 'ValidationError') {
+          console.error('ValidationError:', err.details.messages);
+        }
+        done(err);
+      });
     });
 
     it('should support multi-key constraint', function(done) {
