@@ -1809,6 +1809,24 @@ describe('relations', function () {
         });
       });
     });
+
+    it('should ignore the foreign key in the update', function(done) {
+      Supplier.create({name: 'Supplier 2'}, function (e, supplier) {
+        var sid = supplier.id;
+        Supplier.findById(supplierId, function(e, supplier) {
+          should.not.exist(e);
+          should.exist(supplier);
+          supplier.account.update({supplierName: 'Supplier A',
+              supplierId: sid},
+            function(err, act) {
+              should.not.exist(e);
+              act.supplierName.should.equal('Supplier A');
+              act.supplierId.should.equal(supplierId);
+              done();
+            });
+        });
+      });
+    });
     
     it('should get the related item on scope', function(done) {
       Supplier.findById(supplierId, function(e, supplier) {
