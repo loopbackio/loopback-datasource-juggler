@@ -22,6 +22,22 @@ describe('manipulation', function () {
 
   });
 
+  // A simplified implementation of LoopBack's User model
+  // to reproduce problems related to properties with dynamic setters
+  // For the purpose of the tests, we use a counter instead of a hash fn.
+  var StubUser, stubPasswordCounter;
+  before(function setupStubUserModel(done) {
+    StubUser = db.createModel('StubUser', { password: String }, { forceId: true });
+    StubUser.setter.password = function(plain) {
+      this.$password = plain + '-' + (++stubPasswordCounter);
+    };
+    db.automigrate('StubUser', done);
+  });
+
+  beforeEach(function resetStubPasswordCounter() {
+    stubPasswordCounter = 0;
+  });
+
   describe('create', function () {
 
     before(function (done) {
@@ -40,7 +56,7 @@ describe('manipulation', function () {
         });
       });
     });
-    
+
     it('should instantiate an object', function (done) {
       var p = new Person({name: 'Anatoliy'});
       p.name.should.equal('Anatoliy');
@@ -62,7 +78,7 @@ describe('manipulation', function () {
       person.should.be.an.instanceOf(Person);
       should.not.exist(person.id);
     });
-    
+
     it('should not allow user-defined value for the id of object - create', function (done) {
       Person.create({id: 123456}, function (err, p) {
         err.should.be.instanceof(ValidationError);
@@ -74,7 +90,7 @@ describe('manipulation', function () {
         done();
       });
     });
-    
+
     it('should not allow user-defined value for the id of object - save', function (done) {
       var p = new Person({id: 123456});
       p.isNewRecord().should.be.true;
@@ -153,6 +169,29 @@ describe('manipulation', function () {
         }).should.be.instanceOf(Array);
       }).should.have.lengthOf(3);
     });
+
+    it('should create batch of objects with beforeCreate', function(done) {
+      Person.beforeCreate = function(next, data) {
+        if (data && data.name === 'A') {
+          return next(null, {id: 'a', name: 'A'});
+        } else {
+          return next();
+        }
+      };
+      var batch = [
+        {name: 'A'},
+        {name: 'B'},
+        undefined
+      ];
+      Person.create(batch, function(e, ps) {
+        should.not.exist(e);
+        should.exist(ps);
+        ps.should.be.instanceOf(Array);
+        ps.should.have.lengthOf(batch.length);
+        ps[0].should.be.eql({id: 'a', name: 'A'});
+        done();
+      });
+    });
   });
 
   describe('save', function () {
@@ -214,6 +253,23 @@ describe('manipulation', function () {
       });
     });
 
+    it('should preserve properties with dynamic setters', function(done) {
+      // This test reproduces a problem discovered by LoopBack unit-test
+      // "User.hasPassword() should match a password after it is changed"
+      StubUser.create({ password: 'foo' }, function(err, created) {
+        if (err) return done(err);
+        created.password = 'bar';
+        created.save(function(err, saved) {
+          if (err) return done(err);
+          saved.password.should.equal('bar-2');
+          StubUser.findById(created.id, function(err, found) {
+            if (err) return done(err);
+            found.password.should.equal('bar-2');
+            done();
+          });
+        });
+      });
+    });
   });
 
   describe('updateAttributes', function () {
@@ -221,7 +277,7 @@ describe('manipulation', function () {
 
     before(function (done) {
       Person.destroyAll(function () {
-        person = Person.create(done);
+        person = Person.create({name: 'Mary', age: 15}, done);
       });
     });
 
@@ -233,6 +289,63 @@ describe('manipulation', function () {
           ps.should.have.lengthOf(1);
           ps.pop().name.should.equal('Paul Graham');
           done();
+        });
+      });
+    });
+
+    it('should ignore undefined values on updateAttributes', function(done) {
+      person.updateAttributes({'name': 'John', age: undefined},
+        function(err, p) {
+          should.not.exist(err);
+          Person.findById(p.id, function(e, p) {
+            should.not.exist(err);
+            p.name.should.equal('John');
+            p.age.should.equal(15);
+            done();
+          });
+        });
+    });
+
+    it('should allows model instance on updateAttributes', function(done) {
+      person.updateAttributes(new Person({'name': 'John', age: undefined}),
+        function(err, p) {
+          should.not.exist(err);
+          Person.findById(p.id, function(e, p) {
+            should.not.exist(err);
+            p.name.should.equal('John');
+            p.age.should.equal(15);
+            done();
+          });
+        });
+    });
+
+  });
+
+  describe('updateOrCreate', function() {
+    it('should preserve properties with dynamic setters on create', function(done) {
+      StubUser.updateOrCreate({ id: 'newid', password: 'foo' }, function(err, created) {
+        if (err) return done(err);
+        created.password.should.equal('foo-1');
+        StubUser.findById(created.id, function(err, found) {
+          if (err) return done(err);
+          found.password.should.equal('foo-1');
+          done();
+        });
+      });
+    });
+
+    it('should preserve properties with dynamic setters on update', function(done) {
+      StubUser.create({ password: 'foo' }, function(err, created) {
+        if (err) return done(err);
+        var data = { id: created.id, password: 'bar' };
+        StubUser.updateOrCreate(data, function(err, updated) {
+          if (err) return done(err);
+          updated.password.should.equal('bar-2');
+          StubUser.findById(created.id, function(err, found) {
+            if (err) return done(err);
+            found.password.should.equal('bar-2');
+            done();
+          });
         });
       });
     });

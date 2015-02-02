@@ -36,9 +36,9 @@ describe('ModelDefinition class', function () {
     assert.equal(json.properties.approved.type, "Boolean");
     assert.equal(json.properties.joinedAt.type, "Date");
     assert.equal(json.properties.age.type, "Number");
-    
+
     assert.deepEqual(User.toJSON(), json);
-    
+
     done();
 
   });
@@ -55,7 +55,7 @@ describe('ModelDefinition class', function () {
     });
 
     User.build();
-    
+
     var json = User.toJSON();
 
     User.defineProperty("id", {type: "number", id: true});
@@ -64,12 +64,12 @@ describe('ModelDefinition class', function () {
     assert.equal(User.properties.approved.type, Boolean);
     assert.equal(User.properties.joinedAt.type, Date);
     assert.equal(User.properties.age.type, Number);
-    
+
     assert.equal(User.properties.id.type, Number);
-    
+
     json = User.toJSON();
     assert.deepEqual(json.properties.id, {type: 'Number', id: true});
-    
+
     done();
 
   });
@@ -215,6 +215,28 @@ describe('ModelDefinition class', function () {
     done();
   });
 
+  it('should sort id properties by its index', function () {
+    var modelBuilder = new ModelBuilder();
+
+    var User = new ModelDefinition(modelBuilder, 'User', {
+      userId: {type: String, id: 2},
+      userType: {type: String, id: 1},
+      name: "string",
+      bio: ModelBuilder.Text,
+      approved: Boolean,
+      joinedAt: Date,
+      age: "number"
+    });
+
+    var ids = User.ids();
+    assert.ok(Array.isArray(ids));
+    assert.equal(ids.length, 2);
+    assert.equal(ids[0].id, 1);
+    assert.equal(ids[0].name, 'userType');
+    assert.equal(ids[1].id, 2);
+    assert.equal(ids[1].name, 'userId');
+  });
+
   it('should report correct table/column names', function (done) {
     var modelBuilder = new ModelBuilder();
 
@@ -268,6 +290,45 @@ describe('ModelDefinition class', function () {
     var grandChild = child.extend('grand-child');
     assert.equal('child', grandChild.base.modelName);
     assert(grandChild.prototype instanceof child);
+  });
+
+  it('should serialize protected properties into JSON', function() {
+    var memory = new DataSource({connector: Memory});
+    var modelBuilder = memory.modelBuilder;
+    var ProtectedModel = memory.createModel('protected', {}, {
+      protected: ['protectedProperty']
+    });
+    var pm = new ProtectedModel({
+      id: 1, foo: 'bar', protectedProperty: 'protected'
+    });
+    var serialized = pm.toJSON();
+    assert.deepEqual(serialized, {
+      id: 1, foo: 'bar', protectedProperty: 'protected'
+    });
+  });
+
+  it('should not serialize protected properties of nested models into JSON', function(done){
+    var memory = new DataSource({connector: Memory});
+    var modelBuilder = memory.modelBuilder;
+    var Parent = memory.createModel('parent');
+    var Child = memory.createModel('child', {}, {protected: ['protectedProperty']});
+    Parent.hasMany(Child);
+    Parent.create({
+      name: 'parent'
+    }, function(err, parent) {
+      parent.children.create({
+        name: 'child',
+        protectedProperty: 'protectedValue'
+      }, function(err, child) {
+        Parent.find({include: 'children'}, function(err, parents) {
+          var serialized = parents[0].toJSON();
+          var child = serialized.children[0];
+          assert.equal(child.name, 'child');
+          assert.notEqual(child.protectedProperty, 'protectedValue');
+          done();
+        });
+      });
+    });
   });
 
   it('should not serialize hidden properties into JSON', function () {

@@ -1,3 +1,41 @@
+2015-02-02, Version 2.15.0
+==========================
+
+ * Fix id type issue for update (Raymond Feng)
+
+ * Rename hook "query" to "access" (Miroslav Bajtoš)
+
+ * Implement intent hook `before delete` (Miroslav Bajtoš)
+
+ * Remove redundant `.toObject()` call from `upsert` (Miroslav Bajtoš)
+
+ * Fix regression in `.save()` from 1fd6eff1 (Miroslav Bajtoš)
+
+ * Fix hasOne remoting (Raymond Feng)
+
+ * Make sure batch create calls back with correct data (Raymond Feng)
+
+ * Intent-based hooks for persistence (Miroslav Bajtoš)
+
+ * ModelBaseClass: implement async observe/notify (Miroslav Bajtoš)
+
+ * Upgrade `should` to the latest 1.x version (Miroslav Bajtoš)
+
+ * Fixed nullCheck in validations to correct behavior when dealing with undefined attributes (James Billingham)
+
+ * Supply target to applyProperties function (Fabien Franzen)
+
+ * fix id property for composite ids (Clark Wang)
+
+ * fix id properties should sort by its index (Clark Wang)
+
+ * Fixed typos and logic for protected properties (Christian Enevoldsen)
+
+ * adds support for protected properties. (Christian Enevoldsen)
+
+ * support embeds data for belongsTo relation Signed-off-by: Clark Wang <clark.wangs@gmail.com> (Clark Wang)
+
+
 2015-01-15, Version 2.14.1
 ==========================
 
@@ -395,6 +433,13 @@
 
  * Properly handle LDL for polymorphic relations (Fabien Franzen)
 
+ * Check null (Raymond Feng)
+
+
+2014-08-15, Version 2.4.0
+=========================
+
+
 
 2014-08-15, Version 2.4.1
 =========================
@@ -402,12 +447,6 @@
  * Bump version (Raymond Feng)
 
  * Check null (Raymond Feng)
-
-
-2014-08-15, Version 2.4.0
-=========================
-
- * Bump version (Raymond Feng)
 
  * Fix the test cases to avoid hard-coded ids (Raymond Feng)
 
@@ -455,18 +494,15 @@
 
  * Cleanup mixin tests (Fabien Franzen)
 
- * Fix a name conflict in scope metadata (Raymond Feng)
-
-
-2014-08-08, Version 2.3.0
-=========================
-
-
 
 2014-08-08, Version 2.3.1
 =========================
 
  * Fix a name conflict in scope metadata (Raymond Feng)
+
+
+2014-08-08, Version 2.3.0
+=========================
 
  * Fix the test case so that it works with other DBs (Raymond Feng)
 
@@ -580,8 +616,6 @@
 
  * Implemented embedsMany relation (Fabien Franzen)
 
- * Fix a regression where undefined id should not match any record (Raymond Feng)
-
  * Minor tweaks; pass-through properties/scope for hasAndBelongsToMany (Fabien Franzen)
 
  * Implemented polymorphic hasMany through inverse (Fabien Franzen)
@@ -597,17 +631,18 @@
  * Implemented polymorphic hasMany (Fabien Franzen)
 
 
-2014-07-27, Version 2.1.0
-=========================
-
-
-
 2014-07-27, Version 2.1.1
 =========================
 
  * Bump version (Raymond Feng)
 
  * Fix a regression where undefined id should not match any record (Raymond Feng)
+
+
+2014-07-27, Version 2.1.0
+=========================
+
+ * Bump version (Raymond Feng)
 
  * datasource: support connectors without `getTypes` (Miroslav Bajtoš)
 

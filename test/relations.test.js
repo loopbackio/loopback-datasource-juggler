@@ -727,7 +727,7 @@ describe('relations', function () {
       Job = db.define('Job', {name: String, type: String});
 
       Category.hasMany(Job, {
-        properties: function(inst) {
+        properties: function(inst, target) {
           if (!inst.jobType) return; // skip
           return { type: inst.jobType };
         },
@@ -1718,6 +1718,45 @@ describe('relations', function () {
   
   });
 
+  describe('belongsTo with embed', function () {
+    var Person, Passport;
+
+    it('can be declared with embed and properties', function (done) {
+      Person = db.define('Person', {name: String, age: Number});
+      Passport = db.define('Passport', {name: String, notes: String});
+      Passport.belongsTo(Person, {
+        properties: ['name'],
+        options: { embedsProperties: true, invertProperties: true }
+      });
+      db.automigrate(done);
+    });
+
+    it('should create record with embedded data', function (done) {
+      Person.create({name: 'Fred', age: 36 }, function(err, person) {
+        var p = new Passport({ name: 'Passport', notes: 'Some notes...' });
+        p.person(person);
+        p.personId.should.equal(person.id);
+        var data = p.toObject(true);
+        data.person.id.should.equal(person.id);
+        data.person.name.should.equal('Fred');
+        p.save(function (err) {
+          should.not.exists(err);
+          done();
+        });
+      });
+    });
+
+    it('should find record with embedded data', function (done) {
+      Passport.findOne(function (err, p) {
+        should.not.exists(err);
+        var data = p.toObject(true);
+        data.person.id.should.equal(p.personId);
+        data.person.name.should.equal('Fred');
+        done();
+      });
+    });
+  });
+
   describe('hasOne', function () {
     var Supplier, Account;
     var supplierId, accountId;
@@ -1767,6 +1806,24 @@ describe('relations', function () {
           should.not.exist(e);
           act.supplierName.should.equal('Supplier A');
           done();
+        });
+      });
+    });
+
+    it('should ignore the foreign key in the update', function(done) {
+      Supplier.create({name: 'Supplier 2'}, function (e, supplier) {
+        var sid = supplier.id;
+        Supplier.findById(supplierId, function(e, supplier) {
+          should.not.exist(e);
+          should.exist(supplier);
+          supplier.account.update({supplierName: 'Supplier A',
+              supplierId: sid},
+            function(err, act) {
+              should.not.exist(e);
+              act.supplierName.should.equal('Supplier A');
+              act.supplierId.should.equal(supplierId);
+              done();
+            });
         });
       });
     });
