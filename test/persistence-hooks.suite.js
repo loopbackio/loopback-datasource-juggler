@@ -893,6 +893,57 @@ module.exports = function(dataSource, should) {
         });
       });
 
+      it('triggers `before delete` hook with query', function(done) {
+        TestModel.observe('before delete', pushContextAndNext());
+
+        TestModel.deleteAll({ name: existingInstance.name }, function(err) {
+          if (err) return done(err);
+          observedContexts.should.eql(aTestModelCtx({
+             where: { name: existingInstance.name }
+          }));
+          done();
+        });
+      });
+
+      it('triggers `before delete` hook without query', function(done) {
+        TestModel.observe('before delete', pushContextAndNext());
+
+        TestModel.deleteAll(function(err) {
+          if (err) return done(err);
+          observedContexts.should.eql(aTestModelCtx({ where: {} }));
+          done();
+        });
+      });
+
+      it('applies updates from `before delete` hook', function(done) {
+        TestModel.observe('before delete', function(ctx, next) {
+          ctx.where = { id: { neq: existingInstance.id } };
+          next();
+        });
+
+        TestModel.deleteAll(function(err) {
+          if (err) return done(err);
+          findTestModels(function(err, list) {
+            if (err) return done(err);
+            (list || []).map(get('id')).should.eql([existingInstance.id]);
+            done();
+          });
+        });
+      });
+
+      it('aborts when `before delete` hook fails', function(done) {
+        TestModel.observe('before delete', nextWithError(expectedError));
+
+        TestModel.deleteAll(function(err, list) {
+          [err].should.eql([expectedError]);
+          TestModel.findById(existingInstance.id, function(err, inst) {
+            if (err) return done(err);
+            (inst ? inst.toObject() : 'null').should.eql(existingInstance.toObject());
+            done();
+          });
+        });
+      });
+
       it('triggers `after delete` hook without query', function(done) {
         TestModel.observe('after delete', pushContextAndNext());
 
@@ -949,6 +1000,47 @@ module.exports = function(dataSource, should) {
           findTestModels(function(err, list) {
             if (err) return done(err);
             (list || []).map(get('id')).should.eql([existingInstance.id]);
+            done();
+          });
+        });
+      });
+
+      it('triggers `before delete` hook', function(done) {
+        TestModel.observe('before delete', pushContextAndNext());
+
+        existingInstance.delete(function(err) {
+          if (err) return done(err);
+          observedContexts.should.eql(aTestModelCtx({
+             where: { id: existingInstance.id }
+          }));
+          done();
+        });
+      });
+
+      it('applies updated from `before delete` hook', function(done) {
+        TestModel.observe('before delete', function(ctx, next) {
+          ctx.where = { id: { neq: existingInstance.id } };
+          next();
+        });
+
+        existingInstance.delete(function(err) {
+          if (err) return done(err);
+          findTestModels(function(err, list) {
+            if (err) return done(err);
+            (list || []).map(get('id')).should.eql([existingInstance.id]);
+            done();
+          });
+        });
+      });
+
+      it('aborts when `before delete` hook fails', function(done) {
+        TestModel.observe('before delete', nextWithError(expectedError));
+
+        existingInstance.delete(function(err, list) {
+          [err].should.eql([expectedError]);
+          TestModel.findById(existingInstance.id, function(err, inst) {
+            if (err) return done(err);
+            (inst ? inst.toObject() : 'null').should.eql(existingInstance.toObject());
             done();
           });
         });
