@@ -243,6 +243,19 @@ describe('ModelBuilder define model', function () {
     done(null, User);
   });
 
+  it('should define an id property for composite ids', function () {
+    var modelBuilder = new ModelBuilder();
+    var Follow = modelBuilder.define('Follow', {
+      followerId: { type: String, id: 1 },
+      followeeId: { type: String, id: 2 },
+      followAt: Date
+    });
+    var follow = new Follow({ followerId: 1, followeeId: 2 });
+
+    follow.should.have.property('id');
+    assert.deepEqual(follow.id, { followerId: 1, followeeId: 2 });
+  });
+
 });
 
 describe('DataSource ping', function() {
