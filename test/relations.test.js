@@ -1821,7 +1821,7 @@ describe('relations', function () {
             function(err, act) {
               should.not.exist(e);
               act.supplierName.should.equal('Supplier A');
-              act.supplierId.should.equal(supplierId);
+              act.supplierId.should.eql(supplierId);
               done();
             });
         });
