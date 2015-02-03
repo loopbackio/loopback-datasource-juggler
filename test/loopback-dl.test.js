@@ -25,17 +25,17 @@ describe('ModelBuilder define model', function () {
       return this.name + ', ' + this.age;
     };
 
-    modelBuilder.models.should.be.a('object').and.have.property('User', User);
-    modelBuilder.definitions.should.be.a('object').and.have.property('User');
+    modelBuilder.models.should.be.type('object').and.have.property('User').exactly(User);
+    modelBuilder.definitions.should.be.type('object').and.have.property('User');
 
     var user = new User({name: 'Joe', age: 20, xyz: false});
 
     User.modelName.should.equal('User');
-    user.should.be.a('object').and.have.property('name', 'Joe');
+    user.should.be.type('object').and.have.property('name', 'Joe');
     user.should.have.property('name', 'Joe');
     user.should.have.property('age', 20);
     user.should.have.property('xyz', false);
-    user.should.not.have.property('bio');
+    user.should.have.property('bio', undefined);
     done(null, User);
   });
 
@@ -47,12 +47,12 @@ describe('ModelBuilder define model', function () {
     var user = new User({name: 'Joe', age: 20});
 
     User.modelName.should.equal('User');
-    user.should.be.a('object');
+    user.should.be.type('object');
     user.should.have.property('name', 'Joe');
     user.should.not.have.property('age');
     user.toObject().should.not.have.property('age');
     user.toObject(true).should.not.have.property('age');
-    user.should.not.have.property('bio');
+    user.should.have.property('bio', undefined);
     done(null, User);
   });
 
@@ -102,7 +102,7 @@ describe('ModelBuilder define model', function () {
     var user = new User({name: 'Joe', age: 20});
 
     User.modelName.should.equal('User');
-    user.should.be.a('object').and.have.property('name', 'Joe');
+    user.should.be.type('object').and.have.property('name', 'Joe');
     user.should.have.property('name', 'Joe');
     user.should.have.property('age', 20);
     user.should.not.have.property('bio');
@@ -142,7 +142,7 @@ describe('ModelBuilder define model', function () {
     var user = new User({name: 'Joe', age: 20});
 
     User.modelName.should.equal('User');
-    user.should.be.a('object').and.have.property('name', 'Joe');
+    user.should.be.type('object').and.have.property('name', 'Joe');
     user.should.have.property('name', 'Joe');
     user.should.have.property('age', 20);
     user.should.not.have.property('bio');
@@ -180,8 +180,8 @@ describe('ModelBuilder define model', function () {
       return this.name + ', ' + this.age;
     };
 
-    modelBuilder.models.should.be.a('object').and.have.property('User', User);
-    modelBuilder.definitions.should.be.a('object').and.have.property('User');
+    modelBuilder.models.should.be.type('object').and.have.property('User', User);
+    modelBuilder.definitions.should.be.type('object').and.have.property('User');
 
     var user = new User({
       name: 'Joe', age: 20,
@@ -193,10 +193,10 @@ describe('ModelBuilder define model', function () {
     });
 
     User.modelName.should.equal('User');
-    user.should.be.a('object').and.have.property('name', 'Joe');
+    user.should.be.type('object').and.have.property('name', 'Joe');
     user.should.have.property('name', 'Joe');
     user.should.have.property('age', 20);
-    user.should.not.have.property('bio');
+    user.should.have.property('bio', undefined);
     user.should.have.property('address');
     user.address.should.have.property('city', 'San Jose');
     user.address.should.have.property('state', 'CA');
@@ -236,7 +236,7 @@ describe('ModelBuilder define model', function () {
 
     User.modelName.should.equal('User');
     User.definition.properties.address.should.have.property('type', Address);
-    user.should.be.a('object');
+    user.should.be.type('object');
     assert(user.name === 'Joe');
     user.address.should.have.property('city', 'San Jose');
     user.address.should.have.property('state', 'CA');
@@ -432,7 +432,7 @@ describe('DataSource define model', function () {
     User.create({name: 'Joe', age: 20}, function (err, user) {
 
       User.modelName.should.equal('User');
-      user.should.be.a('object');
+      user.should.be.type('object');
       assert(user.name === 'Joe');
       assert(user.age === undefined);
       assert(user.toObject().age === undefined);
@@ -464,13 +464,13 @@ describe('DataSource define model', function () {
 
     User.create({name: 'Joe', age: 20}, function (err, user) {
 
-      user.should.be.a('object').and.have.property('name', 'Joe');
+      user.should.be.type('object').and.have.property('name', 'Joe');
       user.should.have.property('name', 'Joe');
       user.should.have.property('age', 20);
       user.should.not.have.property('bio');
 
       User.findById(user.id, function (err, user) {
-        user.should.be.a('object').and.have.property('name', 'Joe');
+        user.should.be.type('object').and.have.property('name', 'Joe');
         user.should.have.property('name', 'Joe');
         user.should.have.property('age', 20);
         user.should.not.have.property('bio');
@@ -487,7 +487,7 @@ describe('DataSource define model', function () {
     User.create({name: 'Joe', age: 20}, function (err, user) {
 
       User.modelName.should.equal('User');
-      user.should.be.a('object').and.have.property('name', 'Joe');
+      user.should.be.type('object').and.have.property('name', 'Joe');
       user.should.have.property('name', 'Joe');
       user.should.have.property('age', 20);
       user.should.not.have.property('bio');
@@ -504,7 +504,7 @@ describe('DataSource define model', function () {
     var user = new User({name: 'Joe', age: 20});
 
     User.modelName.should.equal('User');
-    user.should.be.a('object');
+    user.should.be.type('object');
     assert(user.name === 'Joe');
     assert(user.age === undefined);
     assert(user.toObject().age === undefined);
@@ -550,7 +550,7 @@ describe('DataSource define model', function () {
     var user = new User({name: 'Joe', age: 20}, {strict: false});
 
     user.should.have.property('__strict', false);
-    user.should.be.a('object');
+    user.should.be.type('object');
     user.should.have.property('name', 'Joe');
     user.should.have.property('age', 20);
     user.toObject().should.have.property('age', 20);
@@ -622,11 +622,11 @@ describe('DataSource define model', function () {
 
     done();
   });
-  
+
   it('should allow an explicit remoting path', function () {
     var ds = new DataSource('memory');
-    
-    var User = ds.define('User', {name: String, bio: String}, { 
+
+    var User = ds.define('User', {name: String, bio: String}, {
       http: { path: 'accounts' }
     });
     User.http.path.should.equal('/accounts');
@@ -652,7 +652,7 @@ describe('Load models with base', function () {
     assert(Customer.prototype.instanceMethod === User.prototype.instanceMethod);
     assert.equal(Customer.base, User);
     assert.equal(Customer.base, Customer.super_);
-    
+
     try {
       var Customer1 = ds.define('Customer1', {vip: Boolean}, {base: 'User1'});
     } catch (e) {
@@ -949,37 +949,37 @@ describe('Load models with relations', function () {
     assert(Post.relations['user']);
     done();
   });
-  
+
   it('should set up referencesMany relations', function (done) {
     var ds = new DataSource('memory');
-  
+
     var Post = ds.define('Post', {userId: Number, content: String});
     var User = ds.define('User', {name: String}, {relations: {posts: {type: 'referencesMany', model: 'Post'}}});
-  
+
     assert(User.relations['posts']);
     done();
   });
-  
+
   it('should set up embedsMany relations', function (done) {
     var ds = new DataSource('memory');
-  
+
     var Post = ds.define('Post', {userId: Number, content: String});
     var User = ds.define('User', {name: String}, {relations: {posts: {type: 'embedsMany', model: 'Post' }}});
-  
+
     assert(User.relations['posts']);
     done();
   });
-  
+
   it('should set up polymorphic relations', function (done) {
     var ds = new DataSource('memory');
-  
+
     var Author = ds.define('Author', {name: String}, {relations: {
       pictures: {type: 'hasMany', model: 'Picture', polymorphic: 'imageable'}
     }});
     var Picture = ds.define('Picture', {name: String}, {relations: {
       imageable: {type: 'belongsTo', polymorphic: true}
     }});
-    
+
     assert(Author.relations['pictures']);
     assert.deepEqual(Author.relations['pictures'].toJSON(), {
       name: 'pictures',
@@ -989,13 +989,13 @@ describe('Load models with relations', function () {
       modelTo: 'Picture',
       keyTo: 'imageableId',
       multiple: true,
-      polymorphic: { 
+      polymorphic: {
         as: 'imageable',
         foreignKey: 'imageableId',
         discriminator: 'imageableType'
       }
     });
-    
+
     assert(Picture.relations['imageable']);
     assert.deepEqual(Picture.relations['imageable'].toJSON(), {
       name: 'imageable',
@@ -1005,7 +1005,7 @@ describe('Load models with relations', function () {
       modelTo: '<polymorphic>',
       keyTo: 'id',
       multiple: false,
-      polymorphic: { 
+      polymorphic: {
         as: 'imageable',
         foreignKey: 'imageableId',
         discriminator: 'imageableType'
@@ -1013,7 +1013,7 @@ describe('Load models with relations', function () {
     });
     done();
   });
-  
+
   it('should set up foreign key with the correct type', function (done) {
     var ds = new DataSource('memory');
 
@@ -1533,11 +1533,11 @@ describe('Load models from json', function () {
 
     var customer = new Customer({name: 'Joe', age: 20, customerId: 'c01'});
 
-    customer.should.be.a('object').and.have.property('name', 'Joe');
+    customer.should.be.type('object').and.have.property('name', 'Joe');
     customer.should.have.property('name', 'Joe');
     customer.should.have.property('age', 20);
     customer.should.have.property('customerId', 'c01');
-    customer.should.not.have.property('bio');
+    customer.should.have.property('bio', undefined);
 
     // The properties are defined at prototype level
     assert.equal(Object.keys(customer).filter(function (k) {
