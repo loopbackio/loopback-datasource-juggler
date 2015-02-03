@@ -274,26 +274,25 @@ module.exports = function(dataSource, should) {
           });
       });
 
-      // TODO(bajtos) Enable this test for all connectors that
-      // provide optimized implementation of findOrCreate.
-      // The unoptimized implementation does not trigger the hook
-      // when an existing model was found.
-      it.skip('triggers `before save` hook when found', function(done) {
-        TestModel.observe('before save', pushContextAndNext());
+      if (dataSource.connector.findOrCreate) {
+        it('triggers `before save` hook when found', function(done) {
+          TestModel.observe('before save', pushContextAndNext());
 
-        TestModel.findOrCreate(
-          { where: { name: existingInstance.name } },
-          { name: existingInstance.name },
-          function(err, record, created) {
-            if (err) return done(err);
-            observedContexts.should.eql(aTestModelCtx({ instance: {
-              id: record.id,
-              name: existingInstance.name,
-              extra: undefined
-            }}));
-            done();
-          });
-      });
+          TestModel.findOrCreate(
+            { where: { name: existingInstance.name } },
+            { name: existingInstance.name },
+            function(err, record, created) {
+              if (err) return done(err);
+              record.id.should.eql(existingInstance.id);
+              observedContexts.should.eql(aTestModelCtx({ instance: {
+                id: getLastGeneratedUid(),
+                name: existingInstance.name,
+                extra: undefined
+              }}));
+              done();
+            });
+        });
+      }
 
       it('triggers `before save` hook when not found', function(done) {
         TestModel.observe('before save', pushContextAndNext());
@@ -1248,6 +1247,10 @@ module.exports = function(dataSource, should) {
 
     function uid() {
       lastId += 1;
+      return '' + lastId;
+    }
+
+    function getLastGeneratedUid() {
       return '' + lastId;
     }
   });
