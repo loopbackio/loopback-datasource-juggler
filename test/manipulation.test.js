@@ -50,7 +50,7 @@ describe('manipulation', function () {
         should.not.exist(err);
         should.exist(p);
         Person.findById(p.id, function (err, person) {
-          person.id.should.equal(p.id);
+          person.id.should.eql(p.id);
           person.name.should.equal('Anatoliy');
           done();
         });
@@ -122,7 +122,7 @@ describe('manipulation', function () {
         should.exist(p);
         should.not.exists(p.name);
         Person.findById(p.id, function (err, person) {
-          person.id.should.equal(p.id);
+          person.id.should.eql(p.id);
           should.not.exists(person.name);
           done();
         });
