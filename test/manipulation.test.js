@@ -192,6 +192,29 @@ describe('manipulation', function () {
         done();
       });
     });
+
+    it('should preserve properties with "undefined" value', function(done) {
+      Person.create(
+        { name: 'a-name', gender: undefined },
+        function(err, created) {
+          if (err) return done(err);
+          created.toObject().should.have.properties({
+            id: created.id,
+            name: 'a-name',
+            gender: undefined
+          });
+
+          Person.findById(created.id, function(err, found) {
+            if (err) return done(err);
+            found.toObject().should.have.properties({
+              id: created.id,
+              name: 'a-name',
+              gender: undefined
+            });
+            done();
+          });
+        });
+    });
   });
 
   describe('save', function () {
@@ -348,6 +371,31 @@ describe('manipulation', function () {
           });
         });
       });
+    });
+
+    it('should preserve properties with "undefined" value', function(done) {
+      Person.create(
+        { name: 'a-name', gender: undefined },
+        function(err, instance) {
+          if (err) return done(err);
+          instance.toObject().should.have.properties({
+            id: instance.id,
+            name: 'a-name',
+            gender: undefined
+          });
+
+          Person.updateOrCreate(
+            { id: instance.id, name: 'updated name' },
+            function(err, updated) {
+              if (err) return done(err);
+              updated.toObject().should.have.properties({
+                id: instance.id,
+                name: 'updated name',
+                gender: undefined
+              });
+              done();
+            });
+        });
     });
   });
 
