@@ -23,6 +23,32 @@ describe('datatypes', function () {
     });
   });
 
+  it('should return 400 when property of type array is set to string value',
+    function (done) {
+      var myModel = db.define('myModel', {
+        list: { type: ['object'] }
+      });
+
+      (function(){
+        myModel.create({ list: 'This string will crash the server' });
+      }).should.throw({ statusCode: 400 });
+
+      done();
+  });
+
+  it('should return 400 when property of type array is set to object value',
+    function (done) {
+      var myModel = db.define('myModel', {
+        list: { type: ['object'] }
+      });
+
+      (function(){
+        myModel.create({ list: { key: 'This string will crash the server' } });
+      }).should.throw({ statusCode: 400 });
+
+      done();
+  });
+
   it('should keep types when get read data from db', function (done) {
     var d = new Date, id;
 
