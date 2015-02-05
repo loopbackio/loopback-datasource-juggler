@@ -1,3 +1,21 @@
+2015-02-05, Version 2.16.0
+==========================
+
+ * Return 400 when client provides an incorrect value (Pradnya Baviskar)
+
+ * Relax "id" checks in test/manipulation.test.js (Miroslav Bajtoš)
+
+ * Fix typo (Raymond Feng)
+
+ * test: undefined property values are preserved (Miroslav Bajtoš)
+
+ * Remove undefined properties for create (Raymond Feng)
+
+ * Update to `should` to the latest version 4.6.3 (Miroslav Bajtoš)
+
+ * Relax the id equality test for mongodb object ids (Raymond Feng)
+
+
 2015-02-02, Version 2.15.0
 ==========================
 
@@ -944,6 +962,14 @@
 
  * JSDoc improvements (Rand McKinney)
 
+ * validations: include more details in `err.message` (Miroslav Bajtoš)
+
+
+2014-05-27, Version 1.5.4
+=========================
+
+ * Bump version (Raymond Feng)
+
  * Keep undefined/null values for the array type (Raymond Feng)
 
  * Remove JSDocs for scopeMethods.add(acInst) and scopeMethods.remove(acInst) (crandmck)
@@ -977,24 +1003,6 @@
  * Remove relation remoting (Ritchie Martori)
 
  * Remove remoting metadata (Ritchie Martori)
-
-
-2014-05-27, Version 1.5.4
-=========================
-
- * Bump version (Raymond Feng)
-
- * Keep undefined/null values for the array type (Raymond Feng)
-
- * Remove JSDocs for scopeMethods.add(acInst) and scopeMethods.remove(acInst) (crandmck)
-
- * Copy info from api-model.md to JSDoc (crandmck)
-
- * validations: include more details in `err.message` (Miroslav Bajtoš)
-
- * Add a path to show customer.orders(query, cb) (Raymond Feng)
-
- * Add support for logical operator (AND/OR) (Raymond Feng)
 
 
 2014-05-20, Version 1.5.2
