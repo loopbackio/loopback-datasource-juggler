@@ -7,11 +7,11 @@ var async = require('async');
 var should = require('./init.js');
 var Memory = require('../lib/connectors/memory').Memory;
 
-describe('Memory connector', function () {
+describe('Memory connector', function() {
   var file = path.join(__dirname, 'memory.json');
 
   function readModels(done) {
-    fs.readFile(file, function (err, data) {
+    fs.readFile(file, function(err, data) {
       var json = JSON.parse(data.toString());
       assert(json.models);
       assert(json.ids.User);
@@ -19,82 +19,122 @@ describe('Memory connector', function () {
     });
   }
 
-  before(function (done) {
-    fs.unlink(file, function (err) {
+  before(function(done) {
+    fs.unlink(file, function(err) {
       if (!err || err.code === 'ENOENT') {
         done();
       }
     });
   });
 
-  it('should save to a json file', function (done) {
-    var ds = new DataSource({
-      connector: 'memory',
-      file: file
-    });
-
-    var User = ds.createModel('User', {
-      name: String,
-      bio: String,
-      approved: Boolean,
-      joinedAt: Date,
-      age: Number
-    });
-
-    var count = 0;
-    var ids = [];
-    async.eachSeries(['John1', 'John2', 'John3'], function (item, cb) {
-      User.create({name: item}, function (err, result) {
-        ids.push(result.id);
-        count++;
-        readModels(function (err, json) {
-          assert.equal(Object.keys(json.models.User).length, count);
-          cb(err);
-        });
+  describe('with file', function() {
+    function createUserModel() {
+      var ds = new DataSource({
+        connector: 'memory',
+        file: file
       });
-    }, function (err, results) {
-      // Now try to delete one
-      User.deleteById(ids[0], function (err) {
-        readModels(function (err, json) {
-          assert.equal(Object.keys(json.models.User).length, 2);
-          User.upsert({id: ids[1], name: 'John'}, function(err, result) {
-            readModels(function (err, json) {
-              assert.equal(Object.keys(json.models.User).length, 2);
-              var user = JSON.parse(json.models.User[ids[1]]);
-              assert.equal(user.name, 'John');
-              done();
-            });
+
+      var User = ds.createModel('User', {
+        id: {
+          type: Number,
+          id: true,
+          generated: true
+        },
+        name: String,
+        bio: String,
+        approved: Boolean,
+        joinedAt: Date,
+        age: Number
+      });
+      return User;
+    }
+
+    var User;
+    var ids = [];
+
+    before(function() {
+      User = createUserModel();
+    });
+
+    it('should persist create', function(done) {
+      var count = 0;
+      async.eachSeries(['John1', 'John2', 'John3'], function(item, cb) {
+        User.create({name: item}, function(err, result) {
+          ids.push(result.id);
+          count++;
+          readModels(function(err, json) {
+            assert.equal(Object.keys(json.models.User).length, count);
+            cb(err);
           });
         });
+      }, done);
+    });
+
+    it('should persist delete', function(done) {
+      // Now try to delete one
+      User.deleteById(ids[0], function(err) {
+        if (err) {
+          return done(err);
+        }
+        readModels(function(err, json) {
+          if (err) {
+            return done(err);
+          }
+          assert.equal(Object.keys(json.models.User).length, 2);
+          done();
+        });
       });
     });
 
+    it('should persist upsert', function(done) {
+      User.upsert({id: ids[1], name: 'John'}, function(err, result) {
+        if (err) {
+          return done(err);
+        }
+        readModels(function(err, json) {
+          if (err) {
+            return done(err);
+          }
+          assert.equal(Object.keys(json.models.User).length, 2);
+          var user = JSON.parse(json.models.User[ids[1]]);
+          assert.equal(user.name, 'John');
+          assert(user.id === ids[1]);
+          done();
+        });
+      });
+    });
+
+    it('should persist update', function(done) {
+      User.update({id: ids[1]}, {name: 'John1'},
+        function(err, result) {
+          if (err) {
+            return done(err);
+          }
+          readModels(function(err, json) {
+            if (err) {
+              return done(err);
+            }
+            assert.equal(Object.keys(json.models.User).length, 2);
+            var user = JSON.parse(json.models.User[ids[1]]);
+            assert.equal(user.name, 'John1');
+            assert(user.id === ids[1]);
+            done();
+          });
+        });
+    });
+
+    // The saved memory.json from previous test should be loaded
+    it('should load from the json file', function(done) {
+      User.find(function(err, users) {
+        // There should be 2 records
+        assert.equal(users.length, 2);
+        done(err);
+      });
+
+    });
   });
 
-  // The saved memory.json from previous test should be loaded
-  it('should load from the json file', function (done) {
-    var ds = new DataSource({
-      connector: 'memory',
-      file: file
-    });
-
-    var User = ds.createModel('User', {
-      name: String,
-      bio: String,
-      approved: Boolean,
-      joinedAt: Date,
-      age: Number
-    });
-
-    User.find(function (err, users) {
-      // There should be 2 records
-      assert.equal(users.length, 2);
-      done(err);
-    });
-
-  });
-
-  describe('Query for memory connector', function () {
+  describe('Query for memory connector', function() {
     var ds = new DataSource({
       connector: 'memory'
     });
@@ -110,82 +150,82 @@ describe('Memory connector', function () {
     });
 
     before(seed);
-    it('should allow to find using like', function (done) {
-      User.find({where: {name: {like: '%St%'}}}, function (err, posts) {
+    it('should allow to find using like', function(done) {
+      User.find({where: {name: {like: '%St%'}}}, function(err, posts) {
         should.not.exist(err);
         posts.should.have.property('length', 2);
         done();
       });
     });
 
-    it('should support like for no match', function (done) {
-      User.find({where: {name: {like: 'M%XY'}}}, function (err, posts) {
+    it('should support like for no match', function(done) {
+      User.find({where: {name: {like: 'M%XY'}}}, function(err, posts) {
         should.not.exist(err);
         posts.should.have.property('length', 0);
         done();
       });
     });
 
-    it('should allow to find using nlike', function (done) {
-      User.find({where: {name: {nlike: '%St%'}}}, function (err, posts) {
+    it('should allow to find using nlike', function(done) {
+      User.find({where: {name: {nlike: '%St%'}}}, function(err, posts) {
         should.not.exist(err);
         posts.should.have.property('length', 4);
         done();
       });
     });
 
-    it('should support nlike for no match', function (done) {
-      User.find({where: {name: {nlike: 'M%XY'}}}, function (err, posts) {
+    it('should support nlike for no match', function(done) {
+      User.find({where: {name: {nlike: 'M%XY'}}}, function(err, posts) {
         should.not.exist(err);
         posts.should.have.property('length', 6);
         done();
       });
     });
 
-    it('should throw if the like value is not string or regexp', function (done) {
-      User.find({where: {name: {like: 123}}}, function (err, posts) {
+    it('should throw if the like value is not string or regexp', function(done) {
+      User.find({where: {name: {like: 123}}}, function(err, posts) {
         should.exist(err);
         done();
       });
     });
 
-    it('should throw if the nlike value is not string or regexp', function (done) {
-      User.find({where: {name: {nlike: 123}}}, function (err, posts) {
+    it('should throw if the nlike value is not string or regexp', function(done) {
+      User.find({where: {name: {nlike: 123}}}, function(err, posts) {
         should.exist(err);
         done();
       });
     });
 
-    it('should throw if the inq value is not an array', function (done) {
-      User.find({where: {name: {inq: '12'}}}, function (err, posts) {
+    it('should throw if the inq value is not an array', function(done) {
+      User.find({where: {name: {inq: '12'}}}, function(err, posts) {
         should.exist(err);
         done();
       });
     });
 
-    it('should throw if the nin value is not an array', function (done) {
-      User.find({where: {name: {nin: '12'}}}, function (err, posts) {
+    it('should throw if the nin value is not an array', function(done) {
+      User.find({where: {name: {nin: '12'}}}, function(err, posts) {
         should.exist(err);
         done();
       });
     });
 
-    it('should throw if the between value is not an array', function (done) {
-      User.find({where: {name: {between: '12'}}}, function (err, posts) {
+    it('should throw if the between value is not an array', function(done) {
+      User.find({where: {name: {between: '12'}}}, function(err, posts) {
         should.exist(err);
         done();
       });
     });
 
-    it('should throw if the between value is not an array of length 2', function (done) {
-      User.find({where: {name: {between: ['12']}}}, function (err, posts) {
+    it('should throw if the between value is not an array of length 2', function(done) {
+      User.find({where: {name: {between: ['12']}}}, function(err, posts) {
         should.exist(err);
         done();
       });
     });
 
-    it('should support order with multiple fields', function (done) {
-      User.find({order: 'vip ASC, seq DESC'}, function (err, posts) {
+    it('should support order with multiple fields', function(done) {
+      User.find({order: 'vip ASC, seq DESC'}, function(err, posts) {
         should.not.exist(err);
         posts[0].seq.should.be.eql(4);
         posts[1].seq.should.be.eql(3);
@@ -193,8 +233,8 @@ describe('Memory connector', function () {
       });
     });
 
-    it('should sort undefined values to the end when ordered DESC', function (done) {
-      User.find({order: 'vip ASC, order DESC'}, function (err, posts) {
+    it('should sort undefined values to the end when ordered DESC', function(done) {
+      User.find({order: 'vip ASC, order DESC'}, function(err, posts) {
         should.not.exist(err);
 
         posts[4].seq.should.be.eql(1);
@@ -203,15 +243,15 @@ describe('Memory connector', function () {
       });
     });
 
-    it('should throw if order has wrong direction', function (done) {
-      User.find({order: 'seq ABC'}, function (err, posts) {
+    it('should throw if order has wrong direction', function(done) {
+      User.find({order: 'seq ABC'}, function(err, posts) {
         should.exist(err);
         done();
       });
     });
 
-    it('should support neq operator for number', function (done) {
-      User.find({where: {seq: {neq: 4}}}, function (err, users) {
+    it('should support neq operator for number', function(done) {
+      User.find({where: {seq: {neq: 4}}}, function(err, users) {
         should.not.exist(err);
         users.length.should.be.equal(5);
         for (var i = 0; i < users.length; i++) {
@@ -221,8 +261,8 @@ describe('Memory connector', function () {
       });
     });
 
-    it('should support neq operator for string', function (done) {
-      User.find({where: {role: {neq: 'lead'}}}, function (err, users) {
+    it('should support neq operator for string', function(done) {
+      User.find({where: {role: {neq: 'lead'}}}, function(err, users) {
         should.not.exist(err);
         users.length.should.be.equal(4);
         for (var i = 0; i < users.length; i++) {
@@ -234,8 +274,8 @@ describe('Memory connector', function () {
       });
     });
 
-    it('should support neq operator for null', function (done) {
-      User.find({where: {role: {neq: null}}}, function (err, users) {
+    it('should support neq operator for null', function(done) {
+      User.find({where: {role: {neq: null}}}, function(err, users) {
         should.not.exist(err);
         users.length.should.be.equal(2);
         for (var i = 0; i < users.length; i++) {
@@ -280,7 +320,7 @@ describe('Memory connector', function () {
 
   });
 
-  it('should use collection setting', function (done) {
+  it('should use collection setting', function(done) {
     var ds = new DataSource({
       connector: 'memory'
     });

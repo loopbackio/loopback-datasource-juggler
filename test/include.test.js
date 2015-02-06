@@ -79,7 +79,7 @@ describe('include', function () {
       done();
     });
   });
-  
+
   it('should fetch Passport - Owner - Posts - alternate syntax', function (done) {
     Passport.find({include: {owner: {relation: 'posts'}}}, function (err, passports) {
       should.not.exist(err);
@@ -120,7 +120,7 @@ describe('include', function () {
       done();
     });
   });
-  
+
   it('should fetch Passports with include scope on Posts', function (done) {
     Passport.find({
       include: {owner: {relation: 'posts', scope:{
@@ -131,31 +131,31 @@ describe('include', function () {
       should.not.exist(err);
       should.exist(passports);
       passports.length.should.equal(3);
-      
+
       var passport = passports[0];
       passport.number.should.equal('1');
       passport.owner().name.should.equal('User A');
       var owner = passport.owner().toObject();
-      
+
       var posts = passport.owner().posts();
       posts.should.be.an.array;
       posts.should.have.length(3);
-      
+
       posts[0].title.should.equal('Post C');
-      posts[0].should.not.have.property('id'); // omitted
+      posts[0].should.have.property('id', undefined); // omitted
       posts[0].author().should.be.instanceOf(User);
       posts[0].author().name.should.equal('User A');
-      
+
       posts[1].title.should.equal('Post B');
       posts[1].author().name.should.equal('User A');
-      
+
       posts[2].title.should.equal('Post A');
       posts[2].author().name.should.equal('User A');
-      
+
       done();
     });
   });
-  
+
   it('should fetch Users with include scope on Posts - belongsTo', function (done) {
       Post.find({
         include: { relation: 'author', scope:{ fields: ['name'] }}
@@ -163,16 +163,16 @@ describe('include', function () {
         should.not.exist(err);
         should.exist(posts);
         posts.length.should.equal(5);
-        
+
         var author = posts[0].author();
         author.name.should.equal('User A');
         author.should.have.property('id');
-        author.should.not.have.property('age');
-        
+        author.should.have.property('age', undefined);
+
         done();
       });
     });
-  
+
   it('should fetch Users with include scope on Posts - hasMany', function (done) {
     User.find({
       include: {relation: 'posts', scope:{
@@ -182,27 +182,27 @@ describe('include', function () {
       should.not.exist(err);
       should.exist(users);
       users.length.should.equal(5);
-      
+
       users[0].name.should.equal('User A');
       users[1].name.should.equal('User B');
-      
+
       var posts = users[0].posts();
       posts.should.be.an.array;
       posts.should.have.length(3);
-      
+
       posts[0].title.should.equal('Post C');
       posts[1].title.should.equal('Post B');
       posts[2].title.should.equal('Post A');
-      
+
       var posts = users[1].posts();
       posts.should.be.an.array;
       posts.should.have.length(1);
       posts[0].title.should.equal('Post D');
-      
+
       done();
     });
   });
-  
+
   it('should fetch Users with include scope on Passports - hasMany', function (done) {
     User.find({
       include: {relation: 'passports', scope:{
@@ -212,14 +212,14 @@ describe('include', function () {
       should.not.exist(err);
       should.exist(users);
       users.length.should.equal(5);
-      
+
       users[0].name.should.equal('User A');
       users[0].passports().should.be.empty;
-      
+
       users[1].name.should.equal('User B');
       var passports = users[1].passports();
       passports[0].number.should.equal('2');
-      
+
       done();
     });
   });
@@ -317,23 +317,23 @@ describe('include', function () {
             should.exists(parts);
             parts.length.should.equal(1);
             parts[0].partNumber.should.equal('engine');
-            
+
             // Create a part
             assembly.parts.create({partNumber: 'door'}, function (err, part4) {
-              
+
               Assembly.find({include: 'parts'}, function (err, assemblies) {
                 assemblies.length.should.equal(1);
                 assemblies[0].parts().length.should.equal(2);
                 done();
               });
-              
+
             });
           });
         });
       });
     });
   });
-  
+
   // Not implemented correctly, see: loopback-datasource-juggler/issues/166
   //
   // it('should support include scope on hasAndBelongsToMany', function (done) {
