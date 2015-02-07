@@ -660,6 +660,18 @@ describe('Load models with base', function () {
     }
   });
 
+  it('should inherit properties from base option', function () {
+    var ds = new ModelBuilder();
+
+    var User = ds.define('User', {name: String});
+
+    var Customer = ds.define('Customer', {vip: Boolean}, {base: 'User'});
+
+    Customer.definition.properties.should.have.property('name');
+    Customer.definition.properties.name.should.have.property('type', String);
+  });
+
+
   it('should set up base class via parent arg', function () {
     var ds = new ModelBuilder();
 
@@ -671,6 +683,9 @@ describe('Load models with base', function () {
     };
 
     var Customer = ds.define('Customer', {vip: Boolean}, {}, User);
+
+    Customer.definition.properties.should.have.property('name');
+    Customer.definition.properties.name.should.have.property('type', String);
 
     assert(Customer.prototype instanceof User);
     assert(Customer.staticMethod === User.staticMethod);
@@ -1646,7 +1661,8 @@ describe('Load models from json', function () {
           model: 'Order'
         }
       },
-      strict: false
+      strict: false,
+      base: User
     });
 
     done();
