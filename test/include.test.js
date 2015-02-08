@@ -23,7 +23,7 @@ describe('include', function () {
           should.not.exist(owner);
         } else {
           should.exist(owner);
-          owner.id.should.equal(p.ownerId);
+          owner.id.should.eql(p.ownerId);
         }
       });
       done();
@@ -43,7 +43,7 @@ describe('include', function () {
 
         u.__cachedRelations.should.have.property('posts');
         u.__cachedRelations.posts.forEach(function (p) {
-          p.userId.should.equal(u.id);
+          p.userId.should.eql(u.id);
         });
       });
       done();
@@ -68,11 +68,11 @@ describe('include', function () {
           should.not.exist(user);
         } else {
           should.exist(user);
-          user.id.should.equal(p.ownerId);
+          user.id.should.eql(p.ownerId);
           user.__cachedRelations.should.have.property('posts');
           user.should.have.property('posts');
           user.__cachedRelations.posts.forEach(function (pp) {
-            pp.userId.should.equal(user.id);
+            pp.userId.should.eql(user.id);
           });
         }
       });
@@ -105,15 +105,15 @@ describe('include', function () {
           should.not.exist(user);
         } else {
           should.exist(user);
-          user.id.should.equal(p.ownerId);
+          user.id.should.eql(p.ownerId);
           user.__cachedRelations.should.have.property('posts');
           user.__cachedRelations.posts.forEach(function (pp) {
             pp.should.have.property('id');
-            pp.userId.should.equal(user.id);
+            pp.userId.should.eql(user.id);
             pp.should.have.property('author');
             pp.__cachedRelations.should.have.property('author');
             var author = pp.__cachedRelations.author;
-            author.id.should.equal(user.id);
+            author.id.should.eql(user.id);
           });
         }
       });
@@ -246,10 +246,10 @@ describe('include', function () {
         user.__cachedRelations.should.have.property('posts');
         user.__cachedRelations.should.have.property('passports');
         user.__cachedRelations.posts.forEach(function (p) {
-          p.userId.should.equal(user.id);
+          p.userId.should.eql(user.id);
         });
         user.__cachedRelations.passports.forEach(function (pp) {
-          pp.ownerId.should.equal(user.id);
+          pp.ownerId.should.eql(user.id);
         });
       });
       done();
@@ -284,11 +284,11 @@ describe('include', function () {
           user.__cachedRelations.should.have.property('posts');
           user.__cachedRelations.should.have.property('passports');
           user.__cachedRelations.posts.forEach(function(p) {
-            p.userId.should.equal(user.id);
+            p.userId.should.eql(user.id);
             p.title.should.be.equal('Post A');
           });
           user.__cachedRelations.passports.forEach(function(pp) {
-            pp.ownerId.should.equal(user.id);
+            pp.ownerId.should.eql(user.id);
           });
         });
         done();
