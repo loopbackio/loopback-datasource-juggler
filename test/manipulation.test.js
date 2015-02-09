@@ -448,4 +448,76 @@ describe('manipulation', function () {
     //     p.name.should.equal('John Resig');
     // });
   });
+
+  describe('property value coercion', function () {
+    it('should coerce boolean types properly', function() {
+      var p1 = new Person({name: 'John', married: 'false'});
+      p1.married.should.equal(false);
+
+      p1 = new Person({name: 'John', married: 'true'});
+      p1.married.should.equal(true);
+
+      p1 = new Person({name: 'John', married: '1'});
+      p1.married.should.equal(true);
+
+      p1 = new Person({name: 'John', married: '0'});
+      p1.married.should.equal(false);
+
+      p1 = new Person({name: 'John', married: true});
+      p1.married.should.equal(true);
+
+      p1 = new Person({name: 'John', married: false});
+      p1.married.should.equal(false);
+
+      p1 = new Person({name: 'John', married: 'null'});
+      p1.married.should.equal(true);
+
+      p1 = new Person({name: 'John', married: ''});
+      p1.married.should.equal(false);
+
+      p1 = new Person({name: 'John', married: 'X'});
+      p1.married.should.equal(true);
+
+      p1 = new Person({name: 'John', married: 0});
+      p1.married.should.equal(false);
+
+      p1 = new Person({name: 'John', married: 1});
+      p1.married.should.equal(true);
+
+      p1 = new Person({name: 'John', married: null});
+      p1.should.have.property('married', null);
+
+      p1 = new Person({name: 'John', married: undefined});
+      p1.should.have.property('married', undefined);
+
+    });
+
+    it('should coerce boolean types properly', function() {
+      var p1 = new Person({name: 'John', dob: '2/1/2015'});
+      p1.dob.should.eql(new Date('2/1/2015'));
+
+      p1 = new Person({name: 'John', dob: '2/1/2015'});
+      p1.dob.should.eql(new Date('2/1/2015'));
+
+      p1 = new Person({name: 'John', dob: '12'});
+      p1.dob.should.eql(new Date('12'));
+
+      p1 = new Person({name: 'John', dob: 12});
+      p1.dob.should.eql(new Date(12));
+
+      p1 = new Person({name: 'John', dob: null});
+      p1.should.have.property('dob', null);
+
+      p1 = new Person({name: 'John', dob: undefined});
+      p1.should.have.property('dob', undefined);
+
+      try {
+        p1 = new Person({name: 'John', dob: 'X'});
+        throw new Error('new Person() should have thrown');
+      } catch (e) {
+        e.should.be.eql(new Error('Invalid date: X'));
+      }
+    });
+
+  });
 });
