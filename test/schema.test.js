@@ -15,14 +15,10 @@ describe('dataSource', function () {
   it('should clone existing model', function () {
     SlaveModel = slave.copyModel(Model);
     SlaveModel.dataSource.should.equal(slave);
-    // Workaround for an performance issue in `should` by customizing the msg
-    // where it takes ages to evaluate `should.not.equal` for complex objects
-    // https://github.com/shouldjs/should.js/blob/master/lib/assertion.js#L159-L162
-    slave.should.not.equal(db, 'The two data sources should be different');
+    slave.should.not.equal(db);
     var sm = new SlaveModel;
     sm.should.be.instanceOf(Model);
-    sm.getDataSource().should.not.equal(db, 'The data source of an instance ' +
-      'of the slave model should be different from the original one');
+    sm.getDataSource().should.not.equal(db);
     sm.getDataSource().should.equal(slave);
   });
 
