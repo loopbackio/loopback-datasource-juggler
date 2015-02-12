@@ -1,3 +1,31 @@
+2015-02-12, Version 2.17.0
+==========================
+
+ * Add an optional `options` argument to all CRUD methods (Raymond Feng)
+
+ * Upgrade deps (Raymond Feng)
+
+ * Remove workaround for perfomance degradation (Denis Bardadym)
+
+ * Change equal to eql to support mongodb ObjectID (Raymond Feng)
+
+ * Enhance the coercion for boolean/date types (Raymond Feng)
+
+ * Make sure base properties/settings are merged into the submodel (Raymond Feng)
+
+ * support optimized findOrCreate (Clark Wang)
+
+ * Fix the perf around should.not.equal for complex objects (Raymond Feng)
+
+ * testcase for #420 (Andrey Loukhnov)
+
+ * use findOrCreate in hasOne#create (Clark Wang)
+
+ * Create model foreign key matching type of opposite part of relation (even if it has a custom field type) (Andrey Loukhnov)
+
+ * minor formatting issues (trailing spaces and such) and .editorconfig (Andrey Loukhnov)
+
+
 2015-02-05, Version 2.16.0
 ==========================
 
@@ -451,13 +479,6 @@
 
  * Properly handle LDL for polymorphic relations (Fabien Franzen)
 
- * Check null (Raymond Feng)
-
-
-2014-08-15, Version 2.4.0
-=========================
-
-
 
 2014-08-15, Version 2.4.1
 =========================
@@ -465,6 +486,12 @@
  * Bump version (Raymond Feng)
 
  * Check null (Raymond Feng)
+
+
+2014-08-15, Version 2.4.0
+=========================
+
+ * Bump version (Raymond Feng)
 
  * Fix the test cases to avoid hard-coded ids (Raymond Feng)
 
@@ -671,56 +698,6 @@
  * Added test for belongsTo scope/properties (Fabien Franzen)
 
  * Implement scope/properties for BelongsTo (+ fix foreign key matching) (Fabien Franzen)
-
- * add support for disabling relationship includes (Jaka Hudoklin)
-
- * add support for relationship options (Jaka Hudoklin)
-
- * Expose base model class as `base` property (Raymond Feng)
-
- * Move relation remoting to loopback (Raymond Feng)
-
- * Add missing inflection dep back (Raymond Feng)
-
- * 2.0.0-beta2 (Miroslav Bajtoš)
-
- * validations: support non-V8 browsers (Miroslav Bajtoš)
-
- * Remove remoting metadata (Raymond Feng)
-
- * Fix the forEach closure (Raymond Feng)
-
- * ModelBuilder: add `prototype.defineValueType` (Miroslav Bajtoš)
-
- * Replace connector base with loopback-connector (Miroslav Bajtoš)
-
- * Remove unsupported connectors (Miroslav Bajtoš)
-
- * 2.0.0-beta1 (Ritchie Martori)
-
- * Keep undefined/null values for the array type (Raymond Feng)
-
- * Remove JSDocs for scopeMethods.add(acInst) and scopeMethods.remove(acInst) (crandmck)
-
- * Copy info from api-model.md to JSDoc (crandmck)
-
- * !fixup Remove additional remoting (Ritchie Martori)
-
- * !fixup Require ._delegate for fn override (Ritchie Martori)
-
- * Remove relation remoting (Ritchie Martori)
-
- * Remove remoting metadata (Ritchie Martori)
-
-
-2014-07-24, Version 1.7.2
-=========================
-
- * relation: add `scope._target` for `hasOne` (Miroslav Bajtoš)
-
- * Bump version (Raymond Feng)
-
- * Expose base model class as `base` property (Raymond Feng)
 
 
 2014-07-22, Version 2.0.0
@@ -981,28 +958,6 @@
  * Add a path to show customer.orders(query, cb) (Raymond Feng)
 
  * Add support for logical operator (AND/OR) (Raymond Feng)
-
-
-2014-05-27, Version 1.5.3
-=========================
-
- * Bump version (Raymond Feng)
-
- * Keep undefined/null values for the array type (Raymond Feng)
-
- * Remove JSDocs for scopeMethods.add(acInst) and scopeMethods.remove(acInst) (crandmck)
-
- * Copy info from api-model.md to JSDoc (crandmck)
-
- * validations: include more details in `err.message` (Miroslav Bajtoš)
-
- * !fixup Remove additional remoting (Ritchie Martori)
-
- * !fixup Require ._delegate for fn override (Ritchie Martori)
-
- * Remove relation remoting (Ritchie Martori)
-
- * Remove remoting metadata (Ritchie Martori)
 
 
 2014-05-20, Version 1.5.2
