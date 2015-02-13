@@ -77,7 +77,7 @@ describe('crud-with-options', function () {
       });
 
   });
-  
+
   describe('findByIds', function () {
 
     before(function(done) {
@@ -351,6 +351,12 @@ describe('crud-with-options', function () {
       });
     });
 
+  });
+
+  describe('deleteById', function() {
+    it('should allow deleteById(id)', function () {
+      User.deleteById(1);
+    });
   });
 
   describe('updateAll ', function () {
