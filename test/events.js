@@ -14,17 +14,13 @@ describe('events', function() {
       });
     });
     this.shouldEmitEvent = function(eventName, listener, done) {
-      var timeout = setTimeout(function() {
-        done(new Error('did not emit ' + eventName));
-      }, 100);
       this.TestModel.on(eventName, function() {
-        clearTimeout(timeout);
         listener.apply(this, arguments);
         done();
       });
     }
   });
-  
+
   describe('changed', function() {
     it('should be emitted after save', function(done) {
       var model = new this.TestModel({name: 'foobar'});
@@ -50,7 +46,7 @@ describe('events', function() {
       });
     });
   });
-  
+
   describe('deleted', function() {
     it('should be emitted after destroy', function(done) {
       this.shouldEmitEvent('deleted', assertValidDeletedArgs, done);
@@ -61,7 +57,7 @@ describe('events', function() {
       this.TestModel.deleteById(this.inst.id);
     });
   });
-  
+
   describe('deletedAll', function() {
     it('should be emitted after destroyAll', function(done) {
       this.shouldEmitEvent('deletedAll', function(where) {

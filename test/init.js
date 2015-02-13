@@ -26,3 +26,7 @@ if (!('getModelBuilder' in global)) {
     return new ModelBuilder();
   };
 }
+
+if (!('Promise' in global)) {
+  global.Promise = require('bluebird');
+}

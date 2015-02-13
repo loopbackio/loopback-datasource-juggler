@@ -442,6 +442,35 @@ describe('manipulation', function () {
       person.isNewRecord().should.be.true;
     });
 
+    it('should report current date when using $now as default value for date property',
+      function (done) {
+        var CustomModel = db.define('CustomModel', {
+          createdAt: { type: Date, default: '$now' }
+        });
+
+        var now = Date.now();
+
+        var myCustomModel = CustomModel.create(function (err, m) {
+           m.createdAt.should.be.instanceOf(Date);
+           (m.createdAt >= now).should.be.true;
+        });
+
+        done();
+    });
+
+    it('should report \'$now\' when using $now as default value for string property',
+      function (done) {
+        var CustomModel = db.define('CustomModel', {
+          now: { type: String, default: '$now' }
+        });
+
+        var myCustomModel = CustomModel.create(function (err, m) {
+          m.now.should.be.instanceOf(String);
+          m.now.should.equal('$now');
+        });
+
+        done();
+    });
     // it('should work when constructor called as function', function() {
     //     var p = Person({name: 'John Resig'});
     //     p.should.be.an.instanceOf(Person);
