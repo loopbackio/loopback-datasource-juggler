@@ -32,7 +32,8 @@
     "inflection": "^1.6.0",
     "loopback-connector": "1.x",
     "qs": "^2.3.3",
-    "traverse": "^0.6.6"
+    "traverse": "^0.6.6",
+    "bluebird": "^2.9.x"
   },
   "license": {
     "name": "Dual MIT/StrongLoop",
