@@ -87,6 +87,23 @@ describe('relations', function () {
         });
       });
 
+      it('should create record on scope with promises', function (done) {
+        Book.create()
+        .then (function (book) {
+          console.log("creating chapter");
+          // debugger;
+          book.chapters.create()
+          .then (function (c) {
+            should.exist(c);
+            c.bookId.should.equal(book.id);
+            done();
+          });
+        }, function (err) {
+          should.not.exist(err);
+          done();
+        });
+      });
+
       it('should create a batch of records on scope', function (done) {
         var chapters = [
           {name: 'a'},
