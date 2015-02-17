@@ -1,6 +1,5 @@
 var ModelBuilder = require('../').ModelBuilder;
 var should = require('./init');
-var Promise = global.Promise || require('bluebird');
 
 describe('async observer', function() {
   var TestModel;
@@ -114,6 +113,28 @@ describe('async observer', function() {
       err.should.eql(testError);
       done();
     });
+  });
+
+  it('returns a promise when no callback is provided', function() {
+    var context = { value: 'a-test-context' };
+    var p = TestModel.notifyObserversOf('event', context);
+    (p !== undefined).should.be.true;
+    return p.then(function(result) {
+      result.should.eql(context);
+    });
+  });
+
+  it('returns a rejected promise when no callback is provided', function() {
+    var testError = new Error('expected test error');
+    TestModel.observe('event', function(ctx, next) { next(testError); });
+    var p = TestModel.notifyObserversOf('event', context);
+    return p.then(
+      function(result) {
+        throw new Error('The promise should have been rejected.');
+      },
+      function(err) {
+        err.should.eql(testError);
+      });
   });
 });
 
