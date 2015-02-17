@@ -62,16 +62,13 @@ describe('manipulation', function () {
       .then (function (p) {
         p.name.should.equal('Anatoliy');
         should.exist(p);
-        Person.findById(p.id)
+        return Person.findById(p.id)
         .then (function (person) {
           person.id.should.eql(p.id);
           person.name.should.equal('Anatoliy');
           done();
         });
-      }, function (err) {
-        should.not.exist(err);
-        done();
-      });
+      }).catch(done);
     });
 
     it('should instantiate an object', function (done) {
@@ -95,10 +92,7 @@ describe('manipulation', function () {
         inst.isNewRecord().should.be.false;
         inst.should.equal(p);
         done();
-      }, function (err) {
-        should.not.exist(err);
-        done();
-      });
+      }).catch(done);
 
     });
 
@@ -129,7 +123,8 @@ describe('manipulation', function () {
       .then (function (p) {
         should.not.exist(p);
         done();
-      }, function (err) {
+      })
+      .catch(function (err) {
         err.should.be.instanceof(ValidationError);
         err.statusCode.should.equal(422);
         err.details.messages.id.should.eql(['can\'t be set']);
@@ -157,7 +152,8 @@ describe('manipulation', function () {
       .then (function(inst) {
         should.not.exist(inst);
         done();
-      }, function (err) {
+      })
+      .catch(function (err) {
         err.should.be.instanceof(ValidationError);
         err.statusCode.should.equal(422);
         err.details.messages.id.should.eql(['can\'t be set']);
@@ -195,16 +191,13 @@ describe('manipulation', function () {
       .then (function (p) {
         should.exist(p);
         should.not.exists(p.name);
-        Person.findById(p.id)
+        return Person.findById(p.id)
         .then (function (person) {
           person.id.should.eql(p.id);
           should.not.exists(person.name);
           done();
         });
-      }, function (err) {
-        should.not.exist(err);
-        done();
-      });
+      }).catch(done);
     });
 
     it('should work when called with no data and callback', function (done) {
@@ -262,8 +255,9 @@ describe('manipulation', function () {
         ps.should.have.lengthOf(batch.length);
 
         Person.validatesPresenceOf('name');
-        Person.create(batch)
+        return Person.create(batch)
         .then (function (persons) {
+          delete Person.validations;
           should.exist(persons);
           persons.should.have.lengthOf(batch.length);
           persons[0].errors.should.be.false
@@ -271,16 +265,12 @@ describe('manipulation', function () {
           persons[2].errors.name.should.be.instanceOf(Array);
           persons[2].errors.name[0].should.equal("can't be blank");
           done();
-        }, function (err) {
-          should.not.exist(err);
-          done();
         })
-      }, function (e) {
-        should.not.exist(e);
-        done();
       })
-      .finally (function () {
-          delete Person.validations;
+      .catch(function (err) {
+        delete Person.validations;
+        should.not.exist(err);
+        done();
       });
     });
 
@@ -327,10 +317,7 @@ describe('manipulation', function () {
         ps.should.have.lengthOf(batch.length);
         ps[0].should.be.eql({id: 'a', name: 'A'});
         done();
-      }, function (e) {
-        should.not.exist(e);
-        done();
-      });
+      }).catch(done);
     });
 
     it('should preserve properties with "undefined" value', function(done) {
@@ -365,7 +352,7 @@ describe('manipulation', function () {
           gender: undefined
         });
 
-        Person.findById(created.id)
+        return Person.findById(created.id)
         .then(function(found) {
           found.toObject().should.have.properties({
             id: created.id,
@@ -374,7 +361,7 @@ describe('manipulation', function () {
           });
           done();
         });
-      }, done);
+      }).catch(done);
 
     });
 
@@ -419,15 +406,15 @@ describe('manipulation', function () {
       Person.findOne()
       .then(function (p) {
         p.name = 'Fritz';
-        p.save()
+        return p.save()
         .then(function () {
-          Person.findOne()
+          return Person.findOne()
           .then(function (p) {
             p.name.should.equal('Fritz');
             done();
           });
         });
-      }, done);
+      }).catch(done);
     });
 
     it('should save invalid object (skipping validation)', function (done) {
@@ -456,20 +443,18 @@ describe('manipulation', function () {
           return false;
         };
         p.name = 'Nana';
-        p.save()
+        return p.save()
         .then(function (d) {
           should.not.exist(d);
           done();
-        }, function (err) {
+        })
+        .catch(function (err) {
           should.exist(err);
           p.save({validate: false})
           .then(function (d) {
             should.exist(d);
             done();
-          }, function (err) {
-            should.not.exist(err);
-            done();
-          });
+          }).catch(done);
         });
       });
     });
@@ -513,16 +498,16 @@ describe('manipulation', function () {
       StubUser.create({ password: 'foo' })
       .then(function(created) {
         created.password = 'bar';
-        created.save()
+        return created.save()
         .then(function(saved) {
           saved.password.should.equal('bar-2');
-          StubUser.findById(created.id)
+          return StubUser.findById(created.id)
           .then(function(found) {
             found.password.should.equal('bar-2');
             done();
-          }, done);
-        }, done);
-      }, done);
+          });
+        });
+      }).catch(done);
     });
   });
 
@@ -550,13 +535,13 @@ describe('manipulation', function () {
     it('should update one attribute (promise variant)', function (done) {
       person.updateAttribute('name', 'Teddy Graham')
       .then(function (p) {
-        Person.all()
+        return Person.all()
         .then(function (ps) {
           ps.should.have.lengthOf(1);
           ps.pop().name.should.equal('Teddy Graham');
           done();
-        }, done);
-      }, done);
+        });
+      }).catch(done);
     });
 
     it('should ignore undefined values on updateAttributes', function(done) {
@@ -575,13 +560,13 @@ describe('manipulation', function () {
     it('should ignore undefined values on updateAttributes (promise variant)', function(done) {
       person.updateAttributes({'name': 'John', age: undefined})
       .then(function(p) {
-        Person.findById(p.id)
+        return Person.findById(p.id)
         .then(function(p) {
           p.name.should.equal('John');
           p.age.should.equal(15);
           done();
-        }, done);
-      }, done);
+        });
+      }).catch(done);
     });
 
     it('should allows model instance on updateAttributes', function(done) {
@@ -600,13 +585,13 @@ describe('manipulation', function () {
     it('should allows model instance on updateAttributes (promise variant)', function(done) {
       person.updateAttributes(new Person({'name': 'Jane', age: undefined}))
       .then(function(p) {
-        Person.findById(p.id)
+        return Person.findById(p.id)
         .then(function(p) {
           p.name.should.equal('Jane');
           p.age.should.equal(15);
           done();
         });
-      }, done);
+      }).catch(done);
     });
 
   });
@@ -628,12 +613,12 @@ describe('manipulation', function () {
       StubUser.updateOrCreate({ id: 'newid', password: 'foo' })
       .then(function(created) {
         created.password.should.equal('foo-1');
-        StubUser.findById(created.id)
+        return StubUser.findById(created.id)
         .then(function(found) {
           found.password.should.equal('foo-1');
           done();
         });
-      }, done);
+      }).catch(done);
     });
 
     it('should preserve properties with dynamic setters on update', function(done) {
@@ -656,16 +641,16 @@ describe('manipulation', function () {
       StubUser.create({ password: 'foo' })
       .then(function(created) {
         var data = { id: created.id, password: 'bar' };
-        StubUser.updateOrCreate(data)
+        return StubUser.updateOrCreate(data)
         .then(function(updated) {
           updated.password.should.equal('bar-2');
-          StubUser.findById(created.id)
+          return StubUser.findById(created.id)
           .then(function(found) {
             found.password.should.equal('bar-2');
             done();
           });
         });
-      }, done);
+      }).catch(done);
     });
 
     it('should preserve properties with "undefined" value', function(done) {
@@ -702,7 +687,7 @@ describe('manipulation', function () {
           gender: undefined
         });
 
-        Person.updateOrCreate({ id: instance.id, name: 'updated name 2' })
+        return Person.updateOrCreate({ id: instance.id, name: 'updated name 2' })
         .then(function(updated) {
           updated.toObject().should.have.properties({
             id: instance.id,
@@ -711,7 +696,7 @@ describe('manipulation', function () {
           });
           done();
         });
-      }, done);
+      }).catch(done);
     });
   });
 
@@ -732,15 +717,15 @@ describe('manipulation', function () {
     it('should destroy record (promise variant)', function (done) {
       Person.create()
       .then(function (p) {
-        p.destroy()
+        return p.destroy()
         .then(function () {
-          Person.exists(p.id)
+          return Person.exists(p.id)
           .then(function (ex) {
             ex.should.not.be.ok;
             done();
           });
         });
-      }, done);
+      }).catch(done);
     });
 
     it('should destroy all records', function (done) {
@@ -759,19 +744,19 @@ describe('manipulation', function () {
     it('should destroy all records (promise variant)', function (done) {
       Person.create()
       .then(function() {
-        Person.destroyAll()
+        return Person.destroyAll()
         .then(function () {
-          Person.all()
+          return Person.all()
           .then(function (ps) {
             ps.should.have.lengthOf(0);
-            Person.count()
+            return Person.count()
             .then(function (count) {
               count.should.eql(0);
               done();
             });
           });
         });
-      }, done);
+      }).catch(done);
 
     });
 

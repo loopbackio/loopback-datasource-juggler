@@ -90,16 +90,13 @@ describe('relations', function () {
       it('should create record on scope with promises', function (done) {
         Book.create()
         .then (function (book) {
-          book.chapters.create()
+          return book.chapters.create()
           .then (function (c) {
             should.exist(c);
             c.bookId.should.equal(book.id);
             done();
           });
-        }, function (err) {
-          should.not.exist(err);
-          done();
-        });
+        }).catch(done);
       });
 
       it('should create a batch of records on scope', function (done) {
@@ -136,8 +133,7 @@ describe('relations', function () {
               c.bookId.should.equal(book.id);
             });
             done();
-          })
-          .catch(done);
+          }).catch(done);
         });
       });
 
@@ -175,20 +171,20 @@ describe('relations', function () {
       it('should fetch all scoped instances with promises', function (done) {
         Book.create()
         .then(function (book) {
-          book.chapters.create({name: 'a'})
+          return book.chapters.create({name: 'a'})
           .then(function () {
-            book.chapters.create({name: 'z'})
+            return book.chapters.create({name: 'z'})
           })
           .then(function () {
-            book.chapters.create({name: 'c'})
+            return book.chapters.create({name: 'c'})
           })
           .then(function () {
-            verify(book);
+            return verify(book);
           });
         }).catch(done);
 
         function verify(book) {
-          book.chapters(true)
+          return book.chapters(true)
           .then(function (ch) {
             should.exist(ch);
             ch.should.have.lengthOf(3);
@@ -196,7 +192,7 @@ describe('relations', function () {
             var chapters = book.chapters();
             chapters.should.eql(ch);
 
-            book.chapters({order: 'name DESC'})
+            return book.chapters({order: 'name DESC'})
             .then(function (c) {
               should.exist(c);
 
@@ -235,21 +231,21 @@ describe('relations', function () {
         var id;
         Book.create()
         .then(function (book) {
-          book.chapters.create({name: 'a'})
+          return book.chapters.create({name: 'a'})
           .then(function (ch) {
             id = ch.id;
-            book.chapters.create({name: 'z'})
+            return book.chapters.create({name: 'z'})
           })
           .then(function () {
-            book.chapters.create({name: 'c'})
+            return book.chapters.create({name: 'c'})
           })
           .then(function () {
-              verify(book);
+            return verify(book);
           })
         }).catch(done);
 
         function verify(book) {
-          book.chapters.findById(id)
+          return book.chapters.findById(id)
           .then(function (ch) {
             should.exist(ch);
             ch.id.should.eql(id);
@@ -287,18 +283,18 @@ describe('relations', function () {
         .then(function (book) {
           book.chapters.create({name: 'a'})
           .then(function () {
-            book.chapters.create({name: 'b'})
+            return book.chapters.create({name: 'b'})
           })
           .then(function () {
-            book.chapters.create({name: 'c'})
+            return book.chapters.create({name: 'c'})
           })
           .then(function () {
-            verify(book);
+            return verify(book);
           });
         }).catch(done);
 
         function verify(book) {
-          book.chapters.count()
+          return book.chapters.count()
           .then(function (count) {
             count.should.equal(3);
             return book.chapters.count({ name: 'b' })
@@ -340,19 +336,19 @@ describe('relations', function () {
         var id;
         Book.create()
         .then(function (book) {
-          book.chapters.create({name: 'a'})
+          return book.chapters.create({name: 'a'})
           .then(function (ch) {
             id = ch.id;
             return book.chapters.updateById(id, {name: 'aa'})
           })
           .then(function(ch) {
-            verify(book);
+            return verify(book);
           });
         })
         .catch(done);
 
         function verify(book) {
-          book.chapters.findById(id)
+          return book.chapters.findById(id)
           .then(function (ch) {
             should.exist(ch);
             ch.id.should.eql(id);
@@ -385,19 +381,19 @@ describe('relations', function () {
         var id;
         Book.create()
         .then(function (book) {
-          book.chapters.create({name: 'a'})
+          return book.chapters.create({name: 'a'})
           .then(function (ch) {
             id = ch.id;
             return book.chapters.destroy(id)
           })
           .then(function(ch) {
-            verify(book);
+            return verify(book);
           });
         })
         .catch(done);
 
         function verify(book) {
-          book.chapters.findById(id)
+          return book.chapters.findById(id)
           .catch(function (err) {
             should.exist(err);
             done();
@@ -431,21 +427,21 @@ describe('relations', function () {
         var id;
         Book.create()
         .then(function (book) {
-          book.chapters.create({name: 'a'})
+          return book.chapters.create({name: 'a'})
           .then(function (ch) {
             id = ch.id;
-            book.chapters.create({name: 'z'})
+            return book.chapters.create({name: 'z'})
           })
           .then(function () {
-            book.chapters.create({name: 'c'})
+            return book.chapters.create({name: 'c'})
           })
           .then(function () {
-            verify(book);
+            return verify(book);
           });
         }).catch(done);
 
         function verify(book) {
-          book.chapters.exists(id)
+          return book.chapters.exists(id)
           .then(function (flag) {
             flag.should.be.eql(true);
             done();
