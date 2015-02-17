@@ -90,8 +90,6 @@ describe('relations', function () {
       it('should create record on scope with promises', function (done) {
         Book.create()
         .then (function (book) {
-          console.log("creating chapter");
-          // debugger;
           book.chapters.create()
           .then (function (c) {
             should.exist(c);
@@ -120,6 +118,26 @@ describe('relations', function () {
             });
             done();
           });
+        });
+      });
+
+      it('should create a batch of records on scope with promises', function (done) {
+        var chapters = [
+          {name: 'a'},
+          {name: 'z'},
+          {name: 'c'}
+        ];
+        Book.create(function (err, book) {
+          book.chapters.create(chapters)
+          .then(function (chs) {
+            should.exist(chs);
+            chs.should.have.lengthOf(chapters.length);
+            chs.forEach(function(c) {
+              c.bookId.should.equal(book.id);
+            });
+            done();
+          })
+          .catch(done);
         });
       });
 
@@ -154,6 +172,42 @@ describe('relations', function () {
         }
       });
 
+      it('should fetch all scoped instances with promises', function (done) {
+        Book.create()
+        .then(function (book) {
+          book.chapters.create({name: 'a'})
+          .then(function () {
+            book.chapters.create({name: 'z'})
+          })
+          .then(function () {
+            book.chapters.create({name: 'c'})
+          })
+          .then(function () {
+            verify(book);
+          });
+        }).catch(done);
+
+        function verify(book) {
+          book.chapters(true)
+          .then(function (ch) {
+            should.exist(ch);
+            ch.should.have.lengthOf(3);
+
+            var chapters = book.chapters();
+            chapters.should.eql(ch);
+
+            book.chapters({order: 'name DESC'})
+            .then(function (c) {
+              should.exist(c);
+
+              c.shift().name.should.equal('z');
+              c.pop().name.should.equal('a');
+              done();
+            });
+          });
+        }
+      });
+
       it('should find scoped record', function (done) {
         var id;
         Book.create(function (err, book) {
@@ -170,6 +224,33 @@ describe('relations', function () {
         function verify(book) {
           book.chapters.findById(id, function (err, ch) {
             should.not.exist(err);
+            should.exist(ch);
+            ch.id.should.eql(id);
+            done();
+          });
+        }
+      });
+
+      it('should find scoped record with promises', function (done) {
+        var id;
+        Book.create()
+        .then(function (book) {
+          book.chapters.create({name: 'a'})
+          .then(function (ch) {
+            id = ch.id;
+            book.chapters.create({name: 'z'})
+          })
+          .then(function () {
+            book.chapters.create({name: 'c'})
+          })
+          .then(function () {
+              verify(book);
+          })
+        }).catch(done);
+
+        function verify(book) {
+          book.chapters.findById(id)
+          .then(function (ch) {
             should.exist(ch);
             ch.id.should.eql(id);
             done();
@@ -201,6 +282,34 @@ describe('relations', function () {
         }
       });
 
+      it('should count scoped records - all and filtered with promises', function (done) {
+        Book.create()
+        .then(function (book) {
+          book.chapters.create({name: 'a'})
+          .then(function () {
+            book.chapters.create({name: 'b'})
+          })
+          .then(function () {
+            book.chapters.create({name: 'c'})
+          })
+          .then(function () {
+            verify(book);
+          });
+        }).catch(done);
+
+        function verify(book) {
+          book.chapters.count()
+          .then(function (count) {
+            count.should.equal(3);
+            return book.chapters.count({ name: 'b' })
+          })
+          .then(function (count) {
+            count.should.equal(1);
+            done();
+          });
+        }
+      });
+
       it('should set targetClass on scope property', function() {
         should.equal(Book.prototype.chapters._targetClass, 'Chapter');
       });
@@ -227,6 +336,32 @@ describe('relations', function () {
         }
       });
 
+      it('should update scoped record with promises', function (done) {
+        var id;
+        Book.create()
+        .then(function (book) {
+          book.chapters.create({name: 'a'})
+          .then(function (ch) {
+            id = ch.id;
+            return book.chapters.updateById(id, {name: 'aa'})
+          })
+          .then(function(ch) {
+            verify(book);
+          });
+        })
+        .catch(done);
+
+        function verify(book) {
+          book.chapters.findById(id)
+          .then(function (ch) {
+            should.exist(ch);
+            ch.id.should.eql(id);
+            ch.name.should.equal('aa');
+            done();
+          });
+        }
+      });
+
       it('should destroy scoped record', function (done) {
         var id;
         Book.create(function (err, book) {
@@ -240,6 +375,30 @@ describe('relations', function () {
 
         function verify(book) {
           book.chapters.findById(id, function (err, ch) {
+            should.exist(err);
+            done();
+          });
+        }
+      });
+
+      it('should destroy scoped record with promises', function (done) {
+        var id;
+        Book.create()
+        .then(function (book) {
+          book.chapters.create({name: 'a'})
+          .then(function (ch) {
+            id = ch.id;
+            return book.chapters.destroy(id)
+          })
+          .then(function(ch) {
+            verify(book);
+          });
+        })
+        .catch(done);
+
+        function verify(book) {
+          book.chapters.findById(id)
+          .catch(function (err) {
             should.exist(err);
             done();
           });
@@ -268,6 +427,32 @@ describe('relations', function () {
         }
       });
 
+      it('should check existence of a scoped record with promises', function (done) {
+        var id;
+        Book.create()
+        .then(function (book) {
+          book.chapters.create({name: 'a'})
+          .then(function (ch) {
+            id = ch.id;
+            book.chapters.create({name: 'z'})
+          })
+          .then(function () {
+            book.chapters.create({name: 'c'})
+          })
+          .then(function () {
+            verify(book);
+          });
+        }).catch(done);
+
+        function verify(book) {
+          book.chapters.exists(id)
+          .then(function (flag) {
+            flag.should.be.eql(true);
+            done();
+          });
+        }
+      });
+
       it('should check ignore related data on creation - array', function (done) {
         Book.create({ chapters: [] }, function (err, book) {
           should.not.exist(err);
@@ -278,6 +463,16 @@ describe('relations', function () {
         });
       });
 
+      it('should check ignore related data on creation with promises - array', function (done) {
+        Book.create({ chapters: [] })
+        .then(function (book) {
+          book.chapters.should.be.a.function;
+          var obj = book.toObject();
+          should.not.exist(obj.chapters);
+          done();
+        }).catch(done);
+      });
+
       it('should check ignore related data on creation - object', function (done) {
         Book.create({ chapters: {} }, function (err, book) {
           should.not.exist(err);
@@ -286,6 +481,16 @@ describe('relations', function () {
           should.not.exist(obj.chapters);
           done();
         });
+      });
+
+      it('should check ignore related data on creation with promises - object', function (done) {
+        Book.create({ chapters: {} })
+        .then(function (book) {
+          book.chapters.should.be.a.function;
+          var obj = book.toObject();
+          should.not.exist(obj.chapters);
+          done();
+        }).catch(done);
       });
     });
 
