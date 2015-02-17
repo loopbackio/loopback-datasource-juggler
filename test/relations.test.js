@@ -539,6 +539,21 @@ describe('relations', function () {
       });
     });
 
+    it('should create record on scope with promises', function (done) {
+      Physician.create()
+      .then(function (physician) {
+        return physician.patients.create()
+        .then(function (patient) {
+          should.exist(patient);
+          return Appointment.find({where: {physicianId: physician.id, patientId: patient.id}})
+          .then(function (apps) {
+              apps.should.have.lengthOf(1);
+              done();
+          });
+        });
+      }).catch(done);
+    });
+
     it('should create multiple records on scope', function (done) {
       var async = require('async');
       Physician.create(function (err, physician) {
@@ -562,6 +577,29 @@ describe('relations', function () {
       });
     });
 
+    it('should create multiple records on scope with promises', function (done) {
+      var async = require('async');
+      Physician.create()
+      .then(function (physician) {
+        return physician.patients.create([{}, {}])
+        .then(function (patients) {
+          should.exist(patients);
+          patients.should.have.lengthOf(2);
+          function verifyPatient(patient, next) {
+            Appointment.find({where: {
+              physicianId: physician.id,
+              patientId: patient.id
+            }})
+            .then(function(apps) {
+                apps.should.have.lengthOf(1);
+                next();
+            });
+          }
+          async.forEach(patients, verifyPatient, done);
+        });
+      }).catch(done);
+    });
+
     it('should fetch all scoped instances', function (done) {
       Physician.create(function (err, physician) {
         physician.patients.create({name: 'a'}, function () {
@@ -579,6 +617,34 @@ describe('relations', function () {
           patients.should.eql(ch);
 
           should.not.exist(err);
+          should.exist(ch);
+          ch.should.have.lengthOf(3);
+          done();
+        });
+      }
+    });
+
+    it('should fetch all scoped instances with promises', function (done) {
+      Physician.create()
+      .then(function (physician) {
+        return physician.patients.create({name: 'a'})
+        .then(function () {
+          return physician.patients.create({name: 'z'})
+        })
+        .then(function () {
+          return physician.patients.create({name: 'c'})
+        })
+        .then(function () {
+          return verify(physician);
+        })
+      }).catch(done);
+      function verify(physician) {
+        return physician.patients(true)
+        .then(function (ch) {
+
+          var patients = physician.patients();
+          patients.should.eql(ch);
+
           should.exist(ch);
           ch.should.have.lengthOf(3);
           done();
@@ -609,6 +675,33 @@ describe('relations', function () {
       }
     });
 
+    it('should find scoped record with promises', function (done) {
+      var id;
+      Physician.create()
+      .then(function (physician) {
+        return physician.patients.create({name: 'a'})
+        .then(function (ch) {
+          id = ch.id;
+          return physician.patients.create({name: 'z'})
+        })
+        .then(function () {
+          return physician.patients.create({name: 'c'})
+        })
+        .then(function () {
+          return verify(physician);
+        });
+      }).catch(done);
+
+      function verify(physician) {
+        return physician.patients.findById(id, function (err, ch) {
+          should.not.exist(err);
+          should.exist(ch);
+          ch.id.should.eql(id);
+          done();
+        });
+      }
+    });
+
     it('should allow to use include syntax on related data', function (done) {
       Physician.create(function (err, physician) {
         physician.patients.create({name: 'a'}, function (err, patient) {
@@ -624,6 +717,36 @@ describe('relations', function () {
       function verify(physician, addressId) {
         physician.patients({include: 'address'}, function (err, ch) {
           should.not.exist(err);
+          should.exist(ch);
+          ch.should.have.lengthOf(1);
+          ch[0].addressId.should.eql(addressId);
+          var address = ch[0].address();
+          should.exist(address);
+          address.should.be.an.instanceof(Address);
+          address.name.should.equal('z');
+          done();
+        });
+      }
+    });
+
+    it('should allow to use include syntax on related data with promises', function (done) {
+      Physician.create()
+      .then(function (physician) {
+        return physician.patients.create({name: 'a'})
+        .then(function (patient) {
+          return Address.create({name: 'z'})
+          .then(function (address) {
+            patient.address(address);
+            return patient.save(function() {
+              return verify(physician, address.id);
+            });
+          });
+        });
+      }).catch(done);
+
+      function verify(physician, addressId) {
+        return physician.patients({include: 'address'})
+        .then(function (ch) {
           should.exist(ch);
           ch.should.have.lengthOf(1);
           ch[0].addressId.should.eql(addressId);
@@ -662,6 +785,31 @@ describe('relations', function () {
       }
     });
 
+    it('should update scoped record with promises', function (done) {
+      var id;
+      Physician.create()
+      .then(function (physician) {
+        return physician.patients.create({name: 'a'})
+        .then(function (ch) {
+          id = ch.id;
+          return physician.patients.updateById(id, {name: 'aa'})
+          .then(function(ch) {
+            return verify(physician);
+          });
+        });
+      }).catch(done);
+
+      function verify(physician) {
+        return physician.patients.findById(id)
+        .then(function (ch) {
+          should.exist(ch);
+          ch.id.should.eql(id);
+          ch.name.should.equal('aa');
+          done();
+        });
+      }
+    });
+
     it('should destroy scoped record', function (done) {
       var id;
       Physician.create(function (err, physician) {
@@ -675,6 +823,33 @@ describe('relations', function () {
 
       function verify(physician) {
         physician.patients.findById(id, function (err, ch) {
+          should.exist(err);
+          done();
+        });
+      }
+    });
+
+    it('should destroy scoped record with promises', function (done) {
+      var id;
+      Physician.create()
+      .then(function (physician) {
+        return physician.patients.create({name: 'a'})
+        .then(function (ch) {
+          id = ch.id;
+          return physician.patients.destroy(id)
+          .then(function(ch) {
+            return verify(physician);
+          });
+        });
+      }).catch(done);
+
+      function verify(physician) {
+        return physician.patients.findById(id)
+        .then(function (ch) {
+          should.not.exist(ch);
+          done();
+        })
+        .catch(function (err) {
           should.exist(err);
           done();
         });
@@ -704,6 +879,32 @@ describe('relations', function () {
       }
     });
 
+    it('should check existence of a scoped record with promises', function (done) {
+      var id;
+      Physician.create()
+      .then(function (physician) {
+        return physician.patients.create({name: 'a'})
+        .then(function (ch) {
+          id = ch.id;
+          return physician.patients.create({name: 'z'})
+        })
+        .then(function () {
+          return physician.patients.create({name: 'c'})
+        })
+        .then(function () {
+          return verify(physician);
+        });
+      }).catch(done);
+
+      function verify(physician) {
+        return physician.patients.exists(id)
+        .then(function (flag) {
+          flag.should.be.eql(true);
+          done();
+        });
+      }
+    });
+
     it('should allow to add connection with instance', function (done) {
       Physician.create({name: 'ph1'}, function (e, physician) {
         Patient.create({name: 'pa1'}, function (e, patient) {
@@ -717,6 +918,23 @@ describe('relations', function () {
           });
         });
       });
+    });
+
+    it('should allow to add connection with instance with promises', function (done) {
+      Physician.create({name: 'ph1'})
+      .then(function (physician) {
+        return Patient.create({name: 'pa1'})
+        .then(function (patient) {
+          return physician.patients.add(patient)
+          .then(function (app) {
+            should.exist(app);
+            app.should.be.an.instanceOf(Appointment);
+            app.physicianId.should.equal(physician.id);
+            app.patientId.should.equal(patient.id);
+            done();
+          });
+        });
+      }).catch(done);
     });
 
     it('should allow to add connection with through data', function (done) {
@@ -737,6 +955,26 @@ describe('relations', function () {
       });
     });
 
+    it('should allow to add connection with through data with promises', function (done) {
+      Physician.create({name: 'ph1'})
+      .then(function (physician) {
+        return Patient.create({name: 'pa1'})
+        .then(function (patient) {
+          var now = Date.now();
+          return physician.patients.add(patient, { date: new Date(now) })
+          .then(function (app) {
+            should.exist(app);
+            app.should.be.an.instanceOf(Appointment);
+            app.physicianId.should.equal(physician.id);
+            app.patientId.should.equal(patient.id);
+            app.patientId.should.equal(patient.id);
+            app.date.getTime().should.equal(now);
+            done();
+          });
+        });
+      }).catch(done);
+    });
+
     it('should allow to remove connection with instance', function (done) {
       var id;
       Physician.create(function (err, physician) {
@@ -751,6 +989,29 @@ describe('relations', function () {
       function verify(physician) {
         physician.patients.exists(id, function (err, flag) {
           should.not.exist(err);
+          flag.should.be.eql(false);
+          done();
+        });
+      }
+    });
+
+    it('should allow to remove connection with instance with promises', function (done) {
+      var id;
+      Physician.create()
+      .then(function (physician) {
+        return physician.patients.create({name: 'a'})
+        .then(function (patient) {
+          id = patient.id;
+          return physician.patients.remove(id)
+          .then(function (ch) {
+            return verify(physician);
+          });
+        });
+      }).catch(done);
+
+      function verify(physician) {
+        return physician.patients.exists(id)
+        .then(function (flag) {
           flag.should.be.eql(false);
           done();
         });
@@ -936,6 +1197,19 @@ describe('relations', function () {
         });
       });
     });
+
+    it('should create record on scope with promises', function (done) {
+      Book.create({ type: 'fiction' })
+      .then(function (book) {
+        return book.chapters.create()
+        .then(function (c) {
+          should.exist(c);
+          c.bookId.should.equal(book.id);
+          c.bookType.should.equal('fiction');
+          done();
+        });
+      }).catch(done);
+    });
   });
 
   describe('hasMany with scope and properties', function () {
@@ -971,6 +1245,23 @@ describe('relations', function () {
       });
     });
 
+    it('should create record on scope with promises', function (done) {
+      Category.create()
+      .then(function (c) {
+        return c.jobs.create({ type: 'book' })
+        .then(function (p) {
+          p.categoryId.should.equal(c.id);
+          p.type.should.equal('book');
+          return c.jobs.create({ type: 'widget' })
+          .then(function (p) {
+            p.categoryId.should.equal(c.id);
+            p.type.should.equal('widget');
+            done();
+          });
+        });
+      }).catch(done);
+    });
+
     it('should find records on scope', function (done) {
       Category.findOne(function (err, c) {
         c.jobs(function(err, jobs) {
@@ -978,6 +1269,17 @@ describe('relations', function () {
           done();
         });
       });
+    });
+
+    it('should find records on scope with promises', function (done) {
+      Category.findOne()
+      .then(function (c) {
+        return c.jobs(true)
+        .then(function(jobs) {
+          jobs.should.have.length(2);
+          done();
+        });
+      }).catch(done);
     });
 
     it('should find record on scope - filtered', function (done) {
@@ -988,6 +1290,18 @@ describe('relations', function () {
           done();
         });
       });
+    });
+
+    it('should find record on scope with promises - filtered', function (done) {
+      Category.findOne()
+      .then(function (c) {
+        return c.jobs({ where: { type: 'book' } })
+        .then(function(jobs) {
+          jobs.should.have.length(1);
+          jobs[0].type.should.equal('book');
+          done();
+        });
+      }).catch(done);
     });
 
     // So why not just do the above? In LoopBack, the context
@@ -1106,6 +1420,19 @@ describe('relations', function () {
       });
     });
 
+    it('should create polymorphic relation with promises - author', function (done) {
+      Author.create({name: 'Author 1' })
+      .then(function (author) {
+        return author.avatar.create({ name: 'Avatar' })
+        .then(function (p) {
+          should.exist(p);
+          p.imageableId.should.equal(author.id);
+          p.imageableType.should.equal('Author');
+          done();
+        });
+      }).catch(done);
+    });
+
     it('should create polymorphic relation - reader', function (done) {
       Reader.create({name: 'Reader 1' }, function (err, reader) {
         reader.mugshot.create({ name: 'Mugshot' }, function (err, p) {
@@ -1144,6 +1471,19 @@ describe('relations', function () {
           done();
         });
       });
+    });
+
+    it('should find polymorphic relation with promises - reader', function (done) {
+      Reader.findOne()
+      .then(function (reader) {
+        return reader.mugshot(true)
+        .then(function (p) {
+          p.name.should.equal('Mugshot');
+          p.imageableId.should.eql(reader.id);
+          p.imageableType.should.equal('Reader');
+          done();
+        });
+      }).catch(done);
     });
 
     it('should find inverse polymorphic relation - author', function (done) {
@@ -1228,6 +1568,19 @@ describe('relations', function () {
           done();
         });
       });
+    });
+
+    it('should create polymorphic relation with promises - author', function (done) {
+      Author.create({name: 'Author 1' })
+      .then(function (author) {
+        return author.avatar.create({ name: 'Avatar' })
+        .then(function (p) {
+          should.exist(p);
+          p.oid.toString().should.equal(author.username.toString());
+          p.type.should.equal('Author');
+          done();
+        });
+      }).catch(done);
     });
 
     it('should create polymorphic relation - reader', function (done) {
