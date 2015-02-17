@@ -93,6 +93,49 @@ describe('async observer', function() {
       done();
     });
   });
+
+  it('resolves promises returned by observers', function(done) {
+    TestModel.observe('event', function(ctx) {
+      return Promise.resolve('value-to-ignore');
+    });
+    TestModel.notifyObserversOf('event', {}, function(err, ctx) {
+      // the test times out when the promises are not supported
+      done();
+    });
+  });
+
+  it('handles rejected promise returned by an observer', function(done) {
+    var testError = new Error('expected test error');
+    TestModel.observe('event', function(ctx) {
+      return Promise.reject(testError);
+    });
+    TestModel.notifyObserversOf('event', {}, function(err, ctx) {
+      err.should.eql(testError);
+      done();
+    });
+  });
+
+  it('returns a promise when no callback is provided', function() {
+    var context = { value: 'a-test-context' };
+    var p = TestModel.notifyObserversOf('event', context);
+    (p !== undefined).should.be.true;
+    return p.then(function(result) {
+      result.should.eql(context);
+    });
+  });
+
+  it('returns a rejected promise when no callback is provided', function() {
+    var testError = new Error('expected test error');
+    TestModel.observe('event', function(ctx, next) { next(testError); });
+    var p = TestModel.notifyObserversOf('event', context);
+    return p.then(
+      function(result) {
+        throw new Error('The promise should have been rejected.');
+      },
+      function(err) {
+        err.should.eql(testError);
+      });
+  });
 });
 
 function pushAndNext(array, value) {
