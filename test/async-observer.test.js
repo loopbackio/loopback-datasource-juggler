@@ -1,5 +1,6 @@
 var ModelBuilder = require('../').ModelBuilder;
 var should = require('./init');
+var Promise = global.Promise || require('bluebird');
 
 describe('async observer', function() {
   var TestModel;
@@ -90,6 +91,27 @@ describe('async observer', function() {
     var context = {};
     TestModel.notifyObserversOf('event', context, function(err, ctx) {
       (ctx || "null").should.equal(context);
+      done();
+    });
+  });
+
+  it('resolves promises returned by observers', function(done) {
+    TestModel.observe('event', function(ctx) {
+      return Promise.resolve('value-to-ignore');
+    });
+    TestModel.notifyObserversOf('event', {}, function(err, ctx) {
+      // the test times out when the promises are not supported
+      done();
+    });
+  });
+
+  it('handles rejected promise returned by an observer', function(done) {
+    var testError = new Error('expected test error');
+    TestModel.observe('event', function(ctx) {
+      return Promise.reject(testError);
+    });
+    TestModel.notifyObserversOf('event', {}, function(err, ctx) {
+      err.should.eql(testError);
       done();
     });
   });
