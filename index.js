@@ -2,6 +2,7 @@ exports.ModelBuilder = exports.LDL = require('./lib/model-builder.js').ModelBuil
 exports.DataSource = exports.Schema = require('./lib/datasource.js').DataSource;
 exports.ModelBaseClass = require('./lib/model.js');
 exports.GeoPoint = require('./lib/geo.js').GeoPoint;
+exports.Guid = require('./lib/guid');
 exports.ValidationError = require('./lib/validations.js').ValidationError;
 
 Object.defineProperty(exports, 'version', {
