@@ -57,6 +57,20 @@ describe('manipulation', function () {
       });
     });
 
+    it('should create instance (promise variant)', function (done) {
+      Person.create({name: 'Anatoliy'})
+      .then (function (p) {
+        p.name.should.equal('Anatoliy');
+        should.exist(p);
+        return Person.findById(p.id)
+        .then (function (person) {
+          person.id.should.eql(p.id);
+          person.name.should.equal('Anatoliy');
+          done();
+        });
+      }).catch(done);
+    });
+
     it('should instantiate an object', function (done) {
       var p = new Person({name: 'Anatoliy'});
       p.name.should.equal('Anatoliy');
@@ -67,6 +81,19 @@ describe('manipulation', function () {
         inst.should.equal(p);
         done();
       });
+    });
+
+    it('should instantiate an object (promise variant)', function (done) {
+      var p = new Person({name: 'Anatoliy'});
+      p.name.should.equal('Anatoliy');
+      p.isNewRecord().should.be.true;
+      p.save()
+      .then (function(inst) {
+        inst.isNewRecord().should.be.false;
+        inst.should.equal(p);
+        done();
+      }).catch(done);
+
     });
 
     it('should return instance of object', function (done) {
@@ -91,6 +118,20 @@ describe('manipulation', function () {
       });
     });
 
+    it('should not allow user-defined value for the id of object - create (promise variant)', function (done) {
+      Person.create({id: 123456})
+      .then (function (p) {
+        should.not.exist(p);
+        done();
+      })
+      .catch(function (err) {
+        err.should.be.instanceof(ValidationError);
+        err.statusCode.should.equal(422);
+        err.details.messages.id.should.eql(['can\'t be set']);
+        done();
+      });
+    });
+
     it('should not allow user-defined value for the id of object - save', function (done) {
       var p = new Person({id: 123456});
       p.isNewRecord().should.be.true;
@@ -100,6 +141,22 @@ describe('manipulation', function () {
         err.details.messages.id.should.eql(['can\'t be set']);
         inst.id.should.equal(123456);
         inst.isNewRecord().should.be.true;
+        done();
+      });
+    });
+
+    it('should not allow user-defined value for the id of object - save (promise variant)', function (done) {
+      var p = new Person({id: 123456});
+      p.isNewRecord().should.be.true;
+      p.save()
+      .then (function(inst) {
+        should.not.exist(inst);
+        done();
+      })
+      .catch(function (err) {
+        err.should.be.instanceof(ValidationError);
+        err.statusCode.should.equal(422);
+        err.details.messages.id.should.eql(['can\'t be set']);
         done();
       });
     });
@@ -127,6 +184,20 @@ describe('manipulation', function () {
           done();
         });
       });
+    });
+
+    it('should create instance with blank data (promise variant)', function (done) {
+      Person.create()
+      .then (function (p) {
+        should.exist(p);
+        should.not.exists(p.name);
+        return Person.findById(p.id)
+        .then (function (person) {
+          person.id.should.eql(p.id);
+          should.not.exists(person.name);
+          done();
+        });
+      }).catch(done);
     });
 
     it('should work when called with no data and callback', function (done) {
@@ -170,6 +241,39 @@ describe('manipulation', function () {
       }).should.have.lengthOf(3);
     });
 
+    it('should create batch of objects (promise variant)', function (done) {
+      var batch = [
+        {name: 'Shaltay'},
+        {name: 'Boltay'},
+        {}
+      ];
+
+      Person.create(batch)
+      .then (function (ps) {
+        should.exist(ps);
+        ps.should.be.instanceOf(Array);
+        ps.should.have.lengthOf(batch.length);
+
+        Person.validatesPresenceOf('name');
+        return Person.create(batch)
+        .then (function (persons) {
+          delete Person.validations;
+          should.exist(persons);
+          persons.should.have.lengthOf(batch.length);
+          persons[0].errors.should.be.false
+          persons[1].errors.should.be.false
+          persons[2].errors.name.should.be.instanceOf(Array);
+          persons[2].errors.name[0].should.equal("can't be blank");
+          done();
+        })
+      })
+      .catch(function (err) {
+        delete Person.validations;
+        should.not.exist(err);
+        done();
+      });
+    });
+
     it('should create batch of objects with beforeCreate', function(done) {
       Person.beforeCreate = function(next, data) {
         if (data && data.name === 'A') {
@@ -191,6 +295,29 @@ describe('manipulation', function () {
         ps[0].should.be.eql({id: 'a', name: 'A'});
         done();
       });
+    });
+
+    it('should create batch of objects with beforeCreate (promise variant)', function(done) {
+      Person.beforeCreate = function(next, data) {
+        if (data && data.name === 'A') {
+          return next(null, {id: 'a', name: 'A'});
+        } else {
+          return next();
+        }
+      };
+      var batch = [
+        {name: 'A'},
+        {name: 'B'},
+        undefined
+      ];
+      Person.create(batch)
+      .then(function(ps) {
+        should.exist(ps);
+        ps.should.be.instanceOf(Array);
+        ps.should.have.lengthOf(batch.length);
+        ps[0].should.be.eql({id: 'a', name: 'A'});
+        done();
+      }).catch(done);
     });
 
     it('should preserve properties with "undefined" value', function(done) {
@@ -215,6 +342,29 @@ describe('manipulation', function () {
           });
         });
     });
+
+    it('should preserve properties with "undefined" value (promise variant)', function(done) {
+      Person.create({ name: 'a-name', gender: undefined })
+      .then(function (created) {
+        created.toObject().should.have.properties({
+          id: created.id,
+          name: 'a-name',
+          gender: undefined
+        });
+
+        return Person.findById(created.id)
+        .then(function(found) {
+          found.toObject().should.have.properties({
+            id: created.id,
+            name: 'a-name',
+            gender: undefined
+          });
+          done();
+        });
+      }).catch(done);
+
+    });
+
   });
 
   describe('save', function () {
@@ -226,6 +376,15 @@ describe('manipulation', function () {
         should.exist(p.id);
         done();
       });
+    });
+
+    it('should save new object (promise variant)', function (done) {
+      var p = new Person;
+      p.save()
+      .then(function () {
+        should.exist(p.id);
+        done();
+      }, done);
     });
 
     it('should save existing object', function (done) {
@@ -243,6 +402,21 @@ describe('manipulation', function () {
       });
     });
 
+    it('should save existing object (promise variant)', function (done) {
+      Person.findOne()
+      .then(function (p) {
+        p.name = 'Fritz';
+        return p.save()
+        .then(function () {
+          return Person.findOne()
+          .then(function (p) {
+            p.name.should.equal('Fritz');
+            done();
+          });
+        });
+      }).catch(done);
+    });
+
     it('should save invalid object (skipping validation)', function (done) {
       Person.findOne(function (err, p) {
         should.not.exist(err);
@@ -257,6 +431,30 @@ describe('manipulation', function () {
             should.not.exist(err);
             done();
           });
+        });
+      });
+    });
+
+    it('should save invalid object (skipping validation - promise variant)', function (done) {
+      Person.findOne()
+      .then(function (p) {
+        p.isValid = function (done) {
+          process.nextTick(done);
+          return false;
+        };
+        p.name = 'Nana';
+        return p.save()
+        .then(function (d) {
+          should.not.exist(d);
+          done();
+        })
+        .catch(function (err) {
+          should.exist(err);
+          p.save({validate: false})
+          .then(function (d) {
+            should.exist(d);
+            done();
+          }).catch(done);
         });
       });
     });
@@ -293,6 +491,24 @@ describe('manipulation', function () {
         });
       });
     });
+
+    it('should preserve properties with dynamic setters (promise variant)', function(done) {
+      // This test reproduces a problem discovered by LoopBack unit-test
+      // "User.hasPassword() should match a password after it is changed"
+      StubUser.create({ password: 'foo' })
+      .then(function(created) {
+        created.password = 'bar';
+        return created.save()
+        .then(function(saved) {
+          saved.password.should.equal('bar-2');
+          return StubUser.findById(created.id)
+          .then(function(found) {
+            found.password.should.equal('bar-2');
+            done();
+          });
+        });
+      }).catch(done);
+    });
   });
 
   describe('updateAttributes', function () {
@@ -308,7 +524,7 @@ describe('manipulation', function () {
       person.updateAttribute('name', 'Paul Graham', function (err, p) {
         should.not.exist(err);
         Person.all(function (e, ps) {
-          should.not.exist(err);
+          should.not.exist(e);
           ps.should.have.lengthOf(1);
           ps.pop().name.should.equal('Paul Graham');
           done();
@@ -316,12 +532,24 @@ describe('manipulation', function () {
       });
     });
 
+    it('should update one attribute (promise variant)', function (done) {
+      person.updateAttribute('name', 'Teddy Graham')
+      .then(function (p) {
+        return Person.all()
+        .then(function (ps) {
+          ps.should.have.lengthOf(1);
+          ps.pop().name.should.equal('Teddy Graham');
+          done();
+        });
+      }).catch(done);
+    });
+
     it('should ignore undefined values on updateAttributes', function(done) {
       person.updateAttributes({'name': 'John', age: undefined},
         function(err, p) {
           should.not.exist(err);
           Person.findById(p.id, function(e, p) {
-            should.not.exist(err);
+            should.not.exist(e);
             p.name.should.equal('John');
             p.age.should.equal(15);
             done();
@@ -329,17 +557,41 @@ describe('manipulation', function () {
         });
     });
 
+    it('should ignore undefined values on updateAttributes (promise variant)', function(done) {
+      person.updateAttributes({'name': 'John', age: undefined})
+      .then(function(p) {
+        return Person.findById(p.id)
+        .then(function(p) {
+          p.name.should.equal('John');
+          p.age.should.equal(15);
+          done();
+        });
+      }).catch(done);
+    });
+
     it('should allows model instance on updateAttributes', function(done) {
       person.updateAttributes(new Person({'name': 'John', age: undefined}),
         function(err, p) {
           should.not.exist(err);
           Person.findById(p.id, function(e, p) {
-            should.not.exist(err);
+            should.not.exist(e);
             p.name.should.equal('John');
             p.age.should.equal(15);
             done();
           });
         });
+    });
+
+    it('should allows model instance on updateAttributes (promise variant)', function(done) {
+      person.updateAttributes(new Person({'name': 'Jane', age: undefined}))
+      .then(function(p) {
+        return Person.findById(p.id)
+        .then(function(p) {
+          p.name.should.equal('Jane');
+          p.age.should.equal(15);
+          done();
+        });
+      }).catch(done);
     });
 
   });
@@ -357,6 +609,18 @@ describe('manipulation', function () {
       });
     });
 
+    it('should preserve properties with dynamic setters on create (promise variant)', function(done) {
+      StubUser.updateOrCreate({ id: 'newid', password: 'foo' })
+      .then(function(created) {
+        created.password.should.equal('foo-1');
+        return StubUser.findById(created.id)
+        .then(function(found) {
+          found.password.should.equal('foo-1');
+          done();
+        });
+      }).catch(done);
+    });
+
     it('should preserve properties with dynamic setters on update', function(done) {
       StubUser.create({ password: 'foo' }, function(err, created) {
         if (err) return done(err);
@@ -371,6 +635,22 @@ describe('manipulation', function () {
           });
         });
       });
+    });
+
+    it('should preserve properties with dynamic setters on update (promise variant)', function(done) {
+      StubUser.create({ password: 'foo' })
+      .then(function(created) {
+        var data = { id: created.id, password: 'bar' };
+        return StubUser.updateOrCreate(data)
+        .then(function(updated) {
+          updated.password.should.equal('bar-2');
+          return StubUser.findById(created.id)
+          .then(function(found) {
+            found.password.should.equal('bar-2');
+            done();
+          });
+        });
+      }).catch(done);
     });
 
     it('should preserve properties with "undefined" value', function(done) {
@@ -397,6 +677,27 @@ describe('manipulation', function () {
             });
         });
     });
+
+    it('should preserve properties with "undefined" value (promise variant)', function(done) {
+      Person.create({ name: 'b-name', gender: undefined })
+      .then(function(instance) {
+        instance.toObject().should.have.properties({
+          id: instance.id,
+          name: 'b-name',
+          gender: undefined
+        });
+
+        return Person.updateOrCreate({ id: instance.id, name: 'updated name 2' })
+        .then(function(updated) {
+          updated.toObject().should.have.properties({
+            id: instance.id,
+            name: 'updated name 2',
+            gender: undefined
+          });
+          done();
+        });
+      }).catch(done);
+    });
   });
 
   describe('destroy', function () {
@@ -413,6 +714,20 @@ describe('manipulation', function () {
       });
     });
 
+    it('should destroy record (promise variant)', function (done) {
+      Person.create()
+      .then(function (p) {
+        return p.destroy()
+        .then(function () {
+          return Person.exists(p.id)
+          .then(function (ex) {
+            ex.should.not.be.ok;
+            done();
+          });
+        });
+      }).catch(done);
+    });
+
     it('should destroy all records', function (done) {
       Person.destroyAll(function (err) {
         should.not.exist(err);
@@ -424,6 +739,25 @@ describe('manipulation', function () {
           });
         });
       });
+    });
+
+    it('should destroy all records (promise variant)', function (done) {
+      Person.create()
+      .then(function() {
+        return Person.destroyAll()
+        .then(function () {
+          return Person.all()
+          .then(function (ps) {
+            ps.should.have.lengthOf(0);
+            return Person.count()
+            .then(function (count) {
+              count.should.eql(0);
+              done();
+            });
+          });
+        });
+      }).catch(done);
+
     });
 
     // TODO: implement destroy with filtered set
