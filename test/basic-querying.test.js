@@ -2,6 +2,7 @@
 var should = require('./init.js');
 var async = require('async');
 var db, User;
+var aGuidValue = require('../').Guid();
 
 describe('basic-querying', function () {
 
@@ -14,6 +15,7 @@ describe('basic-querying', function () {
       birthday: {type: Date, index: true},
       role: {type: String, index: true},
       order: {type: Number, index: true, sort: true},
+      guid: {type: 'Guid' },
       vip: {type: Boolean}
     });
 
@@ -58,7 +60,7 @@ describe('basic-querying', function () {
     });
 
   });
-  
+
   describe('findByIds', function () {
 
     before(function(done) {
@@ -88,9 +90,9 @@ describe('basic-querying', function () {
         done();
       });
     });
-    
+
     it('should query by ids and condition', function (done) {
-      User.findByIds([4, 3, 2, 1], 
+      User.findByIds([4, 3, 2, 1],
         { where: { vip: true } }, function (err, users) {
         should.exist(users);
         should.not.exist(err);
@@ -424,6 +426,27 @@ describe('basic-querying', function () {
       });
     });
 
+    it('should support string guid equality that is satisfied', function(done) {
+      User.find(
+        { where: { guid: aGuidValue.toString() } },
+        function(err, users) {
+          should.not.exist(err);
+          users.should.have.length(1);
+          users[0].should.have.property('guid', aGuidValue);
+          done();
+        });
+    });
+
+    it('should support object guid equality that is satisfied', function(done) {
+      User.find(
+        { where: { guid: aGuidValue } },
+        function(err, users) {
+          should.not.exist(err);
+          users.should.have.length(1);
+          users[0].should.have.property('guid', aGuidValue);
+          done();
+        });
+    });
 
     it('should only include fields as specified', function (done) {
       var remaining = 0;
@@ -464,7 +487,7 @@ describe('basic-querying', function () {
       }
 
       sample({name: true}).expect(['name']);
-      sample({name: false}).expect(['id', 'seq', 'email', 'role', 'order', 'birthday', 'vip']);
+      sample({name: false}).expect(['id', 'seq', 'email', 'role', 'order', 'birthday', 'vip', 'guid']);
       sample({name: false, id: true}).expect(['id']);
       sample({id: true}).expect(['id']);
       sample('id').expect(['id']);
@@ -649,6 +672,7 @@ function seed(done) {
       role: 'lead',
       birthday: new Date('1980-12-08'),
       order: 2,
+      guid: aGuidValue,
       vip: true
     },
     {

@@ -1,5 +1,7 @@
 // This test written in mocha+should.js
 var should = require('./init.js');
+var Guid = require('../').Guid;
+var GeoPoint = require('../').GeoPoint;
 
 var db, Model;
 
@@ -14,6 +16,8 @@ describe('datatypes', function () {
       date: Date,
       num: Number,
       bool: Boolean,
+      loc: 'GeoPoint',
+      guid: 'Guid',
       list: {type: [String]},
       arr: Array,
       nested: Nested
@@ -53,6 +57,7 @@ describe('datatypes', function () {
     var d = new Date, id;
 
     Model.create({
+      guid: new Guid().toString(), loc: '10,20',
       str: 'hello', date: d, num: '3', bool: 1, list: ['test'], arr: [1, 'str']
     }, function (err, m) {
       should.not.exists(err);
@@ -60,6 +65,8 @@ describe('datatypes', function () {
       m.str.should.be.type('string');
       m.num.should.be.type('number');
       m.bool.should.be.type('boolean');
+      m.loc.should.be.instanceOf(GeoPoint);
+      m.guid.should.be.instanceOf(Guid);
       m.list[0].should.be.equal('test');
       m.arr[0].should.be.equal(1);
       m.arr[1].should.be.equal('str');
@@ -74,6 +81,8 @@ describe('datatypes', function () {
         m.str.should.be.type('string');
         m.num.should.be.type('number');
         m.bool.should.be.type('boolean');
+        m.loc.should.be.instanceOf(GeoPoint);
+        m.guid.should.be.instanceOf(Guid);
         m.list[0].should.be.equal('test');
         m.arr[0].should.be.equal(1);
         m.arr[1].should.be.equal('str');
@@ -90,6 +99,7 @@ describe('datatypes', function () {
         m.str.should.be.type('string');
         m.num.should.be.type('number');
         m.bool.should.be.type('boolean');
+        m.guid.should.be.instanceOf(Guid);
         m.date.should.be.an.instanceOf(Date);
         m.date.toString().should.equal(d.toString(), 'Time must match');
         done();
@@ -100,9 +110,10 @@ describe('datatypes', function () {
 
   it('should respect data types when updating attributes', function (done) {
     var d = new Date, id;
+    var guid = new Guid();
 
     Model.create({
-      str: 'hello', date: d, num: '3', bool: 1}, function(err, m) {
+      guid: guid, str: 'hello', date: d, num: '3', bool: 1}, function(err, m) {
       should.not.exist(err);
       should.exist(m && m.id);
 
@@ -110,6 +121,7 @@ describe('datatypes', function () {
       m.str.should.be.type('string');
       m.num.should.be.type('number');
       m.bool.should.be.type('boolean');
+      m.guid.should.eql(guid);
       id = m.id;
       testDataInDB(function () {
         testUpdate(function() {
@@ -121,24 +133,26 @@ describe('datatypes', function () {
     function testUpdate(done) {
       Model.findById(id, function(err, m) {
         should.not.exist(err);
+        guid = new Guid();
 
         // update using updateAttributes
         m.updateAttributes({
-          id: id, num: '10'
+          id: id, num: '10', guid: guid.toString(),
         }, function (err, m) {
           should.not.exist(err);
-          m.num.should.be.type('number');
+          m.num.should.eql(10);
+          m.guid.should.eql(guid);
           done();
         });
       });
     }
 
     function testDataInDB(done) {
-
       // verify that the value stored in the db is still an object
       db.connector.find(Model.modelName, id, function (err, data) {
         should.exist(data);
         data.num.should.be.type('number');
+        data.guid.should.eql(guid);
         done();
       });
     }
