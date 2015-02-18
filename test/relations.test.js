@@ -1170,6 +1170,18 @@ describe('relations', function () {
       });
     });
 
+    it('should set the keyThrough and the foreignKey', function (done) {
+      var user = new User({id: 1});
+      var user2 = new User({id: 2});
+      user.following.add(user2, function (err, f) {
+        should.not.exist(err);
+        should.exist(f);
+        f.followeeId.should.equal(user2.id);
+        f.followerId.should.equal(user.id);
+        done();
+      });
+    });
+
     it('can determine the collect via keyThrough for each side', function () {
       var user = new User({id: 1});
       var scope1 = user.followers._scope;
