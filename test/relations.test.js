@@ -2,6 +2,7 @@
 var should = require('./init.js');
 var jdb = require('../');
 var DataSource = jdb.DataSource;
+var createPromiseCallback = jdb.createPromiseCallback;
 
 var db, tmp, Book, Chapter, Author, Reader;
 var Category, Job;
@@ -2653,7 +2654,6 @@ describe('relations', function () {
             return supplier.account(false)
           })
           .then(function (act) {
-            console.log('supplier.account:', supplier.account())
             accountId = act.id;
             should.exist(act);
             act.should.be.an.instanceOf(Account);
@@ -4189,12 +4189,14 @@ describe('relations', function () {
 
     it('can be declared', function (done) {
       var reverse = function(cb) {
+        cb = cb || createPromiseCallback();
         var modelInstance = this.modelInstance;
         var fk = this.definition.keyFrom;
         var ids = modelInstance[fk] || [];
         modelInstance.updateAttribute(fk, ids.reverse(), function(err, inst) {
           cb(err, inst[fk] || []);
         });
+        return cb.promise;
       };
 
       reverse.shared = true; // remoting
@@ -4434,24 +4436,260 @@ describe('relations', function () {
       });
     });
 
+    it('should setup test records with promises', function (done) {
+      db.automigrate()
+      .then(function () {
+        return Job.create({ name: 'Job 1' })
+        .then(function (p) {
+          job1 = p;
+          return Job.create({ name: 'Job 3' })
+        })
+        .then(function (p) {
+            job3 = p;
+            done();
+        });
+      }).catch(done);
+    });
+
     it('should create record on scope with promises', function (done) {
-      Category.create({ name: 'Category B' })
+      Category.create({ name: 'Category A' })
       .then(function(cat) {
         cat.jobIds.should.be.an.array;
         cat.jobIds.should.have.length(0);
-        return cat.jobs.create({ name: 'Job 4' })
+        return cat.jobs.create({ name: 'Job 2' })
         .then(function(p) {
-          console.log('jobids:', cat.jobIds)
           cat.jobIds.should.have.length(1);
           cat.jobIds.should.eql([p.id]);
-          p.name.should.equal('Job 4');
+          p.name.should.equal('Job 2');
           done();
         });
       }).catch(done);
     });
 
 
+
+    it('should not allow duplicate record on scope with promises', function (done) {
+      Category.findOne()
+      .then(function (cat) {
+        cat.jobIds = [job2.id, job2.id];
+        cat.save()
+        .then(function (p) {
+          should.not.exist(p);
+          done();
+        })
+        .catch(function (err) {
+          should.exist(err);
+          err.name.should.equal('ValidationError');
+          err.details.codes.jobs.should.eql(['uniqueness']);
+          done();
+        });
+      });
+    });
+
+    it('should find items on scope with promises', function (done) {
+      Category.findOne()
+      .then(function (cat) {
+        cat.jobIds.should.eql([job2.id]);
+        return cat.jobs(true)
+        .then(function (jobs) {
+          var p = jobs[0];
+          p.id.should.eql(job2.id);
+          p.name.should.equal('Job 2');
+          done();
+        });
+      }).catch(done);
+    });
+
+    it('should find items on scope with promises - findById', function (done) {
+      Category.findOne()
+      .then(function (cat) {
+        cat.jobIds.should.eql([job2.id]);
+        return cat.jobs.findById(job2.id)
+        .then(function (p) {
+          p.should.be.instanceof(Job);
+          p.id.should.eql(job2.id);
+          p.name.should.equal('Job 2');
+          done();
+        });
+      }).catch(done);
+    });
+
+    it('should check if a record exists on scope with promises', function (done) {
+      Category.findOne()
+      .then(function (cat) {
+        return cat.jobs.exists(job2.id)
+        .then(function (exists) {
+          should.exist(exists);
+          done();
+        });
+      }).catch(done);
+    });
+
+    it('should update a record on scope with promises', function (done) {
+      Category.findOne()
+      .then(function (cat) {
+        var attrs = { name: 'Job 2 - edit' };
+        return cat.jobs.updateById(job2.id, attrs)
+        .then(function (p) {
+          p.name.should.equal(attrs.name);
+          done();
+        })
+      }).catch(done);
+    });
+
+    it('should get a record by index with promises - at', function (done) {
+      Category.findOne()
+      .then(function (cat) {
+        return cat.jobs.at(0)
+        .then(function (p) {
+          p.should.be.instanceof(Job);
+          p.id.should.eql(job2.id);
+          p.name.should.equal('Job 2 - edit');
+          done();
+        });
+      }).catch(done);
+    });
+
+    it('should add a record to scope with promises - object', function (done) {
+      Category.findOne()
+      .then(function (cat) {
+        return cat.jobs.add(job1)
+        .then(function (prod) {
+          cat.jobIds.should.eql([job2.id, job1.id]);
+          prod.id.should.eql(job1.id);
+          prod.should.have.property('name');
+          done();
+        });
+      }).catch(done);
+    });
+
+    it('should add a record to scope with promises - object', function (done) {
+      Category.findOne()
+      .then(function (cat) {
+        return cat.jobs.add(job3.id)
+        .then(function (prod) {
+          var expected = [job2.id, job1.id, job3.id];
+          cat.jobIds.should.eql(expected);
+          prod.id.should.eql(job3.id);
+          prod.should.have.property('name');
+          done();
+        });
+      }).catch(done);
+    });
+
+    it('should find items on scope with promises - findById', function (done) {
+      Category.findOne()
+      .then(function (cat) {
+        return cat.jobs.findById(job3.id)
+        .then(function (p) {
+          p.id.should.eql(job3.id);
+          p.name.should.equal('Job 3');
+          done();
+        });
+      }).catch(done);
+    });
+
+    it('should find items on scope with promises - filter', function (done) {
+      Category.findOne()
+      .then(function (cat) {
+        var filter = { where: { name: 'Job 1' } };
+        return cat.jobs(filter)
+        .then(function (jobs) {
+          jobs.should.have.length(1);
+          var p = jobs[0];
+          p.id.should.eql(job1.id);
+          p.name.should.equal('Job 1');
+          done();
+        });
+      }).catch(done);
+    });
+
+    it('should remove items from scope with promises', function (done) {
+      Category.findOne()
+      .then(function (cat) {
+        return cat.jobs.remove(job1.id)
+        .then(function (ids) {
+          var expected = [job2.id, job3.id];
+          cat.jobIds.should.eql(expected);
+          ids.should.eql(cat.jobIds);
+          done();
+        });
+      }).catch(done);
+    });
+
+    it('should find items on scope with promises - verify', function (done) {
+      Category.findOne()
+      .then(function (cat) {
+        var expected = [job2.id, job3.id];
+        cat.jobIds.should.eql(expected);
+        return cat.jobs(true)
+        .then(function (jobs) {
+          jobs.should.have.length(2);
+          jobs[0].id.should.eql(job2.id);
+          jobs[1].id.should.eql(job3.id);
+          done();
+        });
+      }).catch(done);
+    });
+
+    it('should allow custom scope methods with promises - reverse', function(done) {
+      Category.findOne()
+      .then(function (cat) {
+        return cat.jobs.reverse()
+        .then(function (ids) {
+          var expected = [job3.id, job2.id];
+          ids.should.eql(expected);
+          cat.jobIds.should.eql(expected);
+          done();
+        });
+      }).catch(done);
+    });
+
+    it('should include related items from scope with promises', function(done) {
+      Category.find({ include: 'jobs' })
+      .then(function (categories) {
+        categories.should.have.length(1);
+        var cat = categories[0].toObject();
+        cat.name.should.equal('Category A');
+        cat.jobs.should.have.length(2);
+        cat.jobs[0].id.should.eql(job3.id);
+        cat.jobs[1].id.should.eql(job2.id);
+        done();
+      }).catch(done);
+    });
+
+    it('should destroy items from scope with promises - destroyById', function (done) {
+      Category.findOne()
+      .then(function (cat) {
+        return cat.jobs.destroy(job2.id)
+        .then(function () {
+          var expected = [job3.id];
+          cat.jobIds.should.eql(expected);
+          return Job.exists(job2.id)
+          .then(function (exists) {
+            should.exist(exists);
+            done();
+          });
+        });
+      }).catch(done);
+    });
+
+    it('should find items on scope with promises - verify', function (done) {
+      Category.findOne()
+      .then(function (cat) {
+        var expected = [job3.id];
+        cat.jobIds.should.eql(expected);
+        return cat.jobs(true)
+        .then(function (jobs) {
+          jobs.should.have.length(1);
+          jobs[0].id.should.eql(job3.id);
+          done();
+        });
+      }).catch(done);
+    });
+
   });
+
 
   describe('custom relation/scope methods', function () {
     var categoryId;
@@ -4472,6 +4710,7 @@ describe('relations', function () {
       var relation = Category.hasMany(Job);
 
       var summarize = function(cb) {
+        cb = cb || createPromiseCallback();
         var modelInstance = this.modelInstance;
         this.fetch(function(err, items) {
           if (err) return cb(err, []);
@@ -4482,6 +4721,7 @@ describe('relations', function () {
           });
           cb(null, summary);
         });
+        return cb.promise;
       };
 
       summarize.shared = true; // remoting
@@ -4524,6 +4764,26 @@ describe('relations', function () {
           done();
         });
       })
+    });
+
+    it('should allow custom scope methods with promises - summarize', function(done) {
+      var expected = [
+        { name: 'Job 1', categoryId: categoryId, categoryName: 'Category A' },
+        { name: 'Job 2', categoryId: categoryId, categoryName: 'Category A' }
+      ];
+
+      Category.findOne()
+      .then(function (cat) {
+        return cat.jobs.summarize()
+        .then(function (summary) {
+          var result = summary.map(function(item) {
+            delete item.id;
+            return item;
+          });
+          result.should.eql(expected);
+          done();
+        });
+      }).catch(done);
     });
 
   });
