@@ -4,6 +4,8 @@ var should = require('./init.js');
 var db, Person;
 var ValidationError = require('..').ValidationError;
 
+var UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 describe('manipulation', function () {
 
   before(function (done) {
@@ -471,6 +473,42 @@ describe('manipulation', function () {
 
         done();
     });
+
+    it('should generate a new id when "defaultFn" is "guid"', function (done) {
+      var CustomModel = db.define('CustomModel', {
+        guid: { type: String, defaultFn: 'guid' }
+      });
+
+      var inst = CustomModel.create(function (err, m) {
+        m.guid.should.match(UUID_REGEXP);
+        done();
+      });
+    });
+
+    it('should generate a new id when "defaultfn" is "uuid"', function (done) {
+      var CustomModel = db.define('custommodel', {
+        guid: { type: String, defaultFn: 'uuid' }
+      });
+
+      var inst = CustomModel.create(function (err, m) {
+        m.guid.should.match(UUID_REGEXP);
+        done();
+      });
+    });
+
+    it('should generate current time when "defaultFn" is "now"', function (done) {
+      var CustomModel = db.define('CustomModel', {
+        now: { type: Date, defaultFn: 'now' }
+      });
+
+      var now = Date.now();
+      var inst = CustomModel.create(function (err, m) {
+        m.now.should.be.instanceOf(Date);
+        m.now.should.be.within(now, now + 200);
+        done();
+      });
+    });
+
     // it('should work when constructor called as function', function() {
     //     var p = Person({name: 'John Resig'});
     //     p.should.be.an.instanceOf(Person);
