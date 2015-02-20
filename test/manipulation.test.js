@@ -17,7 +17,7 @@ describe('manipulation', function () {
       married: Boolean,
       age: {type: Number, index: true},
       dob: Date,
-      createdAt: {type: Number, default: Date.now}
+      createdAt: {type: Date, default: Date}
     }, { forceId: true });
 
     db.automigrate(done);
@@ -208,11 +208,13 @@ describe('manipulation', function () {
 
           Person.findById(created.id, function(err, found) {
             if (err) return done(err);
-            found.toObject().should.have.properties({
+            var result = found.toObject();
+            result.should.have.properties({
               id: created.id,
-              name: 'a-name',
-              gender: undefined
+              name: 'a-name'
             });
+            // The gender can be null from a RDB
+            should.equal(result.gender, null);
             done();
           });
         });
