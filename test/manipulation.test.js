@@ -15,7 +15,7 @@ describe('manipulation', function () {
       married: Boolean,
       age: {type: Number, index: true},
       dob: Date,
-      createdAt: {type: Number, default: Date.now}
+      createdAt: {type: Date, default: Date}
     }, { forceId: true });
 
     db.automigrate(done);
