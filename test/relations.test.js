@@ -756,10 +756,13 @@ describe('relations', function () {
 
     it('should create record on scope', function (done) {
       Category.create(function (err, c) {
+        should.not.exists(err);
         c.jobs.create({ type: 'book' }, function(err, p) {
+          should.not.exists(err);
           p.categoryId.should.equal(c.id);
           p.type.should.equal('book');
           c.jobs.create({ type: 'widget' }, function(err, p) {
+            should.not.exists(err);
             p.categoryId.should.equal(c.id);
             p.type.should.equal('widget');
             done();
@@ -770,7 +773,9 @@ describe('relations', function () {
 
     it('should find records on scope', function (done) {
       Category.findOne(function (err, c) {
+        should.not.exists(err);
         c.jobs(function(err, jobs) {
+          should.not.exists(err);
           jobs.should.have.length(2);
           done();
         });
@@ -779,7 +784,9 @@ describe('relations', function () {
 
     it('should find record on scope - filtered', function (done) {
       Category.findOne(function (err, c) {
+        should.not.exists(err);
         c.jobs({ where: { type: 'book' } }, function(err, jobs) {
+          should.not.exists(err);
           jobs.should.have.length(1);
           jobs[0].type.should.equal('book');
           done();
@@ -798,6 +805,7 @@ describe('relations', function () {
 
     it('should create record on scope - properties', function (done) {
       Category.findOne(function (err, c) {
+        should.not.exists(err);
         c.jobType = 'tool'; // temporary
         c.jobs.create(function(err, p) {
           p.categoryId.should.equal(c.id);
@@ -809,7 +817,9 @@ describe('relations', function () {
 
     it('should find records on scope', function (done) {
       Category.findOne(function (err, c) {
+        should.not.exists(err);
         c.jobs(function(err, jobs) {
+          should.not.exists(err);
           jobs.should.have.length(3);
           done();
         });
@@ -818,8 +828,10 @@ describe('relations', function () {
 
     it('should find record on scope - scoped', function (done) {
       Category.findOne(function (err, c) {
+        should.not.exists(err);
         c.jobType = 'book'; // temporary, for scoping
         c.jobs(function(err, jobs) {
+          should.not.exists(err);
           jobs.should.have.length(1);
           jobs[0].type.should.equal('book');
           done();
@@ -829,8 +841,10 @@ describe('relations', function () {
 
     it('should find record on scope - scoped', function (done) {
       Category.findOne(function (err, c) {
+        should.not.exists(err);
         c.jobType = 'tool'; // temporary, for scoping
         c.jobs(function(err, jobs) {
+          should.not.exists(err);
           jobs.should.have.length(1);
           jobs[0].type.should.equal('tool');
           done();
@@ -840,8 +854,10 @@ describe('relations', function () {
 
     it('should find count of records on scope - scoped', function (done) {
       Category.findOne(function (err, c) {
+        should.not.exists(err);
         c.jobType = 'tool'; // temporary, for scoping
         c.jobs.count(function(err, count) {
+          should.not.exists(err);
           count.should.equal(1);
           done();
         });
@@ -850,16 +866,19 @@ describe('relations', function () {
 
     it('should delete records on scope - scoped', function (done) {
       Category.findOne(function (err, c) {
+        should.not.exists(err);
         c.jobType = 'tool'; // temporary, for scoping
         c.jobs.destroyAll(function(err, result) {
-          done();
+          done(err);
         });
       });
     });
 
     it('should find record on scope - verify', function (done) {
       Category.findOne(function (err, c) {
+        should.not.exists(err);
         c.jobs(function(err, jobs) {
+          should.not.exists(err);
           jobs.should.have.length(2);
           done();
         });
@@ -893,6 +912,7 @@ describe('relations', function () {
 
     it('should create polymorphic relation - author', function (done) {
       Author.create({name: 'Author 1' }, function (err, author) {
+        should.not.exists(err);
         author.avatar.create({ name: 'Avatar' }, function (err, p) {
           should.not.exist(err);
           should.exist(p);
@@ -905,6 +925,7 @@ describe('relations', function () {
 
     it('should create polymorphic relation - reader', function (done) {
       Reader.create({name: 'Reader 1' }, function (err, reader) {
+        should.not.exists(err);
         reader.mugshot.create({ name: 'Mugshot' }, function (err, p) {
           should.not.exist(err);
           should.exist(p);
@@ -917,6 +938,7 @@ describe('relations', function () {
 
     it('should find polymorphic relation - author', function (done) {
       Author.findOne(function (err, author) {
+        should.not.exists(err);
         author.avatar(function (err, p) {
           should.not.exist(err);
 
@@ -933,6 +955,7 @@ describe('relations', function () {
 
     it('should find polymorphic relation - reader', function (done) {
       Reader.findOne(function (err, reader) {
+        should.not.exists(err);
         reader.mugshot(function (err, p) {
           should.not.exist(err);
           p.name.should.equal('Mugshot');
@@ -945,6 +968,7 @@ describe('relations', function () {
 
     it('should find inverse polymorphic relation - author', function (done) {
       Picture.findOne({ where: { name: 'Avatar' } }, function (err, p) {
+        should.not.exists(err);
         p.imageable(function (err, imageable) {
           should.not.exist(err);
           imageable.should.be.instanceof(Author);
@@ -956,6 +980,7 @@ describe('relations', function () {
 
     it('should find inverse polymorphic relation - reader', function (done) {
       Picture.findOne({ where: { name: 'Mugshot' } }, function (err, p) {
+        should.not.exists(err);
         p.imageable(function (err, imageable) {
           should.not.exist(err);
           imageable.should.be.instanceof(Reader);
@@ -1017,6 +1042,7 @@ describe('relations', function () {
 
     it('should create polymorphic relation - author', function (done) {
       Author.create({name: 'Author 1' }, function (err, author) {
+        should.not.exists(err);
         author.avatar.create({ name: 'Avatar' }, function (err, p) {
           should.not.exist(err);
           should.exist(p);
@@ -1029,6 +1055,7 @@ describe('relations', function () {
 
     it('should create polymorphic relation - reader', function (done) {
       Reader.create({name: 'Reader 1' }, function (err, reader) {
+        should.not.exists(err);
         reader.mugshot.create({ name: 'Mugshot' }, function (err, p) {
           should.not.exist(err);
           should.exist(p);
@@ -1041,6 +1068,7 @@ describe('relations', function () {
 
     it('should find polymorphic relation - author', function (done) {
       Author.findOne(function (err, author) {
+        should.not.exists(err);
         author.avatar(function (err, p) {
           should.not.exist(err);
 
@@ -1057,6 +1085,7 @@ describe('relations', function () {
 
     it('should find polymorphic relation - reader', function (done) {
       Reader.findOne(function (err, reader) {
+        should.not.exists(err);
         reader.mugshot(function (err, p) {
           should.not.exist(err);
           p.name.should.equal('Mugshot');
@@ -1069,6 +1098,7 @@ describe('relations', function () {
 
     it('should find inverse polymorphic relation - author', function (done) {
       Picture.findOne({ where: { name: 'Avatar' } }, function (err, p) {
+        should.not.exists(err);
         p.owner(function (err, owner) {
           should.not.exist(err);
           owner.should.be.instanceof(Author);
@@ -1080,6 +1110,7 @@ describe('relations', function () {
 
     it('should find inverse polymorphic relation - reader', function (done) {
       Picture.findOne({ where: { name: 'Mugshot' } }, function (err, p) {
+        should.not.exists(err);
         p.owner(function (err, owner) {
           should.not.exist(err);
           owner.should.be.instanceof(Reader);
@@ -1150,6 +1181,7 @@ describe('relations', function () {
 
     it('should create polymorphic relation - author', function (done) {
       Author.create({ name: 'Author 1' }, function (err, author) {
+        should.not.exists(err);
         author.pictures.create({ name: 'Author Pic' }, function (err, p) {
           should.not.exist(err);
           should.exist(p);
@@ -1162,6 +1194,7 @@ describe('relations', function () {
 
     it('should create polymorphic relation - reader', function (done) {
       Reader.create({ name: 'Reader 1' }, function (err, reader) {
+        should.not.exists(err);
         reader.pictures.create({ name: 'Reader Pic' }, function (err, p) {
           should.not.exist(err);
           should.exist(p);
@@ -1174,6 +1207,7 @@ describe('relations', function () {
 
     it('should find polymorphic items - author', function (done) {
       Author.findOne(function (err, author) {
+        should.not.exists(err);
         author.pictures(function (err, pics) {
           should.not.exist(err);
 
@@ -1189,6 +1223,7 @@ describe('relations', function () {
 
     it('should find polymorphic items - reader', function (done) {
       Reader.findOne(function (err, reader) {
+        should.not.exists(err);
         reader.pictures(function (err, pics) {
           should.not.exist(err);
           pics.should.have.length(1);
@@ -1238,6 +1273,7 @@ describe('relations', function () {
 
     it('should assign a polymorphic relation', function(done) {
       Author.create({ name: 'Author 2' }, function(err, author) {
+        should.not.exists(err);
         var p = new Picture({ name: 'Sample' });
         p.imageable(author); // assign
         p.imageableId.should.eql(author.id);
@@ -1248,6 +1284,7 @@ describe('relations', function () {
 
     it('should find polymorphic items - author', function (done) {
       Author.findOne({ where: { name: 'Author 2' } }, function (err, author) {
+        should.not.exists(err);
         author.pictures(function (err, pics) {
           should.not.exist(err);
           pics.should.have.length(1);
