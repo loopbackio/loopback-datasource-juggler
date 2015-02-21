@@ -7,6 +7,8 @@ module.exports = function(dataSource, should) {
     var TestModel, existingInstance;
     var migrated = false, lastId;
 
+    var undefinedValue = undefined;
+
     beforeEach(function setupDatabase(done) {
       observedContexts = "hook not called";
       expectedError = new Error('test error');
@@ -33,11 +35,16 @@ module.exports = function(dataSource, should) {
     beforeEach(function createTestData(done) {
       TestModel.create({ name: 'first' }, function(err, instance) {
         if (err) return done(err);
-        existingInstance = instance;
 
-        TestModel.create({ name: 'second' }, function(err) {
-          if (err) return done(err);
-          done();
+        // Look it up from DB so that default values are retrieved
+        TestModel.findById(instance.id, function(err, instance) {
+          existingInstance = instance;
+          undefinedValue = existingInstance.extra;
+
+          TestModel.create({ name: 'second' }, function(err) {
+            if (err) return done(err);
+            done();
+          });
         });
       });
     });
@@ -145,15 +152,19 @@ module.exports = function(dataSource, should) {
         TestModel.observe('before save', pushContextAndNext());
 
         TestModel.create(
-          [{ name: 'one' }, { name: 'two' }],
+          [{ name: '1' }, { name: '2' }],
           function(err, list) {
             if (err) return done(err);
+            // Creation of multiple instances is executed in parallel
+            observedContexts.sort(function(c1, c2) {
+              return c1.instance.name - c2.instance.name;
+            });
             observedContexts.should.eql([
               aTestModelCtx({
-                instance: { id: list[0].id, name: 'one', extra: undefined }
+                instance: { id: list[0].id, name: '1', extra: undefined }
               }),
               aTestModelCtx({
-                instance: { id: list[1].id, name: 'two', extra: undefined  }
+                instance: { id: list[1].id, name: '2', extra: undefined  }
                }),
             ]);
             done();
@@ -211,15 +222,19 @@ module.exports = function(dataSource, should) {
         TestModel.observe('after save', pushContextAndNext());
 
         TestModel.create(
-          [{ name: 'one' }, { name: 'two' }],
+          [{ name: '1' }, { name: '2' }],
           function(err, list) {
             if (err) return done(err);
+            // Creation of multiple instances is executed in parallel
+            observedContexts.sort(function(c1, c2) {
+              return c1.instance.name - c2.instance.name;
+            });
             observedContexts.should.eql([
               aTestModelCtx({
-                instance: { id: list[0].id, name: 'one', extra: undefined }
+                instance: { id: list[0].id, name: '1', extra: undefined }
               }),
               aTestModelCtx({
-                instance: { id: list[1].id, name: 'two', extra: undefined }
+                instance: { id: list[1].id, name: '2', extra: undefined }
               }),
             ]);
             done();
@@ -937,7 +952,8 @@ module.exports = function(dataSource, should) {
           [err].should.eql([expectedError]);
           TestModel.findById(existingInstance.id, function(err, inst) {
             if (err) return done(err);
-            (inst ? inst.toObject() : 'null').should.eql(existingInstance.toObject());
+            (inst ? inst.toObject() : 'null').should.
+              eql(existingInstance.toObject());
             done();
           });
         });
@@ -1039,7 +1055,8 @@ module.exports = function(dataSource, should) {
           [err].should.eql([expectedError]);
           TestModel.findById(existingInstance.id, function(err, inst) {
             if (err) return done(err);
-            (inst ? inst.toObject() : 'null').should.eql(existingInstance.toObject());
+            (inst ? inst.toObject() : 'null').should.eql(
+              existingInstance.toObject());
             done();
           });
         });
@@ -1257,6 +1274,10 @@ module.exports = function(dataSource, should) {
 
   function deepCloneToObject(obj) {
     return traverse(obj).map(function(x) {
+      if (x === undefined) {
+        // RDBMSs return null
+        return null;
+      }
       if (x && x.toObject)
         return x.toObject(true);
       if (x && typeof x === 'function' && x.modelName)
