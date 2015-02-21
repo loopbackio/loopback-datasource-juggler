@@ -1,4 +1,30 @@
-2015-02-12, Version 2.17.0
+2015-02-21, Version 2.18.0
+==========================
+
+ * Fix the idType so that it works with both MongoDB and RDBs (Raymond Feng)
+
+ * Tidy up tests so that they will work with RDBs (Raymond Feng)
+
+ * Fix JS style issues (Raymond Feng)
+
+ * Add a new property option `defaultFn` (Miroslav Bajtoš)
+
+ * Fix the null/undefined check (Raymond Feng)
+
+ * Fix createdAt type so that it won't overflow SQL server int (Raymond Feng)
+
+ * ModelBaseClass: promise mode for notifyObserversOf (Miroslav Bajtoš)
+
+ * ModelBaseClass: support promise-based observers (Miroslav Bajtoš)
+
+ * use lodash to update the findBelongsTo which now returns an array of matches (Bryan Clark)
+
+ * Add $now as shortcut default value for date property (Pradnya Baviskar)
+
+ * Fix `deleteById(id)` and other test failures (Miroslav Bajtoš)
+
+
+2015-02-11, Version 2.17.0
 ==========================
 
  * Add an optional `options` argument to all CRUD methods (Raymond Feng)
