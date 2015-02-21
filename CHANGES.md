@@ -1,4 +1,14 @@
-2015-02-21, Version 2.18.0
+2015-02-21, Version 2.18.1
+==========================
+
+ * Make sure models are migrated to avoid conflicts (Raymond Feng)
+
+ * Add err checks (Raymond Feng)
+
+ * Fix findByIds test cases (Raymond Feng)
+
+
+2015-02-20, Version 2.18.0
 ==========================
 
  * Fix the idType so that it works with both MongoDB and RDBs (Raymond Feng)
