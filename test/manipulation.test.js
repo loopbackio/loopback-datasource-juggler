@@ -27,11 +27,11 @@ describe('manipulation', function () {
   // A simplified implementation of LoopBack's User model
   // to reproduce problems related to properties with dynamic setters
   // For the purpose of the tests, we use a counter instead of a hash fn.
-  var StubUser, stubPasswordCounter;
+  var StubUser;
   before(function setupStubUserModel(done) {
     StubUser = db.createModel('StubUser', { password: String }, { forceId: true });
     StubUser.setter.password = function(plain) {
-      this.$password = plain + '-' + (++stubPasswordCounter);
+      this.$password = plain + '-' + plain.toUpperCase();
     };
     db.automigrate('StubUser', done);
   });
@@ -288,10 +288,10 @@ describe('manipulation', function () {
         created.password = 'bar';
         created.save(function(err, saved) {
           if (err) return done(err);
-          saved.password.should.equal('bar-2');
+          saved.password.should.equal('bar-BAR');
           StubUser.findById(created.id, function(err, found) {
             if (err) return done(err);
-            found.password.should.equal('bar-2');
+            found.password.should.equal('bar-BAR');
             done();
           });
         });
@@ -350,12 +350,12 @@ describe('manipulation', function () {
 
   describe('updateOrCreate', function() {
     it('should preserve properties with dynamic setters on create', function(done) {
-      StubUser.updateOrCreate({ id: 'newid', password: 'foo' }, function(err, created) {
+      StubUser.updateOrCreate({ password: 'foo' }, function(err, created) {
         if (err) return done(err);
-        created.password.should.equal('foo-1');
+        created.password.should.equal('foo-FOO');
         StubUser.findById(created.id, function(err, found) {
           if (err) return done(err);
-          found.password.should.equal('foo-1');
+          found.password.should.equal('foo-FOO');
           done();
         });
       });
@@ -367,10 +367,10 @@ describe('manipulation', function () {
         var data = { id: created.id, password: 'bar' };
         StubUser.updateOrCreate(data, function(err, updated) {
           if (err) return done(err);
-          updated.password.should.equal('bar-2');
+          updated.password.should.equal('bar-BAR');
           StubUser.findById(created.id, function(err, found) {
             if (err) return done(err);
-            found.password.should.equal('bar-2');
+            found.password.should.equal('bar-BAR');
             done();
           });
         });
@@ -392,11 +392,12 @@ describe('manipulation', function () {
             { id: instance.id, name: 'updated name' },
             function(err, updated) {
               if (err) return done(err);
-              updated.toObject().should.have.properties({
+              var result = updated.toObject();
+              result.should.have.properties({
                 id: instance.id,
-                name: 'updated name',
-                gender: undefined
+                name: 'updated name'
               });
+              should.equal(result.gender, null);
               done();
             });
         });
