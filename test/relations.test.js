@@ -1007,7 +1007,7 @@ describe('relations', function () {
       Picture.belongsTo('owner', {
         idName: 'username',
         polymorphic: {
-          idType: String,
+          idType: Author.definition.properties.username.type,
           foreignKey: 'oid',
           discriminator: 'type'
         }
