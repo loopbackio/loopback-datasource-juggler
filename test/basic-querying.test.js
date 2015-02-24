@@ -654,6 +654,24 @@ describe('basic-querying', function () {
       });
     });
 
+    it('should ignore undefined values of data', function (done) {
+      User.update({name: 'John Lennon'}, {name: undefined}, function (err) {
+        should.not.exist(err);
+        User.find({where: {name: 'John Lennon'}}, function (err, data) {
+          should.not.exist(err);
+          data.length.should.equal(1);
+          done();
+        });
+      });
+    });
+
+    it('should coerce data', function (done) {
+      User.update({name: 'John Lennon'}, {birthday: 'invalidate'}, function (err) {
+        should.exist(err);
+        done();
+      });
+    });
+
   });
 
 });
