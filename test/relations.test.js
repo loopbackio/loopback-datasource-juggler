@@ -1330,7 +1330,24 @@ describe('relations', function () {
         should.exist(f);
         f.followeeId.should.eql(user2.id);
         f.followerId.should.eql(user.id);
-        done();
+        user.following(function (err, following) {
+          // following [ { id: 2 } ]
+          console.log('following', following);
+        });
+        user2.followers(function (err, followers) {
+          // followers [ null ]
+          console.log('followers', followers);
+        });
+        user.following.findById(user2.id, function (err, u2) {
+          // errors here
+          should.not.exist(err);
+          should.exist(u2);
+          user2.followers.findById(user.id, function (err, u1) {
+            should.not.exist(err);
+            should.exist(u1);
+            done();
+          });
+        });
       });
     });
 
