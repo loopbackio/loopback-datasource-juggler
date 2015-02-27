@@ -16,6 +16,9 @@
     "url": "https://github.com/strongloop/loopback-datasource-juggler"
   },
   "main": "index.js",
+  "browser": {
+    "depd": "./lib/browser.depd.js"
+  },
   "scripts": {
     "test": "make test"
   },
@@ -30,6 +33,7 @@
   "dependencies": {
     "async": "^0.9.0",
     "debug": "^2.1.1",
+    "depd": "^1.0.0",
     "inflection": "^1.6.0",
     "lodash": "~3.0.1",
     "loopback-connector": "1.x",

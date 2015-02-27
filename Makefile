@@ -5,7 +5,7 @@ OPTS = --growl
 TESTS = test/*.test.js
 
 test:
-	$(TESTER) $(OPTS) $(TESTS)
+	NO_DEPRECATION=loopback-datasource-juggler $(TESTER) $(OPTS) $(TESTS)
 test-verbose:
 	$(TESTER) $(OPTS) --reporter spec $(TESTS)
 testing:
