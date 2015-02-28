@@ -2066,7 +2066,7 @@ describe('relations', function () {
     var Article, TagName, ArticleTag;
     it('can be declared', function (done) {
       Article = db.define('Article', {title: String});
-      TagName = db.define('TagName', {name: String});
+      TagName = db.define('TagName', {name: String, flag: String});
       Article.hasAndBelongsToMany('tagNames');
       ArticleTag = db.models.ArticleTagName;
       db.automigrate(function () {
@@ -2138,6 +2138,58 @@ describe('relations', function () {
 
     it('should set targetClass on scope property', function() {
       should.equal(Article.prototype.tagNames._targetClass, 'TagName');
+    });
+
+    it('should apply inclusion fields to the target model', function(done) {
+      Article.create({title: 'a1'}, function (e, article) {
+        should.not.exist(e);
+        article.tagNames.create({name: 't1', flag: '1'}, function(e, t) {
+          should.not.exist(e);
+          Article.find({
+              where: {id: article.id},
+              include: {relation: 'tagNames', scope: {fields: ['name']}}},
+            function(e, articles) {
+              should.not.exist(e);
+              articles.should.have.property('length', 1);
+              var a = articles[0].toJSON();
+              a.should.have.property('title', 'a1');
+              a.should.have.property('tagNames');
+              a.tagNames.should.have.property('length', 1);
+              var n = a.tagNames[0];
+              n.should.have.property('name', 't1');
+              n.should.have.property('flag', undefined);
+              n.id.should.eql(t.id);
+              done();
+            });
+        });
+      });
+    });
+
+    it('should apply inclusion where to the target model', function(done) {
+      Article.create({title: 'a2'}, function (e, article) {
+        should.not.exist(e);
+        article.tagNames.create({name: 't2', flag: '2'}, function(e, t2) {
+          should.not.exist(e);
+          article.tagNames.create({name: 't3', flag: '3'}, function(e, t3) {
+            Article.find({
+                where: {id: article.id},
+                include: {relation: 'tagNames', scope: {where: {flag: '2'}}}},
+              function(e, articles) {
+                should.not.exist(e);
+                articles.should.have.property('length', 1);
+                var a = articles[0].toJSON();
+                a.should.have.property('title', 'a2');
+                a.should.have.property('tagNames');
+                a.tagNames.should.have.property('length', 1);
+                var n = a.tagNames[0];
+                n.should.have.property('name', 't2');
+                n.should.have.property('flag', '2');
+                n.id.should.eql(t2.id);
+                done();
+              });
+          });
+        });
+      });
     });
   });
 
