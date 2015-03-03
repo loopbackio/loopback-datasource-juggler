@@ -671,6 +671,29 @@ describe('Load models with base', function () {
     Customer.definition.properties.name.should.have.property('type', String);
   });
 
+  it('should revert properties from base model', function() {
+    var ds = new ModelBuilder();
+
+    var User = ds.define('User', {username: String, email: String});
+
+    var Customer = ds.define('Customer',
+      {name: String, username: null, email: false},
+      {base: 'User'});
+
+    Customer.definition.properties.should.have.property('name');
+    // username/email are now shielded
+    Customer.definition.properties.should.not.have.property('username');
+    Customer.definition.properties.should.not.have.property('email');
+    var c = new Customer({name: 'John'});
+    c.should.have.property('username', undefined);
+    c.should.have.property('email', undefined);
+    c.should.have.property('name', 'John');
+    var u = new User({username: 'X', email: 'x@y.com'});
+    u.should.not.have.property('name');
+    u.should.have.property('username', 'X');
+    u.should.have.property('email', 'x@y.com');
+  });
+
 
   it('should set up base class via parent arg', function () {
     var ds = new ModelBuilder();
