@@ -732,21 +732,21 @@ module.exports = function(dataSource, should) {
       it('triggers `before save` hook on update', function(done) {
         TestModel.observe('before save', pushContextAndNext());
 
-        var optimized = typeof dataSource.connector.findOrCreate === 'function';
-
-        var expected = {};
-        expected.data = { id: existingInstance.id, name: 'updated name' };
-        if (optimized) {
-            expected.where = { id: existingInstance.id };
-        } else {
-            expected.instance = existingInstance;
-        }
-
         TestModel.updateOrCreate(
           { id: existingInstance.id, name: 'updated name' },
           function(err, instance) {
             if (err) return done(err);
-            observedContexts.should.eql(aTestModelCtx(expected));
+            if (dataSource.connector.updateOrCreate) {
+                observedContexts.should.eql(aTestModelCtx({
+                  where: { id: existingInstance.id },
+                  data: { id: existingInstance.id, name: 'updated name' }
+                }));
+            } else {
+                observedContexts.should.eql(aTestModelCtx({
+                  instance: existingInstance,
+                  data: { id: existingInstance.id, name: 'updated name' }
+                }));
+            }
             done();
           });
       });
