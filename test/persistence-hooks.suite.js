@@ -539,7 +539,7 @@ module.exports = function(dataSource, should) {
         existingInstance.updateAttributes({ name: 'changed' }, function(err) {
           if (err) return done(err);
           observedContexts.should.eql(aTestModelCtx({
-            where: { id: existingInstance.id },
+            instance: existingInstance,
             data: { name: 'changed' }
           }));
           done();
@@ -732,14 +732,21 @@ module.exports = function(dataSource, should) {
       it('triggers `before save` hook on update', function(done) {
         TestModel.observe('before save', pushContextAndNext());
 
+        var optimized = typeof dataSource.connector.findOrCreate === 'function';
+
+        var expected = {};
+        expected.data = { id: existingInstance.id, name: 'updated name' };
+        if (optimized) {
+            expected.where = { id: existingInstance.id };
+        } else {
+            expected.instance = existingInstance;
+        }
+
         TestModel.updateOrCreate(
           { id: existingInstance.id, name: 'updated name' },
           function(err, instance) {
             if (err) return done(err);
-            observedContexts.should.eql(aTestModelCtx({
-              where: { id: existingInstance.id },
-              data: { id: existingInstance.id, name: 'updated name' }
-            }));
+            observedContexts.should.eql(aTestModelCtx(expected));
             done();
           });
       });
@@ -1235,10 +1242,10 @@ module.exports = function(dataSource, should) {
 
     function invalidateTestModel() {
       return function(context, next) {
-        if (context.instance) {
-          context.instance.name = '';
-        } else {
+        if (context.data) {
           context.data.name = '';
+        } else if (context.instance) {
+          context.instance.name = '';
         }
         next();
       };
