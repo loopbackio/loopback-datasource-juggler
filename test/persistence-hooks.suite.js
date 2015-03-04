@@ -1005,7 +1005,8 @@ module.exports = function(dataSource, should) {
         existingInstance.delete(function(err) {
           if (err) return done(err);
           observedContexts.should.eql(aTestModelCtx({
-             query: { where: { id: existingInstance.id } }
+             query: { where: { id: existingInstance.id } },
+             instance: existingInstance
           }));
           done();
         });
@@ -1033,7 +1034,8 @@ module.exports = function(dataSource, should) {
         existingInstance.delete(function(err) {
           if (err) return done(err);
           observedContexts.should.eql(aTestModelCtx({
-             where: { id: existingInstance.id }
+             where: { id: existingInstance.id },
+             instance: existingInstance
           }));
           done();
         });
@@ -1075,7 +1077,8 @@ module.exports = function(dataSource, should) {
         existingInstance.delete(function(err) {
           if (err) return done(err);
           observedContexts.should.eql(aTestModelCtx({
-            where: { id: existingInstance.id }
+            where: { id: existingInstance.id },
+            instance: existingInstance
           }));
           done();
         });
