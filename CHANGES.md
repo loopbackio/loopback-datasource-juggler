@@ -1,3 +1,9 @@
+2015-03-03, Version 2.19.1
+==========================
+
+ * Make sure inclusion filter is applied to the target model (Raymond Feng)
+
+
 2015-03-02, Version 2.19.0
 ==========================
 
