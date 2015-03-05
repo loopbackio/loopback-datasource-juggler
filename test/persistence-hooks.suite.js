@@ -535,13 +535,15 @@ module.exports = function(dataSource, should) {
       it('triggers `before save` hook', function(done) {
         TestModel.observe('before save', pushContextAndNext());
 
-        existingInstance.name = 'changed';
+        var currentInstance = deepCloneToObject(existingInstance);
+
         existingInstance.updateAttributes({ name: 'changed' }, function(err) {
           if (err) return done(err);
+          existingInstance.name.should.equal('changed');
           observedContexts.should.eql(aTestModelCtx({
             where: { id: existingInstance.id },
             data: { name: 'changed' },
-            currentInstance: existingInstance
+            currentInstance: currentInstance
           }));
           done();
         });
