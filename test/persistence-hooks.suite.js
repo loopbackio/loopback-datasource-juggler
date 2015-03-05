@@ -1095,6 +1095,31 @@ module.exports = function(dataSource, should) {
         });
       });
 
+      it('propagates hookState from `before delete` to `after delete`', function(done) {
+        TestModel.observe('before delete', pushContextAndNext(function(ctx) {
+          ctx.hookState.foo = 'bar';
+        }));
+
+        TestModel.observe('after delete', pushContextAndNext(function(ctx) {
+          ctx.hookState.foo = ctx.hookState.foo.toUpperCase();
+        }));
+
+        existingInstance.delete(function(err) {
+          if (err) return done(err);
+          observedContexts.should.eql([
+            aTestModelCtx({ 
+              hookState: { foo: 'bar', test: true },
+              where: { id: '1' }
+            }),
+            aTestModelCtx({ 
+              hookState: { foo: 'BAR', test: true },
+              where: { id: '1' }
+            })
+          ]);
+          done();
+        });
+      });
+
       it('triggers hooks only once', function(done) {
         TestModel.observe('access', pushNameAndNext('access'));
         TestModel.observe('after delete', pushNameAndNext('after delete'));
@@ -1202,9 +1227,14 @@ module.exports = function(dataSource, should) {
       });
     });
 
-    function pushContextAndNext() {
+    function pushContextAndNext(fn) {
       return function(context, next) {
+        if (typeof fn === 'function') {
+          fn(context);
+        }
+
         context = deepCloneToObject(context);
+        context.hookState.test = true;
 
         if (typeof observedContexts === 'string') {
           observedContexts = context;
@@ -1246,6 +1276,9 @@ module.exports = function(dataSource, should) {
 
     function aTestModelCtx(ctx) {
       ctx.Model = TestModel;
+      if (!ctx.hookState) {
+        ctx.hookState = { test: true };
+      }
       return deepCloneToObject(ctx);
     }
 
