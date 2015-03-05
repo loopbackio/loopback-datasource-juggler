@@ -539,7 +539,7 @@ module.exports = function(dataSource, should) {
         existingInstance.updateAttributes({ name: 'changed' }, function(err) {
           if (err) return done(err);
           observedContexts.should.eql(aTestModelCtx({
-            where: { id: existingInstance.id },
+            instance: existingInstance,
             data: { name: 'changed' }
           }));
           done();
@@ -736,10 +736,17 @@ module.exports = function(dataSource, should) {
           { id: existingInstance.id, name: 'updated name' },
           function(err, instance) {
             if (err) return done(err);
-            observedContexts.should.eql(aTestModelCtx({
-              where: { id: existingInstance.id },
-              data: { id: existingInstance.id, name: 'updated name' }
-            }));
+            if (dataSource.connector.updateOrCreate) {
+                observedContexts.should.eql(aTestModelCtx({
+                  where: { id: existingInstance.id },
+                  data: { id: existingInstance.id, name: 'updated name' }
+                }));
+            } else {
+                observedContexts.should.eql(aTestModelCtx({
+                  instance: existingInstance,
+                  data: { id: existingInstance.id, name: 'updated name' }
+                }));
+            }
             done();
           });
       });
@@ -998,7 +1005,8 @@ module.exports = function(dataSource, should) {
         existingInstance.delete(function(err) {
           if (err) return done(err);
           observedContexts.should.eql(aTestModelCtx({
-             query: { where: { id: existingInstance.id } }
+             query: { where: { id: existingInstance.id } },
+             instance: existingInstance
           }));
           done();
         });
@@ -1026,7 +1034,8 @@ module.exports = function(dataSource, should) {
         existingInstance.delete(function(err) {
           if (err) return done(err);
           observedContexts.should.eql(aTestModelCtx({
-             where: { id: existingInstance.id }
+             where: { id: existingInstance.id },
+             instance: existingInstance
           }));
           done();
         });
@@ -1068,7 +1077,8 @@ module.exports = function(dataSource, should) {
         existingInstance.delete(function(err) {
           if (err) return done(err);
           observedContexts.should.eql(aTestModelCtx({
-            where: { id: existingInstance.id }
+            where: { id: existingInstance.id },
+            instance: existingInstance
           }));
           done();
         });
@@ -1235,10 +1245,10 @@ module.exports = function(dataSource, should) {
 
     function invalidateTestModel() {
       return function(context, next) {
-        if (context.instance) {
-          context.instance.name = '';
-        } else {
+        if (context.data) {
           context.data.name = '';
+        } else if (context.instance) {
+          context.instance.name = '';
         }
         next();
       };
