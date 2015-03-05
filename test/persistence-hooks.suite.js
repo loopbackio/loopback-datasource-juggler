@@ -1095,7 +1095,7 @@ module.exports = function(dataSource, should) {
         });
       });
 
-      it('applies propagates hookState from `before delete` to `after delete` hook', function(done) {
+      it('propagates hookState from `before delete` to `after delete`', function(done) {
         TestModel.observe('before delete', pushContextAndNext(function(ctx) {
           ctx.hookState.foo = 'bar';
         }));
