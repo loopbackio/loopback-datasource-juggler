@@ -1,3 +1,11 @@
+2015-03-05, Version 2.19.2
+==========================
+
+ * Improved and corrected API docs (crandmck)
+
+ * Fix problems in annotations that prvented validateAsync and validate functions from appearing in API docs. (crandmck)
+
+
 2015-03-03, Version 2.19.1
 ==========================
 
