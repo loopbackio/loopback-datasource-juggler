@@ -9,6 +9,7 @@ describe('Datasource-specific field types for foreign keys', function () {
     ds = new DataSource('memory');
     Item = ds.define('Item', {
       "myProp": {
+        "id": true,
         "type": "string",
         "memory": {
           "dataType": "string"
