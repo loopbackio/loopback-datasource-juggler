@@ -535,12 +535,15 @@ module.exports = function(dataSource, should) {
       it('triggers `before save` hook', function(done) {
         TestModel.observe('before save', pushContextAndNext());
 
-        existingInstance.name = 'changed';
+        var currentInstance = deepCloneToObject(existingInstance);
+
         existingInstance.updateAttributes({ name: 'changed' }, function(err) {
           if (err) return done(err);
+          existingInstance.name.should.equal('changed');
           observedContexts.should.eql(aTestModelCtx({
             where: { id: existingInstance.id },
-            data: { name: 'changed' }
+            data: { name: 'changed' },
+            currentInstance: currentInstance
           }));
           done();
         });
@@ -736,10 +739,24 @@ module.exports = function(dataSource, should) {
           { id: existingInstance.id, name: 'updated name' },
           function(err, instance) {
             if (err) return done(err);
-            observedContexts.should.eql(aTestModelCtx({
-              where: { id: existingInstance.id },
-              data: { id: existingInstance.id, name: 'updated name' }
-            }));
+            if (dataSource.connector.updateOrCreate) {
+              // Atomic implementations of `updateOrCreate` cannot
+              // provide full instance as that depends on whether
+              // UPDATE or CREATE will be triggered
+              observedContexts.should.eql(aTestModelCtx({
+                where: { id: existingInstance.id },
+                data: { id: existingInstance.id, name: 'updated name' }
+              }));
+            } else {
+              // currentInstance is set, because a non-atomic `updateOrCreate`
+              // will use `prototype.updateAttributes` internally, which
+              // exposes this to the context
+              observedContexts.should.eql(aTestModelCtx({
+                where: { id: existingInstance.id },
+                data: { id: existingInstance.id, name: 'updated name' },
+                currentInstance: existingInstance
+              }));
+            }
             done();
           });
       });
@@ -1026,7 +1043,8 @@ module.exports = function(dataSource, should) {
         existingInstance.delete(function(err) {
           if (err) return done(err);
           observedContexts.should.eql(aTestModelCtx({
-             where: { id: existingInstance.id }
+           where: { id: existingInstance.id },
+           instance: existingInstance
           }));
           done();
         });
@@ -1068,7 +1086,8 @@ module.exports = function(dataSource, should) {
         existingInstance.delete(function(err) {
           if (err) return done(err);
           observedContexts.should.eql(aTestModelCtx({
-            where: { id: existingInstance.id }
+            where: { id: existingInstance.id },
+            instance: existingInstance
           }));
           done();
         });
@@ -1109,11 +1128,13 @@ module.exports = function(dataSource, should) {
           observedContexts.should.eql([
             aTestModelCtx({ 
               hookState: { foo: 'bar', test: true },
-              where: { id: '1' }
+              where: { id: '1' },
+              instance: existingInstance
             }),
             aTestModelCtx({ 
               hookState: { foo: 'BAR', test: true },
-              where: { id: '1' }
+              where: { id: '1' },
+              instance: existingInstance
             })
           ]);
           done();
