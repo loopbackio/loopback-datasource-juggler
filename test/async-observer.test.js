@@ -79,6 +79,44 @@ describe('async observer', function() {
     });
   });
 
+  it('can remove observers', function(done) {
+    var notifications = [];
+
+    function call(ctx, next) {
+      notifications.push('call');
+      process.nextTick(next);
+    };
+
+    TestModel.observe('event', call);
+    TestModel.removeObserver('event', call);
+
+    TestModel.notifyObserversOf('event', {}, function(err) {
+      if (err) return done(err);
+      notifications.should.eql([]);
+      done();
+    });
+  });
+
+  it('can clear all observers', function(done) {
+    var notifications = [];
+
+    function call(ctx, next) {
+      notifications.push('call');
+      process.nextTick(next);
+    };
+
+    TestModel.observe('event', call);
+    TestModel.observe('event', call);
+    TestModel.observe('event', call);
+    TestModel.clearObservers('event');
+
+    TestModel.notifyObserversOf('event', {}, function(err) {
+      if (err) return done(err);
+      notifications.should.eql([]);
+      done();
+    });
+  });
+
   it('handles no observers', function(done) {
     TestModel.notifyObserversOf('no-observers', {}, function(err) {
       // the test passes when no error was raised
