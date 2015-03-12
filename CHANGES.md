@@ -1,4 +1,22 @@
-2015-03-05, Version 2.19.2
+2015-03-12, Version 2.20.0
+==========================
+
+ * Remove trailing spaces. (Miroslav Bajtoš)
+
+ * Improve instance-level operation hooks (Fabien Franzen)
+
+ * Fix the test case (Raymond Feng)
+
+ * fix foreign key dataType bug (didikeke)
+
+ * Reformat notifyObserversOf context argument (Fabien Franzen)
+
+ * Implement operation hooks' context (Fabien Franzen)
+
+ * Allow submodel to hide base properties (Raymond Feng)
+
+
+2015-03-04, Version 2.19.2
 ==========================
 
  * Improved and corrected API docs (crandmck)
