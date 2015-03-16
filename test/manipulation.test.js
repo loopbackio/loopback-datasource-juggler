@@ -291,6 +291,25 @@ describe('manipulation', function () {
         });
     });
 
+    it('should refuse to create object with duplicate id', function(done) {
+      // NOTE(bajtos) We cannot reuse Person model here,
+      // `settings.forceId` aborts the CREATE request at the validation step.
+      var Product = db.define('Product', { name: String });
+      db.automigrate(function(err) {
+        if (err) return done(err);
+
+        Product.create({ name: 'a-name' }, function(err, p) {
+          if (err) return done(err);
+          Product.create({ id: p.id, name: 'duplicate' }, function(err) {
+            if (!err) {
+              return done(new Error('Create should have rejected duplicate id.'));
+            }
+            err.message.should.match(/duplicate/i);
+            done();
+          });
+        });
+      });
+    });
   });
 
   describe('save', function () {
