@@ -124,7 +124,7 @@ describe('datatypes', function () {
 
         // update using updateAttributes
         m.updateAttributes({
-          id: id, num: '10'
+          id: m.id, num: '10'
         }, function (err, m) {
           should.not.exist(err);
           m.num.should.be.type('number');
