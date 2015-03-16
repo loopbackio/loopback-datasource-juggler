@@ -224,6 +224,38 @@ describe('Memory connector', function() {
       });
     });
 
+    it('should successfully extract 5 users from the db', function(done) {
+      User.find({where: {seq: {between: [1,5]}}}, function(err, users) {
+        should(users.length).be.equal(5);
+        done();
+      });
+    });
+
+    it('should successfully extract 1 user (Lennon) from the db', function(done) {
+      User.find({where: {birthday: {between: [new Date(1970,0),new Date(1990,0)]}}}, 
+                function(err, users) {
+        should(users.length).be.equal(1);
+        should(users[0].name).be.equal('John Lennon');
+        done();
+      });
+    });
+
+    it('should successfully extract 2 users from the db', function(done) {
+      User.find({where: {birthday: {between: [new Date(1940,0),new Date(1990,0)]}}}, 
+                function(err, users) {
+        should(users.length).be.equal(2);
+        done();
+      });
+    });
+
+    it('should successfully extract 0 user from the db', function(done) {
+      User.find({where: {birthday: {between: [new Date(1990,0), Date.now()]}}}, 
+                function(err, users) {
+        should(users.length).be.equal(0);
+        done();
+      });
+    });
+
     it('should support order with multiple fields', function(done) {
       User.find({order: 'vip ASC, seq DESC'}, function(err, posts) {
         should.not.exist(err);
