@@ -1,3 +1,11 @@
+2015-03-16, Version 2.21.0
+==========================
+
+ * Fix the test case so that at least one property is to be changed (Raymond Feng)
+
+ * Make sure id properties cannot be changed (Raymond Feng)
+
+
 2015-03-12, Version 2.20.0
 ==========================
 
