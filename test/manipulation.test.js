@@ -567,6 +567,15 @@ describe('manipulation', function () {
             });
         });
     });
+
+    it('should allow save() of the created instance', function(done) {
+      Person.updateOrCreate(
+        { id: 'new-id', name: 'a-name' },
+        function(err, inst) {
+          if (err) return done(err);
+          inst.save(done);
+        });
+    });
   });
 
   describe('findOrCreate', function() {
