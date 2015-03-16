@@ -654,12 +654,14 @@ describe('basic-querying', function () {
       });
     });
 
-    it('should ignore undefined values of data', function (done) {
-      User.update({name: 'John Lennon'}, {name: undefined}, function (err) {
+    it('should ignore undefined values of data', function(done) {
+      User.update({name: 'John Lennon'}, {name: undefined,
+        email: 'johnl@b3atl3s.co.uk'}, function(err) {
         should.not.exist(err);
-        User.find({where: {name: 'John Lennon'}}, function (err, data) {
+        User.find({where: {name: 'John Lennon'}}, function(err, data) {
           should.not.exist(err);
           data.length.should.equal(1);
+          data[0].email.should.equal('johnl@b3atl3s.co.uk');
           done();
         });
       });

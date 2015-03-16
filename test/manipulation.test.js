@@ -425,7 +425,11 @@ describe('manipulation', function () {
 
     before(function (done) {
       Person.destroyAll(function () {
-        person = Person.create({name: 'Mary', age: 15}, done);
+        Person.create({name: 'Mary', age: 15}, function(err, p) {
+          should.not.exist(err);
+          person = p;
+          done();
+        });
       });
     });
 
@@ -463,6 +467,28 @@ describe('manipulation', function () {
             p.age.should.equal(15);
             done();
           });
+        });
+    });
+
+    it('should allow same id value on updateAttributes', function(done) {
+      person.updateAttributes({id: person.id, name: 'John'},
+        function(err, p) {
+          should.not.exist(err);
+          Person.findById(p.id, function(e, p) {
+            should.not.exist(e);
+            p.name.should.equal('John');
+            p.age.should.equal(15);
+            done();
+          });
+        });
+    });
+
+    it('should fail if an id value is to be changed on updateAttributes',
+      function(done) {
+      person.updateAttributes({id: person.id + 1, name: 'John'},
+        function(err, p) {
+          should.exist(err);
+          done();
         });
     });
 
