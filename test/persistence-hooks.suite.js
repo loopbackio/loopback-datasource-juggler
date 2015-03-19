@@ -116,11 +116,14 @@ module.exports = function(dataSource, should) {
 
         TestModel.create({ name: 'created' }, function(err, instance) {
           if (err) return done(err);
-          observedContexts.should.eql(aTestModelCtx({ instance: {
-            id: instance.id,
-            name: 'created',
-            extra: undefined
-          }}));
+          observedContexts.should.eql(aTestModelCtx({
+            instance: {
+              id: instance.id,
+              name: 'created',
+              extra: undefined
+            },
+            isNewInstance: true
+          }));
           done();
         });
       });
@@ -161,10 +164,12 @@ module.exports = function(dataSource, should) {
             });
             observedContexts.should.eql([
               aTestModelCtx({
-                instance: { id: list[0].id, name: '1', extra: undefined }
+                instance: { id: list[0].id, name: '1', extra: undefined },
+                isNewInstance: true
               }),
               aTestModelCtx({
-                instance: { id: list[1].id, name: '2', extra: undefined  }
+                instance: { id: list[1].id, name: '2', extra: undefined  },
+                isNewInstance: true
                }),
             ]);
             done();
@@ -186,11 +191,14 @@ module.exports = function(dataSource, should) {
 
         TestModel.create({ name: 'created' }, function(err, instance) {
           if (err) return done(err);
-          observedContexts.should.eql(aTestModelCtx({ instance: {
-            id: instance.id,
-            name: 'created',
-            extra: undefined
-          }}));
+          observedContexts.should.eql(aTestModelCtx({
+            instance: {
+              id: instance.id,
+              name: 'created',
+              extra: undefined
+            },
+            isNewInstance: true
+          }));
           done();
         });
       });
@@ -231,10 +239,12 @@ module.exports = function(dataSource, should) {
             });
             observedContexts.should.eql([
               aTestModelCtx({
-                instance: { id: list[0].id, name: '1', extra: undefined }
+                instance: { id: list[0].id, name: '1', extra: undefined },
+                isNewInstance: true
               }),
               aTestModelCtx({
-                instance: { id: list[1].id, name: '2', extra: undefined }
+                instance: { id: list[1].id, name: '2', extra: undefined },
+                isNewInstance: true
               }),
             ]);
             done();
@@ -263,7 +273,8 @@ module.exports = function(dataSource, should) {
             list.map(get('name')).should.eql(['ok', 'fail']);
 
             observedContexts.should.eql(aTestModelCtx({
-              instance: { id: list[0].id, name: 'ok', extra: undefined }
+              instance: { id: list[0].id, name: 'ok', extra: undefined },
+              isNewInstance: true
             }));
             done();
           });
@@ -299,11 +310,14 @@ module.exports = function(dataSource, should) {
             function(err, record, created) {
               if (err) return done(err);
               record.id.should.eql(existingInstance.id);
-              observedContexts.should.eql(aTestModelCtx({ instance: {
-                id: getLastGeneratedUid(),
-                name: existingInstance.name,
-                extra: undefined
-              }}));
+              observedContexts.should.eql(aTestModelCtx({
+                instance: {
+                  id: getLastGeneratedUid(),
+                  name: existingInstance.name,
+                  extra: undefined
+                },
+                isNewInstance: true
+              }));
               done();
             });
         });
@@ -317,11 +331,14 @@ module.exports = function(dataSource, should) {
           { name: 'new-record' },
           function(err, record, created) {
             if (err) return done(err);
-            observedContexts.should.eql(aTestModelCtx({ instance: {
-              id: record.id,
-              name: 'new-record',
-              extra: undefined
-            }}));
+            observedContexts.should.eql(aTestModelCtx({
+              instance: {
+                id: record.id,
+                name: 'new-record',
+                extra: undefined
+              },
+              isNewInstance: true
+            }));
             done();
           });
       });
@@ -393,11 +410,14 @@ module.exports = function(dataSource, should) {
           { name: 'new name' },
           function(err, instance) {
             if (err) return done(err);
-            observedContexts.should.eql(aTestModelCtx({ instance: {
-              id: instance.id,
-              name: 'new name',
-              extra: undefined
-            }}));
+            observedContexts.should.eql(aTestModelCtx({
+              instance: {
+                id: instance.id,
+                name: 'new name',
+                extra: undefined
+              },
+              isNewInstance: true
+            }));
             done();
           });
       });
@@ -492,17 +512,38 @@ module.exports = function(dataSource, should) {
         });
       });
 
-      it('triggers `after save` hook', function(done) {
+      it('triggers `after save` hook on update', function(done) {
         TestModel.observe('after save', pushContextAndNext());
 
         existingInstance.name = 'changed';
         existingInstance.save(function(err, instance) {
           if (err) return done(err);
-          observedContexts.should.eql(aTestModelCtx({ instance: {
-            id: existingInstance.id,
-            name: 'changed',
-            extra: undefined
-          }}));
+          observedContexts.should.eql(aTestModelCtx({
+            instance: {
+              id: existingInstance.id,
+              name: 'changed',
+              extra: undefined
+            },
+            isNewInstance: false
+          }));
+          done();
+        });
+      });
+
+      it('triggers `after save` hook on create', function(done) {
+        TestModel.observe('after save', pushContextAndNext());
+
+        var instance = new TestModel({ name: 'created' });
+        instance.save(function(err, instance) {
+          if (err) return done(err);
+          observedContexts.should.eql(aTestModelCtx({
+            instance: {
+              id: instance.id,
+              name: 'created',
+              extra: undefined
+            },
+            isNewInstance: true
+          }));
           done();
         });
       });
@@ -597,11 +638,14 @@ module.exports = function(dataSource, should) {
         existingInstance.name = 'changed';
         existingInstance.updateAttributes({ name: 'changed' }, function(err) {
           if (err) return done(err);
-          observedContexts.should.eql(aTestModelCtx({ instance: {
-            id: existingInstance.id,
-            name: 'changed',
-            extra: undefined
-          }}));
+          observedContexts.should.eql(aTestModelCtx({
+            instance: {
+              id: existingInstance.id,
+              name: 'changed',
+              extra: undefined
+            },
+            isNewInstance: false
+          }));
           done();
         });
       });
@@ -781,7 +825,8 @@ module.exports = function(dataSource, should) {
               // The default unoptimized implementation runs
               // `instance.save` and thus a full instance is availalbe
               observedContexts.should.eql(aTestModelCtx({
-                instance: { id: 'new-id', name: 'a name', extra: undefined }
+                instance: { id: 'new-id', name: 'a name', extra: undefined },
+                isNewInstance: true
               }));
             }
 
@@ -859,11 +904,14 @@ module.exports = function(dataSource, should) {
           { id: existingInstance.id, name: 'updated name' },
           function(err, instance) {
             if (err) return done(err);
-            observedContexts.should.eql(aTestModelCtx({ instance: {
-              id: existingInstance.id,
-              name: 'updated name',
-              extra: undefined
-            }}));
+            observedContexts.should.eql(aTestModelCtx({
+              instance: {
+                id: existingInstance.id,
+                name: 'updated name',
+                extra: undefined
+              },
+              isNewInstance: false
+            }));
             done();
           });
       });
@@ -875,11 +923,14 @@ module.exports = function(dataSource, should) {
           { id: 'new-id', name: 'a name' },
           function(err, instance) {
             if (err) return done(err);
-            observedContexts.should.eql(aTestModelCtx({ instance: {
-              id: instance.id,
-              name: 'a name',
-              extra: undefined
-            }}));
+            observedContexts.should.eql(aTestModelCtx({
+              instance: {
+                id: instance.id,
+                name: 'a name',
+                extra: undefined
+              },
+              isNewInstance: true
+            }));
             done();
           });
       });
@@ -1126,12 +1177,12 @@ module.exports = function(dataSource, should) {
         existingInstance.delete(function(err) {
           if (err) return done(err);
           observedContexts.should.eql([
-            aTestModelCtx({ 
+            aTestModelCtx({
               hookState: { foo: 'bar', test: true },
               where: { id: '1' },
               instance: existingInstance
             }),
-            aTestModelCtx({ 
+            aTestModelCtx({
               hookState: { foo: 'BAR', test: true },
               where: { id: '1' },
               instance: existingInstance
