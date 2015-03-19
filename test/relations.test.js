@@ -2199,6 +2199,8 @@ describe('relations', function () {
     var Passport;
     var Other;
 
+    var hooks = [];
+
     before(function () {
       tmp = getTransientDataSource();
       db = getSchema();
@@ -2216,6 +2218,27 @@ describe('relations', function () {
         default: {name: 'Anonymous'} // a bit contrived
       });
       Person.embedsOne(Address); // all by default
+
+      Passport.observe('before save', function(ctx, next) {
+        hooks.push({ hook: 'before save', inst: ctx.instance.toObject() });
+        next();
+      });
+
+      Passport.observe('after save', function(ctx, next) {
+        hooks.push({ hook: 'after save', inst: ctx.instance.toObject() });
+        next();
+      });
+
+      Passport.observe('before delete', function(ctx, next) {
+        hooks.push({ hook: 'before delete', inst: ctx.instance.toObject() });
+        next();
+      });
+
+      Passport.observe('after delete', function(ctx, next) {
+        hooks.push({ hook: 'after delete', inst: ctx.instance.toObject() });
+        next();
+      });
+
       db.automigrate(done);
     });
 
@@ -2355,6 +2378,20 @@ describe('relations', function () {
       });
     });
 
+    it('should have notified hook observers', function() {
+      // the un-paired list of events stems from a ValidationError
+      var expected = [ 
+        { hook: 'before save', inst: { name: 'Fredric' } },
+        { hook: 'after save', inst: { name: 'Fredric' } },
+        { hook: 'before save', inst: { name: undefined } },
+        { hook: 'before save', inst: { name: 'Freddy' } },
+        { hook: 'after save', inst: { name: 'Freddy' } },
+        { hook: 'before delete', inst: { name: 'Freddy' } },
+        { hook: 'after delete', inst: { name: 'Freddy' } }
+      ];
+      hooks.should.eql(expected);
+    });
+
   });
 
   describe('embedsOne - persisted model', function () {
@@ -2435,6 +2472,8 @@ describe('relations', function () {
   describe('embedsMany', function () {
 
     var address1, address2;
+    
+    var hooks = [];
 
     before(function (done) {
       tmp = getTransientDataSource({defaultIdType: Number});
@@ -2450,6 +2489,27 @@ describe('relations', function () {
 
     it('can be declared', function (done) {
       Person.embedsMany(Address);
+      
+      Address.observe('before save', function(ctx, next) {
+        hooks.push({ hook: 'before save', inst: ctx.instance.toObject() });
+        next();
+      });
+
+      Address.observe('after save', function(ctx, next) {
+        hooks.push({ hook: 'after save', inst: ctx.instance.toObject() });
+        next();
+      });
+
+      Address.observe('before delete', function(ctx, next) {
+        hooks.push({ hook: 'before delete', inst: ctx.instance.toObject() });
+        next();
+      });
+
+      Address.observe('after delete', function(ctx, next) {
+        hooks.push({ hook: 'after delete', inst: ctx.instance.toObject() });
+        next();
+      });
+      
       db.automigrate(done);
     });
 
@@ -2618,6 +2678,26 @@ describe('relations', function () {
         p.addresses.should.have.length(1);
         done();
       });
+    });
+    
+    it('should have notified hook observers', function() {
+      // the un-paired list of events stems from a ValidationError
+      var expected = [
+        { hook: 'before save', inst: { street: 'Street 1', id: 1 } },
+        { hook: 'after save', inst: { street: 'Street 1', id: 1 } },
+        { hook: 'before save', inst: { street: 'Street 2', id: 2 } },
+        { hook: 'after save', inst: { street: 'Street 2', id: 2 } },
+        { hook: 'before save', inst: { street: 'Street 2', id: 2 } },
+        { hook: 'after save', inst: { street: 'New Street', id: 2 } },
+        { hook: 'before save', inst: { street: 'New Street', id: 2 } },
+        { hook: 'before save', inst: { street: 'Street 1', id: 1 } },
+        { hook: 'after save', inst: { street: 'Changed 1', id: 1 } },
+        { hook: 'before save', inst: { street: 'New Street', id: 2 } },
+        { hook: 'after save', inst: { street: 'Changed 2', id: 2 } },
+        { hook: 'before delete', inst: { street: 'Street 1', id: 1 } },
+        { hook: 'after delete', inst: { street: 'Street 1', id: 1 } }
+      ];
+      hooks.should.eql(expected);
     });
 
   });
