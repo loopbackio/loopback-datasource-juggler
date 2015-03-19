@@ -41,7 +41,7 @@ function timestamps(Model, options) {
 mixins.define('TimeStamp', timestamps);
 
 describe('Model class', function () {
-  
+
   it('should define mixins', function() {
     mixins.define('Example', function(Model, options) {
       Model.prototype.example = function() {
@@ -56,7 +56,7 @@ describe('Model class', function () {
       Model.multiMixin[options.key] = options.value;
     });
   });
-  
+
   it('should apply a mixin class', function() {
     var Address = modelBuilder.define('Address', {
       street: { type: 'string', required: true },
@@ -69,34 +69,34 @@ describe('Model class', function () {
     });
 
     var properties = Item.definition.properties;
-    
+
     properties.street.should.eql({ type: String, required: true });
     properties.city.should.eql({ type: String, required: true });
   });
-  
+
   it('should apply mixins', function(done) {
     var memory = new DataSource('mem', {connector: Memory}, modelBuilder);
     var Item = memory.createModel('Item', { name: 'string' }, {
-      mixins: { 
+      mixins: {
         TimeStamp: true, Demo: { value: true },
         Multi: [
-          { key: 'foo', value: 'bar' }, 
+          { key: 'foo', value: 'bar' },
           { key: 'fox', value: 'baz' }
         ]
       }
     });
-    
+
     Item.mixin('Example', { foo: 'bar' });
-    
+
     Item.demoMixin.should.be.true;
-    
+
     Item.multiMixin.foo.should.equal('bar');
     Item.multiMixin.fox.should.equal('baz');
-    
+
     var properties = Item.definition.properties;
     properties.createdAt.should.eql({ type: Date });
     properties.updatedAt.should.eql({ type: Date });
-    
+
     Item.create({ name: 'Item 1' }, function(err, inst) {
       inst.createdAt.should.be.a.date;
       inst.updatedAt.should.be.a.date;
@@ -104,5 +104,37 @@ describe('Model class', function () {
       done();
     });
   });
-  
+
+  describe('#mixin()', function () {
+
+    var Person, Author, Address;
+
+    beforeEach(function () {
+      Address = modelBuilder.define('Address', {
+        street: { type: 'string', required: true },
+        city: { type: 'string', required: true }
+      });
+      var memory = new DataSource('mem', {connector: Memory}, modelBuilder);
+      Person = memory.createModel('Person', { name: 'string' });
+      Author = memory.createModel('Author', { name: 'string' });
+    });
+
+    it('should register mixin class into _mixins', function () {
+      Person.mixin(Address);
+      Person._mixins.should.containEql(Address);
+    });
+
+    it('should NOT share mixins registry', function () {
+      Person.mixin(Address);
+      Author._mixins.should.not.containEql(Address);
+    });
+
+    it('should able to mixin same class', function () {
+      Person.mixin(Address);
+      Author.mixin(Address);
+      Author._mixins.should.containEql(Address);
+    });
+
+  });
+
 });
