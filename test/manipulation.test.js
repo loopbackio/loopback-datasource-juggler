@@ -735,6 +735,59 @@ describe('manipulation', function () {
     it('should destroy filtered set of records');
   });
 
+  describe('deleteAll/destroyAll', function () {
+    beforeEach(function clearOldData(done) {
+      Person.deleteAll(done);
+    });
+
+    beforeEach(function createTestData(done) {
+      Person.create([
+        { name: 'John' },
+        { name: 'Jane' }
+      ], done);
+    });
+
+    it('should only delete instances that satisfy the where condition', function (done) {
+      Person.deleteAll({name: 'John'}, function (err, data) {
+        if (err) return done(err);
+        data.count.should.equal(1);
+        Person.find({where: {name: 'John'}}, function (err, data) {
+          if (err) return done(err);
+          data.should.have.length(0);
+          Person.find({where: {name: 'Jane'}}, function (err, data) {
+            if (err) return done(err);
+            data.should.have.length(1);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should report zero deleted instances', function (done) {
+      Person.deleteAll({name: 'does-not-match'}, function (err, data) {
+        if (err) return done(err);
+        data.count.should.equal(0);
+        Person.count(function(err, count) {
+          if (err) return done(err);
+          count.should.equal(2);
+          done();
+        });
+      });
+    });
+
+    it('should delete all instances when "where" is not provided', function(done) {
+      Person.deleteAll(function (err, data) {
+        if (err) return done(err);
+        data.count.should.equal(2);
+        Person.count(function(err, count) {
+          if (err) return done(err);
+          count.should.equal(0);
+          done();
+        });
+      });
+    });
+  });
+
   describe('initialize', function () {
     it('should initialize object properly', function () {
       var hw = 'Hello word',
