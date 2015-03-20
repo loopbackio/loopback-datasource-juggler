@@ -446,7 +446,7 @@ describe('manipulation', function () {
     before(function (done) {
       Person.destroyAll(function () {
         Person.create({name: 'Mary', age: 15}, function(err, p) {
-          should.not.exist(err);
+          if (err) return done(err);
           person = p;
           done();
         });
@@ -455,9 +455,9 @@ describe('manipulation', function () {
 
     it('should update one attribute', function (done) {
       person.updateAttribute('name', 'Paul Graham', function (err, p) {
-        should.not.exist(err);
+        if (err) return done(err);
         Person.all(function (e, ps) {
-          should.not.exist(e);
+          if (e) return done(e);
           ps.should.have.lengthOf(1);
           ps.pop().name.should.equal('Paul Graham');
           done();
@@ -480,9 +480,9 @@ describe('manipulation', function () {
     it('should ignore undefined values on updateAttributes', function(done) {
       person.updateAttributes({'name': 'John', age: undefined},
         function(err, p) {
-          should.not.exist(err);
+          if (err) return done(err);
           Person.findById(p.id, function(e, p) {
-            should.not.exist(e);
+            if (e) return done(e);
             p.name.should.equal('John');
             p.age.should.equal(15);
             done();
@@ -493,15 +493,34 @@ describe('manipulation', function () {
     it('should allow same id value on updateAttributes', function(done) {
       person.updateAttributes({id: person.id, name: 'John'},
         function(err, p) {
-          should.not.exist(err);
+          if (err) return done(err);
           Person.findById(p.id, function(e, p) {
-            should.not.exist(e);
+            if (e) return done(e);
             p.name.should.equal('John');
             p.age.should.equal(15);
             done();
           });
         });
     });
+
+    it('should allow same stringified id value on updateAttributes',
+      function(done) {
+        var pid = person.id;
+        if (typeof person.id === 'object' || typeof person.id === 'number') {
+          // For example MongoDB ObjectId
+          pid = person.id.toString();
+        }
+        person.updateAttributes({id: pid, name: 'John'},
+          function(err, p) {
+            if (err) return done(err);
+            Person.findById(p.id, function(e, p) {
+              if (e) return done(e);
+              p.name.should.equal('John');
+              p.age.should.equal(15);
+              done();
+            });
+          });
+      });
 
     it('should fail if an id value is to be changed on updateAttributes',
       function(done) {
@@ -515,9 +534,9 @@ describe('manipulation', function () {
     it('should allows model instance on updateAttributes', function(done) {
       person.updateAttributes(new Person({'name': 'John', age: undefined}),
         function(err, p) {
-          should.not.exist(err);
+          if (err) return done(err);
           Person.findById(p.id, function(e, p) {
-            should.not.exist(e);
+            if (e) return done(e);
             p.name.should.equal('John');
             p.age.should.equal(15);
             done();
