@@ -376,7 +376,7 @@ describe('crud-with-options', function () {
     });
 
     it('should allow deleteById(id) - fail with error', function (done) {
-      User.deleteById(9999, { reportFailureAsError: true }, function(err, deleted) {
+      User.deleteById(9999, { strict: true }, function(err, deleted) {
         should.exist(err);
         deleted.should.be.false;
         err.message.should.equal('No instance with id 9999 found for User');
@@ -419,7 +419,7 @@ describe('crud-with-options', function () {
         u.delete(function(err, deleted) {
           should.not.exist(err);
           deleted.should.be.true;
-          u.delete({ reportFailureAsError: true }, function(err, deleted) {
+          u.delete({ strict: true }, function(err, deleted) {
             should.exist(err);
             deleted.should.be.false;
             err.message.should.equal('No instance with id ' + u.id + ' found for User');
