@@ -2385,6 +2385,15 @@ describe('relations', function () {
         p.passportItem.destroy(function(err) {
           should.not.exist(err);
           should.equal(p.passport, null);
+          
+          var expected = [
+            'Passport: before delete',
+            'Person: before save',
+            'Person: after save',
+            'Passport: after delete'
+          ];
+          combinedHooks.should.eql(expected);
+          
           done();
         });
       });
@@ -2732,6 +2741,15 @@ describe('relations', function () {
         p.addressList.destroy(address1.id, function(err) {
           should.not.exist(err);
           p.addresses.should.have.length(1);
+          
+          var expected = [
+            'Address: before delete',
+            'Person: before save',
+            'Person: after save',
+            'Address: after delete'
+          ];
+          combinedHooks.should.eql(expected);
+          
           done();
         });
       });
