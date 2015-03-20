@@ -133,6 +133,8 @@ describe('scope - order', function () {
 
 describe('scope - filtered count and destroyAll', function () {
 
+  var stationA;
+
   before(function () {
     db = getSchema();
     Station = db.define('Station', {
@@ -154,7 +156,10 @@ describe('scope - filtered count and destroyAll', function () {
   });
   
   beforeEach(function (done) {
-    Station.create({ name: 'a', order: 1 }, done);
+    Station.create({ name: 'a', order: 1 }, function(err, inst) {
+      stationA = inst;
+      done();
+    });
   });
   
   beforeEach(function (done) {
@@ -173,6 +178,22 @@ describe('scope - filtered count and destroyAll', function () {
         stations[1].name.should.equal('b');
         stations[2].name.should.equal('c');
         stations[3].name.should.equal('d');
+        done();
+    });
+  });
+  
+  it('should find by id - match', function(done) {
+    Station.active.findById(stationA.id, function(err, station) {
+        should.not.exist(err);
+        station.name.should.equal('a');
+        done();
+    });
+  });
+  
+  it('should find by id - no match', function(done) {
+    Station.inactive.findById(stationA.id, function(err, station) {
+        should.not.exist(err);
+        should.not.exist(station);
         done();
     });
   });
