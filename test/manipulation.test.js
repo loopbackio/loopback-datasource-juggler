@@ -490,7 +490,7 @@ describe('manipulation', function () {
           });
         });
     });
-    
+
     it('should ignore unknown attributes when strict: true', function(done) {
       person.updateAttributes({foo:'bar'},
         function(err, p) {
@@ -503,7 +503,7 @@ describe('manipulation', function () {
           });
         });
     });
-    
+
     it('should throw error on unknown attributes when strict: throw', function(done) {
       Person.definition.settings.strict = 'throw';
       Person.findById(person.id, function(err, p) {
@@ -521,7 +521,7 @@ describe('manipulation', function () {
           });
       });
     });
-    
+
     it('should throw error on unknown attributes when strict: throw', function(done) {
       Person.definition.settings.strict = 'validate';
       Person.findById(person.id, function(err, p) {
@@ -866,6 +866,92 @@ describe('manipulation', function () {
     });
   });
 
+  describe('deleteById', function() {
+    beforeEach(givenSomePeople);
+    afterEach(function() {
+      Person.settings.strictDelete = false;
+    });
+
+    it('should allow deleteById(id) - success', function (done) {
+      Person.findOne(function (e, p) {
+        Person.deleteById(p.id, function(err, info) {
+          if (err) return done(err);
+          info.should.have.property('count', 1);
+          done();
+        });
+      });
+    });
+
+    it('should allow deleteById(id) - fail', function (done) {
+      Person.settings.strictDelete = false;
+      Person.deleteById(9999, function(err, info) {
+        if (err) return done(err);
+        info.should.have.property('count', 0);
+        done();
+      });
+    });
+
+    it('should allow deleteById(id) - fail with error', function (done) {
+      Person.settings.strictDelete = true;
+      Person.deleteById(9999, function(err) {
+        should.exist(err);
+        err.message.should.equal('No instance with id 9999 found for Person');
+        err.should.have.property('code', 'NOT_FOUND');
+        err.should.have.property('statusCode', 404);
+        done();
+      });
+    });
+  });
+
+  describe('prototype.delete', function() {
+    beforeEach(givenSomePeople);
+    afterEach(function() {
+      Person.settings.strictDelete = false;
+    });
+
+    it('should allow delete(id) - success', function (done) {
+      Person.findOne(function (e, p) {
+        p.delete(function(err, info) {
+          if (err) return done(err);
+          info.should.have.property('count', 1);
+          done();
+        });
+      });
+    });
+
+    it('should allow delete(id) - fail', function (done) {
+      Person.settings.strictDelete = false;
+      Person.findOne(function (e, p) {
+        p.delete(function(err, info) {
+          if (err) return done(err);
+          info.should.have.property('count', 1);
+          p.delete(function(err, info) {
+            if (err) return done(err);
+            info.should.have.property('count', 0);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should allow delete(id) - fail with error', function (done) {
+      Person.settings.strictDelete = true;
+      Person.findOne(function (e, u) {
+        u.delete(function(err, info) {
+          if (err) return done(err);
+          info.should.have.property('count', 1);
+          u.delete(function(err) {
+            should.exist(err);
+            err.message.should.equal('No instance with id ' + u.id + ' found for Person');
+            err.should.have.property('code', 'NOT_FOUND');
+            err.should.have.property('statusCode', 404);
+            done();
+          });
+        });
+      });
+    });
+  });
+
   describe('initialize', function () {
     it('should initialize object properly', function () {
       var hw = 'Hello word',
@@ -1162,3 +1248,21 @@ describe('manipulation', function () {
     });
   });
 });
+
+function givenSomePeople(done) {
+  var beatles = [
+    { name: 'John Lennon', gender: 'male' },
+    { name: 'Paul McCartney', gender: 'male' },
+    { name: 'George Harrison', gender: 'male' },
+    { name: 'Ringo Starr', gender: 'male' },
+    { name: 'Pete Best', gender: 'male' },
+    { name: 'Stuart Sutcliffe', gender: 'male' }
+  ];
+
+  async.series([
+    Person.destroyAll.bind(Person),
+    function(cb) {
+      async.each(beatles, Person.create.bind(Person), cb);
+    }
+  ], done);
+}
