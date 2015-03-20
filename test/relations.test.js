@@ -2202,13 +2202,6 @@ describe('relations', function () {
     var hooks = [];
     var combinedHooks = [];
 
-    function observeHook(Model, type) {
-      Model.observe(type, function(ctx, next) {
-        combinedHooks.push(ctx.Model.modelName + ': ' + type);
-        next();
-      });
-    };
-
     before(function () {
       tmp = getTransientDataSource();
       db = getSchema();
@@ -2241,44 +2234,10 @@ describe('relations', function () {
       observeHook(Passport, 'before delete');
       observeHook(Passport, 'after delete');
 
-      Passport.observe('before save', function(ctx, next) {
-        var info = { hook: 'before save' };
-        if (ctx.currentInstance) {
-          info.currentInstance = ctx.currentInstance.toObject();
-        } else {
-          info.instance = ctx.instance.toObject();
-        }
-        if (ctx.data) info.data = ctx.data;
-        hooks.push(info);
-        next();
-      });
-
-      Passport.observe('after save', function(ctx, next) {
-        var info = {
-          hook: 'after save',
-          instance: ctx.instance.toObject()
-        };
-        hooks.push(info);
-        next();
-      });
-
-      Passport.observe('before delete', function(ctx, next) {
-        var info = {
-          hook: 'before delete',
-          instance: ctx.instance.toObject()
-        };
-        hooks.push(info);
-        next();
-      });
-
-      Passport.observe('after delete', function(ctx, next) {
-        var info = {
-          hook: 'after delete',
-          instance: ctx.instance.toObject()
-        };
-        hooks.push(info);
-        next();
-      });
+      observeEmbedded(Passport, 'before save');
+      observeEmbedded(Passport, 'after save');
+      observeEmbedded(Passport, 'before delete');
+      observeEmbedded(Passport, 'after delete');
 
       db.automigrate(done);
     });
@@ -2456,6 +2415,27 @@ describe('relations', function () {
       hooks.should.eql(expected);
     });
 
+    function observeHook(Model, type) {
+      Model.observe(type, function(ctx, next) {
+        combinedHooks.push(ctx.Model.modelName + ': ' + type);
+        next();
+      });
+    };
+
+    function observeEmbedded(Model, type) {
+      Model.observe(type, function(ctx, next) {
+        var info = { hook: type };
+        if (ctx.currentInstance) {
+          info.currentInstance = ctx.currentInstance.toObject();
+        } else if (ctx.instance) {
+          info.instance = ctx.instance.toObject();
+        }
+        if (ctx.data) info.data = ctx.data;
+        hooks.push(info);
+        next();
+      });
+    };
+
   });
 
   describe('embedsOne - persisted model', function () {
@@ -2540,13 +2520,6 @@ describe('relations', function () {
     var hooks = [];
     var combinedHooks = [];
 
-    function observeHook(Model, type) {
-      Model.observe(type, function(ctx, next) {
-        combinedHooks.push(ctx.Model.modelName + ': ' + type);
-        next();
-      });
-    };
-
     before(function (done) {
       tmp = getTransientDataSource({defaultIdType: Number});
       db = getSchema();
@@ -2576,44 +2549,10 @@ describe('relations', function () {
       observeHook(Address, 'before delete');
       observeHook(Address, 'after delete');
 
-      Address.observe('before save', function(ctx, next) {
-        var info = { hook: 'before save' };
-        if (ctx.currentInstance) {
-          info.currentInstance = ctx.currentInstance.toObject();
-        } else {
-          info.instance = ctx.instance.toObject();
-        }
-        if (ctx.data) info.data = ctx.data;
-        hooks.push(info);
-        next();
-      });
-
-      Address.observe('after save', function(ctx, next) {
-        var info = {
-          hook: 'after save',
-          instance: ctx.instance.toObject()
-        };
-        hooks.push(info);
-        next();
-      });
-
-      Address.observe('before delete', function(ctx, next) {
-        var info = {
-          hook: 'before delete',
-          instance: ctx.instance.toObject()
-        };
-        hooks.push(info);
-        next();
-      });
-
-      Address.observe('after delete', function(ctx, next) {
-        var info = {
-          hook: 'after delete',
-          instance: ctx.instance.toObject()
-        };
-        hooks.push(info);
-        next();
-      });
+      observeEmbedded(Address, 'before save');
+      observeEmbedded(Address, 'after save');
+      observeEmbedded(Address, 'before delete');
+      observeEmbedded(Address, 'after delete');
 
       db.automigrate(done);
     });
@@ -2835,6 +2774,27 @@ describe('relations', function () {
       ];
       hooks.should.eql(expected);
     });
+
+    function observeHook(Model, type) {
+      Model.observe(type, function(ctx, next) {
+        combinedHooks.push(ctx.Model.modelName + ': ' + type);
+        next();
+      });
+    };
+
+    function observeEmbedded(Model, type) {
+      Model.observe(type, function(ctx, next) {
+        var info = { hook: type };
+        if (ctx.currentInstance) {
+          info.currentInstance = ctx.currentInstance.toObject();
+        } else if (ctx.instance) {
+          info.instance = ctx.instance.toObject();
+        }
+        if (ctx.data) info.data = ctx.data;
+        hooks.push(info);
+        next();
+      });
+    };
 
   });
 
