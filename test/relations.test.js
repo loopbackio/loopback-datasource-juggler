@@ -1617,10 +1617,28 @@ describe('relations', function () {
       (new Item).list.should.be.an.instanceOf(Function);
 
       // syntax 2 (new)
-      Fear.belongsTo('mind');
+      Fear.belongsTo('mind', {
+        methods: { check: function() { return true; } }
+      });
+      
       Object.keys((new Fear).toObject()).should.containEql('mindId');
       (new Fear).mind.should.be.an.instanceOf(Function);
       // (new Fear).mind.build().should.be.an.instanceOf(Mind);
+    });
+
+    it('should setup a custom method on accessor', function() {
+      var rel = Fear.relations['mind'];
+      rel.defineMethod('other', function() {
+        return true;
+      })
+    });
+
+    it('should have setup a custom method on accessor', function() {
+      var f = new Fear();
+      f.mind.check.should.be.a.function;
+      f.mind.check().should.be.true;
+      f.mind.other.should.be.a.function;
+      f.mind.other().should.be.true;
     });
 
     it('can be used to query data', function (done) {
@@ -1823,9 +1841,27 @@ describe('relations', function () {
     });
 
     it('can be declared using hasOne method', function () {
-      Supplier.hasOne(Account, { properties: { name: 'supplierName' } });
+      Supplier.hasOne(Account, { 
+        properties: { name: 'supplierName' },
+        methods: { check: function() { return true; } }
+      });
       Object.keys((new Account()).toObject()).should.containEql('supplierId');
       (new Supplier()).account.should.be.an.instanceOf(Function);
+    });
+
+    it('should setup a custom method on accessor', function() {
+      var rel = Supplier.relations['account'];
+      rel.defineMethod('other', function() {
+        return true;
+      })
+    });
+
+    it('should have setup a custom method on accessor', function() {
+      var s = new Supplier();
+      s.account.check.should.be.a.function;
+      s.account.check().should.be.true;
+      s.account.other.should.be.a.function;
+      s.account.other().should.be.true;
     });
 
     it('can be used to query data', function (done) {
@@ -2213,7 +2249,8 @@ describe('relations', function () {
 
     it('can be declared using embedsOne method', function (done) {
       Person.embedsOne(Passport, {
-        default: {name: 'Anonymous'} // a bit contrived
+        default: {name: 'Anonymous'}, // a bit contrived
+        methods: { check: function() { return true; } }
       });
       Person.embedsOne(Address); // all by default
       db.automigrate(done);
@@ -2226,6 +2263,21 @@ describe('relations', function () {
       p.passportItem.create.should.be.a.function;
       p.passportItem.build.should.be.a.function;
       p.passportItem.destroy.should.be.a.function;
+    });
+
+    it('should setup a custom method on accessor', function() {
+      var rel = Person.relations['passportItem'];
+      rel.defineMethod('other', function() {
+        return true;
+      })
+    });
+
+    it('should have setup a custom method on accessor', function() {
+      var p = new Person();
+      p.passportItem.check.should.be.a.function;
+      p.passportItem.check().should.be.true;
+      p.passportItem.other.should.be.a.function;
+      p.passportItem.other().should.be.true;
     });
 
     it('should behave properly without default or being set', function (done) {
