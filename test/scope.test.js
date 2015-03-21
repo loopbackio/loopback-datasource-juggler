@@ -182,6 +182,22 @@ describe('scope - filtered count and destroyAll', function () {
     });
   });
   
+  it('should find one', function(done) {
+    Station.active.findOne(function(err, station) {
+        should.not.exist(err);
+        station.name.should.equal('a');
+        done();
+    });
+  });
+  
+  it('should find one - with filter', function(done) {
+    Station.active.findOne({ where: { name: 'c' } }, function(err, station) {
+        should.not.exist(err);
+        station.name.should.equal('c');
+        done();
+    });
+  });
+  
   it('should find by id - match', function(done) {
     Station.active.findById(stationA.id, function(err, station) {
         should.not.exist(err);
