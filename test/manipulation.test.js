@@ -756,54 +756,65 @@ describe('manipulation', function () {
     it('should destroy filtered set of records');
   });
 
-  describe('deleteAll/destroyAll', function () {
-    beforeEach(function clearOldData(done) {
-      Person.deleteAll(done);
+  describe('when deleteAll/destroyAll executes', function () {
+    it('should be defined as function', function() {
+      Person.deleteAll.should.be.a.Function;
+      Person.destroyAll.should.be.a.Function;
     });
 
-    beforeEach(function createTestData(done) {
-      Person.create([
-        { name: 'John' },
-        { name: 'Jane' }
-      ], done);
-    });
+    describe('with multiple instances in the database', function() {
+      beforeEach(function deleteFixtures(done) {
+        Person.deleteAll(done);
+      });
 
-    it('should only delete instances that satisfy the where condition', function (done) {
-      Person.deleteAll({name: 'John'}, function (err, result) {
-        if (err) return done(err);
-        result.should.have.property('count', 1);
-        Person.find({where: {name: 'John'}}, function (err, data) {
+      beforeEach(function createFixtures(done) {
+        Person.create([{
+          name: 'John'
+        }, {
+          name: 'Jane'
+        }], done);
+      });
+
+      it('should only delete instances that satisfy the where condition',
+          function(done) {
+        Person.deleteAll({name: 'John'}, function(err, info) {
           if (err) return done(err);
-          data.should.have.length(0);
-          Person.find({where: {name: 'Jane'}}, function (err, data) {
+          info.count.should.equal(1);
+          Person.find({where: {name: 'John'}}, function(err, data) {
             if (err) return done(err);
-            data.should.have.length(1);
+            data.should.have.length(0);
+            Person.find({where: {name: 'Jane'}}, function(err, data) {
+              if (err) return done(err);
+              data.should.have.length(1);
+              done();
+            });
+          });
+        });
+      });
+
+      it('should report zero deleted instances when no matches are found',
+          function(done) {
+        Person.deleteAll({name: 'does-not-match'}, function(err, info) {
+          if (err) return done(err);
+          info.count.should.equal(0);
+          Person.count(function(err, count) {
+            if (err) return done(err);
+            count.should.equal(2);
             done();
           });
         });
       });
-    });
 
-    it('should report zero deleted instances', function (done) {
-      Person.deleteAll({name: 'does-not-match'}, function (err, result) {
-        if (err) return done(err);
-        result.should.have.property('count', 0);
-        Person.count(function(err, count) {
+      it('should delete all instances when the where condition is not provided',
+          function(done) {
+        Person.deleteAll(function (err, info) {
           if (err) return done(err);
-          count.should.equal(2);
-          done();
-        });
-      });
-    });
-
-    it('should delete all instances when "where" is not provided', function(done) {
-      Person.deleteAll(function (err, result) {
-        if (err) return done(err);
-        result.should.have.property('count', 2);
-        Person.count(function(err, count) {
-          if (err) return done(err);
-          count.should.equal(0);
-          done();
+          info.count.should.equal(2);
+          Person.count(function(err, count) {
+            if (err) return done(err);
+            count.should.equal(0);
+            done();
+          });
         });
       });
     });
@@ -1005,102 +1016,105 @@ describe('manipulation', function () {
     });
   });
 
-  describe('update/updateAll', function() {
-    beforeEach(function destroyFixtures(done) {
-      Person.destroyAll(done);
-    });
-
-    beforeEach(function createFixtures(done) {
-      Person.create([{
-        name: 'Brett Boe',
-        age: 19
-      }, {
-        name: 'Carla Coe',
-        age: 20
-      }, {
-        name: 'Donna Doe',
-        age: 21
-      }, {
-        name: 'Frank Foe',
-        age: 22
-      }, {
-        name: 'Grace Goe',
-        age: 23
-      }], done);
-    });
-
-    it('should be a function', function() {
+  describe('when update/updateAll executes', function() {
+    it('should be defined as a function', function() {
       Person.update.should.be.a.Function;
       Person.updateAll.should.be.a.Function;
     });
 
-    it('should not update instances that do not satisfy the where condition',
-        function(done) {
-      Person.update({name: 'Harry Hoe'}, {name: 'Marta Moe'}, function(err,
-          results) {
-        should.not.exist(err);
-        results.should.have.property('count', 0);
-        Person.find({where: {name: 'Harry Hoe'}}, function(err, people) {
-          should.not.exist(err);
-          people.should.be.empty;
-          done();
-        });
+    describe('with existing instances in the database', function() {
+      beforeEach(function deleteFixtures(done) {
+        Person.destroyAll(done);
       });
-    });
 
-    it('should update instances that satisfy the where condition',
-        function(done) {
-      Person.update({name: 'Brett Boe'}, {name: 'Harry Hoe'}, function(err,
-          results) {
-        should.not.exist(err);
-        results.should.have.property('count', 1);
-        Person.find({where: {age: 19}}, function(err, people) {
-          should.not.exist(err);
-          people.should.have.length(1);
-          people[0].name.should.equal('Harry Hoe');
-          done();
-        });
+      beforeEach(function createFixtures(done) {
+        Person.create([{
+          name: 'Brett Boe',
+          age: 19
+        }, {
+          name: 'Carla Coe',
+          age: 20
+        }, {
+          name: 'Donna Doe',
+          age: 21
+        }, {
+          name: 'Frank Foe',
+          age: 22
+        }, {
+          name: 'Grace Goe',
+          age: 23
+        }], done);
       });
-    });
 
-    it('should update all instances when the where condition is not provided',
-        function(done) {
-      Person.update({name: 'Harry Hoe'}, function(err, results) {
-        should.not.exist(err);
-        results.should.have.property('count', 5);
-        Person.find({where: {name: 'Brett Boe'}}, function(err, people) {
+      it('should not update instances that do not satisfy the where condition',
+          function(done) {
+        Person.update({name: 'Harry Hoe'}, {name: 'Marta Moe'}, function(err,
+            info) {
+          if (err) return done(err);
           should.not.exist(err);
-          people.should.be.empty;
+          info.count.should.equal(0);
           Person.find({where: {name: 'Harry Hoe'}}, function(err, people) {
-            should.not.exist(err);
-            people.should.have.length(5);
+            if (err) return done(err);
+            people.should.be.empty;
             done();
           });
         });
       });
-    });
 
-    it('should ignore where conditions with undefined values',
-        function(done) {
-      Person.update({name: 'Brett Boe'}, {name: undefined, gender: 'male'},
-          function(err, results) {
-        should.not.exist(err);
-        results.should.have.property('count', 1)
-        Person.find({where: {name: 'Brett Boe'}}, function(err, people) {
-          should.not.exist(err);
-          people.should.have.length(1);
-          people[0].name.should.equal('Brett Boe');
-          done();
+      it('should update instances that satisfy the where condition',
+          function(done) {
+        Person.update({name: 'Brett Boe'}, {name: 'Harry Hoe'}, function(err,
+            info) {
+          if (err) return done(err);
+          info.count.should.equal(1);
+          Person.find({where: {age: 19}}, function(err, people) {
+            if (err) return done(err);
+            people.should.have.length(1);
+            people[0].name.should.equal('Harry Hoe');
+            done();
+          });
         });
       });
-    });
 
-    it('should not coerce invalid values provided in where conditions',
-        function(done) {
-      Person.update({name: 'Brett Boe'}, {dob: 'Carla Coe'}, function(err) {
-        should.exist(err);
-        err.message.should.equal('Invalid date: Carla Coe');
-        done();
+      it('should update all instances when the where condition is not provided',
+          function(done) {
+        Person.update({name: 'Harry Hoe'}, function(err, info) {
+          if (err) return done(err);
+          info.count.should.equal(5);
+          Person.find({where: {name: 'Brett Boe'}}, function(err, people) {
+            if (err) return done(err);
+            people.should.be.empty;
+            Person.find({where: {name: 'Harry Hoe'}}, function(err, people) {
+              if (err) return done(err);
+              people.should.have.length(5);
+              done();
+            });
+          });
+        });
+      });
+
+      it('should ignore where conditions with undefined values',
+          function(done) {
+        Person.update({name: 'Brett Boe'}, {name: undefined, gender: 'male'},
+            function(err, info) {
+          if (err) return done(err);
+          info.count.should.equal(1);
+          Person.find({where: {name: 'Brett Boe'}}, function(err, people) {
+            if (err) return done(err);
+            people.should.have.length(1);
+            people[0].name.should.equal('Brett Boe');
+            done();
+          });
+        });
+      });
+
+      it('should not coerce invalid values provided in where conditions',
+          function(done) {
+        Person.update({name: 'Brett Boe'}, {dob: 'Carla Coe'}, function(err) {
+          should.exist(err);
+          err.message.should.equal('Invalid date: Carla Coe');
+          done();
+        });
       });
     });
   });
