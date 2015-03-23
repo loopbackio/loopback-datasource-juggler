@@ -1036,11 +1036,11 @@ describe('manipulation', function () {
     it('should not update instances that do not satisfy the where condition',
         function(done) {
       Person.update({name: 'Harry Hoe'}, {name: 'Marta Moe'}, function(err,
-          results) {
-        should.not.exist(err);
-        results.count.should.equal(0);
+          metadata) {
+        if (err) return done(err);
+        metadata.count.should.equal(0);
         Person.find({where: {name: 'Harry Hoe'}}, function(err, people) {
-          should.not.exist(err);
+          if (err) return done(err);
           people.should.be.empty;
           done();
         });
@@ -1050,11 +1050,11 @@ describe('manipulation', function () {
     it('should update instances that satisfy the where condition',
         function(done) {
       Person.update({name: 'Brett Boe'}, {name: 'Harry Hoe'}, function(err,
-          results) {
-        should.not.exist(err);
-        results.count.should.equal(1);
+          metadata) {
+        if (err) return done(err);
+        metadata.count.should.equal(1);
         Person.find({where: {age: 19}}, function(err, people) {
-          should.not.exist(err);
+          if (err) return done(err);
           people.should.have.length(1);
           people[0].name.should.equal('Harry Hoe');
           done();
@@ -1064,14 +1064,14 @@ describe('manipulation', function () {
 
     it('should update all instances when the where condition is not provided',
         function(done) {
-      Person.update({name: 'Harry Hoe'}, function(err, results) {
-        should.not.exist(err);
-        results.count.should.equal(5);
+      Person.update({name: 'Harry Hoe'}, function(err, metadata) {
+        if (err) return done(err);
+        metadata.count.should.equal(5);
         Person.find({where: {name: 'Brett Boe'}}, function(err, people) {
-          should.not.exist(err);
+          if (err) return done(err);
           people.should.be.empty;
           Person.find({where: {name: 'Harry Hoe'}}, function(err, people) {
-            should.not.exist(err);
+            if (err) return done(err);
             people.should.have.length(5);
             done();
           });
@@ -1082,11 +1082,11 @@ describe('manipulation', function () {
     it('should ignore where conditions with undefined values',
         function(done) {
       Person.update({name: 'Brett Boe'}, {name: undefined, gender: 'male'},
-          function(err, results) {
-        should.not.exist(err);
-        results.count.should.equal(1);
+          function(err, metadata) {
+        if (err) return done(err);
+        metadata.count.should.equal(1);
         Person.find({where: {name: 'Brett Boe'}}, function(err, people) {
-          should.not.exist(err);
+          if (err) return done(err);
           people.should.have.length(1);
           people[0].name.should.equal('Brett Boe');
           done();
@@ -1096,7 +1096,8 @@ describe('manipulation', function () {
 
     it('should not coerce invalid values provided in where conditions',
         function(done) {
-      Person.update({name: 'Brett Boe'}, {dob: 'Carla Coe'}, function(err) {
+      Person.update({name: 'Brett Boe'}, {dob: 'Carla Coe'}, function(err,
+          metadata) {
         should.exist(err);
         err.message.should.equal('Invalid date: Carla Coe');
         done();
