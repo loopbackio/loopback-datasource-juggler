@@ -340,6 +340,7 @@ describe('manipulation', function () {
         p.name = 'Hans';
         p.save(function (err) {
           should.not.exist(err);
+          p.name.should.equal('Hans');
           Person.findOne(function (err, p) {
             should.not.exist(err);
             p.name.should.equal('Hans');
@@ -616,7 +617,7 @@ describe('manipulation', function () {
 
     it('should allow save() of the created instance', function(done) {
       Person.updateOrCreate(
-        { id: 'new-id', name: 'a-name' },
+        { id: 999 /* a new id */, name: 'a-name' },
         function(err, inst) {
           if (err) return done(err);
           inst.save(done);
@@ -768,9 +769,9 @@ describe('manipulation', function () {
     });
 
     it('should only delete instances that satisfy the where condition', function (done) {
-      Person.deleteAll({name: 'John'}, function (err, data) {
+      Person.deleteAll({name: 'John'}, function (err, result) {
         if (err) return done(err);
-        data.count.should.equal(1);
+        result.should.have.property('count', 1);
         Person.find({where: {name: 'John'}}, function (err, data) {
           if (err) return done(err);
           data.should.have.length(0);
@@ -784,9 +785,9 @@ describe('manipulation', function () {
     });
 
     it('should report zero deleted instances', function (done) {
-      Person.deleteAll({name: 'does-not-match'}, function (err, data) {
+      Person.deleteAll({name: 'does-not-match'}, function (err, result) {
         if (err) return done(err);
-        data.count.should.equal(0);
+        result.should.have.property('count', 0);
         Person.count(function(err, count) {
           if (err) return done(err);
           count.should.equal(2);
@@ -796,9 +797,9 @@ describe('manipulation', function () {
     });
 
     it('should delete all instances when "where" is not provided', function(done) {
-      Person.deleteAll(function (err, data) {
+      Person.deleteAll(function (err, result) {
         if (err) return done(err);
-        data.count.should.equal(2);
+        result.should.have.property('count', 2);
         Person.count(function(err, count) {
           if (err) return done(err);
           count.should.equal(0);
@@ -1038,7 +1039,7 @@ describe('manipulation', function () {
       Person.update({name: 'Harry Hoe'}, {name: 'Marta Moe'}, function(err,
           results) {
         should.not.exist(err);
-        results.count.should.equal(0);
+        results.should.have.property('count', 0);
         Person.find({where: {name: 'Harry Hoe'}}, function(err, people) {
           should.not.exist(err);
           people.should.be.empty;
@@ -1052,7 +1053,7 @@ describe('manipulation', function () {
       Person.update({name: 'Brett Boe'}, {name: 'Harry Hoe'}, function(err,
           results) {
         should.not.exist(err);
-        results.count.should.equal(1);
+        results.should.have.property('count', 1);
         Person.find({where: {age: 19}}, function(err, people) {
           should.not.exist(err);
           people.should.have.length(1);
@@ -1066,7 +1067,7 @@ describe('manipulation', function () {
         function(done) {
       Person.update({name: 'Harry Hoe'}, function(err, results) {
         should.not.exist(err);
-        results.count.should.equal(5);
+        results.should.have.property('count', 5);
         Person.find({where: {name: 'Brett Boe'}}, function(err, people) {
           should.not.exist(err);
           people.should.be.empty;
@@ -1084,7 +1085,7 @@ describe('manipulation', function () {
       Person.update({name: 'Brett Boe'}, {name: undefined, gender: 'male'},
           function(err, results) {
         should.not.exist(err);
-        results.count.should.equal(1);
+        results.should.have.property('count', 1)
         Person.find({where: {name: 'Brett Boe'}}, function(err, people) {
           should.not.exist(err);
           people.should.have.length(1);
