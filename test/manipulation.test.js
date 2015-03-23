@@ -340,6 +340,7 @@ describe('manipulation', function () {
         p.name = 'Hans';
         p.save(function (err) {
           should.not.exist(err);
+          p.name.should.equal('Hans');
           Person.findOne(function (err, p) {
             should.not.exist(err);
             p.name.should.equal('Hans');
