@@ -1022,7 +1022,7 @@ describe('manipulation', function () {
       Person.updateAll.should.be.a.Function;
     });
 
-    describe('with existing instances in the database', function() {
+    describe('with multiple instances in the database', function() {
       beforeEach(function deleteFixtures(done) {
         Person.destroyAll(done);
       });
