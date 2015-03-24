@@ -756,13 +756,13 @@ describe('manipulation', function () {
     it('should destroy filtered set of records');
   });
 
-  describe('when deleteAll/destroyAll executes', function () {
+  describe('deleteAll/destroyAll', function () {
     it('should be defined as function', function() {
       Person.deleteAll.should.be.a.Function;
       Person.destroyAll.should.be.a.Function;
     });
 
-    describe('with multiple instances in the database', function() {
+    context('with multiple instances in the database', function() {
       beforeEach(function deleteFixtures(done) {
         Person.deleteAll(done);
       });
@@ -1016,13 +1016,13 @@ describe('manipulation', function () {
     });
   });
 
-  describe('when update/updateAll executes', function() {
+  describe('update/updateAll', function() {
     it('should be defined as a function', function() {
       Person.update.should.be.a.Function;
       Person.updateAll.should.be.a.Function;
     });
 
-    describe('with multiple instances in the database', function() {
+    context('with multiple instances in the database', function() {
       beforeEach(function deleteFixtures(done) {
         Person.destroyAll(done);
       });
@@ -1061,7 +1061,7 @@ describe('manipulation', function () {
         });
       });
 
-      it('should update instances that satisfy the where condition',
+      it('should only update instances that satisfy the where condition',
           function(done) {
         Person.update({name: 'Brett Boe'}, {name: 'Harry Hoe'}, function(err,
             info) {
