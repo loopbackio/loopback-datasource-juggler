@@ -777,7 +777,7 @@ describe('manipulation', function () {
 
       it('should only delete instances that satisfy the where condition',
           function(done) {
-        Person.deleteAll({name: 'John'}, function(err, info) {
+        Person.deleteAll({name: 'John'}, function(err, data, info) {
           if (err) return done(err);
           info.count.should.equal(1);
           Person.find({where: {name: 'John'}}, function(err, data) {
@@ -794,7 +794,7 @@ describe('manipulation', function () {
 
       it('should report zero deleted instances when no matches are found',
           function(done) {
-        Person.deleteAll({name: 'does-not-match'}, function(err, info) {
+        Person.deleteAll({name: 'does-not-match'}, function(err, data, info) {
           if (err) return done(err);
           info.count.should.equal(0);
           Person.count(function(err, count) {
@@ -807,7 +807,7 @@ describe('manipulation', function () {
 
       it('should delete all instances when the where condition is not provided',
           function(done) {
-        Person.deleteAll(function (err, info) {
+        Person.deleteAll(function (err, data, info) {
           if (err) return done(err);
           info.count.should.equal(2);
           Person.count(function(err, count) {
@@ -1049,9 +1049,8 @@ describe('manipulation', function () {
       it('should not update instances that do not satisfy the where condition',
           function(done) {
         Person.update({name: 'Harry Hoe'}, {name: 'Marta Moe'}, function(err,
-            info) {
+            data, info) {
           if (err) return done(err);
-          should.not.exist(err);
           info.count.should.equal(0);
           Person.find({where: {name: 'Harry Hoe'}}, function(err, people) {
             if (err) return done(err);
@@ -1064,7 +1063,7 @@ describe('manipulation', function () {
       it('should update instances that satisfy the where condition',
           function(done) {
         Person.update({name: 'Brett Boe'}, {name: 'Harry Hoe'}, function(err,
-            info) {
+            data, info) {
           if (err) return done(err);
           info.count.should.equal(1);
           Person.find({where: {age: 19}}, function(err, people) {
@@ -1078,7 +1077,7 @@ describe('manipulation', function () {
 
       it('should update all instances when the where condition is not provided',
           function(done) {
-        Person.update({name: 'Harry Hoe'}, function(err, info) {
+        Person.update({name: 'Harry Hoe'}, function(err, data, info) {
           if (err) return done(err);
           info.count.should.equal(5);
           Person.find({where: {name: 'Brett Boe'}}, function(err, people) {
@@ -1096,7 +1095,7 @@ describe('manipulation', function () {
       it('should ignore where conditions with undefined values',
           function(done) {
         Person.update({name: 'Brett Boe'}, {name: undefined, gender: 'male'},
-            function(err, info) {
+            function(err, data, info) {
           if (err) return done(err);
           info.count.should.equal(1);
           Person.find({where: {name: 'Brett Boe'}}, function(err, people) {
