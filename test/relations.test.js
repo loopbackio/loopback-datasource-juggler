@@ -2665,9 +2665,48 @@ describe('relations', function () {
       });
     });
 
-    it('should have embedded items - verify', function(done) {
+    it('should have removed embedded items - verify', function(done) {
       Person.findOne(function(err, p) {
         p.addresses.should.have.length(1);
+        done();
+      });
+    });
+
+    it('should create embedded items on scope', function(done) {
+      Person.findOne(function(err, p) {
+        p.addressList.create({ street: 'Street 3' }, function(err, address) {
+          should.not.exist(err);
+          address.street.should.equal('Street 3');
+          done();
+        });
+      });
+    });
+
+    it('should remove embedded items - filtered', function(done) {
+      Person.findOne(function(err, p) {
+        p.addresses.should.have.length(2);
+        p.addressList.destroyAll({ street: 'Street 3' }, function(err) {
+          should.not.exist(err);
+          p.addresses.should.have.length(1);
+          done();
+        });
+      });
+    });
+
+    it('should remove all embedded items', function(done) {
+      Person.findOne(function(err, p) {
+        p.addresses.should.have.length(1);
+        p.addressList.destroyAll(function(err) {
+          should.not.exist(err);
+          p.addresses.should.have.length(0);
+          done();
+        });
+      });
+    });
+
+    it('should have removed all embedded items - verify', function(done) {
+      Person.findOne(function(err, p) {
+        p.addresses.should.have.length(0);
         done();
       });
     });
