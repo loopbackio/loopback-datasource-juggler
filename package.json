@@ -35,7 +35,6 @@
     "debug": "^2.1.1",
     "depd": "^1.0.0",
     "inflection": "^1.6.0",
-    "lodash": "~3.0.1",
     "loopback-connector": "1.x",
     "node-uuid": "^1.4.2",
     "qs": "^2.3.3",
