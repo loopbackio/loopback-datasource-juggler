@@ -149,4 +149,102 @@ describe('datatypes', function () {
       coerced.nested.constructor.name.should.equal('Object');
   });
 
+  describe('model option persistUndefinedAsNull', function() {
+    var TestModel;
+    before(function(done) {
+      TestModel = db.define(
+        'TestModel',
+        {
+          desc: { type: String, required: false },
+          stars: { type: Number, required: false }
+        },
+        {
+          persistUndefinedAsNull: true
+        });
+
+      db.automigrate(done);
+    });
+
+    it('should set missing optional properties to null', function(done) {
+      var EXPECTED = { desc: null, stars: null };
+      TestModel.create({ name: 'a-test-name' }, function(err, created) {
+        if (err) return done(err);
+        created.should.have.properties(EXPECTED);
+
+        TestModel.findById(created.id, function(err, found) {
+          if (err) return done(err);
+          found.should.have.properties(EXPECTED);
+          done();
+        });
+      });
+    });
+
+    it('should convert property value undefined to null', function(done) {
+      var EXPECTED = { desc: null, extra: null };
+      var data ={ desc: undefined, extra: undefined };
+      TestModel.create(data, function(err, created) {
+        if (err) return done(err);
+        created.should.have.properties(EXPECTED);
+
+        TestModel.findById(created.id, function(err, found) {
+          if (err) return done(err);
+          found.should.have.properties(EXPECTED);
+          done();
+        });
+      });
+    });
+
+    it('should convert undefined to null in the setter', function() {
+      var inst = new TestModel();
+      inst.desc = undefined;
+      inst.should.have.property('desc', null);
+      inst.toObject().should.have.property('desc', null);
+    });
+
+    it('should use null in unsetAttribute()', function() {
+      var inst = new TestModel();
+      inst.unsetAttribute('stars');
+      inst.should.have.property('stars', null);
+      inst.toObject().should.have.property('stars', null);
+    });
+
+    it('should convert undefined to null on save', function(done) {
+      var EXPECTED = { desc: null, stars: null, extra: null };
+      TestModel.create({}, function(err, created) {
+        if (err) return done(err);
+        created.desc = undefined; // Note: this is may be a no-op
+        created.unsetAttribute('stars');
+        created.extra = undefined;
+        created.__data.dx = undefined;
+
+        created.save(function(err, saved) {
+          if (err) return done(err);
+          created.should.have.properties(EXPECTED);
+
+          TestModel.dataSource.connector.all(
+            TestModel.modelName,
+            { where: { id: created.id } },
+            function(err, found) {
+              if (err) return done(err);
+              should.exist(found[0]);
+              found[0].should.have.properties(EXPECTED);
+              done();
+            }
+          );
+        });
+      });
+    });
+
+    it('should convert undefined to null in toObject()', function() {
+      var inst = new TestModel();
+      inst.desc = undefined; // Note: this may be a no-op
+      inst.unsetAttribute('stars');
+      inst.extra = undefined;
+      inst.__data.dx = undefined;
+
+      inst.toObject(false).should.have.properties({
+       desc: null, stars: null, extra: null, dx: null
+      });
+    });
+  });
 });
