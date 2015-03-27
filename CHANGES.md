@@ -1,3 +1,61 @@
+2015-03-27, Version 2.22.0
+==========================
+
+ * Code cleanup in updateAll/deleteAll (Miroslav Bajtoš)
+
+ * Return scope object from DAO.scope (Fabien Franzen)
+
+ * Remove all usages of lodash. (Miroslav Bajtoš)
+
+ * Clean up delete and update tests (Simon Ho)
+
+ * Clean up wording in update/delete tests (Simon Ho)
+
+ * Fix wording in update test (Simon Ho)
+
+ * Properly support embedsMany destroyAll (Fabien Franzen)
+
+ * Clean up update/delete manipulation tests (Simon Ho)
+
+ * test: fix test failure in MySQL connector (Miroslav Bajtoš)
+
+ * Improve test failure messages (Miroslav Bajtoš)
+
+ * Fix regression in prototype.save (Miroslav Bajtoš)
+
+ * Enable more CRUD remoting methods for embedsOne (Fabien Franzen)
+
+ * Implement scope.findOne (Fabien Franzen)
+
+ * use findOrCreate for HasManyThrough#create (Clark Wang)
+
+ * Enhance id comparision for updateAttributes (Raymond Feng)
+
+ * Enable custom methods on singular relations (Fabien Franzen)
+
+ * Implement scope.findById (Fabien Franzen)
+
+ * Fix updateAll callback in "transient" connector (Miroslav Bajtoš)
+
+ * Memory connector returns updated records count (Simon Ho)
+
+ * Add ctx.isNewInstance for "save" hooks (Miroslav Bajtoš)
+
+ * deleteAll returns number of deleted records (Miroslav Bajtoš)
+
+ * Use the correct way to iterate over an array (Raymond Feng)
+
+ * DAO: Fix updateOrCreate to set persisted:true (Miroslav Bajtoš)
+
+ * Reject CREATE with a duplicate id (Miroslav Bajtoš)
+
+ * add tests for between in memory connector (Daniel B. Vasquez)
+
+ * enable between filter for memory db connector (Daniel B. Vasquez)
+
+ * fix #429 Multiple Models can't mixin same class (Clark Wang)
+
+
 2015-03-16, Version 2.21.0
 ==========================
 
