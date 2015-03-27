@@ -146,7 +146,13 @@ describe('Memory connector', function() {
       birthday: {type: Date, index: true},
       role: {type: String, index: true},
       order: {type: Number, index: true, sort: true},
-      vip: {type: Boolean}
+      vip: {type: Boolean},
+      address: {
+        street: String,
+        city: String,
+        state: String,
+        zipCode: String
+      }
     });
 
     before(seed);
@@ -317,6 +323,39 @@ describe('Memory connector', function() {
       });
     });
 
+    it('should support nested property in query', function(done) {
+      User.find({where: {'address.city': 'San Jose'}}, function(err, users) {
+        should.not.exist(err);
+        users.length.should.be.equal(1);
+        for (var i = 0; i < users.length; i++) {
+          users[i].address.city.should.be.eql('San Jose');
+        }
+        done();
+      });
+    });
+
+    it('should support nested property with gt in query', function(done) {
+        User.find({where: {'address.city': {gt: 'San'}}}, function(err, users) {
+          should.not.exist(err);
+          users.length.should.be.equal(2);
+          for (var i = 0; i < users.length; i++) {
+            users[i].address.state.should.be.eql('CA');
+          }
+          done();
+        });
+    });
+
+    it('should support nested property for order in query', function(done) {
+      User.find({where: {'address.state': 'CA'}, order: 'address.city DESC'},
+        function(err, users) {
+          should.not.exist(err);
+          users.length.should.be.equal(2);
+          users[0].address.city.should.be.eql('San Mateo');
+          users[1].address.city.should.be.eql('San Jose');
+          done();
+        });
+    });
+
     function seed(done) {
       var beatles = [
         {
@@ -325,7 +364,13 @@ describe('Memory connector', function() {
           email: 'john@b3atl3s.co.uk',
           role: 'lead',
           birthday: new Date('1980-12-08'),
-          vip: true
+          vip: true,
+          address: {
+            street: '123 A St',
+            city: 'San Jose',
+            state: 'CA',
+            zipCode: '95131'
+          }
         },
         {
           seq: 1,
@@ -334,7 +379,13 @@ describe('Memory connector', function() {
           role: 'lead',
           birthday: new Date('1942-06-18'),
           order: 1,
-          vip: true
+          vip: true,
+          address: {
+            street: '456 B St',
+            city: 'San Mateo',
+            state: 'CA',
+            zipCode: '94065'
+          }
         },
         {seq: 2, name: 'George Harrison', order: 5, vip: false},
         {seq: 3, name: 'Ringo Starr', order: 6, vip: false},
