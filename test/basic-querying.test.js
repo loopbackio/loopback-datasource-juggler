@@ -63,12 +63,12 @@ describe('basic-querying', function () {
     var createdUsers;
     before(function(done) {
       var people = [
-        { id: 1, name: 'a', vip: true },
-        { id: 2, name: 'b' },
-        { id: 3, name: 'c' },
-        { id: 4, name: 'd', vip: true },
-        { id: 5, name: 'e' },
-        { id: 6, name: 'f' }
+        { name: 'a', vip: true },
+        { name: 'b' },
+        { name: 'c' },
+        { name: 'd', vip: true },
+        { name: 'e' },
+        { name: 'f' }
       ];
       db.automigrate(['User'], function(err) {
         User.create(people, function(err, users) {
