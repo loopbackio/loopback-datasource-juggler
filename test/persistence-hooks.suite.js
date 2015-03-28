@@ -279,6 +279,103 @@ module.exports = function(dataSource, should) {
             done();
           });
       });
+
+      it('triggers `before validate` hook', function(done) {
+        TestModel.observe('before validate', pushContextAndNext());
+
+        TestModel.create({ name: 'created' }, function(err, instance) {
+          if (err) return done(err);
+          observedContexts.should.eql(aTestModelCtx({
+            instance: {
+              id: instance.id,
+              name: 'created',
+              extra: null
+            },
+            data: {
+              id: instance.id,
+              name: 'created',
+              extra: null
+            }
+          }));
+          done();
+        });
+      });
+
+      it('triggers `after validate` hook', function(done) {
+        TestModel.observe('after validate', pushContextAndNext());
+
+        TestModel.create({ name: 'created' }, function(err, instance) {
+          if (err) return done(err);
+          observedContexts.should.eql(aTestModelCtx({
+            isValid: true,
+            instance: {
+              id: instance.id,
+              name: 'created',
+              extra: null
+            },
+            data: {
+              id: instance.id,
+              name: 'created',
+              extra: null
+            }
+          }));
+          done();
+        });
+      });
+
+      it('aborts when `before validate` hook fails', function(done) {
+        TestModel.observe('before validate', nextWithError(expectedError));
+
+        TestModel.create({ name: 'created' }, function(err, instance) {
+          (err || {}).should.be.instanceOf(ValidationError);
+          var msg = 'The `TestModel` instance is not valid. Details: (unknown).';
+          err.message.should.equal(msg);
+          err.details.context.should.equal('TestModel');
+          (err.details.codes || {}).should.eql({});
+          (err.details.messages || {}).should.eql({});
+          done();
+        });
+      });
+      
+      it('triggers hooks in the correct order when valid', function(done) {
+        var triggered = [];
+        TestModel._notify = TestModel.notifyObserversOf;
+        TestModel.notifyObserversOf = function(operation, context, callback) {
+          triggered.push(operation);
+          this._notify.apply(this, arguments);
+        };
+
+        TestModel.create({ name: 'new-record' }, function(err, record) {
+            if (err) return done(err);
+            triggered.should.eql([
+              'before save',
+              'before validate',
+              'after validate',
+              'after save'
+            ]);
+            done();
+          });
+      });
+
+      it('triggers hooks in the correct order when invalid', function(done) {
+        var triggered = [];
+        TestModel._notify = TestModel.notifyObserversOf;
+        TestModel.notifyObserversOf = function(operation, context, callback) {
+          triggered.push(operation);
+          this._notify.apply(this, arguments);
+        };
+
+        TestModel.create({}, function(err, record) {
+            (err || {}).should.be.instanceOf(ValidationError);
+            triggered.should.eql([
+              'before save',
+              'before validate',
+              'after validate'
+            ]);
+            done();
+          });
+      });
+
     });
 
     describe('PersistedModel.findOrCreate', function() {
@@ -372,6 +469,8 @@ module.exports = function(dataSource, should) {
             triggered.should.eql([
               'access',
               'before save',
+              'before validate',
+              'after validate',
               'after save'
             ]);
             done();
@@ -431,6 +530,114 @@ module.exports = function(dataSource, should) {
           function(err, instance) {
             if (err) return done(err);
             observedContexts.should.eql("hook not called");
+            done();
+          });
+      });
+      
+      it('triggers `before validate` hook', function(done) {
+        TestModel.observe('before validate', pushContextAndNext());
+
+        TestModel.findOrCreate(
+          { where: { name: 'other name' } },
+          { name: 'other name' }, function(err, instance) {
+          if (err) return done(err);
+          observedContexts.should.eql(aTestModelCtx({
+            instance: {
+              id: instance.id,
+              name: 'other name',
+              extra: null
+            },
+            data: {
+              id: instance.id,
+              name: 'other name',
+              extra: null
+            }
+          }));
+          done();
+        });
+      });
+
+      it('triggers `after validate` hook', function(done) {
+        TestModel.observe('after validate', pushContextAndNext());
+
+        TestModel.findOrCreate(
+          { where: { name: 'test name' } },
+          { name: 'test name' }, function(err, instance) {
+          if (err) return done(err);
+          observedContexts.should.eql(aTestModelCtx({
+            isValid: true,
+            instance: {
+              id: instance.id,
+              name: 'test name',
+              extra: null
+            },
+            data: {
+              id: instance.id,
+              name: 'test name',
+              extra: null
+            }
+          }));
+          done();
+        });
+      });
+
+      it('aborts when `before validate` hook fails', function(done) {
+        TestModel.observe('before validate', nextWithError(expectedError));
+
+        TestModel.findOrCreate(
+          { where: { name: 'example name' } },
+          { name: 'example name' }, function(err, instance) {
+          (err || {}).should.be.instanceOf(ValidationError);
+          var msg = 'The `TestModel` instance is not valid. Details: (unknown).';
+          err.message.should.equal(msg);
+          err.details.context.should.equal('TestModel');
+          (err.details.codes || {}).should.eql({});
+          (err.details.messages || {}).should.eql({});
+          done();
+        });
+      });
+      
+      it('triggers hooks in the correct order when valid', function(done) {
+        var triggered = [];
+        TestModel._notify = TestModel.notifyObserversOf;
+        TestModel.notifyObserversOf = function(operation, context, callback) {
+          triggered.push(operation);
+          this._notify.apply(this, arguments);
+        };
+
+        TestModel.findOrCreate(
+          { where: { name: 'example name' } },
+          { name: 'example name' }, function(err, record) {
+            if (err) return done(err);
+            triggered.should.eql([
+              'access',
+              'before save',
+              'before validate',
+              'after validate',
+              'after save'
+            ]);
+            done();
+          });
+      });
+
+      it('triggers hooks in the correct order when invalid', function(done) {
+        var triggered = [];
+        TestModel._notify = TestModel.notifyObserversOf;
+        TestModel.notifyObserversOf = function(operation, context, callback) {
+          triggered.push(operation);
+          this._notify.apply(this, arguments);
+        };
+
+        TestModel.findOrCreate(
+          { where: { name: 'sample name' } },
+          {}, function(err, record) {
+            (err || {}).should.be.instanceOf(ValidationError);
+            triggered.should.eql([
+              'access',
+              'before save',
+              'before validate',
+              'after validate'
+            ]);
             done();
           });
       });
@@ -570,6 +777,46 @@ module.exports = function(dataSource, should) {
           done();
         });
       });
+      
+      it('triggers hooks in the correct order when valid', function(done) {
+        var triggered = [];
+        TestModel._notify = TestModel.notifyObserversOf;
+        TestModel.notifyObserversOf = function(operation, context, callback) {
+          triggered.push(operation);
+          this._notify.apply(this, arguments);
+        };
+
+        existingInstance.save(function(err, instance) {
+            if (err) return done(err);
+            triggered.should.eql([
+              'before save',
+              'before validate',
+              'after validate',
+              'after save'
+            ]);
+            done();
+          });
+      });
+
+      it('triggers hooks in the correct order when invalid', function(done) {
+        var triggered = [];
+        TestModel._notify = TestModel.notifyObserversOf;
+        TestModel.notifyObserversOf = function(operation, context, callback) {
+          triggered.push(operation);
+          this._notify.apply(this, arguments);
+        };
+
+        existingInstance.name = null;
+        existingInstance.save(function(err, instance) {
+            (err || {}).should.be.instanceOf(ValidationError);
+            triggered.should.eql([
+              'before save',
+              'before validate',
+              'after validate'
+            ]);
+            done();
+          });
+      });
     });
 
     describe('PersistedModel.prototype.updateAttributes', function() {
@@ -671,6 +918,98 @@ module.exports = function(dataSource, should) {
           instance.should.have.property('extra', 'hook data');
           done();
         });
+      });
+      
+      it('triggers `before validate` hook', function(done) {
+        TestModel.observe('before validate', pushContextAndNext());
+
+        existingInstance.updateAttributes({ name: 'updated' }, function(err, instance) {
+          if (err) return done(err);
+          observedContexts.should.eql(aTestModelCtx({
+            instance: {
+              id: instance.id,
+              name: 'updated',
+              extra: null
+            },
+            data: {
+              name: 'updated'
+            }
+          }));
+          done();
+        });
+      });
+      
+      it('triggers `after validate` hook', function(done) {
+        TestModel.observe('after validate', pushContextAndNext());
+
+        existingInstance.updateAttributes({ name: 'changed' }, function(err, instance) {
+          if (err) return done(err);
+          observedContexts.should.eql(aTestModelCtx({
+            isValid: true,
+            instance: {
+              id: instance.id,
+              name: 'changed',
+              extra: null
+            },
+            data: {
+              name: 'changed'
+            }
+          }));
+          done();
+        });
+      });
+      
+      it('aborts when `before validate` hook fails', function(done) {
+        TestModel.observe('before validate', nextWithError(expectedError));
+
+        existingInstance.updateAttributes({ name: 'updated' }, function(err, instance) {
+          (err || {}).should.be.instanceOf(ValidationError);
+          var msg = 'The `TestModel` instance is not valid. Details: (unknown).';
+          err.message.should.equal(msg);
+          err.details.context.should.equal('TestModel');
+          (err.details.codes || {}).should.eql({});
+          (err.details.messages || {}).should.eql({});
+          done();
+        });
+      });
+      
+      it('triggers hooks in the correct order when valid', function(done) {
+        var triggered = [];
+        TestModel._notify = TestModel.notifyObserversOf;
+        TestModel.notifyObserversOf = function(operation, context, callback) {
+          triggered.push(operation);
+          this._notify.apply(this, arguments);
+        };
+
+        existingInstance.updateAttributes({ name: 'updated' }, function(err, instance) {
+            if (err) return done(err);
+            triggered.should.eql([
+              'before save',
+              'before validate',
+              'after validate',
+              'after save'
+            ]);
+            done();
+          });
+      });
+
+      it('triggers hooks in the correct order when invalid', function(done) {
+        var triggered = [];
+        TestModel._notify = TestModel.notifyObserversOf;
+        TestModel.notifyObserversOf = function(operation, context, callback) {
+          triggered.push(operation);
+          this._notify.apply(this, arguments);
+        };
+
+        existingInstance.updateAttributes({ name: null }, function(err, instance) {
+            (err || {}).should.be.instanceOf(ValidationError);
+            triggered.should.eql([
+              'before save',
+              'before validate',
+              'after validate'
+            ]);
+            done();
+          });
       });
     });
 
@@ -934,6 +1273,13 @@ module.exports = function(dataSource, should) {
             done();
           });
       });
+
+      // See Known Issue:
+      // https://github.com/strongloop/loopback-datasource-juggler/issues/262
+
+      it('triggers hooks in the correct order when valid');
+      it('triggers hooks in the correct order when invalid');
+
     });
 
     describe('PersistedModel.deleteAll', function() {
