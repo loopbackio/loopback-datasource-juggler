@@ -131,7 +131,7 @@ describe('scope - order', function () {
   
 });
 
-describe('scope - filtered count and destroyAll', function () {
+describe('scope - filtered count, updateAll and destroyAll', function () {
 
   var stationA;
 
@@ -140,11 +140,13 @@ describe('scope - filtered count and destroyAll', function () {
     Station = db.define('Station', {
       name: {type: String, index: true},
       order: {type: Number, index: true},
-      active: {type: Boolean, index: true, default: true}
+      active: {type: Boolean, index: true, default: true},
+      flagged: {type: Boolean, index: true, default: false}
     });
     Station.scope('ordered', {order: 'order'});
     Station.scope('active', {where: { active: true}});
     Station.scope('inactive', {where: { active: false}});
+    Station.scope('flagged', {where: { flagged: true}});
   });
 
   beforeEach(function (done) {
@@ -245,7 +247,39 @@ describe('scope - filtered count and destroyAll', function () {
         done();
     });
   });
-  
+
+  it('should allow updateAll', function(done) {
+    Station.inactive.updateAll({ flagged: true }, function(err, result) {
+        should.not.exist(err);
+        result.count.should.equal(2);
+        verify();
+    });
+
+    var verify = function() {
+      Station.flagged.count(function(err, count) {
+        should.not.exist(err);
+        count.should.equal(2);
+        done();
+      });
+    };
+  });
+
+  it('should allow filtered updateAll', function(done) {
+    Station.ordered.updateAll({ active: true }, { flagged: true }, function(err, result) {
+        should.not.exist(err);
+        result.count.should.equal(2);
+        verify();
+    });
+
+    var verify = function() {
+      Station.flagged.count(function(err, count) {
+        should.not.exist(err);
+        count.should.equal(2);
+        done();
+      });
+    };
+  });
+
   it('should allow filtered destroyAll', function(done) {
     Station.ordered.destroyAll({ active: false }, function(err) {
         should.not.exist(err);
