@@ -473,8 +473,8 @@ module.exports = function(dataSource, should) {
           observedContexts.should.eql(aTestModelCtx({ instance: {
             id: existingInstance.id,
             name: 'changed',
-            extra: undefined
-          }}));
+            extra: undefined,
+          }, options: { throws: false, validate: true } }));
           done();
         });
       });
@@ -524,8 +524,8 @@ module.exports = function(dataSource, should) {
               name: 'changed',
               extra: undefined
             },
-            isNewInstance: false
-          }));
+            isNewInstance: false,
+            options: { throws: false, validate: true } }));
           done();
         });
       });
@@ -1297,6 +1297,23 @@ module.exports = function(dataSource, should) {
             done();
           });
       });
+
+      it('accepts hookState from options', function(done) {
+        TestModel.observe('after save', pushContextAndNext());
+
+        TestModel.updateAll(
+          { id: existingInstance.id },
+          { name: 'updated name' },
+          { foo: 'bar' },
+          function(err) {
+            if (err) return done(err);
+            observedContexts.options.should.eql({
+                foo: 'bar'
+            });
+            done();
+          });
+      });
+
     });
 
     function pushContextAndNext(fn) {
@@ -1350,6 +1367,9 @@ module.exports = function(dataSource, should) {
       ctx.Model = TestModel;
       if (!ctx.hookState) {
         ctx.hookState = { test: true };
+      }
+      if (!ctx.options) {
+        ctx.options = {};
       }
       return deepCloneToObject(ctx);
     }
