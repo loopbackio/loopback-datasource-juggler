@@ -295,7 +295,7 @@ describe('manipulation', function () {
     it('should refuse to create object with duplicate id', function(done) {
       // NOTE(bajtos) We cannot reuse Person model here,
       // `settings.forceId` aborts the CREATE request at the validation step.
-      var Product = db.define('Product', { name: String });
+      var Product = db.define('ProductTest', { name: String });
       db.automigrate(function(err) {
         if (err) return done(err);
 
