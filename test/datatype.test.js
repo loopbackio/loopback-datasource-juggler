@@ -150,7 +150,7 @@ describe('datatypes', function () {
   });
 
   describe('model option persistUndefinedAsNull', function() {
-    var TestModel;
+    var TestModel, isStrict;
     before(function(done) {
       TestModel = db.define(
         'TestModel',
@@ -161,6 +161,8 @@ describe('datatypes', function () {
         {
           persistUndefinedAsNull: true
         });
+
+      isStrict = TestModel.definition.settings.strict;
 
       db.automigrate(done);
     });
@@ -181,9 +183,15 @@ describe('datatypes', function () {
 
     it('should convert property value undefined to null', function(done) {
       var EXPECTED = { desc: null, extra: null };
+      if (isStrict) {
+        // SQL-based connectors don't support dynamic properties
+        delete EXPECTED.extra;
+      }
+
       var data ={ desc: undefined, extra: undefined };
       TestModel.create(data, function(err, created) {
         if (err) return done(err);
+
         created.should.have.properties(EXPECTED);
 
         TestModel.findById(created.id, function(err, found) {
@@ -209,7 +217,13 @@ describe('datatypes', function () {
     });
 
     it('should convert undefined to null on save', function(done) {
-      var EXPECTED = { desc: null, stars: null, extra: null };
+      var EXPECTED = { desc: null, stars: null, extra: null, dx: null };
+      if (isStrict) {
+        // SQL-based connectors don't support dynamic properties
+        delete EXPECTED.extra;
+        delete EXPECTED.dx;
+      }
+
       TestModel.create({}, function(err, created) {
         if (err) return done(err);
         created.desc = undefined; // Note: this is may be a no-op
@@ -219,7 +233,9 @@ describe('datatypes', function () {
 
         created.save(function(err, saved) {
           if (err) return done(err);
+
           created.should.have.properties(EXPECTED);
+          saved.should.have.properties(EXPECTED);
 
           TestModel.dataSource.connector.all(
             TestModel.modelName,
