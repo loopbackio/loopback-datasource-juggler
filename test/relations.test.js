@@ -2235,6 +2235,9 @@ describe('relations', function () {
     var Passport;
     var Other;
 
+    var hooks = [];
+    var combinedHooks = [];
+
     before(function () {
       tmp = getTransientDataSource();
       db = getSchema();
@@ -2247,12 +2250,32 @@ describe('relations', function () {
       Other = db.define('Other', {name: String});
     });
 
+    beforeEach(function() {
+      combinedHooks = [];
+    });
+
     it('can be declared using embedsOne method', function (done) {
       Person.embedsOne(Passport, {
         default: {name: 'Anonymous'}, // a bit contrived
         methods: { check: function() { return true; } }
       });
       Person.embedsOne(Address); // all by default
+
+      observeHook(Person, 'before save');
+      observeHook(Person, 'after save');
+      observeHook(Person, 'before delete');
+      observeHook(Person, 'after delete');
+
+      observeHook(Passport, 'before save');
+      observeHook(Passport, 'after save');
+      observeHook(Passport, 'before delete');
+      observeHook(Passport, 'after delete');
+
+      observeEmbedded(Passport, 'before save');
+      observeEmbedded(Passport, 'after save');
+      observeEmbedded(Passport, 'before delete');
+      observeEmbedded(Passport, 'after delete');
+
       db.automigrate(done);
     });
 
@@ -2326,6 +2349,17 @@ describe('relations', function () {
           should.not.exist(err);
           p.passport.toObject().should.eql({name: 'Fredric'});
           p.passport.should.be.an.instanceOf(Passport);
+          
+          var expected = [
+            'Person: before save',
+            'Person: after save',
+            'Passport: before save',
+            'Person: before save',
+            'Person: after save',
+            'Passport: after save'
+          ];
+          combinedHooks.should.eql(expected);
+          
           done();
         });
       });
@@ -2375,6 +2409,15 @@ describe('relations', function () {
           passport.toObject().should.eql({name: 'Freddy'});
           passport.should.be.an.instanceOf(Passport);
           passport.should.equal(p.passport);
+          
+          var expected = [
+            'Passport: before save',
+            'Person: before save',
+            'Person: after save',
+            'Passport: after save'
+          ];
+          combinedHooks.should.eql(expected);
+          
           done();
         });
       });
@@ -2394,6 +2437,15 @@ describe('relations', function () {
         p.passportItem.destroy(function(err) {
           should.not.exist(err);
           should.equal(p.passport, null);
+          
+          var expected = [
+            'Passport: before delete',
+            'Person: before save',
+            'Person: after save',
+            'Passport: after delete'
+          ];
+          combinedHooks.should.eql(expected);
+          
           done();
         });
       });
@@ -2406,6 +2458,44 @@ describe('relations', function () {
         done();
       });
     });
+
+    it('should have notified hook observers', function() {
+      // the un-paired list of events stems from a ValidationError
+      var expected = [ 
+        { hook: 'before save', instance: { name: 'Fredric' } },
+        { hook: 'after save', instance: { name: 'Fredric' } },
+        { hook: 'before save', instance: { name: undefined } },
+        { hook: 'before save',
+          currentInstance: { name: 'Fredric' },
+          data: { name: 'Freddy' }
+        },
+        { hook: 'after save', instance: { name: 'Freddy' } },
+        { hook: 'before delete', instance: { name: 'Freddy' } },
+        { hook: 'after delete', instance: { name: 'Freddy' } }
+      ];
+      hooks.should.eql(expected);
+    });
+
+    function observeHook(Model, type) {
+      Model.observe(type, function(ctx, next) {
+        combinedHooks.push(ctx.Model.modelName + ': ' + type);
+        next();
+      });
+    };
+
+    function observeEmbedded(Model, type) {
+      Model.observe(type, function(ctx, next) {
+        var info = { hook: type };
+        if (ctx.currentInstance) {
+          info.currentInstance = ctx.currentInstance.toObject();
+        } else if (ctx.instance) {
+          info.instance = ctx.instance.toObject();
+        }
+        if (ctx.data) info.data = ctx.data;
+        hooks.push(info);
+        next();
+      });
+    };
 
   });
 
@@ -2487,6 +2577,9 @@ describe('relations', function () {
   describe('embedsMany', function () {
 
     var address1, address2;
+    
+    var hooks = [];
+    var combinedHooks = [];
 
     before(function (done) {
       tmp = getTransientDataSource({defaultIdType: Number});
@@ -2500,8 +2593,28 @@ describe('relations', function () {
       });
     });
 
+    beforeEach(function() {
+      combinedHooks = [];
+    });
+
     it('can be declared', function (done) {
       Person.embedsMany(Address);
+
+      observeHook(Person, 'before save');
+      observeHook(Person, 'after save');
+      observeHook(Person, 'before delete');
+      observeHook(Person, 'after delete');
+
+      observeHook(Address, 'before save');
+      observeHook(Address, 'after save');
+      observeHook(Address, 'before delete');
+      observeHook(Address, 'after delete');
+
+      observeEmbedded(Address, 'before save');
+      observeEmbedded(Address, 'after save');
+      observeEmbedded(Address, 'before delete');
+      observeEmbedded(Address, 'after delete');
+
       db.automigrate(done);
     });
 
@@ -2525,6 +2638,17 @@ describe('relations', function () {
           address1 = address;
           should.exist(address1.id);
           address1.street.should.equal('Street 1');
+          
+          var expected = [
+            'Person: before save',
+            'Person: after save',
+            'Address: before save',
+            'Person: before save',
+            'Person: after save',
+            'Address: after save'
+          ];
+          combinedHooks.should.eql(expected);
+          
           done();
         });
       });
@@ -2537,6 +2661,15 @@ describe('relations', function () {
           address2 = address;
           should.exist(address2.id);
           address2.street.should.equal('Street 2');
+          
+          var expected = [
+            'Address: before save',
+            'Person: before save',
+            'Person: after save',
+            'Address: after save'
+          ];
+          combinedHooks.should.eql(expected);
+          
           done();
         });
       });
@@ -2660,6 +2793,15 @@ describe('relations', function () {
         p.addressList.destroy(address1.id, function(err) {
           should.not.exist(err);
           p.addresses.should.have.length(1);
+          
+          var expected = [
+            'Address: before delete',
+            'Person: before save',
+            'Person: after save',
+            'Address: after delete'
+          ];
+          combinedHooks.should.eql(expected);
+          
           done();
         });
       });
@@ -2710,6 +2852,58 @@ describe('relations', function () {
         done();
       });
     });
+    
+    it('should have notified hook observers', function() {
+      // the un-paired list of events stems from a ValidationError
+      var expected = [
+        { hook: 'before save', instance: { street: 'Street 1', id: 1 } },
+        { hook: 'after save', instance: { street: 'Street 1', id: 1 } },
+        { hook: 'before save', instance: { street: 'Street 2', id: 2 } },
+        { hook: 'after save', instance: { street: 'Street 2', id: 2 } },
+        { hook: 'before save',
+          currentInstance: { street: 'Street 2', id: 2 },
+          data: { street: 'New Street' } },
+        { hook: 'after save',
+          instance: { street: 'New Street', id: 2 } },
+        { hook: 'before save',
+          currentInstance: { street: 'New Street', id: 2 },
+          data: { street: null } },
+        { hook: 'before save',
+          currentInstance: { street: 'Street 1', id: 1 },
+          data: { street: 'Changed 1' } },
+        { hook: 'after save', instance: { street: 'Changed 1', id: 1 } },
+        { hook: 'before save',
+          currentInstance: { street: 'New Street', id: 2 },
+          data: { street: 'Changed 2' } },
+        { hook: 'after save', instance: { street: 'Changed 2', id: 2 } },
+        { hook: 'before delete',
+          instance: { street: 'Street 1', id: 1 } },
+        { hook: 'after delete',
+          instance: { street: 'Street 1', id: 1 } }
+      ];
+      hooks.should.eql(expected);
+    });
+
+    function observeHook(Model, type) {
+      Model.observe(type, function(ctx, next) {
+        combinedHooks.push(ctx.Model.modelName + ': ' + type);
+        next();
+      });
+    };
+
+    function observeEmbedded(Model, type) {
+      Model.observe(type, function(ctx, next) {
+        var info = { hook: type };
+        if (ctx.currentInstance) {
+          info.currentInstance = ctx.currentInstance.toObject();
+        } else if (ctx.instance) {
+          info.instance = ctx.instance.toObject();
+        }
+        if (ctx.data) info.data = ctx.data;
+        hooks.push(info);
+        next();
+      });
+    };
 
   });
 
