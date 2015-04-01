@@ -525,7 +525,8 @@ module.exports = function(dataSource, should) {
               extra: undefined
             },
             isNewInstance: false,
-            options: { throws: false, validate: true } }));
+            options: { throws: false, validate: true }
+          }));
           done();
         });
       });
@@ -533,7 +534,10 @@ module.exports = function(dataSource, should) {
       it('triggers `after save` hook on create', function(done) {
         TestModel.observe('after save', pushContextAndNext());
 
-        var instance = new TestModel({ name: 'created' });
+        var instance = new TestModel(
+          { id: 'new-id', name: 'created' },
+          { persisted: true });
+
         instance.save(function(err, instance) {
           if (err) return done(err);
           observedContexts.should.eql(aTestModelCtx({
@@ -542,7 +546,8 @@ module.exports = function(dataSource, should) {
               name: 'created',
               extra: undefined
             },
-            isNewInstance: true
+            isNewInstance: true,
+            options: { throws: false, validate: true }
           }));
           done();
         });
