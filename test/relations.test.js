@@ -2407,6 +2407,17 @@ describe('relations', function () {
       });
     });
 
+    it('should save an unsaved model', function(done) {
+      var p = new Person({name: 'Fred'});
+      p.isNewRecord().should.be.true;
+      p.passportItem.create({name: 'Fredric'}, function(err, passport) {
+        should.not.exist(err);
+        p.passport.should.equal(passport);
+        p.isNewRecord().should.be.false;
+        done();
+      });
+    });
+
   });
 
   describe('embedsOne - persisted model', function () {
@@ -2707,6 +2718,17 @@ describe('relations', function () {
     it('should have removed all embedded items - verify', function(done) {
       Person.findOne(function(err, p) {
         p.addresses.should.have.length(0);
+        done();
+      });
+    });
+    
+    it('should save an unsaved model', function(done) {
+      var p = new Person({name: 'Fred'});
+      p.isNewRecord().should.be.true;
+      p.addressList.create({ street: 'Street 4' }, function(err, address) {
+        should.not.exist(err);
+        address.street.should.equal('Street 4');
+        p.isNewRecord().should.be.false;
         done();
       });
     });
