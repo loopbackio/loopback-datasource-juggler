@@ -1,3 +1,27 @@
+2015-04-01, Version 2.23.0
+==========================
+
+ * Fix test for "after save" called on save/CREATE (Miroslav Bajtoš)
+
+ * Code cleanup in lib/dao.js (Miroslav Bajtoš)
+
+ * Save parent model of embedded relations (Fabien Franzen)
+
+ * Pass options in operation hooks context. (Fabien Franzen)
+
+ * check if id does not exist a bit more explicitly (Pulkit Singhal)
+
+ * Fix persistUndefinedAsNull tests w/ SQL connectors (Miroslav Bajtoš)
+
+ * Implement scope.updateAll (Fabien Franzen)
+
+ * Fix the test cases so that they be run with the mssql connector (Raymond Feng)
+
+ * Add model setting "persistUndefinedAsNull" (Miroslav Bajtoš)
+
+ * Add abilities to remove and clear observers - Operation Hooks. (0angelic0)
+
+
 2015-03-27, Version 2.22.0
 ==========================
 
