@@ -535,4 +535,82 @@ describe('validations', function () {
       return err.message.replace(/^.*Details: /, '');
     }
   });
+
+  describe('nested models', function() {
+    var Parent;
+    describe('nested property', function() {
+      before(function (done) {
+        Parent = db.define('Parent', {
+          user: User
+        });
+        done();
+      });
+
+      it('should skip undefined values', function(done) {
+        var parent = new Parent();
+        parent.isValid().should.be.true;
+        done();
+      });
+      it('should skip null values', function(done) {
+        var parent = new Parent({user: null});
+        parent.isValid().should.be.true;
+        done();
+      });
+      it('validate property value', function(done) {
+        User.validatesPresenceOf('name');
+        var parent = new Parent({user: {}});
+        parent.isValid().should.not.be.true;
+        parent.errors['user.name'].should.eql(['can\'t be blank']);
+        parent.user.name = 1;
+        parent.isValid().should.true;
+        done();
+      });
+      it('property value has async validations', function (done) {
+        function customValidator(err, done) {
+          var self = this;
+          process.nextTick(function () {
+            if (self.name === 'bad') err();
+            done();
+          });
+        };
+        User.validateAsync('name', customValidator, {message: 'Bad name'});
+        var parent = new Parent({user: {name: 'bad'}});
+        should(parent.isValid(function(valid) {
+          valid.should.not.be.true;
+          parent.user.name = 1;
+          should(parent.isValid(function(valid) {
+            valid.should.be.true;
+            done();
+          })).be.undefined;
+        })).be.undefined;
+      });
+    });
+    describe('nested array', function() {
+      before(function (done) {
+        Parent = db.define('Parent', {
+          users: [User]
+        });
+        done();
+      });
+
+      it('should work for null values', function(done) {
+        var parent = new Parent({users: []});
+        parent.users.push(null);
+        parent.isValid().should.be.true;
+        done();
+      });
+
+      it('validate value', function(done) {
+        User.validatesPresenceOf('name');
+        var parent = new Parent({users: []});
+        parent.users.push({});
+        parent.isValid().should.not.be.true;
+        parent.errors['users.0.name'].should.eql(['can\'t be blank']);
+        parent.users[0].name = 1;
+        parent.isValid().should.be.true;
+        done();
+      });
+
+    });
+  });
 });
