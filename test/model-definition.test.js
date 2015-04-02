@@ -10,6 +10,10 @@ var Memory = require('../lib/connectors/memory');
 var ModelDefinition = require('../lib/model-definition');
 
 describe('ModelDefinition class', function () {
+  var memory;
+  beforeEach(function() {
+    memory = new DataSource({connector: Memory});
+  });
 
   it('should be able to define plain models', function (done) {
     var modelBuilder = new ModelBuilder();
@@ -253,7 +257,6 @@ describe('ModelDefinition class', function () {
   });
 
   it('should inherit prototype using option.base', function () {
-    var memory = new DataSource({connector: Memory});
     var modelBuilder = memory.modelBuilder;
     var parent = memory.createModel('parent', {}, {
       relations: {
@@ -273,7 +276,6 @@ describe('ModelDefinition class', function () {
   });
 
   it('should ignore inherited options.base', function() {
-    var memory = new DataSource({connector: Memory});
     var modelBuilder = memory.modelBuilder;
     var base = modelBuilder.define('base');
     var child = base.extend('child', {}, { base: 'base' });
@@ -283,7 +285,6 @@ describe('ModelDefinition class', function () {
   });
 
   it('should ignore inherited options.super', function() {
-    var memory = new DataSource({connector: Memory});
     var modelBuilder = memory.modelBuilder;
     var base = modelBuilder.define('base');
     var child = base.extend('child', {}, { super: 'base' });
@@ -293,7 +294,6 @@ describe('ModelDefinition class', function () {
   });
 
   it('should serialize protected properties into JSON', function() {
-    var memory = new DataSource({connector: Memory});
     var modelBuilder = memory.modelBuilder;
     var ProtectedModel = memory.createModel('protected', {}, {
       protected: ['protectedProperty']
@@ -308,7 +308,6 @@ describe('ModelDefinition class', function () {
   });
 
   it('should not serialize protected properties of nested models into JSON', function(done){
-    var memory = new DataSource({connector: Memory});
     var modelBuilder = memory.modelBuilder;
     var Parent = memory.createModel('parent');
     var Child = memory.createModel('child', {}, {protected: ['protectedProperty']});
@@ -332,7 +331,6 @@ describe('ModelDefinition class', function () {
   });
 
   it('should not serialize hidden properties into JSON', function () {
-    var memory = new DataSource({connector: Memory});
     var modelBuilder = memory.modelBuilder;
     var HiddenModel = memory.createModel('hidden', {}, {
       hidden: ['secret']
@@ -350,7 +348,6 @@ describe('ModelDefinition class', function () {
   });
 
   it('should not serialize hidden properties of nested models into JSON', function (done) {
-    var memory = new DataSource({connector: Memory});
     var modelBuilder = memory.modelBuilder;
     var Parent = memory.createModel('parent');
     var Child = memory.createModel('child', {}, {hidden: ['secret']});
@@ -370,6 +367,27 @@ describe('ModelDefinition class', function () {
           done();
         });
       });
+    });
+  });
+
+  it('should report deprecation warning for property names containing dot', function() {
+    var message = 'deprecation not reported';
+    process.once('deprecation', function(err) { message = err.message; });
+
+    memory.createModel('Dotted', { 'dot.name': String });
+
+    message.should.match(/Dotted.*dot\.name/);
+  });
+
+  it('should report deprecation warning for dynamic property names containing dot', function(done) {
+    var message = 'deprecation not reported';
+    process.once('deprecation', function(err) { message = err.message; });
+
+    var Model = memory.createModel('DynamicDotted');
+    Model.create({ 'dot.name': 'dot.value' }, function(err) {
+      if (err) return done(err);
+      message.should.match(/Dotted.*dot\.name/);
+      done();
     });
   });
 });
