@@ -208,7 +208,7 @@ describe('relations', function () {
         }
       });
 
-      it('should fetch all scoped instances with getAsync with callback', function (done) {
+      it('should fetch all scoped instances with getAsync with callback and condition', function (done) {
         Book.create(function (err, book) {
           book.chapters.create({name: 'a'}, function () {
             book.chapters.create({name: 'z'}, function () {
@@ -233,6 +233,37 @@ describe('relations', function () {
 
               c.shift().name.should.equal('z');
               c.pop().name.should.equal('a');
+              done();
+            });
+          });
+        }
+      });
+
+      it('should fetch all scoped instances with getAsync with callback and no condition', function (done) {
+        Book.create(function (err, book) {
+          book.chapters.create({name: 'a'}, function () {
+            book.chapters.create({name: 'z'}, function () {
+              book.chapters.create({name: 'c'}, function () {
+                verify(book);
+              });
+            });
+          });
+        });
+        function verify(book) {
+          book.chapters(function (err, ch) {
+            should.not.exist(err);
+            should.exist(ch);
+            ch.should.have.lengthOf(3);
+
+            var chapters = book.chapters();
+            chapters.should.eql(ch);
+
+            book.chapters.getAsync(function (e, c) {
+              should.not.exist(e);
+              should.exist(c);
+              should.exist(c.length);
+              c.shift().name.should.equal('a');
+              c.pop().name.should.equal('c');
               done();
             });
           });
