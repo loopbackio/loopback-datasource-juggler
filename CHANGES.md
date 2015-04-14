@@ -1,3 +1,15 @@
+2015-04-14, Version 2.24.0
+==========================
+
+ * Add new strict mode "validate" (Miroslav Bajtoš)
+
+ * Promisify model relation methods (Partap Davis)
+
+ * Deprecate property names containing a dot (Miroslav Bajtoš)
+
+ * Allow nesting properties to be queried for memory connector (Raymond Feng)
+
+
 2015-04-01, Version 2.23.0
 ==========================
 
