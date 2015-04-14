@@ -456,6 +456,17 @@ describe('DataSource define model', function () {
     done(null, User);
   });
 
+  describe('strict mode "validate"', function() {
+    it('should report validation error for unknown properties', function() {
+      var ds = new DataSource('memory');
+      var User = ds.define('User', { name: String }, { strict: 'validate' });
+      var user = new User({ name: 'Joe', age: 20 });
+      user.isValid().should.be.false;
+      var codes = user.errors && user.errors.codes || {};
+      codes.should.have.property('age').eql(['unknown-property']);
+    });
+  });
+
   it('should be able to define open models', function (done) {
     var ds = new DataSource('memory');
 
