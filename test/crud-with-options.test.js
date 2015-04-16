@@ -1,7 +1,7 @@
 // This test written in mocha+should.js
 var should = require('./init.js');
 var async = require('async');
-var db, User, options;
+var db, User, options, filter;
 
 describe('crud-with-options', function () {
 
@@ -17,6 +17,7 @@ describe('crud-with-options', function () {
       vip: {type: Boolean}
     });
     options = {};
+    filter = {fields: ['name', 'id']};
 
     db.automigrate(done);
 
@@ -36,21 +37,46 @@ describe('crud-with-options', function () {
       });
     });
 
+    it('should allow findById(id, filter, cb)', function (done) {
+      User.findById(1, filter, function (err, u) {
+        should.not.exist(u);
+        should.not.exist(err);
+        done();
+      });
+    });
+
     it('should allow findById(id)', function () {
       User.findById(1);
+    });
+
+    it('should allow findById(id, filter)', function () {
+      User.findById(1, filter);
     });
 
     it('should allow findById(id, options)', function () {
       User.findById(1, options);
     });
 
-    it('should throw when invalid options are provided for findById',
+    it('should allow findById(id, filter, options)', function () {
+      User.findById(1, filter, options);
+    });
+
+    it('should throw when invalid filter are provided for findById',
       function(done) {
         (function() {
           User.findById(1, '123', function(err, u) {
           });
-        }).should.throw('The options argument must be an object');
+        }).should.throw('The filter argument must be an object');
           done();
+      });
+
+    it('should throw when invalid options are provided for findById',
+      function(done) {
+        (function() {
+          User.findById(1, filter, '123', function(err, u) {
+          });
+        }).should.throw('The options argument must be an object');
+        done();
       });
 
     it('should report an invalid id via callback for findById',
@@ -62,17 +88,97 @@ describe('crud-with-options', function () {
         });
       });
 
+    it('should allow findById(id, filter, cb) for a matching id',
+      function(done) {
+        User.create({name: 'x', email: 'x@y.com'}, function(err, u) {
+          should.not.exist(err);
+          should.exist(u.id);
+          User.findById(u.id, filter, function(err, u) {
+            should.exist(u);
+            should.not.exist(err);
+            u.should.be.an.instanceOf(User);
+            u.should.have.property('name', 'x');
+            u.should.have.property('email', undefined);
+            done();
+          });
+        });
+      });
+
     it('should allow findById(id, options, cb) for a matching id',
       function(done) {
-        User.create(function(err, u) {
+        User.create({name: 'y', email: 'y@y.com'}, function(err, u) {
           should.not.exist(err);
           should.exist(u.id);
           User.findById(u.id, options, function(err, u) {
             should.exist(u);
             should.not.exist(err);
             u.should.be.an.instanceOf(User);
+            u.should.have.property('name', 'y');
+            u.should.have.property('email', 'y@y.com');
             done();
           });
+        });
+      });
+
+    it('should allow findById(id, filter, options, cb) for a matching id',
+      function(done) {
+        User.create({name: 'z', email: 'z@y.com'}, function(err, u) {
+          should.not.exist(err);
+          should.exist(u.id);
+          User.findById(u.id, filter, options, function(err, u) {
+            should.exist(u);
+            should.not.exist(err);
+            u.should.be.an.instanceOf(User);
+            u.should.have.property('name', 'z');
+            u.should.have.property('email', undefined);
+            done();
+          });
+        });
+      });
+
+    it('should allow promise-style findById',
+      function(done) {
+        User.create({name: 'w', email: 'w@y.com'}).then(function(u) {
+          should.exist(u.id);
+          return User.findById(u.id).then(function(u) {
+            should.exist(u);
+            u.should.be.an.instanceOf(User);
+            u.should.have.property('name', 'w');
+            u.should.have.property('email', 'w@y.com');
+            return u;
+          });
+        }).then(function(u) {
+          should.exist(u);
+          should.exist(u.id);
+          return User.findById(u.id, filter).then(function(u) {
+            should.exist(u);
+            u.should.be.an.instanceOf(User);
+            u.should.have.property('name', 'w');
+            u.should.have.property('email', undefined);
+            return u;
+          });
+        }).then(function(u) {
+          should.exist(u);
+          should.exist(u.id);
+          return User.findById(u.id, options).then(function(u) {
+            should.exist(u);
+            u.should.be.an.instanceOf(User);
+            u.should.have.property('name', 'w');
+            u.should.have.property('email', 'w@y.com');
+            return u;
+          });
+        }).then(function(u) {
+          should.exist(u);
+          should.exist(u.id);
+          return User.findById(u.id, filter, options).then(function(u) {
+            should.exist(u);
+            u.should.be.an.instanceOf(User);
+            u.should.have.property('name', 'w');
+            u.should.have.property('email', undefined);
+            done();
+          });
+        }).catch(function(err) {
+          done(err);
         });
       });
 
