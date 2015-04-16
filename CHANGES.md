@@ -1,3 +1,9 @@
+2015-04-16, Version 2.25.0
+==========================
+
+ * Extend findById to accept an optional filter object (Raymond Feng)
+
+
 2015-04-14, Version 2.24.0
 ==========================
 
