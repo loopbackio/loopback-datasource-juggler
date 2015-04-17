@@ -1,3 +1,9 @@
+2015-04-17, Version 2.25.1
+==========================
+
+ * Validate model on updateOrCreate (upsert). (Miroslav Bajtoš)
+
+
 2015-04-16, Version 2.25.0
 ==========================
 
