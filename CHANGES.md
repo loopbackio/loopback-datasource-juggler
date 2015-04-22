@@ -1,3 +1,9 @@
+2015-04-22, Version 2.26.0
+==========================
+
+ * Allow custom name mapping for discovered models (Raymond Feng)
+
+
 2015-04-17, Version 2.25.1
 ==========================
 
