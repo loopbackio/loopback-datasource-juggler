@@ -1,3 +1,9 @@
+2015-04-22, Version 2.26.1
+==========================
+
+ * validations: treat `NaN` as a blank value (Miroslav Bajtoš)
+
+
 2015-04-22, Version 2.26.0
 ==========================
 
