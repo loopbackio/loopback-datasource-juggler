@@ -149,6 +149,21 @@ describe('datatypes', function () {
       coerced.nested.constructor.name.should.equal('Object');
   });
 
+  it('rejects array value converted to NaN for a required property',
+  function(done) {
+    db = getSchema();
+    Model = db.define('RequiredNumber', {
+      num: { type: Number, required: true }
+    });
+    db.automigrate(function () {
+      Model.create({ num: [1,2,3] }, function(err, inst) {
+        should.exist(err);
+        err.should.have.property('name').equal('ValidationError');
+        done();
+      });
+    });
+  });
+
   describe('model option persistUndefinedAsNull', function() {
     var TestModel, isStrict;
     before(function(done) {
