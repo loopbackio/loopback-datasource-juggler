@@ -279,6 +279,24 @@ describe('validations', function () {
       u.isValid().should.be.true;
     });
 
+    it('should reject NaN value as a number', function() {
+      User.validatesPresenceOf('age');
+      var u = new User();
+      u.isValid().should.be.false;
+      u.age = NaN;
+      u.isValid().should.be.false;
+      u.age = 1;
+      u.isValid().should.be.true;
+    });
+
+    it('should allow "NaN" value as a string', function() {
+      User.validatesPresenceOf('name');
+      var u = new User();
+      u.isValid().should.be.false;
+      u.name = 'NaN';
+      u.isValid().should.be.true;
+    });
+
     it('should skip validation by property (if/unless)', function () {
       User.validatesPresenceOf('domain', {unless: 'createdByScript'});
 
