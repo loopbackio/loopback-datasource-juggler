@@ -1214,7 +1214,57 @@ describe('relations', function () {
     });
   });
 
-  describe('hasMany through - between same model', function () {
+  describe('hasMany through bi-directional relations on the same model', function () {
+    var User, Follow, Address;
+
+    before(function (done) {
+      db = getSchema();
+      User = db.define('User', {name: String});
+      Follow = db.define('Follow', {date: {type: Date,
+        default: function () {
+          return new Date();
+        }}});
+      Address = db.define('Address', {name: String});
+
+      User.hasMany(User, {as: 'followers', foreignKey: 'followeeId', keyThrough: 'followerId', through: Follow});
+      User.hasMany(User, {as: 'following', foreignKey: 'followerId', keyThrough: 'followeeId', through: Follow});
+      User.belongsTo(Address);
+      Follow.belongsTo(User, {as: 'follower'});
+      Follow.belongsTo(User, {as: 'followee'});
+      db.automigrate(['User', 'Follow'], function (err) {
+        done(err);
+      });
+    });
+
+
+    it('should set foreignKeys of through model correctly in first relation',
+      function (done) {
+        var follower = new User({id: 1});
+        var followee = new User({id: 2});
+        followee.followers.add(follower, function (err, throughInst) {
+          should.not.exist(err);
+          should.exist(throughInst);
+          throughInst.followerId.should.equal(follower.id);
+          throughInst.followeeId.should.equal(followee.id);
+          done();
+        });
+      });
+
+    it('should set foreignKeys of through model correctly in second relation',
+      function (done) {
+        var follower = new User({id: 3});
+        var followee = new User({id: 4});
+        follower.following.add(followee, function (err, throughInst) {
+          should.not.exist(err);
+          should.exist(throughInst);
+          throughInst.followeeId.should.equal(followee.id);
+          throughInst.followerId.should.equal(follower.id);
+          done();
+        });
+      });
+  });
+
+  describe('hasMany through - between same models', function () {
     var User, Follow, Address;
 
     before(function (done) {
