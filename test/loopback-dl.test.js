@@ -643,6 +643,15 @@ describe('DataSource define model', function () {
     User.http.path.should.equal('/accounts');
   });
 
+  it('should allow an explicit remoting path with leading /', function () {
+    var ds = new DataSource('memory');
+
+    var User = ds.define('User', {name: String, bio: String}, {
+      http: { path: '/accounts' }
+    });
+    User.http.path.should.equal('/accounts');
+  });
+
 });
 
 describe('Load models with base', function () {
