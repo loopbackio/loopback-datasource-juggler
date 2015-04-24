@@ -1,3 +1,9 @@
+2015-04-24, Version 2.26.2
+==========================
+
+ * Allow leading slash for `path` in model settings (Raymond Feng)
+
+
 2015-04-22, Version 2.26.1
 ==========================
 
