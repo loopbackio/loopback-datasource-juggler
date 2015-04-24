@@ -75,7 +75,7 @@ describe('relations', function () {
       it('should build record on scope', function (done) {
         Book.create(function (err, book) {
           var c = book.chapters.build();
-          c.bookId.should.equal(book.id);
+          c.bookId.should.eql(book.id);
           c.save(done);
         });
       });
@@ -85,7 +85,7 @@ describe('relations', function () {
           book.chapters.create(function (err, c) {
             should.not.exist(err);
             should.exist(c);
-            c.bookId.should.equal(book.id);
+            c.bookId.should.eql(book.id);
             done();
           });
         });
@@ -97,7 +97,7 @@ describe('relations', function () {
           return book.chapters.create()
           .then (function (c) {
             should.exist(c);
-            c.bookId.should.equal(book.id);
+            c.bookId.should.eql(book.id);
             done();
           });
         }).catch(done);
@@ -115,7 +115,7 @@ describe('relations', function () {
             should.exist(chs);
             chs.should.have.lengthOf(chapters.length);
             chs.forEach(function(c) {
-              c.bookId.should.equal(book.id);
+              c.bookId.should.eql(book.id);
             });
             done();
           });
@@ -134,7 +134,7 @@ describe('relations', function () {
             should.exist(chs);
             chs.should.have.lengthOf(chapters.length);
             chs.forEach(function(c) {
-              c.bookId.should.equal(book.id);
+              c.bookId.should.eql(book.id);
             });
             done();
           }).catch(done);
@@ -585,7 +585,7 @@ describe('relations', function () {
     it('should build record on scope', function (done) {
       Physician.create(function (err, physician) {
         var patient = physician.patients.build();
-        patient.physicianId.should.equal(physician.id);
+        patient.physicianId.should.eql(physician.id);
         patient.save(done);
       });
     });
@@ -979,8 +979,8 @@ describe('relations', function () {
             should.not.exist(e);
             should.exist(app);
             app.should.be.an.instanceOf(Appointment);
-            app.physicianId.should.equal(physician.id);
-            app.patientId.should.equal(patient.id);
+            app.physicianId.should.eql(physician.id);
+            app.patientId.should.eql(patient.id);
             done();
           });
         });
@@ -996,8 +996,8 @@ describe('relations', function () {
           .then(function (app) {
             should.exist(app);
             app.should.be.an.instanceOf(Appointment);
-            app.physicianId.should.equal(physician.id);
-            app.patientId.should.equal(patient.id);
+            app.physicianId.should.eql(physician.id);
+            app.patientId.should.eql(patient.id);
             done();
           });
         });
@@ -1012,9 +1012,9 @@ describe('relations', function () {
             should.not.exist(e);
             should.exist(app);
             app.should.be.an.instanceOf(Appointment);
-            app.physicianId.should.equal(physician.id);
-            app.patientId.should.equal(patient.id);
-            app.patientId.should.equal(patient.id);
+            app.physicianId.should.eql(physician.id);
+            app.patientId.should.eql(patient.id);
+            app.patientId.should.eql(patient.id);
             app.date.getTime().should.equal(now);
             done();
           });
@@ -1032,9 +1032,9 @@ describe('relations', function () {
           .then(function (app) {
             should.exist(app);
             app.should.be.an.instanceOf(Appointment);
-            app.physicianId.should.equal(physician.id);
-            app.patientId.should.equal(patient.id);
-            app.patientId.should.equal(patient.id);
+            app.physicianId.should.eql(physician.id);
+            app.patientId.should.eql(patient.id);
+            app.patientId.should.eql(patient.id);
             app.date.getTime().should.equal(now);
             done();
           });
@@ -1244,8 +1244,8 @@ describe('relations', function () {
         followee.followers.add(follower, function (err, throughInst) {
           should.not.exist(err);
           should.exist(throughInst);
-          throughInst.followerId.should.equal(follower.id);
-          throughInst.followeeId.should.equal(followee.id);
+          throughInst.followerId.should.eql(follower.id);
+          throughInst.followeeId.should.eql(followee.id);
           done();
         });
       });
@@ -1257,8 +1257,8 @@ describe('relations', function () {
         follower.following.add(followee, function (err, throughInst) {
           should.not.exist(err);
           should.exist(throughInst);
-          throughInst.followeeId.should.equal(followee.id);
-          throughInst.followerId.should.equal(follower.id);
+          throughInst.followeeId.should.eql(followee.id);
+          throughInst.followerId.should.eql(follower.id);
           done();
         });
       });
@@ -1292,8 +1292,8 @@ describe('relations', function () {
       user.following.add(user2, function (err, f) {
         should.not.exist(err);
         should.exist(f);
-        f.followeeId.should.equal(user2.id);
-        f.followerId.should.equal(user.id);
+        f.followeeId.should.eql(user2.id);
+        f.followerId.should.eql(user.id);
         done();
       });
     });
@@ -1320,7 +1320,7 @@ describe('relations', function () {
         book.chapters.create(function (err, c) {
           should.not.exist(err);
           should.exist(c);
-          c.bookId.should.equal(book.id);
+          c.bookId.should.eql(book.id);
           c.bookType.should.equal('fiction');
           done();
         });
@@ -1333,7 +1333,7 @@ describe('relations', function () {
         return book.chapters.create()
         .then(function (c) {
           should.exist(c);
-          c.bookId.should.equal(book.id);
+          c.bookId.should.eql(book.id);
           c.bookType.should.equal('fiction');
           done();
         });
@@ -1365,11 +1365,11 @@ describe('relations', function () {
         should.not.exists(err);
         c.jobs.create({ type: 'book' }, function(err, p) {
           should.not.exists(err);
-          p.categoryId.should.equal(c.id);
+          p.categoryId.should.eql(c.id);
           p.type.should.equal('book');
           c.jobs.create({ type: 'widget' }, function(err, p) {
             should.not.exists(err);
-            p.categoryId.should.equal(c.id);
+            p.categoryId.should.eql(c.id);
             p.type.should.equal('widget');
             done();
           });
@@ -1382,11 +1382,11 @@ describe('relations', function () {
       .then(function (c) {
         return c.jobs.create({ type: 'book' })
         .then(function (p) {
-          p.categoryId.should.equal(c.id);
+          p.categoryId.should.eql(c.id);
           p.type.should.equal('book');
           return c.jobs.create({ type: 'widget' })
           .then(function (p) {
-            p.categoryId.should.equal(c.id);
+            p.categoryId.should.eql(c.id);
             p.type.should.equal('widget');
             done();
           });
@@ -1456,7 +1456,7 @@ describe('relations', function () {
         should.not.exists(err);
         c.jobType = 'tool'; // temporary
         c.jobs.create(function(err, p) {
-          p.categoryId.should.equal(c.id);
+          p.categoryId.should.eql(c.id);
           p.type.should.equal('tool');
           done();
         });
@@ -1564,7 +1564,7 @@ describe('relations', function () {
         author.avatar.create({ name: 'Avatar' }, function (err, p) {
           should.not.exist(err);
           should.exist(p);
-          p.imageableId.should.equal(author.id);
+          p.imageableId.should.eql(author.id);
           p.imageableType.should.equal('Author');
           done();
         });
@@ -1577,7 +1577,7 @@ describe('relations', function () {
         return author.avatar.create({ name: 'Avatar' })
         .then(function (p) {
           should.exist(p);
-          p.imageableId.should.equal(author.id);
+          p.imageableId.should.eql(author.id);
           p.imageableType.should.equal('Author');
           done();
         });
@@ -1590,7 +1590,7 @@ describe('relations', function () {
         reader.mugshot.create({ name: 'Mugshot' }, function (err, p) {
           should.not.exist(err);
           should.exist(p);
-          p.imageableId.should.equal(reader.id);
+          p.imageableId.should.eql(reader.id);
           p.imageableType.should.equal('Reader');
           done();
         });
@@ -4853,6 +4853,7 @@ describe('relations', function () {
           cat.jobIds.should.have.length(1);
           cat.jobIds.should.eql([p.id]);
           p.name.should.equal('Job 2');
+          job2 = p;
           done();
         });
       }).catch(done);
