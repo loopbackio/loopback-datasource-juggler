@@ -1,3 +1,15 @@
+2015-04-25, Version 2.26.3
+==========================
+
+ * Fix the test cases (Raymond Feng)
+
+ * Add support for merging include filters (ningsuhen)
+
+ * add test case for hasmanythrough bi-drectional relations (ningsuhen)
+
+ * Fix for bug - https://github.com/strongloop/loopback-datasource-juggler/issues/571 (ningsuhen)
+
+
 2015-04-24, Version 2.26.2
 ==========================
 
