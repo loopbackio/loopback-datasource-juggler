@@ -390,5 +390,15 @@ describe('ModelDefinition class', function () {
       done();
     });
   });
+
+  it('should support "array" type shortcut', function() {
+    var Model = memory.createModel('TwoArrays', {
+      regular: Array,
+      sugar: 'array'
+    });
+
+    var props = Model.definition.properties;
+    props.regular.type.should.equal(props.sugar.type);
+  });
 });
 
