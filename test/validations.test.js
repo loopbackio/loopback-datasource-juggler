@@ -184,12 +184,27 @@ describe('validations', function () {
         });
       });
 
-      it('should be skipped on upsert by default', function(done) {
+      it('should ignore errors on upsert by default', function(done) {
         delete User.validations;
         User.validatesPresenceOf('name');
         // It's important to pass an id value, otherwise DAO falls back
         // to regular create()
         User.updateOrCreate({ id: 999 }, done);
+      });
+
+      it('should be skipped by upsert when disabled via settings', function(done) {
+        var Customer = User.extend('Customer');
+        Customer.attachTo(db);
+        db.autoupdate(function(err) {
+          if (err) return done(err);
+          Customer.prototype.isValid = function() {
+            throw new Error('isValid() should not be called at all');
+          };
+          Customer.settings.validateUpsert = false;
+          // It's important to pass an id value, otherwise DAO falls back
+          // to regular create()
+          Customer.updateOrCreate({ id: 999 }, done);
+        });
       });
 
       it('should work on upsert when enabled via settings', function(done) {
