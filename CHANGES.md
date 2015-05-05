@@ -1,4 +1,14 @@
-2015-04-25, Version 2.26.3
+2015-05-05, Version 2.26.4
+==========================
+
+ * dao: support validateUpsert:false (Miroslav Bajtoš)
+
+ * Changes to API docs per Dennis (Rand McKinney)
+
+ * Add unit-test for "array" type (Miroslav Bajtoš)
+
+
+2015-04-24, Version 2.26.3
 ==========================
 
  * Fix the test cases (Raymond Feng)
