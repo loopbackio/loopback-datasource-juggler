@@ -460,9 +460,81 @@ describe('crud-with-options', function () {
   });
 
   describe('deleteById', function() {
-    it('should allow deleteById(id)', function () {
-      User.deleteById(1);
+
+    beforeEach(seed);
+
+    it('should allow deleteById(id) - success', function (done) {
+      User.findOne(function (e, u) {
+        User.deleteById(u.id, function(err, deleted) {
+          should.not.exist(err);
+          deleted.should.be.true;
+          done();
+        });
+      });
     });
+
+    it('should allow deleteById(id) - fail', function (done) {
+      User.deleteById(9999, function(err, deleted) {
+        should.not.exist(err);
+        deleted.should.be.false;
+        done();
+      });
+    });
+
+    it('should allow deleteById(id) - fail with error', function (done) {
+      User.deleteById(9999, { strict: true }, function(err, deleted) {
+        should.exist(err);
+        deleted.should.be.false;
+        err.message.should.equal('No instance with id 9999 found for User');
+        done();
+      });
+    });
+
+  });
+
+  describe('prototype.delete', function() {
+
+    beforeEach(seed);
+
+    it('should allow delete(id) - success', function (done) {
+      User.findOne(function (e, u) {
+        u.delete(function(err, deleted) {
+          should.not.exist(err);
+          deleted.should.be.true;
+          done();
+        });
+      });
+    });
+
+    it('should allow delete(id) - fail', function (done) {
+      User.findOne(function (e, u) {
+        u.delete(function(err, deleted) {
+          should.not.exist(err);
+          deleted.should.be.true;
+          u.delete(function(err, deleted) {
+            should.not.exist(err);
+            deleted.should.be.false;
+            done();
+          });
+        });
+      });
+    });
+
+    it('should allow delete(id) - fail with error', function (done) {
+      User.findOne(function (e, u) {
+        u.delete(function(err, deleted) {
+          should.not.exist(err);
+          deleted.should.be.true;
+          u.delete({ strict: true }, function(err, deleted) {
+            should.exist(err);
+            deleted.should.be.false;
+            err.message.should.equal('No instance with id ' + u.id + ' found for User');
+            done();
+          });
+        });
+      });
+    });
+
   });
 
   describe('updateAll ', function () {
