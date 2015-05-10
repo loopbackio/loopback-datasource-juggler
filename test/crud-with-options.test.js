@@ -408,6 +408,27 @@ describe('crud-with-options', function () {
 
   });
 
+  describe('save', function () {
+
+    it('should allow save(options, cb)', function (done) {
+      var options = { foo: 'bar' };
+      var opts;
+      
+      User.observe('after save', function(ctx, next) {
+        opts = ctx.options;
+        next();
+      });
+      
+      var u = new User();
+      u.save(options, function(err) {
+        should.not.exist(err);
+        options.should.equal(opts);
+        done();
+      });
+    });
+
+  });
+
   describe('destroyAll with options', function () {
 
     beforeEach(seed);
