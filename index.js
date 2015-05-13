@@ -12,3 +12,5 @@ var commonTest = './test/common_test';
 Object.defineProperty(exports, 'test', {
   get: function() {return require(commonTest);}
 });
+
+exports.Transaction = require('loopback-connector').Transaction;
