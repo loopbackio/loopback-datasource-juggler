@@ -186,6 +186,53 @@ module.exports = function(dataSource, should) {
         });
       });
 
+      it('triggers `persist` hook', function(done) {
+        TestModel.observe('persist', pushContextAndNext());
+
+        TestModel.create(
+          { id: 'new-id', name: 'a name' },
+          function(err, instance) {
+            if (err) return done(err);
+
+            observedContexts.should.eql(aTestModelCtx({
+              data: { id: 'new-id', name: 'a name' },
+              isNewInstance: true,
+              currentInstance: { extra: null, id: 'new-id', name: 'a name' }
+            }));
+
+            done();
+          });
+      });
+
+      it('applies updates from `persist` hook', function(done) {
+        TestModel.observe('persist', pushContextAndNext(function(ctx){
+          ctx.data.extra = 'hook data';
+        }));
+
+        TestModel.create(
+          { id: 'new-id', name: 'a name' },
+          function(err, instance) {
+            if (err) return done(err);
+
+            // the, instance returned by `create` context does not have the
+            // values updated from `persist` hook
+            instance.should.not.have.property('extra', 'hook data');
+
+            // So, we must query the database here because on `create` 
+            // updates from `persist` hook are reflected into database
+            TestModel.findById('new-id', function(err, dbInstance) {
+              if (err) return done(err);
+              dbInstance.toObject(true).should.eql({
+                id: 'new-id',
+                name: 'a name',
+                extra: 'hook data'
+              });
+            });
+
+            done();
+          });
+      });
+
       it('triggers `after save` hook', function(done) {
         TestModel.observe('after save', pushContextAndNext());
 
@@ -372,6 +419,7 @@ module.exports = function(dataSource, should) {
             triggered.should.eql([
               'access',
               'before save',
+              'persist',
               'after save'
             ]);
             done();
@@ -398,6 +446,151 @@ module.exports = function(dataSource, should) {
           { name: 'does-not-exist' },
           function(err, instance) {
             [err].should.eql([expectedError]);
+            done();
+          });
+      });
+
+      if (dataSource.connector.findOrCreate) {
+        it('triggers `persist` hook when found', function(done) {
+          TestModel.observe('persist', pushContextAndNext());
+
+          TestModel.findOrCreate(
+            { where: { name: existingInstance.name } },
+            { name: existingInstance.name },
+            function(err, record, created) {
+              if (err) return done(err);
+
+              record.id.should.eql(existingInstance.id);
+
+               // `findOrCreate` creates a new instance of the object everytime.
+               // So, `data.id` as well as `currentInstance.id` always matches
+               // the newly generated UID. 
+               // Hence, the test below asserts both `data.id` and 
+               // `currentInstance.id` to match  getLastGeneratedUid().
+               // On same lines, it also asserts `isNewInstance` to be true.
+              observedContexts.should.eql(aTestModelCtx({
+                data: {
+                  id: getLastGeneratedUid(),
+                  name: existingInstance.name
+                },
+                isNewInstance: true,
+                currentInstance: {
+                  id: getLastGeneratedUid(),
+                  name: record.name,
+                  extra: null 
+                },
+                where: { name: existingInstance.name }
+              }));
+
+              done();
+            });
+        });
+      }
+
+      it('triggers `persist` hook when not found', function(done) {
+        TestModel.observe('persist', pushContextAndNext());
+
+        TestModel.findOrCreate(
+          { where: { name: 'new-record' } },
+          { name: 'new-record' },
+          function(err, record, created) {
+            if (err) return done(err);
+
+            // `context.where` is present in Optimized connector context,
+            // but, unoptimized connector does NOT have it.
+            if (dataSource.connector.findOrCreate) {
+              observedContexts.should.eql(aTestModelCtx({
+                data: {
+                  id: record.id,
+                  name: 'new-record'
+                },
+                isNewInstance: true,
+                currentInstance: {
+                  id: record.id,
+                  name: record.name,
+                  extra: null 
+                },
+                where: { name: 'new-record' }
+              }));
+            } else {
+              observedContexts.should.eql(aTestModelCtx({
+                data: {
+                  id: record.id,
+                  name: 'new-record'
+                },
+                isNewInstance: true,
+                currentInstance: { id: record.id, name: record.name, extra: null }
+              }));
+            }
+            done();
+          });
+      });
+
+      if (dataSource.connector.findOrCreate) {
+        it('applies updates from `persist` hook when found', function(done) {
+          TestModel.observe('persist', pushContextAndNext(function(ctx){
+            ctx.data.extra = 'hook data';
+          }));
+
+          TestModel.findOrCreate(
+            { where: { name: existingInstance.name } },
+            { name: existingInstance.name },
+            function(err, instance) {
+              if (err) return done(err);
+
+              // instance returned by `findOrCreate` context does not
+              // have the values updated from `persist` hook
+              instance.should.not.have.property('extra', 'hook data');
+
+              // Query the database. Here, since record already exists 
+              // `findOrCreate`, does not update database for
+              // updates from `persist` hook
+              TestModel.findById(existingInstance.id, function(err, dbInstance) {
+                if (err) return done(err);
+                dbInstance.toObject(true).should.eql({
+                  id: existingInstance.id,
+                  name: existingInstance.name,
+                  extra: undefined
+                });
+              });
+
+              done();
+            });
+        });
+      }
+
+      it('applies updates from `persist` hook when not found', function(done) {
+        TestModel.observe('persist', pushContextAndNext(function(ctx){
+          ctx.data.extra = 'hook data';
+        }));
+
+        TestModel.findOrCreate(
+          { where: { name: 'new-record' } },
+          { name: 'new-record' },
+          function(err, instance) {
+            if (err) return done(err);
+
+            if (dataSource.connector.findOrCreate) {
+              instance.should.have.property('extra', 'hook data');
+            } else {
+              // Unoptimized connector gives a call to `create. And during
+              // create the updates applied through persist hook are 
+              // reflected into the database, but the same updates are 
+              // NOT reflected in the instance object obtained in callback 
+              // of create.
+              // So, this test asserts unoptimized connector to 
+              // NOT have `extra` property. And then verifes that the 
+              // property `extra` is actually updated in DB
+              instance.should.not.have.property('extra', 'hook data');
+              TestModel.findById(instance.id, function(err, dbInstance) {
+                if (err) return done(err);
+                dbInstance.toObject(true).should.eql({
+                  id: instance.id,
+                  name: instance.name,
+                  extra: 'hook data'
+                });
+              });
+            }
             done();
           });
       });
@@ -508,6 +701,43 @@ module.exports = function(dataSource, should) {
         existingInstance.save(function(err) {
           (err || {}).should.be.instanceOf(ValidationError);
           (err.details.codes || {}).should.eql({ name: ['presence'] });
+          done();
+        });
+      });
+
+      it('triggers `persist` hook', function(done) {
+        TestModel.observe('persist', pushContextAndNext());
+
+        existingInstance.name = 'changed';
+        existingInstance.save(function(err, instance) {
+          if (err) return done(err);
+
+          observedContexts.should.eql(aTestModelCtx({
+            data: {
+              id: existingInstance.id,
+              name: 'changed'
+            },
+            currentInstance: {
+              id: existingInstance.id,
+              name: 'changed',
+              extra: undefined
+            },
+            where: { id: existingInstance.id },
+            options: { throws: false, validate: true }
+          }));
+
+          done();
+        });
+      });
+
+      it('applies updates from `persist` hook', function(done) {
+        TestModel.observe('persist', pushContextAndNext(function(ctx){
+          ctx.data.extra = 'hook data';
+        }));
+
+        existingInstance.save(function(err, instance) {
+          if (err) return done(err);
+          instance.should.have.property('extra', 'hook data');
           done();
         });
       });
@@ -633,6 +863,37 @@ module.exports = function(dataSource, should) {
         existingInstance.updateAttributes({ name: 'updated' }, function(err) {
           (err || {}).should.be.instanceOf(ValidationError);
           (err.details.codes || {}).should.eql({ name: ['presence'] });
+          done();
+        });
+      });
+
+      it('triggers `persist` hook', function(done) {
+        TestModel.observe('persist', pushContextAndNext());
+        existingInstance.updateAttributes({ name: 'changed' }, function(err) {
+          if (err) return done(err);
+
+          observedContexts.should.eql(aTestModelCtx({
+            where: { id: existingInstance.id },
+            data: { name: 'changed' },
+            currentInstance: {
+              id: existingInstance.id,
+              name: 'changed',
+              extra: null
+            }
+          }));
+
+          done();
+        });
+      });
+
+      it('applies updates from `persist` hook', function(done) {
+        TestModel.observe('persist', pushContextAndNext(function(ctx){
+          ctx.data.extra = 'hook data';
+        }));
+
+        existingInstance.save(function(err, instance) {
+          if (err) return done(err);
+          instance.should.have.property('extra', 'hook data');
           done();
         });
       });
@@ -897,6 +1158,66 @@ module.exports = function(dataSource, should) {
           function(err, instance) {
             (err || {}).should.be.instanceOf(ValidationError);
             (err.details.codes || {}).should.eql({ name: ['presence'] });
+            done();
+          });
+      });
+
+      it('triggers `persist` hook on create', function(done) {
+        TestModel.observe('persist', pushContextAndNext());
+
+        TestModel.updateOrCreate(
+          { id: 'new-id', name: 'a name' },
+          function(err, instance) {
+            if (err) return done(err);
+
+            if (dataSource.connector.updateOrCreate) {
+              observedContexts.should.eql(aTestModelCtx({
+                where: { id: 'new-id' },
+                data: { id: 'new-id', name: 'a name' },
+                currentInstance: {
+                  id: 'new-id',
+                  name: 'a name',
+                  extra: undefined
+                }
+              }));
+            } else {
+              observedContexts.should.eql(aTestModelCtx({
+                data: {
+                  id: 'new-id',
+                  name: 'a name'
+                },
+                isNewInstance: true,
+                currentInstance: {
+                  id: 'new-id',
+                  name: 'a name',
+                  extra: undefined
+                }
+              }));
+            }
+            done();
+          });
+      });
+
+      it('triggers `persist` hook on update', function(done) {
+        TestModel.observe('persist', pushContextAndNext());
+
+        TestModel.updateOrCreate(
+          { id: existingInstance.id, name: 'updated name' },
+          function(err, instance) {
+            if (err) return done(err);
+
+            observedContexts.should.eql(aTestModelCtx({
+              where: { id: existingInstance.id },
+              data: {
+                id: existingInstance.id,
+                name: 'updated name'
+              },
+              currentInstance: {
+                id: existingInstance.id,
+                name: 'updated name',
+                extra: undefined
+              }
+            }));
             done();
           });
       });
@@ -1282,6 +1603,41 @@ module.exports = function(dataSource, should) {
               if (err) return done(err);
               instance.should.have.property('name', 'hooked');
               instance.should.have.property('extra', 'added');
+              done();
+            });
+          });
+      });
+
+      it('triggers `persist` hook', function(done) {
+        TestModel.observe('persist', pushContextAndNext());
+
+        TestModel.updateAll(
+          { where: { name: existingInstance.name } },
+          { name: 'changed' },
+          function(err, instance) {
+            if (err) return done(err);
+
+            observedContexts.should.eql(aTestModelCtx({
+              data: { name: 'changed' },
+              where: { where: { name: existingInstance.name } }
+            }));
+
+            done();
+          });
+      });
+
+      it('applies updates from `persist` hook', function(done) {
+        TestModel.observe('persist', pushContextAndNext(function(ctx){
+          ctx.data.extra = 'hook data';
+        }));
+
+        TestModel.updateAll(
+          { id: existingInstance.id },
+          { name: 'changed' },
+          function(err) {
+            if (err) return done(err);
+            loadTestModel(existingInstance.id, function(err, instance) {
+              instance.should.have.property('extra', 'hook data');
               done();
             });
           });
