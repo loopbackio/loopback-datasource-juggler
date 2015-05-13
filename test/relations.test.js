@@ -718,6 +718,27 @@ describe('relations', function () {
       }
     });
 
+    it('should fetch scoped instances with paging filters', function (done) {
+      Physician.create(function (err, physician) {
+        physician.patients.create({name: 'a'}, function () {
+          physician.patients.create({name: 'z'}, function () {
+            physician.patients.create({name: 'c'}, function () {
+              verify(physician);
+            });
+          });
+        });
+      });
+      function verify(physician) {
+        physician.patients({ limit:1, skip:1 },function (err, ch) {
+          should.not.exist(err);
+          should.exist(ch);
+          ch.should.have.lengthOf(1);
+          ch[0].name.should.eql('z');
+          done();
+        });
+      }
+    });
+
     it('should find scoped record', function (done) {
       var id;
       Physician.create(function (err, physician) {
