@@ -238,7 +238,7 @@ describe('Memory connector', function() {
     });
 
     it('should successfully extract 1 user (Lennon) from the db', function(done) {
-      User.find({where: {birthday: {between: [new Date(1970,0),new Date(1990,0)]}}}, 
+      User.find({where: {birthday: {between: [new Date(1970,0),new Date(1990,0)]}}},
                 function(err, users) {
         should(users.length).be.equal(1);
         should(users[0].name).be.equal('John Lennon');
@@ -247,7 +247,7 @@ describe('Memory connector', function() {
     });
 
     it('should successfully extract 2 users from the db', function(done) {
-      User.find({where: {birthday: {between: [new Date(1940,0),new Date(1990,0)]}}}, 
+      User.find({where: {birthday: {between: [new Date(1940,0),new Date(1990,0)]}}},
                 function(err, users) {
         should(users.length).be.equal(2);
         done();
@@ -255,7 +255,7 @@ describe('Memory connector', function() {
     });
 
     it('should successfully extract 0 user from the db', function(done) {
-      User.find({where: {birthday: {between: [new Date(1990,0), Date.now()]}}}, 
+      User.find({where: {birthday: {between: [new Date(1990,0), Date.now()]}}},
                 function(err, users) {
         should(users.length).be.equal(0);
         done();
@@ -489,9 +489,9 @@ describe('Optimized connector', function() {
 
   // optimized methods
   ds.connector.findOrCreate = function (model, query, data, callback) {
-    this.all(model, query, function (err, list) {
+    this.all(model, query, {}, function (err, list) {
       if (err || (list && list[0])) return callback(err, list && list[0], false);
-      this.create(model, data, function (err) {
+      this.create(model, data, {}, function (err) {
         callback(err, data, true);
       });
     }.bind(this));
@@ -509,5 +509,79 @@ describe('Unoptimized connector', function() {
   require('./persistence-hooks.suite')(ds, should);
 });
 
+describe('Memory connector with options', function() {
+  var ds, savedOptions = {}, Post;
+
+  before(function() {
+    ds = new DataSource({connector: 'memory'});
+    ds.connector.create = function(model, data, options, cb) {
+      savedOptions.create = options;
+      process.nextTick(function() {
+        cb(null, 1);
+      });
+    };
+
+    ds.connector.update = function(model, where, data, options, cb) {
+      savedOptions.update = options;
+      process.nextTick(function() {
+        cb(null, {count: 1});
+      });
+    };
+
+    ds.connector.all = function(model, filter, options, cb) {
+      savedOptions.find = options;
+      process.nextTick(function() {
+        cb(null, [{title: 't1', content: 'c1'}]);
+      });
+    };
+
+    Post = ds.define('Post', {
+      title: String,
+      content: String
+    });
+  });
+
+  it('should receive options from the find method', function(done) {
+    var opts = {transaction: 'tx1'};
+    Post.find({where: {title: 't1'}}, opts, function(err, p) {
+      savedOptions.find.should.be.eql(opts);
+      done(err);
+    });
+  });
+
+  it('should receive options from the find method', function(done) {
+    var opts = {transaction: 'tx2'};
+    Post.find({}, opts, function(err, p) {
+      savedOptions.find.should.be.eql(opts);
+      done(err);
+    });
+  });
+
+  it('should treat first object arg as filter for find', function(done) {
+    var filter = {title: 't1'};
+    Post.find(filter, function(err, p) {
+      savedOptions.find.should.be.eql({});
+      done(err);
+    });
+  });
+
+  it('should receive options from the create method', function(done) {
+    var opts = {transaction: 'tx3'};
+    Post.create({title: 't1', content: 'c1'}, opts, function(err, p) {
+      savedOptions.create.should.be.eql(opts);
+      done(err);
+    });
+  });
+
+  it('should receive options from the update method', function(done) {
+    var opts = {transaction: 'tx4'};
+    Post.update({title: 't1'}, {content: 'c1 --> c2'},
+      opts, function(err, p) {
+        savedOptions.update.should.be.eql(opts);
+        done(err);
+      });
+  });
+
+});
 
 
