@@ -1,3 +1,15 @@
+2015-05-13, Version 2.27.0
+==========================
+
+ * Fix the target id resolution (Raymond Feng)
+
+ * DB Call Optimization in relation includes - Fixes #408 & #166 (ningsuhen)
+
+ * Conditionally pass options to connector CRUD methods (Raymond Feng)
+
+ * Pass-through options from save to create (Fabien Franzen)
+
+
 2015-05-05, Version 2.26.4
 ==========================
 
