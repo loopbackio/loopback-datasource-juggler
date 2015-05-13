@@ -1,7 +1,9 @@
 // This test written in mocha+should.js
 var should = require('./init.js');
+var sinon = require('sinon');
+var async = require('async');
 
-var db, User, AccessToken, Post, Passport, City, Street, Building, Assembly, Part;
+var db, User, Profile, AccessToken, Post, Passport, City, Street, Building, Assembly, Part;
 
 describe('include', function () {
 
@@ -334,20 +336,203 @@ describe('include', function () {
     });
   });
 
-  // Not implemented correctly, see: loopback-datasource-juggler/issues/166
-  //
-  // it('should support include scope on hasAndBelongsToMany', function (done) {
-  //   Assembly.find({include: { relation: 'parts', scope: {
-  //     where: { partNumber: 'engine' }
-  //   }}}, function (err, assemblies) {
-  //     assemblies.length.should.equal(1);
-  //     var parts = assemblies[0].parts();
-  //     parts.should.have.length(1);
-  //     parts[0].partNumber.should.equal('engine');
-  //     done();
-  //   });
-  // });
+  it('should fetch User - Profile (HasOne)', function (done) {
+    User.find({include: ['profile']}, function (err, users) {
+      should.not.exist(err);
+      should.exist(users);
+      users.length.should.be.ok;
+      var usersWithProfile = 0;
+      users.forEach(function (user) {
+        // The relation should be promoted as the 'owner' property
+        user.should.have.property('profile');
+        var userObj = user.toJSON();
+        var profile = user.profile();
+        if (profile) {
+          profile.should.be.an.instanceOf(Profile);
+          usersWithProfile++;
+        }
+        else {
+          (profile === null).should.be.true;
+        }
+        // The __cachedRelations should be removed from json output
+        userObj.should.not.have.property('__cachedRelations');
+        user.__cachedRelations.should.have.property('profile');
+        if (user.__cachedRelations.profile) {
+          user.__cachedRelations.profile.userId.should.eql(user.id);
+          usersWithProfile++;
+        }
+      });
+      usersWithProfile.should.equal(2 * 2);
+      done();
+    });
+  });
 
+
+  // Not implemented correctly, see: loopback-datasource-juggler/issues/166
+  // fixed by DB optimization
+  it('should support include scope on hasAndBelongsToMany', function (done) {
+    Assembly.find({include: { relation: 'parts', scope: {
+     where: { partNumber: 'engine' }
+    }}}, function (err, assemblies) {
+      assemblies.length.should.equal(1);
+      var parts = assemblies[0].parts();
+      parts.should.have.length(1);
+      parts[0].partNumber.should.equal('engine');
+      done();
+    });
+  });
+
+  describe(' performance - ', function () {
+    beforeEach(function () {
+      this.callSpy = sinon.spy(db.connector, 'all');
+    });
+    afterEach(function () {
+      db.connector.all.restore();
+    });
+    it('including belongsTo should make only 2 db calls', function (done) {
+      var self = this;
+      Passport.find({include: 'owner'}, function (err, passports) {
+        passports.length.should.be.ok;
+        passports.forEach(function (p) {
+          p.__cachedRelations.should.have.property('owner');
+          // The relation should be promoted as the 'owner' property
+          p.should.have.property('owner');
+          // The __cachedRelations should be removed from json output
+          p.toJSON().should.not.have.property('__cachedRelations');
+          var owner = p.__cachedRelations.owner;
+          if (!p.ownerId) {
+            should.not.exist(owner);
+          } else {
+            should.exist(owner);
+            owner.id.should.eql(p.ownerId);
+          }
+        });
+        self.callSpy.calledTwice.should.be.true;
+        done();
+      });
+    });
+
+    it('including hasManyThrough should make only 3 db calls', function (done) {
+      var self = this;
+      Assembly.create([{name: 'sedan'}, {name: 'hatchback'},
+          {name: 'SUV'}],
+        function (err, assemblies) {
+          Part.create([{partNumber: 'engine'}, {partNumber: 'bootspace'},
+              {partNumber: 'silencer'}],
+            function (err, parts) {
+              async.each(parts, function (part, next) {
+                async.each(assemblies, function (assembly, next) {
+                  if (assembly.name === 'SUV') {
+                    return next();
+                  }
+                  if (assembly.name === 'hatchback' &&
+                    part.partNumber === 'bootspace') {
+                    return next();
+                  }
+                  assembly.parts.add(part, function (err, data) {
+                    next();
+                  });
+                }, next);
+              }, function (err) {
+                self.callSpy.reset();
+                Assembly.find({
+                  where: {
+                    name: {
+                      inq: ['sedan', 'hatchback', 'SUV']
+                    }
+                  },
+                  include: 'parts'
+                }, function (err, result) {
+                  should.not.exist(err);
+                  should.exists(result);
+                  result.length.should.equal(3);
+                  //sedan
+                  result[0].parts().should.have.length(3);
+                  //hatcback
+                  result[1].parts().should.have.length(2);
+                  //SUV
+                  result[2].parts().should.have.length(0);
+                  self.callSpy.calledThrice.should.be.true;
+                  done();
+                });
+              });
+            });
+        });
+    });
+
+    it('including hasMany should make only 2 db calls', function (done) {
+      var self = this;
+      User.find({include: ['posts', 'passports']}, function (err, users) {
+        should.not.exist(err);
+        should.exist(users);
+        users.length.should.be.ok;
+        users.forEach(function (user) {
+          // The relation should be promoted as the 'owner' property
+          user.should.have.property('posts');
+          user.should.have.property('passports');
+
+          var userObj = user.toJSON();
+          userObj.should.have.property('posts');
+          userObj.should.have.property('passports');
+          userObj.posts.should.be.an.instanceOf(Array);
+          userObj.passports.should.be.an.instanceOf(Array);
+
+          // The __cachedRelations should be removed from json output
+          userObj.should.not.have.property('__cachedRelations');
+
+          user.__cachedRelations.should.have.property('posts');
+          user.__cachedRelations.should.have.property('passports');
+          user.__cachedRelations.posts.forEach(function (p) {
+            p.userId.should.eql(user.id);
+          });
+          user.__cachedRelations.passports.forEach(function (pp) {
+            pp.ownerId.should.eql(user.id);
+          });
+        });
+        self.callSpy.calledThrice.should.be.true;
+        done();
+      });
+    });
+
+
+    it('should not make n+1 db calls in relation syntax',
+      function (done) {
+        var self = this;
+        User.find({include: [{ relation: 'posts', scope: {
+              where: {title: 'Post A'}
+            }}, 'passports']}, function (err, users) {
+          should.not.exist(err);
+          should.exist(users);
+          users.length.should.be.ok;
+          users.forEach(function (user) {
+            // The relation should be promoted as the 'owner' property
+            user.should.have.property('posts');
+            user.should.have.property('passports');
+
+            var userObj = user.toJSON();
+            userObj.should.have.property('posts');
+            userObj.should.have.property('passports');
+            userObj.posts.should.be.an.instanceOf(Array);
+            userObj.passports.should.be.an.instanceOf(Array);
+
+            // The __cachedRelations should be removed from json output
+            userObj.should.not.have.property('__cachedRelations');
+
+            user.__cachedRelations.should.have.property('posts');
+            user.__cachedRelations.should.have.property('passports');
+            user.__cachedRelations.posts.forEach(function (p) {
+              p.userId.should.eql(user.id);
+              p.title.should.be.equal('Post A');
+            });
+            user.__cachedRelations.passports.forEach(function (pp) {
+              pp.ownerId.should.eql(user.id);
+            });
+          });
+          self.callSpy.calledThrice.should.be.true;
+          done();
+        });
+      });
+  });
 });
 
 function setup(done) {
@@ -358,6 +543,9 @@ function setup(done) {
   User = db.define('User', {
     name: String,
     age: Number
+  });
+  Profile = db.define('Profile', {
+    profileName: String
   });
   AccessToken = db.define('AccessToken', {
     token: String
@@ -376,6 +564,8 @@ function setup(done) {
     foreignKey: 'userId',
     options: {disableInclude: true}
   });
+  Profile.belongsTo('user', {model: User});
+  User.hasOne('profile', {foreignKey: 'userId'});
   Post.belongsTo('author', {model: User, foreignKey: 'userId'});
 
   Assembly = db.define('Assembly', {
@@ -392,6 +582,7 @@ function setup(done) {
   db.automigrate(function () {
     var createdUsers = [];
     var createdPassports = [];
+    var createdProfiles = [];
     var createdPosts = [];
     createUsers();
     function createUsers() {
@@ -438,6 +629,21 @@ function setup(done) {
       );
     }
 
+    function createProfiles() {
+      clearAndCreate(
+        Profile,
+        [
+          {profileName: 'Profile A', userId: createdUsers[0].id},
+          {profileName: 'Profile B', userId: createdUsers[1].id},
+          {profileName: 'Profile Z'}
+        ],
+        function (items) {
+          createdProfiles = items
+          done();
+        }
+      );
+    }
+
     function createPosts() {
       clearAndCreate(
         Post,
@@ -450,7 +656,7 @@ function setup(done) {
         ],
         function (items) {
           createdPosts = items;
-          done();
+          createProfiles();
         }
       );
     }
