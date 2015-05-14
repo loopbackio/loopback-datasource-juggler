@@ -729,12 +729,27 @@ describe('relations', function () {
         });
       });
       function verify(physician) {
+        //limit plus skip
         physician.patients({ limit:1, skip:1 },function (err, ch) {
           should.not.exist(err);
           should.exist(ch);
           ch.should.have.lengthOf(1);
           ch[0].name.should.eql('z');
-          done();
+          //offset plus skip
+          physician.patients({ limit:1, offset:1 },function (err1, ch1) {
+            should.not.exist(err1);
+            should.exist(ch1);
+            ch1.should.have.lengthOf(1);
+            ch1[0].name.should.eql('z');
+            //order
+            physician.patients({ order: "patientId DESC" },function (err2, ch2) {
+              should.not.exist(err2);
+              should.exist(ch2);
+              ch2.should.have.lengthOf(3);
+              ch2[0].name.should.eql('c');
+              done();
+            });
+          });
         });
       }
     });
