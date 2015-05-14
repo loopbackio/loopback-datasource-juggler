@@ -136,11 +136,17 @@ describe('datatypes', function () {
     function testDataInDB(done) {
 
       // verify that the value stored in the db is still an object
-      db.connector.find(Model.modelName, id, function (err, data) {
+      function cb(err, data) {
         should.exist(data);
         data.num.should.be.type('number');
         done();
-      });
+      }
+
+      if (db.connector.find.length === 4) {
+        db.connector.find(Model.modelName, id, {}, cb);
+      } else {
+        db.connector.find(Model.modelName, id, cb);
+      }
     }
   });
 
@@ -252,16 +258,27 @@ describe('datatypes', function () {
           created.should.have.properties(EXPECTED);
           saved.should.have.properties(EXPECTED);
 
-          TestModel.dataSource.connector.all(
-            TestModel.modelName,
-            { where: { id: created.id } },
-            function(err, found) {
-              if (err) return done(err);
-              should.exist(found[0]);
-              found[0].should.have.properties(EXPECTED);
-              done();
-            }
-          );
+          function cb(err, found) {
+            if (err) return done(err);
+            should.exist(found[0]);
+            found[0].should.have.properties(EXPECTED);
+            done();
+          }
+
+          if (TestModel.dataSource.connector.all.length === 4) {
+            TestModel.dataSource.connector.all(
+              TestModel.modelName,
+              {where: {id: created.id}},
+              {},
+              cb
+            );
+          } else {
+            TestModel.dataSource.connector.all(
+              TestModel.modelName,
+              {where: {id: created.id}},
+              cb
+            );
+          }
         });
       });
     });
