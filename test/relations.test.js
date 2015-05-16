@@ -2890,9 +2890,31 @@ describe('relations', function () {
       });
     });
 
-    it('should find record that match scope', function (done) {
+    it('should include record that matches scope', function(done) {
+      Supplier.findById(supplierId, {include: 'account'}, function(err, supplier) {
+        should.exists(supplier.toJSON().account);
+        supplier.account(function(err, account) {
+          should.exists(account);
+          done();
+        });
+      });
+    });
+
+    it('should not find record that does not match scope', function (done) {
       Account.updateAll({ block: true }, function (err) {
         Supplier.findById(supplierId, function (err, supplier) {
+          supplier.account(function (err, account) {
+            should.not.exists(account);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should not include record that does not match scope', function (done) {
+      Account.updateAll({ block: true }, function (err) {
+        Supplier.findById(supplierId, {include: 'account'}, function (err, supplier) {
+          should.not.exists(supplier.toJSON().account);
           supplier.account(function (err, account) {
             should.not.exists(account);
             done();
