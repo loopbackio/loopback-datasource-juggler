@@ -1,3 +1,11 @@
+2015-05-16, Version 2.27.1
+==========================
+
+ * Make sure relation scope is applied during include (Raymond Feng)
+
+ * Updated JSdoc for Datasource constructor (crandmck)
+
+
 2015-05-13, Version 2.27.0
 ==========================
 
