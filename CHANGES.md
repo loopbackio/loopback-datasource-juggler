@@ -1,3 +1,23 @@
+2015-05-18, Version 2.28.0
+==========================
+
+ * Make sure promise is returned (Raymond Feng)
+
+ * Update deps to loopback-connector (Raymond Feng)
+
+ * Fix comments (Raymond Feng)
+
+ * Enable docs (Raymond Feng)
+
+ * Add an optional `options` argument to relation methods (Raymond Feng)
+
+ * Add transaction apis (Raymond Feng)
+
+ * Refactor the observer functions into a plugin (Raymond Feng)
+
+ * Add transaction (Raymond Feng)
+
+
 2015-05-16, Version 2.27.1
 ==========================
 
