@@ -7,6 +7,8 @@
         "lib/include.js",
         "lib/model-builder.js",
         "lib/relations.js",
+        "lib/observer.js",
+        "lib/transaction.js",
         "lib/validations.js"
     ],
     "codeSectionDepth": 4,
