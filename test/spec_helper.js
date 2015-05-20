@@ -6,12 +6,6 @@
  }
  */
 
-try {
-  global.sinon = require('sinon');
-} catch (e) {
-  // ignore
-}
-
 var group_name = false, EXT_EXP;
 function it(should, test_case) {
   check_external_exports();

@@ -1,6 +1,5 @@
 // This test written in mocha+should.js
 var should = require('./init.js');
-var sinon = require('sinon');
 var async = require('async');
 
 var db, User, Profile, AccessToken, Post, Passport, City, Street, Building, Assembly, Part;
@@ -382,12 +381,19 @@ describe('include', function () {
     });
   });
 
-  describe(' performance - ', function () {
-    beforeEach(function () {
-      this.callSpy = sinon.spy(db.connector, 'all');
+  describe('performance', function () {
+    var all;
+    beforeEach(function() {
+      this.called = 0;
+      var self = this;
+      all = db.connector.all;
+      db.connector.all = function(model, filter, options, cb) {
+        self.called++;
+        return all.apply(db.connector, arguments);
+      };
     });
-    afterEach(function () {
-      db.connector.all.restore();
+    afterEach(function() {
+      db.connector.all = all;
     });
     it('including belongsTo should make only 2 db calls', function (done) {
       var self = this;
@@ -407,7 +413,7 @@ describe('include', function () {
             owner.id.should.eql(p.ownerId);
           }
         });
-        self.callSpy.calledTwice.should.be.true;
+        self.called.should.eql(2);
         done();
       });
     });
@@ -434,7 +440,7 @@ describe('include', function () {
                   });
                 }, next);
               }, function (err) {
-                self.callSpy.reset();
+                self.called = 0;
                 Assembly.find({
                   where: {
                     name: {
@@ -452,7 +458,7 @@ describe('include', function () {
                   result[1].parts().should.have.length(2);
                   //SUV
                   result[2].parts().should.have.length(0);
-                  self.callSpy.calledThrice.should.be.true;
+                  self.called.should.eql(3);
                   done();
                 });
               });
@@ -489,7 +495,7 @@ describe('include', function () {
             pp.ownerId.should.eql(user.id);
           });
         });
-        self.callSpy.calledThrice.should.be.true;
+        self.called.should.eql(3);
         done();
       });
     });
@@ -528,7 +534,7 @@ describe('include', function () {
               pp.ownerId.should.eql(user.id);
             });
           });
-          self.callSpy.calledThrice.should.be.true;
+          self.called.should.eql(3);
           done();
         });
       });
