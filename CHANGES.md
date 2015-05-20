@@ -1,3 +1,11 @@
+2015-05-20, Version 2.28.1
+==========================
+
+ * Remove dep on sinon (Raymond Feng)
+
+ * Update deps (Raymond Feng)
+
+
 2015-05-18, Version 2.28.0
 ==========================
 
