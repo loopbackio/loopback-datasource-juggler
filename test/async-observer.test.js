@@ -132,6 +132,70 @@ describe('async observer', function() {
     });
   });
 
+  describe('notifyObserversAround', function() {
+    var notifications;
+    beforeEach(function() {
+      notifications = [];
+      TestModel.observe('before execute',
+        pushAndNext(notifications, 'before execute'));
+      TestModel.observe('after execute',
+        pushAndNext(notifications, 'after execute'));
+    });
+
+    it('should notify before/after observers', function(done) {
+      var context = {};
+
+      function work(done) {
+        process.nextTick(function() {
+          done(null, 1);
+        });
+      }
+
+      TestModel.notifyObserversAround('execute', context, work,
+        function(err, result) {
+          notifications.should.eql(['before execute', 'after execute']);
+          result.should.eql(1);
+          done();
+        });
+    });
+
+    it('should allow work with context', function(done) {
+      var context = {};
+
+      function work(context, done) {
+        process.nextTick(function() {
+          done(null, 1);
+        });
+      }
+
+      TestModel.notifyObserversAround('execute', context, work,
+        function(err, result) {
+          notifications.should.eql(['before execute', 'after execute']);
+          result.should.eql(1);
+          done();
+        });
+    });
+
+    it('should notify before/after observers with multiple results',
+      function(done) {
+        var context = {};
+
+        function work(done) {
+          process.nextTick(function() {
+            done(null, 1, 2);
+          });
+        }
+
+        TestModel.notifyObserversAround('execute', context, work,
+          function(err, r1, r2) {
+            r1.should.eql(1);
+            r2.should.eql(2);
+            notifications.should.eql(['before execute', 'after execute']);
+            done();
+          });
+      });
+  });
+
   it('resolves promises returned by observers', function(done) {
     TestModel.observe('event', function(ctx) {
       return Promise.resolve('value-to-ignore');
