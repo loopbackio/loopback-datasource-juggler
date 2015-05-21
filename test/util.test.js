@@ -7,16 +7,17 @@ var mergeIncludes = utils.mergeIncludes;
 var sortObjectsByIds = utils.sortObjectsByIds;
 
 describe('util.fieldsToArray', function () {
-  it('Turn objects and strings into an array of fields to include when finding models', function () {
-
-    function sample(fields) {
-      var properties = ['foo', 'bar', 'bat', 'baz'];
-      return {
-        expect: function (arr) {
-          should.deepEqual(fieldsToArray(fields, properties), arr);
-        }
+  function sample(fields, excludeUnknown) {
+    var properties = ['foo', 'bar', 'bat', 'baz'];
+    return {
+      expect: function (arr) {
+        should.deepEqual(fieldsToArray(fields, properties, excludeUnknown), arr);
       }
-    }
+    };
+  }
+
+  it('Turn objects and strings into an array of fields' +
+    ' to include when finding models', function () {
 
     sample(false).expect(undefined);
     sample(null).expect(undefined);
@@ -27,6 +28,19 @@ describe('util.fieldsToArray', function () {
     sample({'bat': true}).expect(['bat']);
     sample({'bat': 0}).expect(['foo', 'bar', 'baz']);
     sample({'bat': false}).expect(['foo', 'bar', 'baz']);
+  });
+
+  it('should exclude unknown properties', function () {
+
+    sample(false, true).expect(undefined);
+    sample(null, true).expect(undefined);
+    sample({}, true).expect(undefined);
+    sample('foo', true).expect(['foo']);
+    sample(['foo', 'unknown'], true).expect(['foo']);
+    sample({'foo': 1, unknown: 1}, true).expect(['foo']);
+    sample({'bat': true, unknown: true}, true).expect(['bat']);
+    sample({'bat': 0}, true).expect(['foo', 'bar', 'baz']);
+    sample({'bat': false}, true).expect(['foo', 'bar', 'baz']);
   });
 });
 
@@ -190,7 +204,7 @@ describe('mergeSettings', function () {
 });
 
 describe('sortObjectsByIds', function () {
-  
+
   var items = [
     { id: 1, name: 'a' },
     { id: 2, name: 'b' },
@@ -211,7 +225,7 @@ describe('sortObjectsByIds', function () {
     var names = sorted.map(function(u) { return u.name; });
     should.deepEqual(names, ['e', 'c', 'b', 'a', 'd', 'f']);
   });
-  
+
   it('should sort - strict', function() {
     var sorted = sortObjectsByIds('id', [5, 3, 2], items, true);
     var names = sorted.map(function(u) { return u.name; });
