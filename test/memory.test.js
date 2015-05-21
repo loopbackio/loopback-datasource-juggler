@@ -584,4 +584,48 @@ describe('Memory connector with options', function() {
 
 });
 
+describe('Memory connector with observers', function() {
+  var ds = new DataSource({
+    connector: 'memory'
+  });
+
+  it('should have observer mixed into the connector', function() {
+    ds.connector.observe.should.be.a.function;
+    ds.connector.notifyObserversOf.should.be.a.function;
+  });
+
+  it('should notify observers', function(done) {
+    var events = [];
+    ds.connector.execute = function(command, params, options, cb) {
+      var self = this;
+      var context = {command: command, params: params, options: options};
+      self.notifyObserversOf('before execute', context, function(err) {
+        process.nextTick(function() {
+          if (err) return cb(err);
+          events.push('execute');
+          self.notifyObserversOf('after execute', context, function(err) {
+            cb(err);
+          });
+        });
+      });
+    };
+
+    ds.connector.observe('before execute', function(context, next) {
+      events.push('before execute');
+      next();
+    });
+
+    ds.connector.observe('after execute', function(context, next) {
+      events.push('after execute');
+      next();
+    });
+
+    ds.connector.execute('test', [1, 2], {x: 2}, function(err) {
+      if (err) return done(err);
+      events.should.eql(['before execute', 'execute', 'after execute']);
+      done();
+    });
+  });
+});
+
 
