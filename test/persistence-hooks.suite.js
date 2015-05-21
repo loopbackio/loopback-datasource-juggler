@@ -6,6 +6,7 @@ module.exports = function(dataSource, should) {
     var observedContexts, expectedError, observersCalled;
     var TestModel, existingInstance;
     var migrated = false, lastId;
+    var triggered;
 
     var undefinedValue = undefined;
 
@@ -112,6 +113,24 @@ module.exports = function(dataSource, should) {
     });
 
     describe('PersistedModel.create', function() {
+      it('triggers hooks in the correct order', function(done) {
+        monitorHookExecution();
+
+        TestModel.create(
+          { name: 'created' },
+          function(err, record, created) {
+            if (err) return done(err);
+
+            triggered.should.eql([
+              'before save',
+              'persist',
+              'loaded',
+              'after save'
+            ]);
+            done();
+          });
+      });
+
       it('triggers `before save` hook', function(done) {
         TestModel.observe('before save', pushContextAndNext());
 
@@ -210,16 +229,19 @@ module.exports = function(dataSource, should) {
           ctx.data.extra = 'hook data';
         }));
 
+        // By default, the instance passed to create callback is NOT updated 
+        // with the changes made through persist/loaded hooks. To preserve 
+        // backwards compatibility, we introduced a new setting updateOnLoad, 
+        // which if set, will apply these changes to the model instance too.
+        TestModel.settings.updateOnLoad = true;
         TestModel.create(
           { id: 'new-id', name: 'a name' },
           function(err, instance) {
             if (err) return done(err);
 
-            // the, instance returned by `create` context does not have the
-            // values updated from `persist` hook
-            instance.should.not.have.property('extra', 'hook data');
+            instance.should.have.property('extra', 'hook data');
 
-            // So, we must query the database here because on `create`
+            // Also query the database here to verify that, on `create` 
             // updates from `persist` hook are reflected into database
             TestModel.findById('new-id', function(err, dbInstance) {
               if (err) return done(err);
@@ -230,6 +252,48 @@ module.exports = function(dataSource, should) {
               });
             });
 
+            done();
+          });
+      });
+
+      it('triggers `loaded` hook', function(done) {
+        TestModel.observe('loaded', pushContextAndNext());
+
+        // By default, the instance passed to create callback is NOT updated 
+        // with the changes made through persist/loaded hooks. To preserve 
+        // backwards compatibility, we introduced a new setting updateOnLoad, 
+        // which if set, will apply these changes to the model instance too.
+        TestModel.settings.updateOnLoad = true;
+        TestModel.create(
+          { id: 'new-id', name: 'a name' },
+          function(err, instance) {
+            if (err) return done(err);
+
+            observedContexts.should.eql(aTestModelCtx({
+              data: { id: 'new-id', name: 'a name' },
+              isNewInstance: true
+            }));
+
+            done();
+          });
+      });
+
+      it('applies updates from `loaded` hook', function(done) {
+        TestModel.observe('loaded', pushContextAndNext(function(ctx){
+          ctx.data.extra = 'hook data';
+        }));
+
+        // By default, the instance passed to create callback is NOT updated 
+        // with the changes made through persist/loaded hooks. To preserve 
+        // backwards compatibility, we introduced a new setting updateOnLoad, 
+        // which if set, will apply these changes to the model instance too.
+        TestModel.settings.updateOnLoad = true;
+        TestModel.create(
+          { id: 'new-id', name: 'a name' },
+          function(err, instance) {
+            if (err) return done(err);
+
+            instance.should.have.property('extra', 'hook data');
             done();
           });
       });
@@ -405,12 +469,7 @@ module.exports = function(dataSource, should) {
       });
 
       it('triggers hooks in the correct order when not found', function(done) {
-        var triggered = [];
-        TestModel._notify = TestModel.notifyObserversOf;
-        TestModel.notifyObserversOf = function(operation, context, callback) {
-          triggered.push(operation);
-          this._notify.apply(this, arguments);
-        };
+        monitorHookExecution();
 
         TestModel.findOrCreate(
           { where: { name: 'new-record' } },
@@ -421,8 +480,35 @@ module.exports = function(dataSource, should) {
               'access',
               'before save',
               'persist',
+              'loaded',
               'after save'
             ]);
+            done();
+          });
+      });
+
+      it('triggers hooks in the correct order when found', function(done) {
+        monitorHookExecution();
+
+        TestModel.findOrCreate(
+          { where: { name: existingInstance.name } },
+          { name: existingInstance.name },
+          function(err, record, created) {
+            if (err) return done(err);
+
+            if (dataSource.connector.findOrCreate) {
+              triggered.should.eql([
+                'access',
+                'before save',
+                'persist',
+                'loaded'
+              ]);
+            } else {
+              triggered.should.eql([
+                'access',
+                'loaded'
+              ]);
+            }
             done();
           });
       });
@@ -596,6 +682,98 @@ module.exports = function(dataSource, should) {
           });
       });
 
+      if (dataSource.connector.findOrCreate) {
+        it('triggers `loaded` hook when found', function(done) {
+          TestModel.observe('loaded', pushContextAndNext());
+
+          TestModel.findOrCreate(
+            { where: { name: existingInstance.name } },
+            { name: existingInstance.name },
+            function(err, record, created) {
+              if (err) return done(err);
+
+              record.id.should.eql(existingInstance.id);
+
+               // After the call to `connector.findOrCreate`, since the record 
+               // already exists, `data.id` matches `existingInstance.id` 
+               // as against the behaviour noted for `persist` hook 
+              observedContexts.should.eql(aTestModelCtx({
+                data: {
+                  id: existingInstance.id,
+                  name: existingInstance.name
+                },
+                isNewInstance: false
+              }));
+
+              done();
+            });
+        });
+      }
+
+      it('triggers `loaded` hook when not found', function(done) {
+        TestModel.observe('loaded', pushContextAndNext());
+
+        TestModel.findOrCreate(
+          { where: { name: 'new-record' } },
+          { name: 'new-record' },
+          function(err, record, created) {
+            if (err) return done(err);
+
+            observedContexts.should.eql(aTestModelCtx({
+              data: {
+                id: record.id,
+                name: 'new-record'
+              },
+              isNewInstance: true
+            }));
+
+            done();
+          });
+      });
+
+      if (dataSource.connector.findOrCreate) {
+        it('applies updates from `loaded` hook when found', function(done) {
+          TestModel.observe('loaded', pushContextAndNext(function(ctx){
+            ctx.data.extra = 'hook data';
+          }));
+
+          TestModel.findOrCreate(
+            { where: { name: existingInstance.name } },
+            { name: existingInstance.name },
+            function(err, instance) {
+              if (err) return done(err);
+
+              instance.should.have.property('extra', 'hook data');
+
+              done();
+            });
+        });
+      }
+
+      it('applies updates from `loaded` hook when not found', function(done) {
+        TestModel.observe('loaded', pushContextAndNext(function(ctx){
+          ctx.data.extra = 'hook data';
+        }));
+
+        // Unoptimized connector gives a call to `create. But,
+        // by default, the instance passed to create callback is NOT updated 
+        // with the changes made through persist/loaded hooks. To preserve 
+        // backwards compatibility, we introduced a new setting updateOnLoad, 
+        // which if set, will apply these changes to the model instance too.
+        // Note - in case of findOrCreate, this setting is needed ONLY for
+        // unoptimized connector.
+        TestModel.settings.updateOnLoad = true;
+        TestModel.findOrCreate(
+          { where: { name: 'new-record' } },
+          { name: 'new-record' },
+          function(err, instance) {
+            if (err) return done(err);
+
+            instance.should.have.property('extra', 'hook data');
+            done();
+          });
+      });
+
       it('triggers `after save` hook when not found', function(done) {
         TestModel.observe('after save', pushContextAndNext());
 
@@ -658,6 +836,22 @@ module.exports = function(dataSource, should) {
     });
 
     describe('PersistedModel.prototype.save', function() {
+      it('triggers hooks in the correct order', function(done) {
+        monitorHookExecution();
+
+        existingInstance.save(
+          function(err, record, created) {
+            if (err) return done(err);
+            triggered.should.eql([
+              'before save',
+              'persist',
+              'loaded',
+              'after save'
+            ]);
+            done();
+          });
+      });
+
       it('triggers `before save` hook', function(done) {
         TestModel.observe('before save', pushContextAndNext());
 
@@ -745,6 +939,38 @@ module.exports = function(dataSource, should) {
         });
       });
 
+      it('triggers `loaded` hook', function(done) {
+        TestModel.observe('loaded', pushContextAndNext());
+
+        existingInstance.name = 'changed';
+        existingInstance.save(function(err, instance) {
+          if (err) return done(err);
+
+          observedContexts.should.eql(aTestModelCtx({
+            data: {
+              id: existingInstance.id,
+              name: 'changed'
+            },
+            isNewInstance: false,
+            options: { throws: false, validate: true }
+          }));
+
+          done();
+        });
+      });
+
+      it('applies updates from `loaded` hook', function(done) {
+        TestModel.observe('loaded', pushContextAndNext(function(ctx){
+          ctx.data.extra = 'hook data';
+        }));
+
+        existingInstance.save(function(err, instance) {
+          if (err) return done(err);
+          instance.should.have.property('extra', 'hook data');
+          done();
+        });
+      });
+
       it('triggers `after save` hook on update', function(done) {
         TestModel.observe('after save', pushContextAndNext());
 
@@ -811,6 +1037,23 @@ module.exports = function(dataSource, should) {
     });
 
     describe('PersistedModel.prototype.updateAttributes', function() {
+      it('triggers hooks in the correct order', function(done) {
+        monitorHookExecution();
+
+        existingInstance.updateAttributes(
+          { name: 'changed' },
+          function(err, record, created) {
+            if (err) return done(err);
+            triggered.should.eql([
+              'before save',
+              'persist',
+              'loaded',
+              'after save'
+            ]);
+            done();
+          });
+      });
+
       it('triggers `before save` hook', function(done) {
         TestModel.observe('before save', pushContextAndNext());
 
@@ -894,7 +1137,42 @@ module.exports = function(dataSource, should) {
           ctx.data.extra = 'hook data';
         }));
 
-        existingInstance.save(function(err, instance) {
+        // By default, the instance passed to updateAttributes callback is NOT updated 
+        // with the changes made through persist/loaded hooks. To preserve 
+        // backwards compatibility, we introduced a new setting updateOnLoad, 
+        // which if set, will apply these changes to the model instance too.
+        TestModel.settings.updateOnLoad = true;
+        existingInstance.updateAttributes({ name: 'changed' }, function(err, instance) {
+          if (err) return done(err);
+          instance.should.have.property('extra', 'hook data');
+          done();
+        });
+      });
+
+      it('triggers `loaded` hook', function(done) {
+        TestModel.observe('loaded', pushContextAndNext());
+        existingInstance.updateAttributes({ name: 'changed' }, function(err) {
+          if (err) return done(err);
+
+          observedContexts.should.eql(aTestModelCtx({
+            data: { name: 'changed' }
+          }));
+
+          done();
+        });
+      });
+
+      it('applies updates from `loaded` hook updateAttributes', function(done) {
+        TestModel.observe('loaded', pushContextAndNext(function(ctx){
+          ctx.data.extra = 'hook data';
+        }));
+
+        // By default, the instance passed to updateAttributes callback is NOT updated 
+        // with the changes made through persist/loaded hooks. To preserve 
+        // backwards compatibility, we introduced a new setting updateOnLoad, 
+        // which if set, will apply these changes to the model instance too.
+        TestModel.settings.updateOnLoad = true;
+        existingInstance.updateAttributes({ name: 'changed' }, function(err, instance) {
           if (err) return done(err);
           instance.should.have.property('extra', 'hook data');
           done();
@@ -944,6 +1222,53 @@ module.exports = function(dataSource, should) {
     });
 
     describe('PersistedModel.updateOrCreate', function() {
+      it('triggers hooks in the correct order on create', function(done) {
+        monitorHookExecution();
+
+        TestModel.updateOrCreate(
+          { id: 'not-found', name: 'not found' },
+          function(err, record, created) {
+            if (err) return done(err);
+            triggered.should.eql([
+              'access',
+              'before save',
+              'persist',
+              'loaded',
+              'after save'
+            ]);
+            done();
+          });
+      });
+
+      it('triggers hooks in the correct order on update', function(done) {
+        monitorHookExecution();
+
+        TestModel.updateOrCreate(
+          { id: existingInstance.id, name: 'new name' },
+          function(err, record, created) {
+            if (err) return done(err);
+            if (dataSource.connector.updateOrCreate) {
+              triggered.should.eql([
+                'access',
+                'before save',
+                'persist',
+                'loaded',
+                'after save'
+              ]);
+            } else {
+              triggered.should.eql([
+                'access',
+                'loaded',
+                'before save',
+                'persist',
+                'loaded',
+                'after save'
+              ]);
+            }
+            done();
+          });
+      });
+
       it('triggers `access` hook on create', function(done) {
         TestModel.observe('access', pushContextAndNext());
 
@@ -1225,6 +1550,71 @@ module.exports = function(dataSource, should) {
           });
       });
 
+      it('triggers `loaded` hook on create', function(done) {
+        TestModel.observe('loaded', pushContextAndNext());
+
+        TestModel.updateOrCreate(
+          { id: 'new-id', name: 'a name' },
+          function(err, instance) {
+            if (err) return done(err);
+
+            if (dataSource.connector.updateOrCreate) {
+              observedContexts.should.eql(aTestModelCtx({
+                data: { id: 'new-id', name: 'a name' }
+              }));
+            } else {
+              observedContexts.should.eql(aTestModelCtx({
+                data: {
+                  id: 'new-id',
+                  name: 'a name'
+                },
+                isNewInstance: true
+              }));
+            }
+            done();
+          });
+      });
+
+      it('triggers `loaded` hook on update', function(done) {
+        TestModel.observe('loaded', pushContextAndNext());
+
+        TestModel.updateOrCreate(
+          { id: existingInstance.id, name: 'updated name' },
+          function(err, instance) {
+            if (err) return done(err);
+
+            if (dataSource.connector.updateOrCreate) {
+              observedContexts.should.eql(aTestModelCtx({
+                data: {
+                  id: existingInstance.id,
+                  name: 'updated name'
+                }
+              }));
+            } else {
+              // For Unoptimized connector, the callback function `pushContextAndNext`  
+              // is called twice. As a result, observedContexts
+              // returns an array and NOT a single instance.
+              observedContexts.should.eql([
+                aTestModelCtx({
+                  instance: {
+                    id: existingInstance.id,
+                    name: 'first',
+                    extra: null
+                  },
+                  isNewInstance: false,
+                  options: { notify: false }
+                }),
+                aTestModelCtx({
+                  data: {
+                    id: existingInstance.id,
+                    name: 'updated name'
+                  }
+                })
+              ]);
+            }
+            done();
+          });
+      });
 
       it('triggers `after save` hook on update', function(done) {
         TestModel.observe('after save', pushContextAndNext());
@@ -1646,6 +2036,19 @@ module.exports = function(dataSource, should) {
           });
       });
 
+      it('does not trigger `loaded`', function(done) {
+        TestModel.observe('loaded', pushContextAndNext());
+
+        TestModel.updateAll(
+          { where: { id: existingInstance.id } },
+          { name: 'changed' },
+          function(err, instance) {
+            if (err) return done(err);
+            observedContexts.should.eql("hook not called");
+            done();
+          });
+      });
+
       it('triggers `after save` hook', function(done) {
         TestModel.observe('after save', pushContextAndNext());
 
@@ -1758,6 +2161,15 @@ module.exports = function(dataSource, should) {
 
     function getLastGeneratedUid() {
       return '' + lastId;
+    }
+
+    function monitorHookExecution() {
+      triggered = [];
+      TestModel._notify = TestModel.notifyObserversOf;
+      TestModel.notifyObserversOf = function(operation, context, callback) {
+        triggered.push(operation);
+        this._notify.apply(this, arguments);
+      };
     }
   });
 
