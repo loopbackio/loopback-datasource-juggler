@@ -1,7 +1,9 @@
 // This test written in mocha+should.js
 var should = require('./init.js');
-var sinon = require('sinon');
 var async = require('async');
+var assert = require('assert');
+
+var DataSource = require('../').DataSource;
 
 var db, User, Profile, AccessToken, Post, Passport, City, Street, Building, Assembly, Part;
 
@@ -382,12 +384,19 @@ describe('include', function () {
     });
   });
 
-  describe(' performance - ', function () {
-    beforeEach(function () {
-      this.callSpy = sinon.spy(db.connector, 'all');
+  describe('performance', function () {
+    var all;
+    beforeEach(function() {
+      this.called = 0;
+      var self = this;
+      all = db.connector.all;
+      db.connector.all = function(model, filter, options, cb) {
+        self.called++;
+        return all.apply(db.connector, arguments);
+      };
     });
-    afterEach(function () {
-      db.connector.all.restore();
+    afterEach(function() {
+      db.connector.all = all;
     });
     it('including belongsTo should make only 2 db calls', function (done) {
       var self = this;
@@ -407,7 +416,7 @@ describe('include', function () {
             owner.id.should.eql(p.ownerId);
           }
         });
-        self.callSpy.calledTwice.should.be.true;
+        self.called.should.eql(2);
         done();
       });
     });
@@ -434,7 +443,7 @@ describe('include', function () {
                   });
                 }, next);
               }, function (err) {
-                self.callSpy.reset();
+                self.called = 0;
                 Assembly.find({
                   where: {
                     name: {
@@ -452,7 +461,7 @@ describe('include', function () {
                   result[1].parts().should.have.length(2);
                   //SUV
                   result[2].parts().should.have.length(0);
-                  self.callSpy.calledThrice.should.be.true;
+                  self.called.should.eql(3);
                   done();
                 });
               });
@@ -489,7 +498,7 @@ describe('include', function () {
             pp.ownerId.should.eql(user.id);
           });
         });
-        self.callSpy.calledThrice.should.be.true;
+        self.called.should.eql(3);
         done();
       });
     });
@@ -528,7 +537,7 @@ describe('include', function () {
               pp.ownerId.should.eql(user.id);
             });
           });
-          self.callSpy.calledThrice.should.be.true;
+          self.called.should.eql(3);
           done();
         });
       });
@@ -684,3 +693,95 @@ function clearAndCreate(model, data, callback) {
     itemIndex++;
   }
 }
+
+describe('Model instance with included relation .toJSON()', function() {
+  var db, ChallengerModel, GameParticipationModel, ResultModel;
+
+  before(function(done) {
+    db = new DataSource({connector: 'memory'});
+    ChallengerModel = db.createModel('Challenger',
+      {
+        name: String
+      },
+      {
+        relations: {
+          gameParticipations: {
+            type: 'hasMany',
+            model: 'GameParticipation',
+            foreignKey: ''
+          }
+        }
+      }
+    );
+    GameParticipationModel = db.createModel('GameParticipation',
+      {
+        date: Date
+      },
+      {
+        relations: {
+          challenger: {
+            type: 'belongsTo',
+            model: 'Challenger',
+            foreignKey: ''
+          },
+          results: {
+            type: 'hasMany',
+            model: 'Result',
+            foreignKey: ''
+          }
+        }
+      }
+    );
+    ResultModel = db.createModel('Result', {
+      points: Number,
+    }, {
+      relations: {
+        gameParticipation: {
+          type: 'belongsTo',
+          model: 'GameParticipation',
+          foreignKey: ''
+        }
+      }
+    });
+
+    async.waterfall([
+      createChallengers,
+      createGameParticipations,
+      createResults],
+      function(err) {
+        done(err);
+      });
+
+  });
+
+  function createChallengers(callback) {
+    ChallengerModel.create([{name: 'challenger1'}, {name: 'challenger2'}], callback);
+  }
+
+  function createGameParticipations(challengers, callback) {
+    GameParticipationModel.create([
+      {challengerId: challengers[0].id, date: Date.now()},
+      {challengerId: challengers[0].id, date: Date.now()}
+    ], callback);
+  }
+
+  function createResults(gameParticipations, callback) {
+    ResultModel.create([
+      {gameParticipationId: gameParticipations[0].id, points: 10},
+      {gameParticipationId: gameParticipations[0].id, points: 20}
+    ], callback);
+  }
+
+  it('should recursively serialize objects', function(done) {
+    var filter = {include: {gameParticipations: 'results'}};
+    ChallengerModel.find(filter, function(err, challengers) {
+
+      var levelOneInclusion = challengers[0].toJSON().gameParticipations[0];
+      assert(levelOneInclusion.__data === undefined, '.__data of a level 1 inclusion is undefined.');
+
+      var levelTwoInclusion = challengers[0].toJSON().gameParticipations[0].results[0];
+      assert(levelTwoInclusion.__data === undefined, '__data of a level 2 inclusion is undefined.');
+      done();
+    });
+  });
+});

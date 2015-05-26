@@ -1,3 +1,39 @@
+2015-05-20, Version 2.28.1
+==========================
+
+ * Remove dep on sinon (Raymond Feng)
+
+ * Update deps (Raymond Feng)
+
+
+2015-05-18, Version 2.28.0
+==========================
+
+ * Make sure promise is returned (Raymond Feng)
+
+ * Update deps to loopback-connector (Raymond Feng)
+
+ * Fix comments (Raymond Feng)
+
+ * Enable docs (Raymond Feng)
+
+ * Add an optional `options` argument to relation methods (Raymond Feng)
+
+ * Add transaction apis (Raymond Feng)
+
+ * Refactor the observer functions into a plugin (Raymond Feng)
+
+ * Add transaction (Raymond Feng)
+
+
+2015-05-16, Version 2.27.1
+==========================
+
+ * Make sure relation scope is applied during include (Raymond Feng)
+
+ * Updated JSdoc for Datasource constructor (crandmck)
+
+
 2015-05-13, Version 2.27.0
 ==========================
 
