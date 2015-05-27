@@ -37,6 +37,18 @@ describe('async observer', function() {
     });
   });
 
+  it('allows multiple operations to be notified in one call', function(done) {
+    var notifications = [];
+    TestModel.observe('event1', pushAndNext(notifications, 'one'));
+    TestModel.observe('event2', pushAndNext(notifications, 'two'));
+
+    TestModel.notifyObserversOf(['event1', 'event2'], {}, function(err) {
+      if (err) return done(err);
+      notifications.should.eql(['one', 'two']);
+      done();
+    });
+  });
+
   it('inherits observers from base model', function(done) {
     var notifications = [];
     TestModel.observe('event', pushAndNext(notifications, 'base'));
@@ -47,6 +59,22 @@ describe('async observer', function() {
     Child.notifyObserversOf('event', {}, function(err) {
       if (err) return done(err);
       notifications.should.eql(['base', 'child']);
+      done();
+    });
+  });
+
+  it('allow multiple operations to be notified with base models', function(done) {
+    var notifications = [];
+    TestModel.observe('event1', pushAndNext(notifications, 'base1'));
+    TestModel.observe('event2', pushAndNext(notifications, 'base2'));
+
+    var Child = TestModel.extend('Child');
+    Child.observe('event1', pushAndNext(notifications, 'child1'));
+    Child.observe('event2', pushAndNext(notifications, 'child2'));
+
+    Child.notifyObserversOf(['event1', 'event2'], {}, function(err) {
+      if (err) return done(err);
+      notifications.should.eql(['base1', 'child1', 'base2', 'child2']);
       done();
     });
   });
@@ -191,6 +219,57 @@ describe('async observer', function() {
             r1.should.eql(1);
             r2.should.eql(2);
             notifications.should.eql(['before execute', 'after execute']);
+            done();
+          });
+      });
+
+    it('should allow observers to skip other ones',
+      function(done) {
+        TestModel.observe('before invoke',
+          function(context, next) {
+            notifications.push('before invoke');
+            context.end(null, 0);
+          });
+        TestModel.observe('after invoke',
+          pushAndNext(notifications, 'after invoke'));
+
+        var context = {};
+
+        function work(done) {
+          process.nextTick(function() {
+            done(null, 1, 2);
+          });
+        }
+
+        TestModel.notifyObserversAround('invoke', context, work,
+          function(err, r1) {
+            r1.should.eql(0);
+            notifications.should.eql(['before invoke']);
+            done();
+          });
+      });
+
+    it('should allow observers to tweak results',
+      function(done) {
+        TestModel.observe('after invoke',
+          function(context, next) {
+            notifications.push('after invoke');
+            context.results = [3];
+            next();
+          });
+
+        var context = {};
+
+        function work(done) {
+          process.nextTick(function() {
+            done(null, 1, 2);
+          });
+        }
+
+        TestModel.notifyObserversAround('invoke', context, work,
+          function(err, r1) {
+            r1.should.eql(3);
+            notifications.should.eql(['after invoke']);
             done();
           });
       });
