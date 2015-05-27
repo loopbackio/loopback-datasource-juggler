@@ -1,3 +1,17 @@
+2015-05-27, Version 2.29.0
+==========================
+
+ * Enhance the apis and add more tests (Raymond Feng)
+
+ * Fix for https://github.com/strongloop/loopback/issues/1401 (Raymond Feng)
+
+ * Fix ReferenceError: definition is not defined (Dmitry Manannikov)
+
+ * Mix in observer apis to the connector (Raymond Feng)
+
+ * Enhance fieldsToArray to consider strict mode (Raymond Feng)
+
+
 2015-05-20, Version 2.28.1
 ==========================
 
