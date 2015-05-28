@@ -1,3 +1,21 @@
+2015-05-28, Version 2.29.1
+==========================
+
+ * Update deps (Raymond Feng)
+
+ * Don't silently swallow db errors on validation. (Samuel Reed)
+
+ * adapt coding style @bajtos (mamboer)
+
+ * addressing #603 (Patrick Perini)
+
+ * enhancement on #588 (mamboer)
+
+ * fix issue #587 (mamboer)
+
+ * add test suit for scope - dynamic function (Nemo)
+
+
 2015-05-27, Version 2.29.0
 ==========================
 
