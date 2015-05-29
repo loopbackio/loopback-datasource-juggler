@@ -5,6 +5,7 @@ var removeUndefined = utils.removeUndefined;
 var mergeSettings = utils.mergeSettings;
 var mergeIncludes = utils.mergeIncludes;
 var sortObjectsByIds = utils.sortObjectsByIds;
+var uniq = utils.uniq;
 
 describe('util.fieldsToArray', function () {
   function sample(fields, excludeUnknown) {
@@ -242,7 +243,7 @@ describe('util.mergeIncludes', function () {
       'Merged include should match the expectation');
   }
 
-  it('Merge string values to object', function () {
+  it('Merge string values to object', function() {
     var baseInclude = 'relation1';
     var updateInclude = 'relation2';
     var expectedInclude = [
@@ -252,7 +253,7 @@ describe('util.mergeIncludes', function () {
     checkInputOutput(baseInclude, updateInclude, expectedInclude);
   });
 
-  it('Merge string & array values to object', function () {
+  it('Merge string & array values to object', function() {
     var baseInclude = 'relation1';
     var updateInclude = ['relation2'];
     var expectedInclude = [
@@ -262,7 +263,7 @@ describe('util.mergeIncludes', function () {
     checkInputOutput(baseInclude, updateInclude, expectedInclude);
   });
 
-  it('Merge string & object values to object', function () {
+  it('Merge string & object values to object', function() {
     var baseInclude = ['relation1'];
     var updateInclude = {relation2: 'relation2Include'};
     var expectedInclude = [
@@ -272,7 +273,7 @@ describe('util.mergeIncludes', function () {
     checkInputOutput(baseInclude, updateInclude, expectedInclude);
   });
 
-  it('Merge array & array values to object', function () {
+  it('Merge array & array values to object', function() {
     var baseInclude = ['relation1'];
     var updateInclude = ['relation2'];
     var expectedInclude = [
@@ -282,7 +283,7 @@ describe('util.mergeIncludes', function () {
     checkInputOutput(baseInclude, updateInclude, expectedInclude);
   });
 
-  it('Merge array & object values to object', function () {
+  it('Merge array & object values to object', function() {
     var baseInclude = ['relation1'];
     var updateInclude = {relation2: 'relation2Include'};
     var expectedInclude = [
@@ -292,7 +293,7 @@ describe('util.mergeIncludes', function () {
     checkInputOutput(baseInclude, updateInclude, expectedInclude);
   });
 
-  it('Merge object & object values to object', function () {
+  it('Merge object & object values to object', function() {
     var baseInclude = {relation1: 'relation1Include'};
     var updateInclude = {relation2: 'relation2Include'};
     var expectedInclude = [
@@ -302,7 +303,7 @@ describe('util.mergeIncludes', function () {
     checkInputOutput(baseInclude, updateInclude, expectedInclude);
   });
 
-  it('Override property collision with update value', function () {
+  it('Override property collision with update value', function() {
     var baseInclude = {relation1: 'baseValue'};
     var updateInclude = {relation1: 'updateValue'};
     var expectedInclude = [
@@ -312,7 +313,7 @@ describe('util.mergeIncludes', function () {
   });
 
   it('Merge string includes & include with relation syntax properly',
-    function () {
+    function() {
       var baseInclude = 'relation1';
       var updateInclude = {relation: 'relation1'};
       var expectedInclude = [
@@ -321,7 +322,7 @@ describe('util.mergeIncludes', function () {
       checkInputOutput(baseInclude, updateInclude, expectedInclude);
     });
 
-  it('Merge string includes & include with scope properly', function () {
+  it('Merge string includes & include with scope properly', function() {
     var baseInclude = 'relation1';
     var updateInclude = {
       relation: 'relation1',
@@ -334,7 +335,7 @@ describe('util.mergeIncludes', function () {
   });
 
   it('Merge includes with and without relation syntax properly',
-    function () {
+    function() {
       //w & w/o relation syntax - no collision
       var baseInclude = ['relation2'];
       var updateInclude = {
@@ -361,7 +362,7 @@ describe('util.mergeIncludes', function () {
       checkInputOutput(baseInclude, updateInclude, expectedInclude);
     });
 
-  it('Merge includes with mixture of strings, arrays & objects properly', function () {
+  it('Merge includes with mixture of strings, arrays & objects properly', function() {
     var baseInclude = ['relation1', {relation2: true},
       {relation: 'relation3', scope: {where: {id: 'some id'}}},
       {relation: 'relation5', scope: {where: {id: 'some id'}}}
@@ -373,6 +374,49 @@ describe('util.mergeIncludes', function () {
       {relation1: true},
       {relation: 'relation5', scope: {where: {id: 'some id'}}}];
     checkInputOutput(baseInclude, updateInclude, expectedInclude);
+  });
+});
+
+describe('util.uniq', function() {
+
+  it('should dedupe an array with duplicate number entries', function() {
+    var a = [1, 2, 1, 3];
+    var b = uniq(a);
+    b.should.eql([1, 2, 3]);
+  });
+
+  it('should dedupe an array with duplicate string entries', function() {
+    var a = ['a', 'a', 'b', 'a'];
+    var b = uniq(a);
+    b.should.eql(['a', 'b']);
+  });
+
+  it('should dedupe an array without duplicate number entries', function() {
+    var a = [1, 3, 2];
+    var b = uniq(a);
+    b.should.eql([1, 3, 2]);
+  });
+
+  it('should dedupe an array without duplicate string entries', function() {
+    var a = ['a', 'c', 'b'];
+    var b = uniq(a);
+    b.should.eql(['a', 'c', 'b']);
+  });
+
+  it('should allow null/undefined array', function() {
+    var a = null;
+    var b = uniq(a);
+    b.should.eql([]);
+  });
+
+  it('should report error for non-array arg', function() {
+    var a = '1';
+    try {
+      var b = uniq(a);
+      throw new Error('The test should have thrown an error');
+    } catch (err) {
+      err.should.be.instanceof(Error);
+    }
   });
 
 });

@@ -160,6 +160,26 @@ describe('include', function () {
     });
   });
 
+  it('should support limit', function(done) {
+    Passport.find({
+      include: {
+        owner: {
+          relation: 'posts', scope: {
+            fields: ['title'], include: ['author'],
+            order: 'title DESC',
+            limit: 2
+          }
+        }
+      },
+      limit: 1
+    }, function(err, passports) {
+      if (err) return done(err);
+      passports.length.should.equal(1);
+      passports[0].toJSON().owner.posts.length.should.equal(2);
+      done();
+    });
+  });
+
   it('should fetch Users with include scope on Posts - belongsTo', function (done) {
       Post.find({
         include: { relation: 'author', scope:{ fields: ['name'] }}
