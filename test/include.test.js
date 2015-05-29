@@ -455,12 +455,17 @@ describe('include', function () {
                   should.not.exist(err);
                   should.exists(result);
                   result.length.should.equal(3);
+                  // Please note the order of assemblies is random
+                  var assemblies = {};
+                  result.forEach(function(r) {
+                    assemblies[r.name] = r;
+                  });
                   //sedan
-                  result[0].parts().should.have.length(3);
-                  //hatcback
-                  result[1].parts().should.have.length(2);
+                  assemblies.sedan.parts().should.have.length(3);
+                  //hatchback
+                  assemblies.hatchback.parts().should.have.length(2);
                   //SUV
-                  result[2].parts().should.have.length(0);
+                  assemblies.SUV.parts().should.have.length(0);
                   self.called.should.eql(3);
                   done();
                 });
