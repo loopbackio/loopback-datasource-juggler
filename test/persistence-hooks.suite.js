@@ -1612,14 +1612,14 @@ module.exports = function(dataSource, should) {
         TestModel.observe('persist', pushContextAndNext());
 
         TestModel.updateAll(
-          { where: { name: existingInstance.name } },
+          { name: existingInstance.name },
           { name: 'changed' },
           function(err, instance) {
             if (err) return done(err);
 
             observedContexts.should.eql(aTestModelCtx({
               data: { name: 'changed' },
-              where: { where: { name: existingInstance.name } }
+              where: { name: existingInstance.name }
             }));
 
             done();
