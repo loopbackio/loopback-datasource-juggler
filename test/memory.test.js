@@ -463,10 +463,30 @@ describe('Memory connector', function() {
       });
     });
 
+    it('automigrate all models - promise variant', function(done) {
+      ds.automigrate()
+        .then(function(result) {
+          done();
+        })
+        .catch(function(err){
+          done(err);
+        });
+    });
+
     it('automigrate one model', function(done) {
       ds.automigrate('m1', function(err) {
         done(err);
       });
+    });
+
+    it('automigrate one model - promise variant', function(done) {
+      ds.automigrate('m1')
+        .then(function(result) {
+          done();
+        })
+        .catch(function(err){
+          done(err);
+        });
     });
 
     it('automigrate one or more models in an array', function(done) {
@@ -475,13 +495,59 @@ describe('Memory connector', function() {
       });
     });
 
+    it('automigrate one or more models in an array - promise variant', function(done) {
+      ds.automigrate(['m1'])
+        .then(function(result) {
+          done();
+        })
+        .catch(function(err){
+          done(err);
+        });
+    });
+
     it('automigrate reports errors for models not attached', function(done) {
       ds.automigrate(['m1', 'm2'], function(err) {
         err.should.be.an.instanceOf(Error);
         done();
       });
     });
+
+    it('automigrate reports errors for models not attached - promise variant', function(done) {
+      ds.automigrate(['m1', 'm2'])
+        .then(function(){
+          done(new Error('automigrate() should have failed'));
+        })
+        .catch(function(err){
+          err.should.be.an.instanceOf(Error);
+          done();
+        });
+    });
+
   });
+
+  describe('automigrate when NO models are attached', function() {
+    var ds;
+    beforeEach(function() {
+      ds = new DataSource({
+        connector: 'memory'
+      });
+    });
+
+    it('automigrate does NOT report error when NO models are attached', function(done) {
+      ds.automigrate(function(err) {
+        done();
+      })
+    });
+
+    it('automigrate does NOT report error when NO models are attached - promise variant', function(done) {
+      ds.automigrate()
+        .then(done)
+        .catch(function(err){
+          done(err);
+        });
+    });
+  });
+
 });
 
 describe('Optimized connector', function() {
