@@ -1,3 +1,25 @@
+2015-06-16, Version 2.30.0
+==========================
+
+ * Promisify 'automigrate' (Pradnya Baviskar)
+
+ * check object exists before setting __cachedRelations (ningsuhen)
+
+ * Fix the test case as updateAll takes `where` directly (Raymond Feng)
+
+ * Fix for issues #622 & #623 (ningsuhen)
+
+ * Add new hook 'persist' (Pradnya Baviskar)
+
+ * Create a script to describe operation hooks (Miroslav Bajtoš)
+
+ * Allow 0 as the FK (Raymond Feng)
+
+ * fix typo (Clark Wang)
+
+ * Dedupe ids args of inq for include (Raymond Feng)
+
+
 2015-05-29, Version 2.29.2
 ==========================
 
@@ -1764,12 +1786,12 @@
  * Update LDL doc for the strict mode (Raymond Feng)
 
 
-2013-09-12, Version strongloopsuite-1.0.0-5
+2013-09-12, Version strongloopsuite-1.0.0-4
 ===========================================
 
 
 
-2013-09-12, Version strongloopsuite-1.0.0-4
+2013-09-12, Version strongloopsuite-1.0.0-5
 ===========================================
 
  * Allow connector to report failure during initialization (Raymond Feng)
