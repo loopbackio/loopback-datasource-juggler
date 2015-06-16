@@ -15,7 +15,8 @@ module.exports = function(dataSource, should) {
       observersCalled = [];
 
       TestModel = dataSource.createModel('TestModel', {
-        id: { type: String, id: true, default: uid },
+        // Set id.generated to false to honor client side values
+        id: { type: String, id: true, generated: false, default: uid },
         name: { type: String, required: true },
         extra: { type: String, required: false }
       });
@@ -711,16 +712,19 @@ module.exports = function(dataSource, should) {
         existingInstance.name = 'changed';
         existingInstance.save(function(err, instance) {
           if (err) return done(err);
+          // extra is undefined for NoSQL and null for SQL
+          var extra = instance.extra; // null or undefined
 
           observedContexts.should.eql(aTestModelCtx({
             data: {
               id: existingInstance.id,
-              name: 'changed'
+              name: 'changed',
+              extra: extra
             },
             currentInstance: {
               id: existingInstance.id,
               name: 'changed',
-              extra: undefined
+              extra: extra
             },
             where: { id: existingInstance.id },
             options: { throws: false, validate: true }
