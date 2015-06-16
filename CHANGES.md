@@ -1,3 +1,11 @@
+2015-06-16, Version 2.30.1
+==========================
+
+ * Ping async to 1.0.0 to work around context propagation (Raymond Feng)
+
+ * Fix the test case (Raymond Feng)
+
+
 2015-06-16, Version 2.30.0
 ==========================
 
