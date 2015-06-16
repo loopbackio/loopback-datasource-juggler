@@ -15,7 +15,8 @@ module.exports = function(dataSource, should) {
       observersCalled = [];
 
       TestModel = dataSource.createModel('TestModel', {
-        id: { type: String, id: true, default: uid },
+        // Set id.generated to false to honor client side values
+        id: { type: String, id: true, generated: false, default: uid },
         name: { type: String, required: true },
         extra: { type: String, required: false }
       });
@@ -218,7 +219,7 @@ module.exports = function(dataSource, should) {
             // values updated from `persist` hook
             instance.should.not.have.property('extra', 'hook data');
 
-            // So, we must query the database here because on `create` 
+            // So, we must query the database here because on `create`
             // updates from `persist` hook are reflected into database
             TestModel.findById('new-id', function(err, dbInstance) {
               if (err) return done(err);
@@ -464,8 +465,8 @@ module.exports = function(dataSource, should) {
 
                // `findOrCreate` creates a new instance of the object everytime.
                // So, `data.id` as well as `currentInstance.id` always matches
-               // the newly generated UID. 
-               // Hence, the test below asserts both `data.id` and 
+               // the newly generated UID.
+               // Hence, the test below asserts both `data.id` and
                // `currentInstance.id` to match  getLastGeneratedUid().
                // On same lines, it also asserts `isNewInstance` to be true.
               observedContexts.should.eql(aTestModelCtx({
@@ -477,7 +478,7 @@ module.exports = function(dataSource, should) {
                 currentInstance: {
                   id: getLastGeneratedUid(),
                   name: record.name,
-                  extra: null 
+                  extra: null
                 },
                 where: { name: existingInstance.name }
               }));
@@ -508,7 +509,7 @@ module.exports = function(dataSource, should) {
                 currentInstance: {
                   id: record.id,
                   name: record.name,
-                  extra: null 
+                  extra: null
                 },
                 where: { name: 'new-record' }
               }));
@@ -542,7 +543,7 @@ module.exports = function(dataSource, should) {
               // have the values updated from `persist` hook
               instance.should.not.have.property('extra', 'hook data');
 
-              // Query the database. Here, since record already exists 
+              // Query the database. Here, since record already exists
               // `findOrCreate`, does not update database for
               // updates from `persist` hook
               TestModel.findById(existingInstance.id, function(err, dbInstance) {
@@ -574,12 +575,12 @@ module.exports = function(dataSource, should) {
               instance.should.have.property('extra', 'hook data');
             } else {
               // Unoptimized connector gives a call to `create. And during
-              // create the updates applied through persist hook are 
-              // reflected into the database, but the same updates are 
-              // NOT reflected in the instance object obtained in callback 
+              // create the updates applied through persist hook are
+              // reflected into the database, but the same updates are
+              // NOT reflected in the instance object obtained in callback
               // of create.
-              // So, this test asserts unoptimized connector to 
-              // NOT have `extra` property. And then verifes that the 
+              // So, this test asserts unoptimized connector to
+              // NOT have `extra` property. And then verifes that the
               // property `extra` is actually updated in DB
               instance.should.not.have.property('extra', 'hook data');
               TestModel.findById(instance.id, function(err, dbInstance) {
@@ -712,6 +713,9 @@ module.exports = function(dataSource, should) {
         existingInstance.save(function(err, instance) {
           if (err) return done(err);
 
+          // HACK: extra is undefined for NoSQL and null for SQL
+          delete observedContexts.data.extra;
+          delete observedContexts.currentInstance.extra;
           observedContexts.should.eql(aTestModelCtx({
             data: {
               id: existingInstance.id,
@@ -719,8 +723,7 @@ module.exports = function(dataSource, should) {
             },
             currentInstance: {
               id: existingInstance.id,
-              name: 'changed',
-              extra: undefined
+              name: 'changed'
             },
             where: { id: existingInstance.id },
             options: { throws: false, validate: true }
