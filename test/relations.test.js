@@ -1663,6 +1663,16 @@ describe('relations', function () {
       });
     });
 
+    it('should include polymorphic relation - author', function (done) {
+      Author.findOne({include: 'avatar'}, function (err, author) {
+        should.not.exists(err);
+        var avatar = author.avatar();
+        should.exist(avatar);
+        avatar.name.should.equal('Avatar');
+        done();
+      });
+    });
+
     it('should find polymorphic relation with promises - reader', function (done) {
       Reader.findOne()
       .then(function (reader) {
@@ -1686,6 +1696,18 @@ describe('relations', function () {
           done();
         });
       });
+    });
+
+    it('should include inverse polymorphic relation - author', function (done) {
+      Picture.findOne({where: {name: 'Avatar'}, include: 'imageable'},
+        function (err, p) {
+          should.not.exists(err);
+          var imageable = p.imageable();
+          should.exist(imageable);
+          imageable.should.be.instanceof(Author);
+          imageable.name.should.equal('Author 1');
+          done();
+        });
     });
 
     it('should find inverse polymorphic relation - reader', function (done) {
@@ -1843,6 +1865,28 @@ describe('relations', function () {
       });
     });
 
+    it('should include polymorphic relation - reader', function (done) {
+      Reader.findOne({include: 'mugshot'},
+        function (err, reader) {
+          should.not.exists(err);
+          var mugshot = reader.mugshot();
+          should.exist(mugshot);
+          mugshot.name.should.equal('Mugshot');
+          done();
+        });
+    });
+
+    it('should include inverse polymorphic relation - reader', function (done) {
+      Picture.findOne({where: {name: 'Mugshot'}, include: 'owner'},
+        function (err, p) {
+          should.not.exists(err);
+          var owner = p.owner();
+          should.exist(owner);
+          owner.should.be.instanceof(Reader);
+          owner.name.should.equal('Reader 1');
+          done();
+        });
+    });
   });
 
   describe('polymorphic hasMany', function () {
@@ -2029,6 +2073,19 @@ describe('relations', function () {
         });
       });
     });
+
+    it('should include the inverse of polymorphic relation - author',
+      function (done) {
+        Picture.findOne({where: {name: 'Sample'}, include: 'imageable'},
+          function (err, p) {
+            should.not.exist(err);
+            var imageable = p.imageable();
+            should.exist(imageable);
+            imageable.should.be.instanceof(Author);
+            imageable.name.should.equal('Author 2');
+            done();
+          });
+      });
 
   });
 
