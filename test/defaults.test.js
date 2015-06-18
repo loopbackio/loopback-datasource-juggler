@@ -9,7 +9,8 @@ describe('defaults', function () {
   before(function () {
     Server = db.define('Server', {
       host: String,
-      port: {type: Number, default: 80}
+      port: {type: Number, default: 80},
+      createdAt: {type: Date, default: '$now'}
     });
   });
 
@@ -44,6 +45,25 @@ describe('defaults', function () {
         servers[0].host.should.equal('localhost');
         servers[0].should.have.property('host');
         servers[0].should.have.property('port', undefined);
+        done();
+      });
+    });
+  });
+
+  it('should apply defaults in upsert create', function (done) {
+    Server.upsert({port: 8181 }, function(err, server) {
+      should.not.exist(err);
+      should.exist(server.createdAt);
+      done();
+    });
+  });
+
+  it('should preserve defaults in upsert update', function (done) {
+    Server.findOne({}, function(err, server) {
+      Server.upsert({id:server.id, port: 1337 }, function(err, s) {
+        should.not.exist(err);
+        (Number(1337)).should.equal(s.port);
+        server.createdAt.should.eql(s.createdAt);
         done();
       });
     });
