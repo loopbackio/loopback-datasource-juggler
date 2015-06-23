@@ -548,6 +548,95 @@ describe('Memory connector', function() {
     });
   });
 
+  describe('With mocked autoupdate', function() {
+    var ds, model;
+    beforeEach(function() {
+      ds = new DataSource({
+        connector: 'memory'
+      });
+
+      ds.connector.autoupdate = function(models, cb) {
+        process.nextTick(cb);
+      };
+
+      model = ds.createModel('m1', {
+        name: String
+      });
+
+      ds.automigrate();
+
+      ds.createModel('m1', {
+        name: String,
+        address: String
+      });
+    });
+
+    it('autoupdates all models', function(done) {
+      ds.autoupdate(function(err, result){
+        done(err);
+      });
+    });
+
+    it('autoupdates all models - promise variant', function(done) {
+      ds.autoupdate()
+        .then(function(result) {
+            done();
+          })
+        .catch(function(err){
+          done(err);
+        });
+    });
+
+    it('autoupdates one model', function(done) {
+      ds.autoupdate('m1', function(err) {
+        done(err);
+      });
+    });
+
+    it('autoupdates one model - promise variant', function(done) {
+      ds.autoupdate('m1')
+        .then(function(result) {
+          done();
+        })
+        .catch(function(err){
+          done(err);
+        });
+    });
+
+    it('autoupdates one or more models in an array', function(done) {
+      ds.autoupdate(['m1'], function(err) {
+        done(err);
+      });
+    });
+
+    it('autoupdates one or more models in an array - promise variant', function(done) {
+      ds.autoupdate(['m1'])
+        .then(function(result) {
+          done();
+        })
+        .catch(function(err){
+          done(err);
+        });
+    });
+
+    it('autoupdate reports errors for models not attached', function(done) {
+      ds.autoupdate(['m1', 'm2'], function(err) {
+        err.should.be.an.instanceOf(Error);
+        done();
+      });
+    });
+
+    it('autoupdate reports errors for models not attached - promise variant', function(done) {
+      ds.autoupdate(['m1', 'm2'])
+        .then(function(){
+          done(new Error('automigrate() should have failed'));
+        })
+        .catch(function(err){
+          err.should.be.an.instanceOf(Error);
+          done();
+        });
+    });
+  });
 });
 
 describe('Optimized connector', function() {
