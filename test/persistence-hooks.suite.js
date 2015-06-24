@@ -942,14 +942,15 @@ module.exports = function(dataSource, should) {
       it('triggers `loaded` hook', function(done) {
         TestModel.observe('loaded', pushContextAndNext());
 
-        existingInstance.name = 'changed';
+        existingInstance.extra = 'changed';
         existingInstance.save(function(err, instance) {
           if (err) return done(err);
 
           observedContexts.should.eql(aTestModelCtx({
             data: {
               id: existingInstance.id,
-              name: 'changed'
+              name: existingInstance.name,
+              extra: 'changed',
             },
             isNewInstance: false,
             options: { throws: false, validate: true }
@@ -2040,7 +2041,7 @@ module.exports = function(dataSource, should) {
         TestModel.observe('loaded', pushContextAndNext());
 
         TestModel.updateAll(
-          { where: { id: existingInstance.id } },
+          { id: existingInstance.id },
           { name: 'changed' },
           function(err, instance) {
             if (err) return done(err);
