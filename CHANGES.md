@@ -1,3 +1,27 @@
+2015-07-02, Version 2.31.0
+==========================
+
+ * Assert the existence of instance (Raymond Feng)
+
+ * Make sure operator/options are honored (Raymond Feng)
+
+ * Fix coercion from ObjectID to String (Raymond Feng)
+
+ * Fix #623 - use actual id order (Fabien Franzen)
+
+ * test: fix persistence-hooks failures in MySQL (Miroslav Bajtoš)
+
+ * Includes with transaction support (Rus1)
+
+ * Fix updateOrCreate transaction propagation (Rus1)
+
+ * Fix promise chaining in case of error (Rus1)
+
+ * Promisify 'autoupdate' (Pradnya Baviskar)
+
+ * Add new hook 'loaded' (Pradnya Baviskar)
+
+
 2015-06-16, Version 2.30.1
 ==========================
 
