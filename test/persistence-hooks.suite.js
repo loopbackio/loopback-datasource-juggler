@@ -229,9 +229,9 @@ module.exports = function(dataSource, should) {
           ctx.data.extra = 'hook data';
         }));
 
-        // By default, the instance passed to create callback is NOT updated 
-        // with the changes made through persist/loaded hooks. To preserve 
-        // backwards compatibility, we introduced a new setting updateOnLoad, 
+        // By default, the instance passed to create callback is NOT updated
+        // with the changes made through persist/loaded hooks. To preserve
+        // backwards compatibility, we introduced a new setting updateOnLoad,
         // which if set, will apply these changes to the model instance too.
         TestModel.settings.updateOnLoad = true;
         TestModel.create(
@@ -241,10 +241,11 @@ module.exports = function(dataSource, should) {
 
             instance.should.have.property('extra', 'hook data');
 
-            // Also query the database here to verify that, on `create` 
+            // Also query the database here to verify that, on `create`
             // updates from `persist` hook are reflected into database
             TestModel.findById('new-id', function(err, dbInstance) {
               if (err) return done(err);
+              should.exists(dbInstance);
               dbInstance.toObject(true).should.eql({
                 id: 'new-id',
                 name: 'a name',
@@ -259,9 +260,9 @@ module.exports = function(dataSource, should) {
       it('triggers `loaded` hook', function(done) {
         TestModel.observe('loaded', pushContextAndNext());
 
-        // By default, the instance passed to create callback is NOT updated 
-        // with the changes made through persist/loaded hooks. To preserve 
-        // backwards compatibility, we introduced a new setting updateOnLoad, 
+        // By default, the instance passed to create callback is NOT updated
+        // with the changes made through persist/loaded hooks. To preserve
+        // backwards compatibility, we introduced a new setting updateOnLoad,
         // which if set, will apply these changes to the model instance too.
         TestModel.settings.updateOnLoad = true;
         TestModel.create(
@@ -283,9 +284,9 @@ module.exports = function(dataSource, should) {
           ctx.data.extra = 'hook data';
         }));
 
-        // By default, the instance passed to create callback is NOT updated 
-        // with the changes made through persist/loaded hooks. To preserve 
-        // backwards compatibility, we introduced a new setting updateOnLoad, 
+        // By default, the instance passed to create callback is NOT updated
+        // with the changes made through persist/loaded hooks. To preserve
+        // backwards compatibility, we introduced a new setting updateOnLoad,
         // which if set, will apply these changes to the model instance too.
         TestModel.settings.updateOnLoad = true;
         TestModel.create(
@@ -634,6 +635,7 @@ module.exports = function(dataSource, should) {
               // updates from `persist` hook
               TestModel.findById(existingInstance.id, function(err, dbInstance) {
                 if (err) return done(err);
+                should.exists(dbInstance);
                 dbInstance.toObject(true).should.eql({
                   id: existingInstance.id,
                   name: existingInstance.name,
@@ -671,6 +673,7 @@ module.exports = function(dataSource, should) {
               instance.should.not.have.property('extra', 'hook data');
               TestModel.findById(instance.id, function(err, dbInstance) {
                 if (err) return done(err);
+                should.exists(dbInstance);
                 dbInstance.toObject(true).should.eql({
                   id: instance.id,
                   name: instance.name,
@@ -694,9 +697,9 @@ module.exports = function(dataSource, should) {
 
               record.id.should.eql(existingInstance.id);
 
-               // After the call to `connector.findOrCreate`, since the record 
-               // already exists, `data.id` matches `existingInstance.id` 
-               // as against the behaviour noted for `persist` hook 
+               // After the call to `connector.findOrCreate`, since the record
+               // already exists, `data.id` matches `existingInstance.id`
+               // as against the behaviour noted for `persist` hook
               observedContexts.should.eql(aTestModelCtx({
                 data: {
                   id: existingInstance.id,
@@ -756,9 +759,9 @@ module.exports = function(dataSource, should) {
         }));
 
         // Unoptimized connector gives a call to `create. But,
-        // by default, the instance passed to create callback is NOT updated 
-        // with the changes made through persist/loaded hooks. To preserve 
-        // backwards compatibility, we introduced a new setting updateOnLoad, 
+        // by default, the instance passed to create callback is NOT updated
+        // with the changes made through persist/loaded hooks. To preserve
+        // backwards compatibility, we introduced a new setting updateOnLoad,
         // which if set, will apply these changes to the model instance too.
         // Note - in case of findOrCreate, this setting is needed ONLY for
         // unoptimized connector.
@@ -1094,6 +1097,7 @@ module.exports = function(dataSource, should) {
           // returns effectively `this`, not the data from the datasource
           TestModel.findById(existingInstance.id, function(err, instance) {
             if (err) return done(err);
+            should.exists(instance);
             instance.toObject(true).should.eql({
               id: existingInstance.id,
               name: 'hooked name',
@@ -1138,9 +1142,9 @@ module.exports = function(dataSource, should) {
           ctx.data.extra = 'hook data';
         }));
 
-        // By default, the instance passed to updateAttributes callback is NOT updated 
-        // with the changes made through persist/loaded hooks. To preserve 
-        // backwards compatibility, we introduced a new setting updateOnLoad, 
+        // By default, the instance passed to updateAttributes callback is NOT updated
+        // with the changes made through persist/loaded hooks. To preserve
+        // backwards compatibility, we introduced a new setting updateOnLoad,
         // which if set, will apply these changes to the model instance too.
         TestModel.settings.updateOnLoad = true;
         existingInstance.updateAttributes({ name: 'changed' }, function(err, instance) {
@@ -1168,9 +1172,9 @@ module.exports = function(dataSource, should) {
           ctx.data.extra = 'hook data';
         }));
 
-        // By default, the instance passed to updateAttributes callback is NOT updated 
-        // with the changes made through persist/loaded hooks. To preserve 
-        // backwards compatibility, we introduced a new setting updateOnLoad, 
+        // By default, the instance passed to updateAttributes callback is NOT updated
+        // with the changes made through persist/loaded hooks. To preserve
+        // backwards compatibility, we introduced a new setting updateOnLoad,
         // which if set, will apply these changes to the model instance too.
         TestModel.settings.updateOnLoad = true;
         existingInstance.updateAttributes({ name: 'changed' }, function(err, instance) {
@@ -1592,7 +1596,7 @@ module.exports = function(dataSource, should) {
                 }
               }));
             } else {
-              // For Unoptimized connector, the callback function `pushContextAndNext`  
+              // For Unoptimized connector, the callback function `pushContextAndNext`
               // is called twice. As a result, observedContexts
               // returns an array and NOT a single instance.
               observedContexts.should.eql([
