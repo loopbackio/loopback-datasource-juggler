@@ -1269,6 +1269,18 @@ describe('DataAccessObject', function () {
     assert.deepEqual(where, {id: '1'});
     where = model._coerce({id: '1'});
     assert.deepEqual(where, {id: '1'});
+
+    // Mockup MongoDB ObjectID
+    function ObjectID(id) {
+      this.id = id;
+    }
+
+    ObjectID.prototype.toString = function() {
+      return this.id;
+    };
+
+    where = model._coerce({id: new ObjectID('1')});
+    assert.deepEqual(where, {id: '1'});
   });
 
   it('should be able to coerce where clause for number types', function () {
