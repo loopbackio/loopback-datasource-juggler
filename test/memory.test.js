@@ -270,12 +270,29 @@ describe('Memory connector', function() {
       });
     });
 
+    it('should successfully extract 2 users using date range', function(done) {
+      User.find({where: {birthday: {between:
+          [new Date(1940, 0).toISOString(), new Date(1990, 0).toISOString()]}}},
+        function(err, users) {
+          should(users.length).be.equal(2);
+          done();
+        });
+    });
+
     it('should successfully extract 0 user from the db', function(done) {
       User.find({where: {birthday: {between: [new Date(1990,0), Date.now()]}}},
                 function(err, users) {
         should(users.length).be.equal(0);
         done();
       });
+    });
+
+    it('should count using date string', function(done) {
+      User.count({birthday: {lt: new Date(1990,0).toISOString()}},
+        function(err, count) {
+          should(count).be.equal(2);
+          done();
+        });
     });
 
     it('should support order with multiple fields', function(done) {
