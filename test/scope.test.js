@@ -75,6 +75,28 @@ describe('scope', function () {
       });
     });
   });
+  
+  it('should not cache any results', function (done) {
+    Station.scope('active', {where: {isActive: true}});
+    Station.active.create(function (err, s) {
+      if (err) return done(err);
+      s.isActive.should.be.true;
+      Station.active(function(err, ss) {
+        if (err) return done(err);
+        ss.should.have.lengthOf(1);
+        ss[0].id.should.eql(s.id);
+        s.updateAttribute('isActive', false, function(err, s) {
+          if (err) return done(err);
+          s.isActive.should.be.false;
+          Station.active(function(err, ss) {
+            if (err) return done(err);
+            ss.should.have.lengthOf(0);
+            done();
+          });
+        });
+      });
+    });
+  });
 
 });
 
