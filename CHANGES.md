@@ -1,3 +1,9 @@
+2015-07-03, Version 2.31.1
+==========================
+
+ * Fix the regexp value for like/nlike (Raymond Feng)
+
+
 2015-07-02, Version 2.31.0
 ==========================
 
