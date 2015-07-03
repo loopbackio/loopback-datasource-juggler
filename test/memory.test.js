@@ -164,6 +164,14 @@ describe('Memory connector', function() {
       });
     });
 
+    it('should allow to find using like with regexp', function(done) {
+      User.find({where: {name: {like: /.*St.*/}}}, function(err, posts) {
+        should.not.exist(err);
+        posts.should.have.property('length', 2);
+        done();
+      });
+    });
+
     it('should support like for no match', function(done) {
       User.find({where: {name: {like: 'M%XY'}}}, function(err, posts) {
         should.not.exist(err);
@@ -174,6 +182,14 @@ describe('Memory connector', function() {
 
     it('should allow to find using nlike', function(done) {
       User.find({where: {name: {nlike: '%St%'}}}, function(err, posts) {
+        should.not.exist(err);
+        posts.should.have.property('length', 4);
+        done();
+      });
+    });
+
+    it('should allow to find using nlike with regexp', function(done) {
+      User.find({where: {name: {nlike: /.*St.*/}}}, function(err, posts) {
         should.not.exist(err);
         posts.should.have.property('length', 4);
         done();
