@@ -691,6 +691,22 @@ describe('Load models with base', function () {
     Customer.definition.properties.name.should.have.property('type', String);
   });
 
+  it('should inherit properties by clone from base option', function () {
+    var ds = new ModelBuilder();
+
+    var User = ds.define('User', {name: String});
+
+    var Customer1 = ds.define('Customer1', {vip: Boolean}, {base: 'User'});
+    var Customer2 = ds.define('Customer2', {vip: Boolean}, {base: 'User'});
+
+    Customer1.definition.properties.should.have.property('name');
+    Customer2.definition.properties.should.have.property('name');
+    Customer1.definition.properties.name.should.not.be.equal(
+      Customer2.definition.properties.name);
+    Customer1.definition.properties.name.should.eql(
+      Customer2.definition.properties.name);
+  });
+
   it('should revert properties from base model', function() {
     var ds = new ModelBuilder();
 
