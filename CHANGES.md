@@ -1,3 +1,9 @@
+2015-07-10, Version 2.33.0
+==========================
+
+ * Make sure base property definitions are cloned (Raymond Feng)
+
+
 2015-07-03, Version 2.32.0
 ==========================
 
