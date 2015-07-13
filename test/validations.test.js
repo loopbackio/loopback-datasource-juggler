@@ -19,6 +19,8 @@ function getValidAttributes() {
 
 describe('validations', function () {
 
+  var User, Entry;
+
   before(function (done) {
     db = getSchema();
     User = db.define('User', {
@@ -34,6 +36,11 @@ describe('validations', function () {
       createdByScript: Boolean,
       updatedAt: Date
     });
+    Entry = db.define('Entry', {
+      id: { type: 'string', id: true, generated: false },
+      name: { type: 'string' }
+    });
+    Entry.validatesUniquenessOf('id');
     db.automigrate(done);
   });
 
@@ -435,6 +442,25 @@ describe('validations', function () {
         valid.should.be.true;
         done();
       })).should.be.false;
+    });
+
+    it('should work with id property on create', function (done) {
+      Entry.create({ id: 'entry' }, function(err, entry) {
+        var e = new Entry({ id: 'entry' });
+        Boolean(e.isValid(function (valid) {
+          valid.should.be.false;
+          done();
+        })).should.be.false;
+      });
+    });
+
+    it('should work with id property after create', function (done) {
+      Entry.findById('entry', function(err, e) {
+        Boolean(e.isValid(function (valid) {
+          valid.should.be.true;
+          done();
+        })).should.be.false;
+      });
     });
   });
 
