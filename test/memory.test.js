@@ -389,6 +389,19 @@ describe('Memory connector', function() {
         });
     });
 
+    it('should deserialize values after saving in upsert', function(done) {
+      User.findOne({where: {seq: 1}}, function(err, paul) {
+        User.updateOrCreate({id: paul.id, name: 'Sir Paul McCartney'},
+          function(err, sirpaul) {
+            should.not.exist(err);
+            sirpaul.birthday.should.be.instanceOf(Date);
+            sirpaul.order.should.be.instanceOf(Number);
+            sirpaul.vip.should.be.instanceOf(Boolean);
+            done();
+          });
+      });
+    });
+
     function seed(done) {
       var beatles = [
         {
