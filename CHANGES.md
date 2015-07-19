@@ -1,3 +1,15 @@
+2015-07-19, Version 2.33.2
+==========================
+
+ * Add NOTICE (Raymond Feng)
+
+ * prevent upsert overwriting default values with applyDefaultValues option (Bryan Clark)
+
+ * use fromDb to deserialize data after save in Memory connector (Bryan Clark)
+
+ * Correctly handle validatesUniquenessOf(idName) (Fabien Franzen)
+
+
 2015-07-10, Version 2.33.1
 ==========================
 
