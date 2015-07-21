@@ -251,9 +251,9 @@ module.exports = function(dataSource, should) {
                 name: 'a name',
                 extra: 'hook data'
               });
+              done();
             });
 
-            done();
           });
       });
 
