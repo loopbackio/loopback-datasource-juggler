@@ -1,3 +1,13 @@
+2015-07-22, Version 2.34.0
+==========================
+
+ * Don't enforce strictness if allowExtendedOperators: true (MongoDB) (Fabien Franzen)
+
+ * Take strict: validate and throw settings into account (Fabien Franzen)
+
+ * Filter attributes when strict: true (Fabien Franzen)
+
+
 2015-07-21, Version 2.33.3
 ==========================
 
