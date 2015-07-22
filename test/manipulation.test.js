@@ -19,7 +19,7 @@ describe('manipulation', function () {
       age: {type: Number, index: true},
       dob: Date,
       createdAt: {type: Date, default: Date}
-    }, { forceId: true });
+    }, { forceId: true, strict: true });
 
     db.automigrate(done);
 
@@ -490,6 +490,54 @@ describe('manipulation', function () {
           });
         });
     });
+    
+    it('should ignore unknown attributes when strict: true', function(done) {
+      person.updateAttributes({foo:'bar'},
+        function(err, p) {
+          if (err) return done(err);
+          should.not.exist(p.foo);
+          Person.findById(p.id, function(e, p) {
+            if (e) return done(e);
+            should.not.exist(p.foo);
+            done();
+          });
+        });
+    });
+    
+    it('should throw error on unknown attributes when strict: throw', function(done) {
+      Person.definition.settings.strict = 'throw';
+      Person.findById(person.id, function(err, p) {
+        p.updateAttributes({foo:'bar'},
+          function(err, p) {
+            should.exist(err);
+            err.name.should.equal('Error');
+            err.message.should.equal('Unknown property: foo');
+            should.not.exist(p);
+            Person.findById(person.id, function(e, p) {
+              if (e) return done(e);
+              should.not.exist(p.foo);
+              done();
+            });
+          });
+      });
+    });
+    
+    it('should throw error on unknown attributes when strict: throw', function(done) {
+      Person.definition.settings.strict = 'validate';
+      Person.findById(person.id, function(err, p) {
+        p.updateAttributes({foo:'bar'},
+          function(err, p) {
+            should.exist(err);
+            err.name.should.equal('ValidationError');
+            err.message.should.containEql('`foo` is not defined in the model');
+            Person.findById(person.id, function(e, p) {
+              if (e) return done(e);
+              should.not.exist(p.foo);
+              done();
+            });
+          });
+      });
+    });
 
     it('should allow same id value on updateAttributes', function(done) {
       person.updateAttributes({id: person.id, name: 'John'},
@@ -532,7 +580,7 @@ describe('manipulation', function () {
         });
     });
 
-    it('should allows model instance on updateAttributes', function(done) {
+    it('should allow model instance on updateAttributes', function(done) {
       person.updateAttributes(new Person({'name': 'John', age: undefined}),
         function(err, p) {
           if (err) return done(err);
@@ -545,7 +593,7 @@ describe('manipulation', function () {
         });
     });
 
-    it('should allows model instance on updateAttributes (promise variant)', function(done) {
+    it('should allow model instance on updateAttributes (promise variant)', function(done) {
       person.updateAttributes(new Person({'name': 'Jane', age: undefined}))
         .then(function(p) {
           return Person.findById(p.id)
