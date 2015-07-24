@@ -356,6 +356,34 @@ describe('Memory connector', function() {
       });
     });
 
+    it('should support the regexp operator with regex strings', function(done) {
+      User.find({where: {name: {regexp: '^J'}}}, function(err, users) {
+        should.not.exist(err);
+        users.length.should.equal(1);
+        users[0].name.should.equal('John Lennon');
+        done();
+      });
+    });
+
+    it('should support the regexp operator with regex literals', function(done) {
+      User.find({where: {name: {regexp: /^J/}}}, function(err, users) {
+        should.not.exist(err);
+        users.length.should.equal(1);
+        users[0].name.should.equal('John Lennon');
+        done();
+      });
+    });
+
+    it('should support the regexp operator with regex objects', function(done) {
+      User.find({where: {name: {regexp: new RegExp(/^J/)}}}, function(err,
+          users) {
+        should.not.exist(err);
+        users.length.should.equal(1);
+        users[0].name.should.equal('John Lennon');
+        done();
+      });
+    });
+
     it('should support nested property in query', function(done) {
       User.find({where: {'address.city': 'San Jose'}}, function(err, users) {
         should.not.exist(err);

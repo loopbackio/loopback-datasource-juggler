@@ -420,3 +420,111 @@ describe('util.uniq', function() {
   });
 
 });
+
+describe('util.toRegExp', function() {
+  var invalidDataTypes;
+  var validDataTypes;
+
+  before(function() {
+    invalidDataTypes = [0, true, {}, [], Function, null];
+    validDataTypes = ['string', /^regex/, new RegExp(/^regex/)];
+  });
+
+  it('should not accept invalid data types', function() {
+    invalidDataTypes.forEach(function(invalid) {
+      utils.toRegExp(invalid).should.be.an.Error;
+    });
+  });
+
+  it('should accept valid data types', function() {
+    validDataTypes.forEach(function(valid) {
+      utils.toRegExp(valid).should.not.be.an.Error;
+    });
+  });
+
+  context('with a regex string', function() {
+    it('should return a RegExp object when no regex flags are provided',
+        function() {
+      utils.toRegExp('^regex$').should.be.an.instanceOf(RegExp);
+    });
+
+    it('should throw an error when invalid regex flags are provided',
+        function() {
+      utils.toRegExp('^regex$/abc').should.be.an.Error;
+    });
+
+    it('should return a RegExp object when valid flags are provided',
+        function() {
+      utils.toRegExp('regex/igm').should.be.an.instanceOf(RegExp);
+    });
+  });
+
+  context('with a regex literal', function() {
+    it('should return a RegExp object', function() {
+      utils.toRegExp(/^regex$/igm).should.be.an.instanceOf(RegExp);
+    });
+  });
+
+  context('with a regex object', function() {
+    it('should return a RegExp object', function() {
+      utils.toRegExp(new RegExp('^regex$', 'igm')).should.be.an.instanceOf(RegExp);
+    });
+  });
+});
+
+describe('util.hasRegExpFlags', function() {
+  context('with a regex string', function() {
+    it('should be true when the regex has invalid flags', function() {
+      utils.hasRegExpFlags('^regex$/abc').should.be.ok;
+    });
+
+    it('should be true when the regex has valid flags', function() {
+      utils.hasRegExpFlags('^regex$/igm').should.be.ok;
+    });
+
+    it('should be false when the regex has no flags', function() {
+      utils.hasRegExpFlags('^regex$').should.not.be.ok;
+      utils.hasRegExpFlags('^regex$/').should.not.be.ok;
+    });
+  });
+
+  context('with a regex literal', function() {
+    it('should be true when the regex has valid flags', function() {
+      utils.hasRegExpFlags(/^regex$/igm).should.be.ok;
+    });
+
+    it('should be false when the regex has no flags', function() {
+      utils.hasRegExpFlags(/^regex$/).should.not.be.ok;
+    });
+  });
+
+  context('with a regex object', function() {
+    it('should be true when the regex has valid flags', function() {
+      utils.hasRegExpFlags(new RegExp(/^regex$/igm)).should.be.ok;
+    });
+
+    it('should be false when the regex has no flags', function() {
+      utils.hasRegExpFlags(new RegExp(/^regex$/)).should.not.be.ok;
+    });
+  });
+});
+
+describe('util.getRegExpExpression', function() {
+  context('with a regex string', function() {
+    it('should return the expression without flags', function() {
+      utils.getRegExpExpression('^regex$/abc').should.equal('^regex$');
+    });
+  });
+
+  context('with a regex literal', function() {
+    it('should return the expression without flags', function() {
+      utils.hasRegExpFlags(/^regex$/igm).should.be.ok;
+    });
+  });
+
+  context('with a regex object', function() {
+    it('should return the expression without flags', function() {
+      utils.hasRegExpFlags(new RegExp(/^regex$/igm)).should.be.ok;
+    });
+  });
+});
