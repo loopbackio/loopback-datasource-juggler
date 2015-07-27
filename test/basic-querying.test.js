@@ -600,6 +600,24 @@ describe('basic-querying', function () {
       });
     });
   });
+
+  context('regexp operator', function() {
+    var invalidDataTypes = [0, true, {}, [], Function, null];
+
+    before(seed);
+
+    it('should return an error for invalid data types', function(done) {
+      // `undefined` is not tested because the `removeUndefined` function
+      // in `lib/dao.js` removes it before coercion
+      invalidDataTypes.forEach(function(invalidDataType) {
+        User.find({where: {name: {regexp: invalidDataType}}}, function(err,
+            users) {
+          should.exist(err);
+        });
+      });
+      done();
+    });
+  });
 });
 
 function seed(done) {
