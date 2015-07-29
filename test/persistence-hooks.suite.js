@@ -52,6 +52,22 @@ module.exports = function(dataSource, should) {
     });
 
     describe('PersistedModel.find', function() {
+      it('triggers hooks in the correct order', function(done) {
+        monitorHookExecution();
+
+        TestModel.find(
+          { where: { id: '1' } },
+          function(err, list) {
+            if (err) return done(err);
+
+            triggered.should.eql([
+              'access',
+              'loaded'
+            ]);
+            done();
+          });
+      });
+
       it('triggers `access` hook', function(done) {
         TestModel.observe('access', pushContextAndNext());
 
@@ -109,6 +125,40 @@ module.exports = function(dataSource, should) {
           list.map(get('name')).should.eql([existingInstance.name]);
           done();
         });
+      });
+
+      it('applies updates from `loaded` hook', function(done) {
+        TestModel.observe('loaded', pushContextAndNext(function(ctx) {
+          ctx.instance.extra = 'hook data';
+        }));
+
+        TestModel.find(
+          {where: {id: 1}},
+          function (err, list) {
+            if (err) return done(err);
+
+            observedContexts.should.eql(aTestModelCtx({
+              instance: {
+                id: "1",
+                name: "first",
+                extra: "hook data"
+              },
+              isNewInstance: false,
+              hookState: { test: true },
+              options: {}
+            }));
+            done();
+          });
+      })
+
+      it('emits error when `loaded` hook fails', function(done) {
+        TestModel.observe('loaded', nextWithError(expectedError));
+        TestModel.find(
+          {where: {id: 1}},
+          function(err, list) {
+            [err].should.eql([expectedError]);
+            done();
+          });
       });
     });
 
@@ -275,6 +325,16 @@ module.exports = function(dataSource, should) {
               isNewInstance: true
             }));
 
+            done();
+          });
+      });
+
+      it('emits error when `loaded` hook fails', function(done) {
+        TestModel.observe('loaded', nextWithError(expectedError));
+        TestModel.create(
+          { id: 'new-id', name: 'a name' },
+          function(err, instance) {
+            [err].should.eql([expectedError]);
             done();
           });
       });
@@ -734,6 +794,17 @@ module.exports = function(dataSource, should) {
           });
       });
 
+      it('emits error when `loaded` hook fails', function(done) {
+        TestModel.observe('loaded', nextWithError(expectedError));
+        TestModel.findOrCreate(
+          { where: { name: 'new-record' } },
+          { name: 'new-record' },
+          function(err, instance) {
+            [err].should.eql([expectedError]);
+            done();
+          });
+      });
+
       if (dataSource.connector.findOrCreate) {
         it('applies updates from `loaded` hook when found', function(done) {
           TestModel.observe('loaded', pushContextAndNext(function(ctx){
@@ -961,6 +1032,15 @@ module.exports = function(dataSource, should) {
 
           done();
         });
+      });
+
+      it('emits error when `loaded` hook fails', function(done) {
+        TestModel.observe('loaded', nextWithError(expectedError));
+        existingInstance.save(
+          function(err, instance) {
+            [err].should.eql([expectedError]);
+            done();
+          });
       });
 
       it('applies updates from `loaded` hook', function(done) {
@@ -1217,6 +1297,16 @@ module.exports = function(dataSource, should) {
 
           done();
         });
+      });
+
+      it('emits error when `loaded` hook fails', function(done) {
+        TestModel.observe('loaded', nextWithError(expectedError));
+        existingInstance.updateAttributes(
+          { name: 'changed' },
+          function(err, instance) {
+            [err].should.eql([expectedError]);
+            done();
+          });
       });
 
       it('applies updates from `loaded` hook updateAttributes', function(done) {
@@ -1669,6 +1759,16 @@ module.exports = function(dataSource, should) {
                 })
               ]);
             }
+            done();
+          });
+      });
+
+      it('emits error when `loaded` hook fails', function(done) {
+        TestModel.observe('loaded', nextWithError(expectedError));
+        TestModel.updateOrCreate(
+          { id: 'new-id', name: 'a name' },
+          function(err, instance) {
+            [err].should.eql([expectedError]);
             done();
           });
       });
