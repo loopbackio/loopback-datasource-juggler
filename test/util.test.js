@@ -508,23 +508,3 @@ describe('util.hasRegExpFlags', function() {
     });
   });
 });
-
-describe('util.getRegExpExpression', function() {
-  context('with a regex string', function() {
-    it('should return the expression without flags', function() {
-      utils.getRegExpExpression('^regex$/abc').should.equal('^regex$');
-    });
-  });
-
-  context('with a regex literal', function() {
-    it('should return the expression without flags', function() {
-      utils.hasRegExpFlags(/^regex$/igm).should.be.ok;
-    });
-  });
-
-  context('with a regex object', function() {
-    it('should return the expression without flags', function() {
-      utils.hasRegExpFlags(new RegExp(/^regex$/igm)).should.be.ok;
-    });
-  });
-});
