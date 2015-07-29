@@ -1,3 +1,19 @@
+2015-07-29, Version 2.35.0
+==========================
+
+ * Remove test for unused utility function (Simon Ho)
+
+ * Remove try/catch from find function (Simon Ho)
+
+ * Add support for regex operator (Simon Ho)
+
+ * Async 'loaded' hook for find (Pradnya Baviskar)
+
+ * Promisify all 'discover' methods (Pradnya Baviskar)
+
+ * Fix 'persist' hook for updateAttributes() (Pradnya Baviskar)
+
+
 2015-07-22, Version 2.34.0
 ==========================
 
