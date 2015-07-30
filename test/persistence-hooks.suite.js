@@ -1235,54 +1235,58 @@ module.exports = function(dataSource, should) {
       });
 
       it('applies updates from `persist` hook - for nested model instance', function(done) {
-        var Address = dataSource.createModel('Address', {
+        var Address = dataSource.createModel('NestedAddress', {
           id: { type: String, id: true, default: 1 },
           city: { type: String, required: true },
           country: { type: String, required: true }
         });
 
-        var User = dataSource.createModel('User', {
+        var User = dataSource.createModel('UserWithAddress', {
           id: { type: String, id: true, default: uid() },
           name: { type: String, required: true },
-          address: {type: Address, required: false}
+          address: {type: Address, required: false},
+          extra: {type: String}
         });
 
-        User.create({name: 'Joe'}, function(err, instance) {
+        dataSource.automigrate(['UserWithAddress', 'NestedAddress'], function(err) {
           if (err) return done(err);
+          User.create({name: 'Joe'}, function(err, instance) {
+            if (err) return done(err);
 
-          var existingUser = instance;
+            var existingUser = instance;
 
-          User.observe('persist', pushContextAndNext(function(ctx){
-            should.exist(ctx.data.address)
-            ctx.data.address.should.be.type('object');
-            ctx.data.address.should.not.be.instanceOf(Address);
+            User.observe('persist', pushContextAndNext(function(ctx) {
+              should.exist(ctx.data.address)
+              ctx.data.address.should.be.type('object');
+              ctx.data.address.should.not.be.instanceOf(Address);
 
-            ctx.data.extra = 'hook data';
-          }));
+              ctx.data.extra = 'hook data';
+            }));
 
-          // By default, the instance passed to updateAttributes callback is NOT updated 
-          // with the changes made through persist/loaded hooks. To preserve 
-          // backwards compatibility, we introduced a new setting updateOnLoad, 
-          // which if set, will apply these changes to the model instance too.
-          User.settings.updateOnLoad = true;
-          existingUser.updateAttributes(
-            { address: new Address({city: 'Springfield', country: 'USA'}) }, 
-            function(err, inst) {
-              if (err) return done(err);
-
-              inst.should.have.property('extra', 'hook data');
-
-              User.findById(existingUser.id, function(err, dbInstance) {
+            // By default, the instance passed to updateAttributes callback is NOT updated
+            // with the changes made through persist/loaded hooks. To preserve
+            // backwards compatibility, we introduced a new setting updateOnLoad,
+            // which if set, will apply these changes to the model instance too.
+            User.settings.updateOnLoad = true;
+            existingUser.updateAttributes(
+              {address: new Address({city: 'Springfield', country: 'USA'})},
+              function(err, inst) {
                 if (err) return done(err);
-                dbInstance.toObject(true).should.eql({
-                  id: existingUser.id,
-                  name: existingUser.name,
-                  address: {id: '1', city: 'Springfield', country: 'USA'},
-                  extra: 'hook data'
+
+                inst.should.have.property('extra', 'hook data');
+
+                User.findById(existingUser.id, function(err, dbInstance) {
+                  if (err) return done(err);
+                  dbInstance.toObject(true).should.eql({
+                    id: existingUser.id,
+                    name: existingUser.name,
+                    address: {id: '1', city: 'Springfield', country: 'USA'},
+                    extra: 'hook data'
+                  });
+                  done();
                 });
-                done();
               });
-            });
+          });
         });
       });
 
