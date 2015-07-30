@@ -1,3 +1,9 @@
+2015-07-30, Version 2.35.2
+==========================
+
+ * Fix regexp error for the memory connector (Simon Ho)
+
+
 2015-07-29, Version 2.35.1
 ==========================
 
