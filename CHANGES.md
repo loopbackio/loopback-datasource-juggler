@@ -1,3 +1,9 @@
+2015-07-30, Version 2.35.3
+==========================
+
+ * Fix the test case with automigrate (Raymond Feng)
+
+
 2015-07-30, Version 2.35.2
 ==========================
 
