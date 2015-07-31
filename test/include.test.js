@@ -75,11 +75,33 @@ describe('include', function () {
           user.id.should.eql(p.ownerId);
           user.__cachedRelations.should.have.property('posts');
           user.should.have.property('posts');
+          user.toJSON().should.have.property('posts').and.be.an.Array;
           user.__cachedRelations.posts.forEach(function (pp) {
             pp.userId.should.eql(user.id);
           });
         }
       });
+      done();
+    });
+  });
+
+  it('should fetch Passport - Owner - empty Posts', function (done) {
+    Passport.findOne({where: {number: '4'}, include: {owner: 'posts'}}, function (err, passport) {
+      should.not.exist(err);
+      should.exist(passport);
+      passport.__cachedRelations.should.have.property('owner');
+
+      // The relation should be promoted as the 'owner' property
+      passport.should.have.property('owner');
+      // The __cachedRelations should be removed from json output
+      passport.toJSON().should.not.have.property('__cachedRelations');
+
+      var user = passport.__cachedRelations.owner;
+      should.exist(user);
+      user.id.should.eql(passport.ownerId);
+      user.__cachedRelations.should.have.property('posts');
+      user.should.have.property('posts');
+      user.toJSON().should.have.property('posts').and.be.an.Array.with.lengthOf(0);
       done();
     });
   });
@@ -134,7 +156,7 @@ describe('include', function () {
     }, function (err, passports) {
       should.not.exist(err);
       should.exist(passports);
-      passports.length.should.equal(3);
+      passports.length.should.equal(4);
 
       var passport = passports[0];
       passport.number.should.equal('1');
@@ -654,7 +676,8 @@ function setup(done) {
         [
           {number: '1', ownerId: createdUsers[0].id},
           {number: '2', ownerId: createdUsers[1].id},
-          {number: '3'}
+          {number: '3'},
+          {number: '4', ownerId: createdUsers[2].id},
         ],
         function (items) {
           createdPassports = items;
