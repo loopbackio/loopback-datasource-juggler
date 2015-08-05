@@ -1,3 +1,11 @@
+2015-08-05, Version 2.36.0
+==========================
+
+ * Report deferred exceptions via callback (Raymond Feng)
+
+ * fixes issue 673: Include hasMany of relation does not return empty array (Kenta Fried)
+
+
 2015-07-30, Version 2.35.3
 ==========================
 
