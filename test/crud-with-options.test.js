@@ -413,12 +413,12 @@ describe('crud-with-options', function () {
     it('should allow save(options, cb)', function (done) {
       var options = { foo: 'bar' };
       var opts;
-      
+
       User.observe('after save', function(ctx, next) {
         opts = ctx.options;
         next();
       });
-      
+
       var u = new User();
       u.save(options, function(err) {
         should.not.exist(err);
@@ -478,12 +478,6 @@ describe('crud-with-options', function () {
       });
     });
 
-  });
-
-  describe('deleteById', function() {
-    it('should allow deleteById(id)', function () {
-      User.deleteById(1);
-    });
   });
 
   describe('updateAll ', function () {
