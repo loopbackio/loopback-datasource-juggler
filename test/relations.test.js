@@ -3103,6 +3103,72 @@ describe('relations', function () {
 
   });
 
+  describe('hasOne with primaryKey different from model PK', function () {
+    var CompanyBoard, Boss;
+    var companyBoardId, bossId;
+
+    before(function () {
+      db = getSchema();
+      CompanyBoard = db.define('CompanyBoard', {membersNumber: Number, companyId: String});
+      Boss = db.define('Boss', {boardMembersNumber: Number, companyId: String});
+    });
+
+    it('can be declared with non standard foreignKey', function () {
+      CompanyBoard.hasOne(Boss, {
+        properties: {membersNumber: 'boardMembersNumber'},
+        primaryKey: 'companyId',
+        foreignKey: 'companyId'
+      });
+      Object.keys((new Boss()).toObject()).should.containEql('companyId');
+      (new CompanyBoard()).boss.should.be.an.instanceOf(Function);
+    });
+
+    it('can be used to query data', function (done) {
+      db.automigrate(function () {
+        CompanyBoard.create({membersNumber: 7, companyId: 'Company1'}, function (e, companyBoard) {
+          companyBoardId = companyBoard.id;
+          should.not.exist(e);
+          should.exist(companyBoard);
+          companyBoard.boss.create({id: 'a01'}, function (err, account) {
+            companyBoard.boss(function (e, boss) {
+              bossId = boss.id;
+              should.not.exist(e);
+              should.exist(boss);
+              boss.should.be.an.instanceOf(Boss);
+              companyBoard.boss().id.should.equal(boss.id);
+              boss.boardMembersNumber.should.equal(companyBoard.membersNumber);
+              boss.companyId.should.equal(companyBoard.companyId);
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('should destroy the related item on scope', function(done) {
+      CompanyBoard.findById(companyBoardId, function(e, companyBoard) {
+        should.not.exist(e);
+        should.exist(companyBoard);
+        companyBoard.boss.destroy(function(err) {
+          should.not.exist(e);
+          done();
+        });
+      });
+    });
+
+    it('should get the related item on scope - verify', function(done) {
+      CompanyBoard.findById(companyBoardId, function(e, companyBoard) {
+        should.not.exist(e);
+        should.exist(companyBoard);
+        companyBoard.boss(function(err, act) {
+          should.not.exist(e);
+          should.not.exist(act);
+          done();
+        });
+      });
+    });
+  });
+
   describe('hasAndBelongsToMany', function () {
     var Article, TagName, ArticleTag;
     it('can be declared', function (done) {
