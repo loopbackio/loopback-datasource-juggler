@@ -4150,17 +4150,29 @@ describe('relations', function () {
       });
     });
 
-    it('should not create embedded from attributes - relation name', function(done) {
+    it('should validate embedded items created from attributes', function(done) {
+      Person.create({name: 'Dr. Funky Machine', addresses: [{}]}, function(err, p) {
+        should.exist(err);
+        err.name.should.equal('ValidationError');
+        err.details.codes.street.should.eql(['invalid']);
+        done();
+      });
+    });
+
+    //https://groups.google.com/forum/#!searchin/loopbackjs/embedded$20model/loopbackjs/dYbYXMXsxgU/6R1AH8wWL0QJ
+    //https://github.com/strongloop/loopback/issues/1196
+    it('should create embedded from attributes - relation name', function(done) {
       var addresses = [
         {id: 'home', street: 'Home Street'},
         {id: 'work', street: 'Work Street'}
       ];
       Person.create({name: 'Wilma', addressList: addresses}, function(err, p) {
         should.not.exist(err);
-        p.addresses.should.have.length(0);
+        p.addresses.should.have.length(2);
         done();
       });
     });
+
 
     it('should create embedded items with auto-generated id', function(done) {
       Person.create({ name: 'Wilma' }, function(err, p) {
