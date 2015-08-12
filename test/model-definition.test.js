@@ -401,4 +401,3 @@ describe('ModelDefinition class', function () {
     props.regular.type.should.equal(props.sugar.type);
   });
 });
-
