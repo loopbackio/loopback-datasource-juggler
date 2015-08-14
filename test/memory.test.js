@@ -147,6 +147,7 @@ describe('Memory connector', function() {
       role: {type: String, index: true},
       order: {type: Number, index: true, sort: true},
       vip: {type: Boolean},
+      favoriteNumbers: {type: Array},
       address: {
         street: String,
         city: String,
@@ -440,6 +441,17 @@ describe('Memory connector', function() {
       });
     });
 
+    it('should search array for value', function(done) {
+      User.find({where: {favoriteNumbers: 1}}, function(err, users) {
+        should.not.exist(err);
+        users.length.should.equal(1);
+        users[0].should.have.property('favoriteNumbers');
+        users[0].should.be.an.array;
+        users[0].favoriteNumbers.indexOf(1).should.not.equal(-1);
+        done();
+      });
+    })
+
     function seed(done) {
       var beatles = [
         {
@@ -449,6 +461,7 @@ describe('Memory connector', function() {
           role: 'lead',
           birthday: new Date('1980-12-08'),
           vip: true,
+          favoriteNumbers: [],
           address: {
             street: '123 A St',
             city: 'San Jose',
@@ -464,6 +477,7 @@ describe('Memory connector', function() {
           birthday: new Date('1942-06-18'),
           order: 1,
           vip: true,
+          favoriteNumbers: [1,2,3],
           address: {
             street: '456 B St',
             city: 'San Mateo',
@@ -866,5 +880,3 @@ describe('Memory connector with observers', function() {
     });
   });
 });
-
-
