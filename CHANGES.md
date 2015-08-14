@@ -1,3 +1,15 @@
+2015-08-14, Version 2.37.0
+==========================
+
+ * Do not coerce RegExp objects to strings (Simon Ho)
+
+ * Indicate result of destroyById/protototype.destroy (Fabien Franzen)
+
+ * Removed extra ")" (Chris Finn)
+
+ * Fixed typo & added the filter units (Chris Finn)
+
+
 2015-08-05, Version 2.36.0
 ==========================
 
