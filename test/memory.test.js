@@ -356,6 +356,16 @@ describe('Memory connector', function() {
       });
     });
 
+    it('should work when a regex is provided without the regexp operator',
+        function(done) {
+      User.find({where: {name: /John.*/i}}, function(err, users) {
+        should.not.exist(err);
+        users.length.should.equal(1);
+        users[0].name.should.equal('John Lennon');
+        done();
+      });
+    });
+
     it('should support the regexp operator with regex strings', function(done) {
       User.find({where: {name: {regexp: '^J'}}}, function(err, users) {
         should.not.exist(err);
