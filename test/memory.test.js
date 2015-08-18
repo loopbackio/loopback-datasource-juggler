@@ -134,6 +134,7 @@ describe('Memory connector', function() {
     });
   });
 
+  // describe.only('Query for memory connector', function() {
   describe('Query for memory connector', function() {
     var ds = new DataSource({
       connector: 'memory'
@@ -152,7 +153,12 @@ describe('Memory connector', function() {
         city: String,
         state: String,
         zipCode: String
-      }
+      },
+      friends: [
+        {
+          name: String
+        }
+      ]
     });
 
     before(seed);
@@ -266,6 +272,23 @@ describe('Memory connector', function() {
       User.find({where: {birthday: {between: [new Date(1940,0),new Date(1990,0)]}}},
                 function(err, users) {
         should(users.length).be.equal(2);
+        done();
+      });
+    });
+
+    it('should successfully extract 2 users using implied and', function(done) {
+      User.find({where: {role:'lead', vip:true}}, function(err, users) {
+        should(users.length).be.equal(2);
+        should(users[0].name).be.equal('John Lennon');
+        should(users[1].name).be.equal('Paul McCartney');
+        done();
+      });
+    });
+
+    it('should successfully extract 2 users using implied and & and', function(done) {
+      User.find({where: { name: 'John Lennon',and: [{role:'lead'}, {vip:true}]}}, function(err, users) {
+        should(users.length).be.equal(1);
+        should(users[0].name).be.equal('John Lennon');
         done();
       });
     });
@@ -405,6 +428,16 @@ describe('Memory connector', function() {
       });
     });
 
+    it('should support nested property with regex over arrays in query', function(done) {
+      User.find({where: {'friends.name': {regexp: /^Ringo/}}}, function(err, users) {
+        should.not.exist(err);
+        users.length.should.be.equal(2);
+        users[0].name.should.be.equal('John Lennon');
+        users[1].name.should.be.equal('Paul McCartney');
+        done();
+      });
+    });
+
     it('should support nested property with gt in query', function(done) {
         User.find({where: {'address.city': {gt: 'San'}}}, function(err, users) {
           should.not.exist(err);
@@ -454,7 +487,12 @@ describe('Memory connector', function() {
             city: 'San Jose',
             state: 'CA',
             zipCode: '95131'
-          }
+          },
+          friends: [
+            { name: 'Paul McCartney' },
+            { name: 'George Harrison' },
+            { name: 'Ringo Starr' },
+          ]
         },
         {
           seq: 1,
@@ -469,7 +507,12 @@ describe('Memory connector', function() {
             city: 'San Mateo',
             state: 'CA',
             zipCode: '94065'
-          }
+          },
+          friends: [
+            { name: 'John Lennon' },
+            { name: 'George Harrison' },
+            { name: 'Ringo Starr' },
+          ]
         },
         {seq: 2, name: 'George Harrison', order: 5, vip: false},
         {seq: 3, name: 'Ringo Starr', order: 6, vip: false},
