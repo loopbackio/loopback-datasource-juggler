@@ -1,3 +1,17 @@
+2015-08-18, Version 2.38.0
+==========================
+
+ * Support embedded query in memory connector. Fix memory connector bug (Laurent Villeneuve)
+
+ * Use idEquals when comparing ids in relation definitions (Laurent Villeneuve)
+
+ * Handle possible undefined id (Laurent Villeneuve)
+
+ * Fix id copmarison by using strings (Laurent Villeneuve)
+
+ * Refactor idEquals to utils (Raymond Feng)
+
+
 2015-08-14, Version 2.37.0
 ==========================
 
