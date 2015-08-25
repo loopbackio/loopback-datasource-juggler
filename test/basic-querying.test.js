@@ -620,6 +620,172 @@ describe('basic-querying', function () {
   });
 });
 
+describe('queries', function() {
+  var Todo;
+
+  before(function setupDb(done) {
+    var db = getSchema();
+    Todo = db.define('Todo', {
+      id: false,
+      content: {type: 'string'}
+    }, {
+      idInjection: false
+    });
+    db.automigrate(done);
+  });
+  beforeEach(function resetFixtures(done) {
+    Todo.destroyAll(function() {
+      Todo.create([
+        {content: 'Buy eggs'},
+        {content: 'Buy milk'},
+        {content: 'Buy sausages'}
+      ], done);
+    });
+  });
+
+  context('that do not require an id', function() {
+    it('should work for create', function(done) {
+      Todo.create({content: 'Buy ham'}, function(err) {
+        should.not.exist(err);
+        done();
+      });
+    });
+
+    it('should work for updateOrCreate/upsert', function(done) {
+      var aliases = ['updateOrCreate', 'upsert'];
+      async.each(aliases, function(alias, cb) {
+        Todo[alias]({content: 'Buy ham'}, function(err) {
+          should.not.exist(err);
+          cb();
+        });
+      }, done);
+    });
+
+    it('should work for findOrCreate', function(done) {
+      Todo.findOrCreate({content: 'Buy ham'}, function(err) {
+        should.not.exist(err);
+        done();
+      });
+    });
+
+    it('should work for exists', function(done) {
+      Todo.exists({content: 'Buy ham'}, function(err) {
+        should.not.exist(err);
+        done();
+      });
+    });
+
+    it('should work for find', function(done) {
+      Todo.find(function(err) {
+        should.not.exist(err);
+        done();
+      });
+    });
+
+    it('should work for findOne', function(done) {
+      Todo.findOne(function(err) {
+        should.not.exist(err);
+        done();
+      });
+    });
+
+    it('should work for deleteAll/destroyAll/remove', function(done) {
+      // FIXME: We should add a DAO.delete static method alias for consistency
+      // (DAO.prototype.delete instance method already exists)
+      var aliases = ['deleteAll', 'destroyAll', 'remove'];
+      async.each(aliases, function(alias, cb) {
+        Todo[alias](function(err) {
+          should.not.exist(err);
+          cb();
+        });
+      }, done);
+    });
+
+    it('should work for update/updateAll', function(done) {
+      Todo.update({content: 'Buy ham'}, function(err) {
+        should.not.exist(err);
+        done();
+      });
+    });
+
+    it('should work for count', function(done) {
+      Todo.count({content: 'Buy eggs'}, function(err) {
+        should.not.exist(err);
+        done();
+      });
+    });
+
+    it('should work for save', function(done) {
+      var todo = new Todo();
+      todo.content = 'Buy ham';
+      todo.save(function(err) {
+        should.not.exist(err);
+        done();
+      });
+    });
+
+    it('should work for delete', function(done) {
+      Todo.findOne(function(err, todo) {
+        todo.delete(function(err) {
+          should.not.exist(err);
+          done();
+        });
+      });
+    });
+
+    it('should work for updateAttribute', function(done) {
+      Todo.findOne(function(err, todo) {
+        todo.updateAttribute('content', 'Buy ham', function(err) {
+          should.not.exist(err);
+          done();
+        });
+      });
+    });
+
+    it('should work for updateAttributes', function(done) {
+      Todo.findOne(function(err, todo) {
+        todo.updateAttributes({content: 'Buy ham'}, function(err) {
+          should.not.exist(err);
+          done();
+        });
+      });
+    });
+  });
+
+  context('that require an id', function() {
+    var expectedErrMsg = '`id` property must be defined as part of the model ' +
+        'definition';
+
+    it('should return an error for findById', function(done) {
+      Todo.findById(1, function(err) {
+        should.exist(err);
+        err.message.should.equal(expectedErrMsg);
+        done();
+      });
+    });
+
+    it('should return an error for findByIds', function(done) {
+      Todo.findByIds([1, 2], function(err) {
+        should.exist(err);
+        err.message.should.equal(expectedErrMsg);
+        done();
+      });
+    });
+
+    it('should return an error for deleteById/destroyById/removeById',
+        function(done) {
+      var aliases = ['deleteById', 'destroyById', 'removeById'];
+      async.each(aliases, function(alias, cb) {
+        Todo[alias](1, function(err) {
+          should.exist(err);
+          err.message.should.equal(expectedErrMsg);
+          cb();
+        });
+      }, done);
+    });
+  });
+});
+
 function seed(done) {
   var beatles = [
     {
