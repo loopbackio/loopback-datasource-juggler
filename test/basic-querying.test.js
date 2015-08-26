@@ -620,10 +620,10 @@ describe('basic-querying', function () {
   });
 });
 
-describe('queries', function() {
+describe.skip('queries', function() {
   var Todo;
 
-  before(function setupDb(done) {
+  before(function prepDb(done) {
     var db = getSchema();
     Todo = db.define('Todo', {
       id: false,
@@ -714,47 +714,10 @@ describe('queries', function() {
         done();
       });
     });
-
-    it('should work for save', function(done) {
-      var todo = new Todo();
-      todo.content = 'Buy ham';
-      todo.save(function(err) {
-        should.not.exist(err);
-        done();
-      });
-    });
-
-    it('should work for delete', function(done) {
-      Todo.findOne(function(err, todo) {
-        todo.delete(function(err) {
-          should.not.exist(err);
-          done();
-        });
-      });
-    });
-
-    it('should work for updateAttribute', function(done) {
-      Todo.findOne(function(err, todo) {
-        todo.updateAttribute('content', 'Buy ham', function(err) {
-          should.not.exist(err);
-          done();
-        });
-      });
-    });
-
-    it('should work for updateAttributes', function(done) {
-      Todo.findOne(function(err, todo) {
-        todo.updateAttributes({content: 'Buy ham'}, function(err) {
-          should.not.exist(err);
-          done();
-        });
-      });
-    });
   });
 
   context('that require an id', function() {
-    var expectedErrMsg = '`id` property must be defined as part of the model ' +
-        'definition';
+    var expectedErrMsg = 'Primary key is missing for the Todo model';
 
     it('should return an error for findById', function(done) {
       Todo.findById(1, function(err) {
@@ -782,6 +745,46 @@ describe('queries', function() {
           cb();
         });
       }, done);
+    });
+
+    it('should return an error for instance.save', function(done) {
+      var todo = new Todo();
+      todo.content = 'Buy ham';
+      todo.save(function(err) {
+        should.exist(err);
+        err.message.should.equal(expectedErrMsg);
+        done();
+      });
+    });
+
+    it('should return an error for instance.delete', function(done) {
+      Todo.findOne(function(err, todo) {
+        todo.delete(function(err) {
+          should.exist(err);
+          err.message.should.equal(expectedErrMsg);
+          done();
+        });
+      });
+    });
+
+    it('should return an error for instance.updateAttribute', function(done) {
+      Todo.findOne(function(err, todo) {
+        todo.updateAttribute('content', 'Buy ham', function(err) {
+          should.exist(err);
+          err.message.should.equal(expectedErrMsg);
+          done();
+        });
+      });
+    });
+
+    it('should return an error for instance.updateAttributes', function(done) {
+      Todo.findOne(function(err, todo) {
+        todo.updateAttributes({content: 'Buy ham'}, function(err) {
+          should.exist(err);
+          err.message.should.equal(expectedErrMsg);
+          done();
+        });
+      });
     });
   });
 });
