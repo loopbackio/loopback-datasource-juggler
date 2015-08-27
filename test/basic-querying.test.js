@@ -631,7 +631,7 @@ describe.skip('queries', function() {
     }, {
       idInjection: false
     });
-    db.automigrate(done);
+    db.automigrate(['Todo'], done);
   });
   beforeEach(function resetFixtures(done) {
     Todo.destroyAll(function() {

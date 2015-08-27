@@ -21,7 +21,7 @@ describe('manipulation', function () {
       createdAt: {type: Date, default: Date}
     }, { forceId: true, strict: true });
 
-    db.automigrate(done);
+    db.automigrate(['Person'], done);
 
   });
 
@@ -296,7 +296,7 @@ describe('manipulation', function () {
       // NOTE(bajtos) We cannot reuse Person model here,
       // `settings.forceId` aborts the CREATE request at the validation step.
       var Product = db.define('ProductTest', { name: String });
-      db.automigrate(function(err) {
+      db.automigrate('ProductTest', function(err) {
         if (err) return done(err);
 
         Product.create({ name: 'a-name' }, function(err, p) {

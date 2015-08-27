@@ -19,7 +19,7 @@ describe('crud-with-options', function () {
     options = {};
     filter = {fields: ['name', 'id']};
 
-    db.automigrate(done);
+    db.automigrate(['User'], done);
 
   });
 
