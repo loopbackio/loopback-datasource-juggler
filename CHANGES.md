@@ -1,3 +1,17 @@
+2015-08-27, Version 2.39.0
+==========================
+
+ * Optimze automigrate() to cut the test time signicantly (Raymond Feng)
+
+ * Fix primary key checks (Simon Ho)
+
+ * travis: drop 0.6 and 0.8, add iojs (Miroslav Bajtoš)
+
+ * Upgrade Travis to container-based infrastructure (Miroslav Bajtoš)
+
+ * Relax id requirement for basic query operations (Simon Ho)
+
+
 2015-08-18, Version 2.38.0
 ==========================
 
