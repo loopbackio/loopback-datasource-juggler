@@ -18,9 +18,7 @@ describe('datatypes', function () {
       arr: Array,
       nested: Nested
     });
-    db.automigrate(function () {
-      Model.destroyAll(done);
-    });
+    db.automigrate(['Model'], done);
   });
 
   it('should return 400 when property of type array is set to string value',
@@ -161,7 +159,7 @@ describe('datatypes', function () {
     Model = db.define('RequiredNumber', {
       num: { type: Number, required: true }
     });
-    db.automigrate(function () {
+    db.automigrate(['Model'], function () {
       Model.create({ num: [1,2,3] }, function(err, inst) {
         should.exist(err);
         err.should.have.property('name').equal('ValidationError');
@@ -185,7 +183,7 @@ describe('datatypes', function () {
 
       isStrict = TestModel.definition.settings.strict;
 
-      db.automigrate(done);
+      db.automigrate(['TestModel'], done);
     });
 
     it('should set missing optional properties to null', function(done) {

@@ -20,7 +20,7 @@ describe('hooks', function () {
       state: String
     });
 
-    db.automigrate(done);
+    db.automigrate('User', done);
   });
 
   describe('initialize', function () {

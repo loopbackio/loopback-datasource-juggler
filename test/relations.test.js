@@ -32,15 +32,7 @@ describe('relations', function () {
       Author = db.define('Author', {name: String});
       Reader = db.define('Reader', {name: String});
 
-      db.automigrate(function () {
-        Book.destroyAll(function () {
-          Chapter.destroyAll(function () {
-            Author.destroyAll(function () {
-              Reader.destroyAll(done);
-            });
-          });
-        });
-      });
+      db.automigrate(['Book', 'Chapter', 'Author', 'Reader'], done);
     });
 
     it('can be declared in different ways', function (done) {
@@ -54,7 +46,7 @@ describe('relations', function () {
       Object.keys((new Chapter).toObject()).should.containEql('bookId');
       Object.keys((new Author).toObject()).should.containEql('projectId');
 
-      db.automigrate(done);
+      db.automigrate(['Book', 'Chapter', 'Author', 'Reader'], done);
     });
 
     it('can be declared in short form', function (done) {
@@ -62,7 +54,7 @@ describe('relations', function () {
       (new Author).readers.should.be.an.instanceOf(Function);
       Object.keys((new Reader).toObject()).should.containEql('authorId');
 
-      db.autoupdate(done);
+      db.autoupdate(['Author', 'Reader'], done);
     });
 
     describe('with scope', function() {
@@ -562,7 +554,7 @@ describe('relations', function () {
     var Physician, Patient, Appointment, Address;
 
     before(function (done) {
-      db = getSchema();
+      // db = getSchema();
       Physician = db.define('Physician', {name: String});
       Patient = db.define('Patient', {name: String});
       Appointment = db.define('Appointment', {date: {type: Date,
@@ -577,9 +569,7 @@ describe('relations', function () {
       Appointment.belongsTo(Patient);
       Appointment.belongsTo(Physician);
 
-      db.automigrate(['Physician', 'Patient', 'Appointment', 'Address'], function (err) {
-        done(err);
-      });
+      db.automigrate(['Physician', 'Patient', 'Appointment', 'Address'], done);
     });
 
     it('should build record on scope', function (done) {
@@ -1135,7 +1125,7 @@ describe('relations', function () {
     var Physician, Patient, Appointment, Address;
 
     beforeEach(function (done) {
-      db = getSchema();
+      // db = getSchema();
       Physician = db.define('Physician', {name: String});
       Patient = db.define('Patient', {name: String});
       Appointment = db.define('Appointment', {date: {type: Date,
@@ -1144,9 +1134,7 @@ describe('relations', function () {
         }}});
       Address = db.define('Address', {name: String});
 
-      db.automigrate(['Physician', 'Patient', 'Appointment', 'Address'], function (err) {
-        done(err);
-      });
+      db.automigrate(['Physician', 'Patient', 'Appointment', 'Address'], done);
     });
 
     describe('with default options', function () {
@@ -1254,7 +1242,7 @@ describe('relations', function () {
     var User, Follow, Address;
 
     before(function (done) {
-      db = getSchema();
+      // db = getSchema();
       User = db.define('User', {name: String});
       Follow = db.define('Follow', {date: {type: Date,
         default: function () {
@@ -1267,9 +1255,7 @@ describe('relations', function () {
       User.belongsTo(Address);
       Follow.belongsTo(User, {as: 'follower'});
       Follow.belongsTo(User, {as: 'followee'});
-      db.automigrate(['User', 'Follow'], function (err) {
-        done(err);
-      });
+      db.automigrate(['User', 'Follow'], done);
     });
 
 
@@ -1304,7 +1290,7 @@ describe('relations', function () {
     var User, Follow, Address;
 
     before(function (done) {
-      db = getSchema();
+      // db = getSchema();
       User = db.define('User', {name: String});
       Follow = db.define('Follow', {date: {type: Date,
         default: function () {
@@ -1317,9 +1303,7 @@ describe('relations', function () {
       User.belongsTo(Address);
       Follow.belongsTo(User, {as: 'follower'});
       Follow.belongsTo(User, {as: 'followee'});
-      db.automigrate(['User', 'Follow', 'Address'], function (err) {
-        done(err);
-      });
+      db.automigrate(['User', 'Follow', 'Address'], done);
     });
 
     it('should set the keyThrough and the foreignKey', function (done) {
@@ -1348,7 +1332,7 @@ describe('relations', function () {
   describe('hasMany with properties', function () {
     it('can be declared with properties', function (done) {
       Book.hasMany(Chapter, { properties: { type: 'bookType' } });
-      db.automigrate(done);
+      db.automigrate(['Book', 'Chapter'], done);
     });
 
     it('should create record on scope', function (done) {
@@ -1379,7 +1363,7 @@ describe('relations', function () {
 
   describe('hasMany with scope and properties', function () {
     it('can be declared with properties', function (done) {
-      db = getSchema();
+      // db = getSchema();
       Category = db.define('Category', {name: String, jobType: String});
       Job = db.define('Job', {name: String, type: String});
 
@@ -1393,7 +1377,7 @@ describe('relations', function () {
           if (m) return { where: m };
         }
       });
-      db.automigrate(done);
+      db.automigrate(['Category', 'Job'], done);
     });
 
     it('should create record on scope', function (done) {
@@ -1573,25 +1557,19 @@ describe('relations', function () {
 
   describe('polymorphic hasOne', function () {
     before(function (done) {
-      db = getSchema();
+      // db = getSchema();
       Picture = db.define('Picture', {name: String});
       Author = db.define('Author', {name: String});
       Reader = db.define('Reader', {name: String});
 
-      db.automigrate(function () {
-        Picture.destroyAll(function () {
-          Author.destroyAll(function () {
-            Reader.destroyAll(done);
-          });
-        });
-      });
+      db.automigrate(['Picture', 'Author', 'Reader'], done);
     });
 
     it('can be declared', function (done) {
       Author.hasOne(Picture, { as: 'avatar', polymorphic: 'imageable' });
       Reader.hasOne(Picture, { as: 'mugshot', polymorphic: 'imageable' });
       Picture.belongsTo('imageable', { polymorphic: true });
-      db.automigrate(done);
+      db.automigrate(['Picture', 'Author', 'Reader'], done);
     });
 
     it('should create polymorphic relation - author', function (done) {
@@ -1726,7 +1704,7 @@ describe('relations', function () {
 
   describe('polymorphic hasOne with non standard ids', function () {
     before(function (done) {
-      db = getSchema();
+      // db = getSchema();
       Picture = db.define('Picture', {name: String});
       Author = db.define('Author', {
         username: {type: String, id: true, generated: true},
@@ -1737,13 +1715,7 @@ describe('relations', function () {
         name: String
       });
 
-      db.automigrate(function () {
-        Picture.destroyAll(function () {
-          Author.destroyAll(function () {
-            Reader.destroyAll(done);
-          });
-        });
-      });
+      db.automigrate(['Picture', 'Author', 'Reader'], done);
     });
 
     it('can be declared with non standard foreign key', function (done) {
@@ -1769,7 +1741,7 @@ describe('relations', function () {
           discriminator: 'type'
         }
       });
-      db.automigrate(done);
+      db.automigrate(['Picture', 'Author', 'Reader'], done);
     });
 
     it('should create polymorphic relation - author', function (done) {
@@ -1891,18 +1863,12 @@ describe('relations', function () {
 
   describe('polymorphic hasMany', function () {
     before(function (done) {
-      db = getSchema();
+      // db = getSchema();
       Picture = db.define('Picture', {name: String});
       Author = db.define('Author', {name: String});
       Reader = db.define('Reader', {name: String});
 
-      db.automigrate(function () {
-        Picture.destroyAll(function () {
-          Author.destroyAll(function () {
-            Reader.destroyAll(done);
-          });
-        });
-      });
+      db.automigrate(['Picture', 'Author', 'Reader'], done);
     });
 
     it('can be declared', function (done) {
@@ -1943,7 +1909,7 @@ describe('relations', function () {
         }
       });
 
-      db.automigrate(done);
+      db.automigrate(['Picture', 'Author', 'Reader'], done);
     });
 
     it('should create polymorphic relation - author', function (done) {
@@ -2091,21 +2057,13 @@ describe('relations', function () {
 
   describe('polymorphic hasAndBelongsToMany through', function () {
     before(function (done) {
-      db = getSchema();
+      // db = getSchema();
       Picture = db.define('Picture', {name: String});
       Author = db.define('Author', {name: String});
       Reader = db.define('Reader', {name: String});
       PictureLink = db.define('PictureLink', {});
 
-      db.automigrate(function () {
-        Picture.destroyAll(function () {
-          PictureLink.destroyAll(function () {
-            Author.destroyAll(function () {
-              Reader.destroyAll(done);
-            });
-          });
-        });
-      });
+      db.automigrate(['Picture', 'Author', 'Reader', 'PictureLink'], done);
     });
 
     it('can be declared', function (done) {
@@ -2114,7 +2072,7 @@ describe('relations', function () {
       // Optionally, define inverse relations:
       Picture.hasMany(Author, { through: PictureLink, polymorphic: 'imageable', invert: true });
       Picture.hasMany(Reader, { through: PictureLink, polymorphic: 'imageable', invert: true });
-      db.automigrate(done);
+      db.automigrate(['Picture', 'Author', 'Reader', 'PictureLink'], done);
     });
 
     it('can determine the collect via modelTo name', function () {
@@ -2423,7 +2381,7 @@ describe('relations', function () {
 
     it('can be used to query data', function (done) {
       List.hasMany('todos', {model: Item});
-      db.automigrate(function () {
+      db.automigrate(['List', 'Item', 'Fear', 'Find'], function () {
         List.create({name: 'List 1'}, function (e, list) {
           listId = list.id;
           should.not.exist(e);
@@ -2445,7 +2403,7 @@ describe('relations', function () {
 
     it('can be used to query data with getAsync with callback', function (done) {
       List.hasMany('todos', {model: Item});
-      db.automigrate(function () {
+      db.automigrate(['List', 'Item', 'Fear', 'Find'], function () {
         List.create({name: 'List 1'}, function (e, list) {
           listId = list.id;
           should.not.exist(e);
@@ -2467,7 +2425,7 @@ describe('relations', function () {
 
     it('can be used to query data with promises', function (done) {
       List.hasMany('todos', {model: Item});
-      db.automigrate(function () {
+      db.automigrate(['List', 'Item', 'Fear', 'Find'], function () {
         List.create({name: 'List 1'})
         .then(function (list) {
           listId = list.id;
@@ -2600,7 +2558,7 @@ describe('relations', function () {
         properties: { notes: 'passportNotes' },
         scope: { fields: { id: true, name: true } }
       });
-      db.automigrate(done);
+      db.automigrate(['Person', 'Passport'], done);
     });
 
     var personCreated;
@@ -2675,7 +2633,7 @@ describe('relations', function () {
         properties: ['name'],
         options: { embedsProperties: true, invertProperties: true }
       });
-      db.automigrate(done);
+      db.automigrate(['Person', 'Passport'], done);
     });
 
     it('should create record with embedded data', function (done) {
@@ -2719,7 +2677,7 @@ describe('relations', function () {
     var supplierId, accountId;
 
     before(function () {
-      db = getSchema();
+      // db = getSchema();
       Supplier = db.define('Supplier', {name: String});
       Account = db.define('Account', {accountNo: String, supplierName: String});
     });
@@ -2749,7 +2707,7 @@ describe('relations', function () {
     });
 
     it('can be used to query data', function (done) {
-      db.automigrate(function () {
+      db.automigrate(['Supplier', 'Account'], function () {
         Supplier.create({name: 'Supplier 1'}, function (e, supplier) {
           supplierId = supplier.id;
           should.not.exist(e);
@@ -2770,7 +2728,7 @@ describe('relations', function () {
     });
 
     it('can be used to query data with getAsync with callback', function (done) {
-      db.automigrate(function () {
+      db.automigrate(['Supplier', 'Account'], function () {
         Supplier.create({name: 'Supplier 1'}, function (e, supplier) {
           supplierId = supplier.id;
           should.not.exist(e);
@@ -2791,7 +2749,7 @@ describe('relations', function () {
     });
 
     it('can be used to query data with promises', function (done) {
-      db.automigrate(function () {
+      db.automigrate(['Supplier', 'Account'], function () {
         Supplier.create({name: 'Supplier 1'})
         .then(function (supplier) {
           supplierId = supplier.id;
@@ -2954,14 +2912,14 @@ describe('relations', function () {
     var supplierId, accountId;
 
     before(function () {
-      db = getSchema();
+      // db = getSchema();
       Supplier = db.define('Supplier', {name: String});
       Account = db.define('Account', {accountNo: String, supplierName: String, block: Boolean});
       Supplier.hasOne(Account, { scope: { where: { block: false } }, properties: { name: 'supplierName' } });
     });
 
     it('can be used to query data', function (done) {
-      db.automigrate(function () {
+      db.automigrate(['Supplier', 'Account'], function () {
         Supplier.create({name: 'Supplier 1'}, function (e, supplier) {
           supplierId = supplier.id;
           should.not.exist(e);
@@ -3017,7 +2975,7 @@ describe('relations', function () {
     });
 
     it('can be used to query data with promises', function (done) {
-      db.automigrate(function () {
+      db.automigrate(['Supplier', 'Account'], function () {
         Supplier.create({name: 'Supplier 1'})
         .then(function (supplier) {
           supplierId = supplier.id;
@@ -3063,7 +3021,7 @@ describe('relations', function () {
     var supplierId, accountId;
 
     before(function () {
-      db = getSchema();
+      // db = getSchema();
       Supplier = db.define('Supplier', {
         sid: {
           type: String,
@@ -3092,7 +3050,7 @@ describe('relations', function () {
     });
 
     it('can be used to query data', function (done) {
-      db.automigrate(function () {
+      db.automigrate(['Supplier', 'Account'], function () {
         Supplier.create({name: 'Supplier 1'}, function (e, supplier) {
           supplierId = supplier.sid;
           should.not.exist(e);
@@ -3152,13 +3110,7 @@ describe('relations', function () {
       TagName = db.define('TagName', {name: String, flag: String});
       Article.hasAndBelongsToMany('tagNames');
       ArticleTag = db.models.ArticleTagName;
-      db.automigrate(function () {
-        Article.destroyAll(function () {
-          TagName.destroyAll(function () {
-            ArticleTag.destroyAll(done)
-          });
-        });
-      });
+      db.automigrate(['Article', 'TagName', 'ArticleTagName'], done);
     });
 
     it('should allow to create instances on scope', function (done) {
@@ -3220,7 +3172,7 @@ describe('relations', function () {
     });
 
     it('should allow to create instances on scope with promises', function (done) {
-      db.automigrate(function () {
+      db.automigrate(['Article', 'TagName', 'ArticleTagName'], function () {
         Article.create()
         .then(function (article) {
           return article.tagNames.create({name: 'popular'})
@@ -3354,7 +3306,7 @@ describe('relations', function () {
 
     before(function () {
       tmp = getTransientDataSource();
-      db = getSchema();
+      // db = getSchema();
       Person = db.define('Person', {name: String});
       Passport = tmp.define('Passport',
         {name:{type:'string', required: true}},
@@ -3370,7 +3322,7 @@ describe('relations', function () {
         methods: { check: function() { return true; } }
       });
       Person.embedsOne(Address); // all by default
-      db.automigrate(done);
+      db.automigrate(['Person'], done);
     });
 
     it('should have setup a property and accessor', function() {
@@ -3656,7 +3608,7 @@ describe('relations', function () {
       Person.embedsOne(Passport, {
         options: {persistent: true}
       });
-      db.automigrate(done);
+      db.automigrate(['Person', 'Passport'], done);
     });
 
     it('should create an item - to offset id', function(done) {
@@ -3698,7 +3650,7 @@ describe('relations', function () {
 
     before(function () {
       tmp = getTransientDataSource();
-      db = getSchema();
+      // db = getSchema();
       Person = db.define('Person', {name: String});
       Passport = tmp.define('Passport',
         {id: {type:'string', id: true, generated:true}},
@@ -3708,7 +3660,7 @@ describe('relations', function () {
 
     it('can be declared using embedsOne method', function (done) {
       Person.embedsOne(Passport);
-      db.automigrate(done);
+      db.automigrate(['Person'], done);
     });
 
     it('should create an embedded item on scope', function(done) {
@@ -3731,19 +3683,17 @@ describe('relations', function () {
 
     before(function (done) {
       tmp = getTransientDataSource({defaultIdType: Number});
-      db = getSchema();
+      // db = getSchema();
       Person = db.define('Person', {name: String});
       Address = tmp.define('Address', {street: String});
       Address.validatesPresenceOf('street');
 
-      db.automigrate(function () {
-        Person.destroyAll(done);
-      });
+      db.automigrate(['Person'], done);
     });
 
     it('can be declared', function (done) {
       Person.embedsMany(Address);
-      db.automigrate(done);
+      db.automigrate(['Person'], done);
     });
 
     it('should have setup embedded accessor/scope', function() {
@@ -3969,21 +3919,19 @@ describe('relations', function () {
 
     before(function (done) {
       tmp = getTransientDataSource();
-      db = getSchema();
+      // db = getSchema();
       Person = db.define('Person', {name: String});
       Address = tmp.define('Address', {
         id: {type: Number, id:true},
         street: String
       });
 
-      db.automigrate(function () {
-        Person.destroyAll(done);
-      });
+      db.automigrate(['Person'], done);
     });
 
     it('can be declared', function (done) {
       Person.embedsMany(Address, {options: {forceId: true}});
-      db.automigrate(done);
+      db.automigrate(['Person'], done);
     });
 
     it('should create embedded items on scope', function(done) {
@@ -4007,19 +3955,17 @@ describe('relations', function () {
   describe('embedsMany - explicit ids', function () {
     before(function (done) {
       tmp = getTransientDataSource();
-      db = getSchema();
+      // db = getSchema();
       Person = db.define('Person', {name: String});
       Address = tmp.define('Address', {street: String});
       Address.validatesPresenceOf('street');
 
-      db.automigrate(function () {
-        Person.destroyAll(done);
-      });
+      db.automigrate(['Person'], done);
     });
 
     it('can be declared', function (done) {
       Person.embedsMany(Address);
-      db.automigrate(done);
+      db.automigrate(['Person'], done);
     });
 
     it('should create embedded items on scope', function(done) {
@@ -4190,9 +4136,7 @@ describe('relations', function () {
       Address = db.define('Address', {street: String});
       Address.validatesPresenceOf('street');
 
-      db.automigrate(function () {
-        Person.destroyAll(done);
-      });
+      db.automigrate(['Person', 'Address'], done);
     });
 
     it('can be declared', function (done) {
@@ -4202,7 +4146,7 @@ describe('relations', function () {
         scope: {order: 'street'},
         options: {persistent: true}
       });
-      db.automigrate(done);
+      db.automigrate(['Person', 'Address'], done);
     });
 
     it('should create individual items (0)', function(done) {
@@ -4308,7 +4252,7 @@ describe('relations', function () {
     var category, job1, job2, job3;
 
     before(function () {
-      db = getSchema();
+      // db = getSchema();
       Category = db.define('Category', {name: String});
       Job = db.define('Job', {name: String});
       Link = db.define('Link', {name: String, notes: String});
@@ -4325,7 +4269,7 @@ describe('relations', function () {
         properties: { id: 'id', name: 'name' }, // denormalize, transfer id
         options: { invertProperties: true }
       });
-      db.automigrate(function() {
+      db.automigrate(['Category', 'Job', 'Link'], function() {
         Job.create({ name: 'Job 0' }, done); // offset ids for tests
       });
     });
@@ -4540,7 +4484,7 @@ describe('relations', function () {
     var person1, person2;
 
     before(function (done) {
-      db = getSchema();
+      // db = getSchema();
       tmp = getTransientDataSource();
 
       Book = db.define('Book', {name: String});
@@ -4554,13 +4498,7 @@ describe('relations', function () {
       Link.validatesPresenceOf('linkedId');
       Link.validatesPresenceOf('linkedType');
 
-      db.automigrate(function () {
-        Book.destroyAll(function() {
-          Author.destroyAll(function() {
-            Reader.destroyAll(done);
-          });
-        });
-      });
+      db.automigrate(['Book', 'Author', 'Reader'], done);
     });
 
     it('can be declared', function (done) {
@@ -4575,7 +4513,7 @@ describe('relations', function () {
         properties: { name: 'name' },     // denormalized
         options: { invertProperties: true }
       });
-      db.automigrate(done);
+      db.automigrate(['Book', 'Author', 'Reader'], done);
     });
 
     it('should setup related items', function(done) {
@@ -4683,15 +4621,11 @@ describe('relations', function () {
     var job1, job2, job3;
 
     before(function (done) {
-      db = getSchema();
+      // db = getSchema();
       Category = db.define('Category', {name: String});
       Job = db.define('Job', {name: String});
 
-      db.automigrate(function () {
-        Category.destroyAll(function() {
-          Job.destroyAll(done);
-        });
-      });
+      db.automigrate(['Job', 'Category'], done);
     });
 
     it('can be declared', function (done) {
@@ -4717,7 +4651,7 @@ describe('relations', function () {
       should.exist(Category.prototype['__reverse__jobs'].shared);
       Category.prototype['__reverse__jobs'].http.should.eql(reverse.http);
 
-      db.automigrate(done);
+      db.automigrate(['Job', 'Category'], done);
     });
 
     it('should setup test records', function (done) {
@@ -4945,7 +4879,7 @@ describe('relations', function () {
     });
 
     it('should setup test records with promises', function (done) {
-      db.automigrate(function () {
+      db.automigrate(['Job', 'Category'], function () {
         return Job.create({ name: 'Job 1' })
         .then(function (p) {
           job1 = p;
@@ -5217,15 +5151,11 @@ describe('relations', function () {
     var categoryId;
 
     before(function (done) {
-      db = getSchema();
+      // db = getSchema();
       Category = db.define('Category', {name: String});
       Job = db.define('Job', {name: String});
 
-      db.automigrate(function () {
-        Category.destroyAll(function() {
-          Job.destroyAll(done);
-        });
-      });
+      db.automigrate(['Job', 'Category'], done);
     });
 
     it('can be declared', function (done) {
@@ -5255,7 +5185,7 @@ describe('relations', function () {
       should.exist(Category.prototype['__summarize__jobs'].shared);
       Category.prototype['__summarize__jobs'].http.should.eql(summarize.http);
 
-      db.automigrate(done);
+      db.automigrate(['Job', 'Category'], done);
     });
 
     it('should setup test records', function (done) {
