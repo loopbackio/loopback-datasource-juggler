@@ -400,4 +400,38 @@ describe('ModelDefinition class', function () {
     var props = Model.definition.properties;
     props.regular.type.should.equal(props.sugar.type);
   });
+
+  context('hasPK', function() {
+    context('with primary key defined', function() {
+      var Todo;
+      before(function prepModel() {
+        Todo = new ModelDefinition(new ModelBuilder(), 'Todo', {
+          content: 'string'
+        });
+        Todo.defineProperty('id', {
+          type: 'number',
+          id: true
+        });
+        Todo.build();
+      });
+
+      it('should return true', function() {
+        Todo.hasPK().should.be.ok;
+      });
+    });
+
+    context('without primary key defined', function() {
+      var Todo;
+      before(function prepModel() {
+        Todo = new ModelDefinition(new ModelBuilder(), 'Todo', {
+          content: 'string'
+        });
+        Todo.build();
+      });
+
+      it('should return false', function() {
+        Todo.hasPK().should.not.be.ok;
+      });
+    });
+  });
 });
