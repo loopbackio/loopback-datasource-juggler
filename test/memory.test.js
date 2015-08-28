@@ -309,10 +309,10 @@ describe('Memory connector', function() {
       });
     });
 
-    it('should successfully extract 2 users matching array values', function (done) {
+    it('should successfully extract 2 users matching over array values', function (done) {
       User.find({
         where: {
-          'children': {
+          children: {
             regexp: /an/
           }
         }
@@ -321,6 +321,19 @@ describe('Memory connector', function() {
         users.length.should.be.equal(2);
         users[0].name.should.be.equal('John Lennon');
         users[1].name.should.be.equal('George Harrison');
+        done();
+      });
+    });
+
+    it('should successfully extract 1 users matching over array values', function (done) {
+      User.find({
+        where: {
+          children: 'Dhani'
+        }
+      }, function (err, users) {
+        should.not.exist(err);
+        users.length.should.be.equal(1);
+        users[0].name.should.be.equal('George Harrison');
         done();
       });
     });
