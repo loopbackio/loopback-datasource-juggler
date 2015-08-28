@@ -134,7 +134,6 @@ describe('Memory connector', function() {
     });
   });
 
-  // describe.only('Query for memory connector', function() {
   describe('Query for memory connector', function() {
     var ds = new DataSource({
       connector: 'memory'
@@ -306,6 +305,22 @@ describe('Memory connector', function() {
       User.find({where: {birthday: {between: [new Date(1990,0), Date.now()]}}},
                 function(err, users) {
         should(users.length).be.equal(0);
+        done();
+      });
+    });
+
+    it('should successfully extract 2 users matching array values', function (done) {
+      User.find({
+        where: {
+          'children': {
+            regexp: /an/
+          }
+        }
+      }, function (err, users) {
+        should.not.exist(err);
+        users.length.should.be.equal(2);
+        users[0].name.should.be.equal('John Lennon');
+        users[1].name.should.be.equal('George Harrison');
         done();
       });
     });
@@ -492,7 +507,8 @@ describe('Memory connector', function() {
             { name: 'Paul McCartney' },
             { name: 'George Harrison' },
             { name: 'Ringo Starr' },
-          ]
+          ],
+          children: ['Sean', 'Julian']
         },
         {
           seq: 1,
@@ -512,9 +528,10 @@ describe('Memory connector', function() {
             { name: 'John Lennon' },
             { name: 'George Harrison' },
             { name: 'Ringo Starr' },
-          ]
+          ],
+          children: ['Stella', 'Mary', 'Heather', 'Beatrice', 'James']
         },
-        {seq: 2, name: 'George Harrison', order: 5, vip: false},
+        {seq: 2, name: 'George Harrison', order: 5, vip: false, children: ['Dhani']},
         {seq: 3, name: 'Ringo Starr', order: 6, vip: false},
         {seq: 4, name: 'Pete Best', order: 4},
         {seq: 5, name: 'Stuart Sutcliffe', order: 3, vip: true}
