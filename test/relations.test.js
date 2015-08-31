@@ -3113,7 +3113,7 @@ describe('relations', function () {
       Boss = db.define('Boss', {boardMembersNumber: Number, companyId: String});
     });
 
-    it('can be declared with non standard foreignKey', function () {
+    it('relation can be declared with primaryKey', function () {
       CompanyBoard.hasOne(Boss, {
         properties: {membersNumber: 'boardMembersNumber'},
         primaryKey: 'companyId',
@@ -3124,7 +3124,7 @@ describe('relations', function () {
     });
 
     it('can be used to query data', function (done) {
-      db.automigrate(function () {
+      db.automigrate(['CompanyBoard', 'Boss'],function () {
         CompanyBoard.create({membersNumber: 7, companyId: 'Company1'}, function (e, companyBoard) {
           companyBoardId = companyBoard.id;
           should.not.exist(e);
@@ -3145,26 +3145,123 @@ describe('relations', function () {
       });
     });
 
-    it('should destroy the related item on scope', function(done) {
-      CompanyBoard.findById(companyBoardId, function(e, companyBoard) {
+    it('should destroy the related item on scope', function (done) {
+      CompanyBoard.findById(companyBoardId, function (e, companyBoard) {
         should.not.exist(e);
         should.exist(companyBoard);
-        companyBoard.boss.destroy(function(err) {
+        companyBoard.boss.destroy(function (err) {
           should.not.exist(e);
           done();
         });
       });
     });
 
-    it('should get the related item on scope - verify', function(done) {
-      CompanyBoard.findById(companyBoardId, function(e, companyBoard) {
+    it('should get the related item on scope - verify', function (done) {
+      CompanyBoard.findById(companyBoardId, function (e, companyBoard) {
         should.not.exist(e);
         should.exist(companyBoard);
-        companyBoard.boss(function(err, act) {
+        companyBoard.boss(function (err, act) {
           should.not.exist(e);
           should.not.exist(act);
           done();
         });
+      });
+    });
+  });
+
+
+  describe('hasMany with primaryKey different from model PK', function () {
+    var Employee, Boss;
+    var COMPANY_ID = "Company1";
+
+    before(function () {
+      db = getSchema();
+      Employee = db.define('Employee', {name: String, companyId: String});
+      Boss = db.define('Boss', {address: String, companyId: String});
+    });
+
+    it('relation can be declared with primaryKey', function () {
+      Boss.hasMany(Employee, {
+        primaryKey: 'companyId',
+        foreignKey: 'companyId'
+      });
+      (new Boss()).employees.should.be.an.instanceOf(Function);
+    });
+
+    it('can be used to query employees for boss', function () {
+      return db.automigrate(['Employee', 'Boss']).then(function () {
+        return Boss.create({address: 'testAddress', companyId: COMPANY_ID})
+          .then(function (boss) {
+            should.exist(boss);
+            should.exist(boss.employees);
+            return boss.employees.create([{name: 'a01'}, {name: 'a02'}])
+              .then(function (employees) {
+                should.exists(employees);
+                return boss.employees();
+              }).then(function (employees) {
+                var employee = employees[0];
+                should.exist(employee);
+                employees.length.should.equal(2);
+                employee.should.be.an.instanceOf(Employee);
+                employee.companyId.should.be.equal(boss.companyId);
+                return employees;
+              })
+          });
+      });
+    });
+
+    it('can be used to query employees for boss2', function () {
+      return db.automigrate(['Employee', 'Boss']).then(function () {
+        return Boss.create({address: 'testAddress', companyId: COMPANY_ID})
+          .then(function (boss) {
+            return Employee.create({name: 'a01', companyId: COMPANY_ID})
+              .then(function (employee) {
+                should.exist(employee);
+                return boss.employees.getAsync();
+              }).then(function (employees) {
+                should.exists(employees);
+                employees.length.should.equal(1);
+              })
+          });
+      });
+    });
+  });
+
+
+  describe('belongsTo with primaryKey different from model PK', function () {
+    var Employee, Boss;
+    var COMPANY_ID = "Company1";
+    var bossId;
+
+    before(function () {
+      db = getSchema();
+      Employee = db.define('Employee', {name: String, companyId: String});
+      Boss = db.define('Boss', {address: String, companyId: String});
+    });
+
+    it('relation can be declared with primaryKey', function () {
+      Employee.belongsTo(Boss, {
+        primaryKey: 'companyId',
+        foreignKey: 'companyId'
+      });
+      (new Employee()).boss.should.be.an.instanceOf(Function);
+    });
+
+    it('can be used to query data', function () {
+      return db.automigrate(['Employee', 'Boss']).then(function () {
+        return Boss.create({address: 'testAddress', companyId: COMPANY_ID})
+          .then(function (boss) {
+            bossId = boss.id;
+            return Employee.create({name: 'a', companyId: COMPANY_ID})
+          })
+          .then(function (employee) {
+            should.exists(employee);
+            return employee.boss.getAsync();
+          })
+          .then(function (boss) {
+            should.exists(boss);
+            boss.id.should.equal(bossId);
+          });
       });
     });
   });
