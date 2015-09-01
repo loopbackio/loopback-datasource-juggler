@@ -4152,9 +4152,11 @@ describe('relations', function () {
 
     it('should validate embedded items created from attributes', function(done) {
       Person.create({name: 'Dr. Funky Machine', addresses: [{}]}, function(err, p) {
+
         should.exist(err);
         err.name.should.equal('ValidationError');
-        err.details.codes.street.should.eql(['invalid']);
+
+        err.details.codes.addresses.should.eql(['invalid']);
         done();
       });
     });
