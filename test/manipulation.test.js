@@ -1070,6 +1070,26 @@ describe('manipulation', function () {
       });
     });
 
+
+    describe('uuidv4 defaultFn', function() {
+      var CustomModel;
+
+      before(function(done) {
+        CustomModel = db.define('CustomModel5', {
+          guid: { type: String, defaultFn: 'uuidv4' }
+        });
+        db.automigrate('CustomModel5', done);
+      });
+
+      it('should generate a new id when "defaultfn" is "uuidv4"', function(done) {
+        var inst = CustomModel.create(function(err, m) {
+          should.not.exists(err);
+          m.guid.should.match(UUID_REGEXP);
+          done();
+        });
+      });
+    });
+
     // it('should work when constructor called as function', function() {
     //     var p = Person({name: 'John Resig'});
     //     p.should.be.an.instanceOf(Person);
