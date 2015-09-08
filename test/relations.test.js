@@ -3135,9 +3135,9 @@ describe('relations', function () {
               should.not.exist(e);
               should.exist(boss);
               boss.should.be.an.instanceOf(Boss);
-              companyBoard.boss().id.should.equal(boss.id);
-              boss.boardMembersNumber.should.equal(companyBoard.membersNumber);
-              boss.companyId.should.equal(companyBoard.companyId);
+              companyBoard.boss().id.should.eql(boss.id);
+              boss.boardMembersNumber.should.eql(companyBoard.membersNumber);
+              boss.companyId.should.eql(companyBoard.companyId);
               done();
             });
           });
@@ -3203,7 +3203,7 @@ describe('relations', function () {
                 should.exist(employee);
                 employees.length.should.equal(2);
                 employee.should.be.an.instanceOf(Employee);
-                employee.companyId.should.be.equal(boss.companyId);
+                employee.companyId.should.be.eql(boss.companyId);
                 return employees;
               })
           });
@@ -3260,7 +3260,7 @@ describe('relations', function () {
           })
           .then(function (boss) {
             should.exists(boss);
-            boss.id.should.equal(bossId);
+            boss.id.should.eql(bossId);
           });
       });
     });
@@ -3310,8 +3310,8 @@ describe('relations', function () {
             should.not.exist(e);
             should.exist(at);
             at.should.be.an.instanceOf(ArticleTag);
-            at.tagNameId.should.equal(tag.id);
-            at.articleId.should.equal(article.id);
+            at.tagNameId.should.eql(tag.id);
+            at.articleId.should.eql(article.id);
             done();
           });
         });
@@ -3374,8 +3374,8 @@ describe('relations', function () {
           .then(function (at) {
             should.exist(at);
             at.should.be.an.instanceOf(ArticleTag);
-            at.tagNameId.should.equal(tag.id);
-            at.articleId.should.equal(article.id);
+            at.tagNameId.should.eql(tag.id);
+            at.articleId.should.eql(article.id);
             done();
           });
         })
