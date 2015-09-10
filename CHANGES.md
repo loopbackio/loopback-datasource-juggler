@@ -1,3 +1,23 @@
+2015-09-10, Version 2.40.0
+==========================
+
+ * Fix id comparision in tests so that they work with mongodb object id (Raymond Feng)
+
+ * Update validations.js (Rand McKinney)
+
+ * Add support for using UUID V4 as defaultFn (Bram Borggreve)
+
+ * primaryKey for hasMany and belongsTo relations (sklyukin)
+
+ * primaryKey to hasOne relation (sklyukin)
+
+ * Add direct copmarison value for array matching (Laurent Villeneuve)
+
+ * Add support for matching array values à la mongo. (Laurent Villeneuve)
+
+ * Fixed ReferencesMany .findById to check the given id in the ids array of the model instance (Satyadeep)
+
+
 2015-08-27, Version 2.39.0
 ==========================
 
