@@ -1,3 +1,9 @@
+2015-09-11, Version 2.40.1
+==========================
+
+ * Fix the test so that it works across DBs (Raymond Feng)
+
+
 2015-09-10, Version 2.40.0
 ==========================
 
