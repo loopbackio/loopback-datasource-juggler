@@ -3107,10 +3107,17 @@ describe('relations', function () {
     var CompanyBoard, Boss;
     var companyBoardId, bossId;
 
-    before(function () {
+    before(function() {
       db = getSchema();
-      CompanyBoard = db.define('CompanyBoard', {membersNumber: Number, companyId: String});
-      Boss = db.define('Boss', {boardMembersNumber: Number, companyId: String});
+      CompanyBoard = db.define('CompanyBoard', {
+        membersNumber: Number,
+        companyId: String
+      });
+      Boss = db.define('Boss', {
+        id: {type: String, id: true, generated: false},
+        boardMembersNumber: Number,
+        companyId: String
+      });
     });
 
     it('relation can be declared with primaryKey', function () {
