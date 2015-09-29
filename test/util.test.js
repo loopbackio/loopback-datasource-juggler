@@ -66,6 +66,13 @@ describe('util.removeUndefined', function () {
     var q4 = {where: {x: 1, y: date}};
     should.deepEqual(removeUndefined(q4), {where: {x: 1, y: date}});
 
+    // test handling of undefined
+    var q5 = {where: {x: 1, y: undefined}};
+    should.deepEqual(removeUndefined(q5, 'nullify'), {where: {x: 1, y: null}});
+
+    var q6 = {where: {x: 1, y: undefined}};
+    (function(){ removeUndefined(q6, 'throw') }).should.throw(/`undefined` in query/);
+
   });
 });
 
