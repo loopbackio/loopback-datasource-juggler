@@ -1487,6 +1487,23 @@ describe('DataAccessObject', function () {
     assert.deepEqual(filter, {limit: 100, offset: 5, skip: 5});
   });
 
+  it('should apply settings for handling undefined', function () {
+    filter = model._normalize({filter: { x: undefined }});
+    assert.deepEqual(filter, {filter: {}});
+
+    ds.settings.normalizeUndefinedInQuery = 'setNull';
+    filter = model._normalize({filter: { x: undefined }});
+    assert.deepEqual(filter, {filter: { x: null }});
+
+    ds.settings.normalizeUndefinedInQuery = 'throwError';
+    try {
+      filter = model._normalize({filter: { x: undefined }});
+    }
+    catch(err) {
+      assert.ok(err instanceof Error);
+    }
+  });
+
   it('should skip GeoPoint', function () {
     where = model._coerce({location: {near: {lng: 10, lat: 20}, maxDistance: 20}});
     assert.deepEqual(where, {location: {near: {lng: 10, lat: 20}, maxDistance: 20}});
@@ -1796,4 +1813,3 @@ describe('ModelBuilder options.models', function () {
     });
 
 });
-
