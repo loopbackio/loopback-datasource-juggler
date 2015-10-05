@@ -1491,17 +1491,16 @@ describe('DataAccessObject', function () {
     filter = model._normalize({filter: { x: undefined }});
     assert.deepEqual(filter, {filter: {}});
 
-    ds.settings.normalizeUndefinedInQuery = 'setNull';
+    ds.settings.normalizeUndefinedInQuery = 'ignore';
     filter = model._normalize({filter: { x: undefined }});
-    assert.deepEqual(filter, {filter: { x: null }});
+    assert.deepEqual(filter, {filter: {}}, 'Should ignore undefined');
 
-    ds.settings.normalizeUndefinedInQuery = 'throwError';
-    try {
-      filter = model._normalize({filter: { x: undefined }});
-    }
-    catch(err) {
-      assert.ok(err instanceof Error);
-    }
+    ds.settings.normalizeUndefinedInQuery = 'nullify';
+    filter = model._normalize({filter: { x: undefined }});
+    assert.deepEqual(filter, {filter: { x: null }}, 'Should nullify undefined');
+
+    ds.settings.normalizeUndefinedInQuery = 'throw';
+    (function(){ model._normalize({filter: { x: undefined }}) }).should.throw(/`undefined` in query/);
   });
 
   it('should skip GeoPoint', function () {
@@ -1529,6 +1528,20 @@ describe('DataAccessObject', function () {
     function () {
       where = model._coerce({age: {inq: ['xyz', '12']}});
       assert.deepEqual(where, {age: {inq: ['xyz', 12]}});
+    });
+
+  // settings
+  it('should get settings in priority',
+    function () {
+      ds.settings.test = 'test';
+      assert.equal(model._getSetting('test'), ds.settings.test, 'Should get datasource setting');
+      ds.settings.test = undefined;
+
+      model.settings.test = 'test';
+      assert.equal(model._getSetting('test'), model.settings.test, 'Should get model settings');
+
+      ds.settings.test = 'willNotGet';
+      assert.notEqual(model._getSetting('test'), ds.settings.test, 'Should not get datasource setting');
     });
 
 });

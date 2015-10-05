@@ -68,15 +68,10 @@ describe('util.removeUndefined', function () {
 
     // test handling of undefined
     var q5 = {where: {x: 1, y: undefined}};
-    should.deepEqual(removeUndefined(q5, 'setNull'), {where: {x: 1, y: null}});
+    should.deepEqual(removeUndefined(q5, 'nullify'), {where: {x: 1, y: null}});
 
     var q6 = {where: {x: 1, y: undefined}};
-    try {
-      removeUndefined(q6, 'throwError');
-    }
-    catch(err) {
-      err.should.be.instanceof(Error);
-    }
+    (function(){ removeUndefined(q6, 'throw') }).should.throw(/`undefined` in query/);
 
   });
 });
