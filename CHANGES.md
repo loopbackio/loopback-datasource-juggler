@@ -1,3 +1,13 @@
+2015-10-07, Version 2.41.0
+==========================
+
+ * Ability to define normalization of undefined query (Ryan Schumacher)
+
+ * findByIds would fail when an array of 0 length was passed as its first argument (James Cooke)
+
+ * Use strongloop conventions for licensing (Sam Roberts)
+
+
 2015-09-11, Version 2.40.1
 ==========================
 
