@@ -1364,6 +1364,11 @@ describe('DataAccessObject', function () {
     assert.deepEqual(where, {or: [{age: 10}, {vip: true}]});
   });
 
+  it('should be able to coerce where clause with properties following a logical operation', function () {
+    where = model._coerce({and : [{scores: '0'}, {scores: '2'}], age: '10'});
+    assert.strictEqual(where.age, 10);
+  });
+
   it('should throw if the where property is not an object', function () {
     try {
       // The where clause has to be an object
