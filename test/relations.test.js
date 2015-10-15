@@ -2620,10 +2620,7 @@ describe('relations', function () {
 
   });
 
-  // Disable the tests until the issue in
-  // https://github.com/strongloop/loopback-datasource-juggler/pull/399
-  // is fixed
-  describe.skip('belongsTo with embed', function () {
+  describe('belongsTo with embed', function () {
     var Person, Passport;
 
     it('can be declared with embed and properties', function (done) {
@@ -4826,8 +4823,10 @@ describe('relations', function () {
 
     it('should setup test records', function (done) {
       Job.create({ name: 'Job 1' }, function(err, p) {
+        should.not.exist(err);
         job1 = p;
         Job.create({ name: 'Job 3' }, function(err, p) {
+          should.not.exist(err);
           job3 = p;
           done();
         });
@@ -4972,6 +4971,7 @@ describe('relations', function () {
 
     it('should remove items from scope', function (done) {
       Category.findOne(function(err, cat) {
+        should.not.exist(err);
         cat.jobs.remove(job1.id, function(err, ids) {
           should.not.exist(err);
           var expected = [job2.id, job3.id];
