@@ -4835,13 +4835,13 @@ describe('relations', function () {
     });
 
     it('should create record on scope', function (done) {
-      Category.create({ name: 'Category A' }, function(err, catA) {
-        catA.jobIds.should.be.an.array;
-        catA.jobIds.should.have.length(0);
-        catA.jobs.create({ name: 'Job 2' }, function(err, p) {
+      Category.create({ name: 'Category A' }, function(err, cat) {
+        cat.jobIds.should.be.an.array;
+        cat.jobIds.should.have.length(0);
+        cat.jobs.create({ name: 'Job 2' }, function(err, p) {
           should.not.exist(err);
-          catA.jobIds.should.have.length(1);
-          catA.jobIds.should.eql([p.id]);
+          cat.jobIds.should.have.length(1);
+          cat.jobIds.should.eql([p.id]);
           p.name.should.equal('Job 2');
           job2 = p;
           done();
