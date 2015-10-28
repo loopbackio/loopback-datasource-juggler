@@ -1,3 +1,13 @@
+2015-10-28, Version 2.41.1
+==========================
+
+ * Added missing callback when a model is not found (Federico Rampazzo)
+
+ * Rewrite of variable (mdartic)
+
+ * Filtering relations of a model with an order specified (mdartic)
+
+
 2015-10-07, Version 2.41.0
 ==========================
 
