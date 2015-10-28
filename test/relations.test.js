@@ -4996,6 +4996,19 @@ describe('relations', function () {
       });
     });
 
+    it('should find items on scope and ordered them by name DESC', function(done) {
+      Category.find(function(err, categories) {
+        categories.should.have.length(1);
+        categories[0].jobs({order: 'name DESC'}, function (err, jobs) {
+          should.not.exist(err);
+          jobs.should.have.length(2);
+          jobs[0].id.should.eql(job3.id)
+          jobs[1].id.should.eql(job2.id)
+          done();
+        })
+      });
+    });
+
     it('should allow custom scope methods - reverse', function(done) {
       Category.findOne(function(err, cat) {
         cat.jobs.reverse(function(err, ids) {
@@ -5249,6 +5262,21 @@ describe('relations', function () {
         jobs.should.have.length(2);
         jobs[0].id.should.eql(job2.id);
         jobs[1].id.should.eql(job3.id);
+        done();
+      })
+      .catch(done);
+    });
+
+    it('should find items on scope and ordered them by name DESC', function (done) {
+      Category.find()
+      .then(function (categories) {
+        categories.should.have.length(1);
+        return categories[0].jobs.getAsync({order: 'name DESC'})
+      })
+      .then(function (jobs) {
+        jobs.should.have.length(2);
+        jobs[0].id.should.eql(job3.id);
+        jobs[1].id.should.eql(job2.id);
         done();
       })
       .catch(done);
