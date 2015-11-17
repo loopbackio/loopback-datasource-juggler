@@ -1,3 +1,15 @@
+2015-11-17, Version 2.41.2
+==========================
+
+ * Fix the typo (Raymond Feng)
+
+ * fix typo (Clark Wang)
+
+ * fix global leak that mocha complains (Clark Wang)
+
+ * Refer to licenses with a link (Sam Roberts)
+
+
 2015-10-28, Version 2.41.1
 ==========================
 
