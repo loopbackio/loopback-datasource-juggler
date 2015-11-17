@@ -2381,7 +2381,7 @@ describe('relations', function () {
 
     it('can be used to query data', function (done) {
       List.hasMany('todos', {model: Item});
-      db.automigrate(['List', 'Item', 'Fear', 'Find'], function () {
+      db.automigrate(['List', 'Item', 'Fear', 'Mind'], function () {
         List.create({name: 'List 1'}, function (e, list) {
           listId = list.id;
           should.not.exist(e);
