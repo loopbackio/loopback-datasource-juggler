@@ -338,6 +338,19 @@ describe('Memory connector', function() {
       });
     });
 
+    it('should successfully extract 5 users matching a neq filter over array values', function (done) {
+      User.find({
+        where: {
+          'children': {neq: 'Dhani'}
+        }
+      }, function (err, users) {
+        should.not.exist(err);
+        console.log(users);
+        users.length.should.be.equal(5);
+        done();
+      });
+    });
+
     it('should count using date string', function(done) {
       User.count({birthday: {lt: new Date(1990,0).toISOString()}},
         function(err, count) {
@@ -546,7 +559,7 @@ describe('Memory connector', function() {
         },
         {seq: 2, name: 'George Harrison', order: 5, vip: false, children: ['Dhani']},
         {seq: 3, name: 'Ringo Starr', order: 6, vip: false},
-        {seq: 4, name: 'Pete Best', order: 4},
+        {seq: 4, name: 'Pete Best', order: 4, children: []},
         {seq: 5, name: 'Stuart Sutcliffe', order: 3, vip: true}
       ];
 
