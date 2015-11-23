@@ -56,6 +56,7 @@ describe('include', function () {
 
   it('should fetch Passport - Owner - Posts', function (done) {
     Passport.find({include: {owner: 'posts'}}, function (err, passports) {
+
       should.not.exist(err);
       should.exist(passports);
       passports.length.should.be.ok;
