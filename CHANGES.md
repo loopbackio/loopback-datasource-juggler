@@ -1,3 +1,29 @@
+2015-11-24, Version 2.42.0
+==========================
+
+ * Correction of a regression introduced by commit 632898b: when querying an empty array ([]) with a 'neq' filter, there were no matching. (Michael Diguet)
+
+ * dropped unused functions and tests fixed (Wert_Lex)
+
+ * One more comment (Wert_Lex)
+
+ * Looks better now (Wert_Lex)
+
+ * home-written map extended with proper .set() method (Wert_Lex)
+
+ * on the halfway to keeping original keys (Wert_Lex)
+
+ * with updated map which stores original key and tests for them (Wert_Lex)
+
+ * Moved inst initialization to place where it used (Wert_Lex)
+
+ * All tests passed (Wert_Lex)
+
+ * Dirty merge. Tests are broken (Wert_Lex)
+
+ * include utils add. Tests ported to should.js (Wert_Lex)
+
+
 2015-11-17, Version 2.41.2
 ==========================
 
