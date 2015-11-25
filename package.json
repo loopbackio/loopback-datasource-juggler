@@ -20,6 +20,7 @@
     "depd": "./lib/browser.depd.js"
   },
   "scripts": {
+    "clean": "make clean",
     "help": "make help",
     "test": "make test"
   },

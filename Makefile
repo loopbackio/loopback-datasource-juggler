@@ -4,10 +4,15 @@ TESTS = test/*.test.js
 
 default: help
 
+.PHONY: clean
+clean:
+	rm -rf $(CURDIR)/node_modules
+
 .PHONY: help
 help:
 	@echo 'Usage: make [target]'
 	@echo 'Targets:'
+	@echo '  clean        Delete `node_modules`'
 	@echo '  help         Print help (this message)'
 	@echo '  test         Run tests in silent mode'
 	@echo '  test-verbose Run tests in verbose mode'
