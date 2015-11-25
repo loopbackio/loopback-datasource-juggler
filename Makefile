@@ -14,9 +14,14 @@ help:
 	@echo 'Targets:'
 	@echo '  clean        Delete `node_modules`'
 	@echo '  help         Print help (this message)'
+	@echo '  refresh      Delete `node_modules` and run `npm install`'
 	@echo '  test         Run tests in silent mode'
 	@echo '  test-verbose Run tests in verbose mode'
 	@echo '  testing      Run tests continuously'
+
+.PHONY: refresh
+refresh: clean
+	npm install
 
 .PHONY: test
 test:
