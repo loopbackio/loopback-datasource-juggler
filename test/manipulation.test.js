@@ -606,6 +606,18 @@ describe('manipulation', function () {
         .catch(done);
     });
 
+    it('should raises on connector error', function(done) {
+      var fakeConnector = {
+        updateAttributes: function (model, id, data, options, cb) {
+          cb(new Error('Database Error'));
+        }
+      };
+      person.getConnector = function () { return fakeConnector; };
+      person.updateAttributes({name: 'John'}, function(err, p) {
+        should.exist(err);
+        done();
+      });
+    });
   });
 
   describe('updateOrCreate', function() {
