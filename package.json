@@ -20,7 +20,7 @@
     "depd": "./lib/browser.depd.js"
   },
   "scripts": {
-    "test": "make test"
+    "test": "NO_DEPRECATION=loopback-datasource-juggler mocha --growl"
   },
   "engines": [
     "node >= 0.6"
