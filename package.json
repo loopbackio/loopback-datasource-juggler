@@ -20,9 +20,8 @@
     "depd": "./lib/browser.depd.js"
   },
   "scripts": {
-    "clean": "make clean",
-    "help": "make help",
-    "refresh": "make refresh",
+    "e2e": "make e2e",
+    "unit": "make unit",
     "test": "make test"
   },
   "engines": [
@@ -30,6 +29,7 @@
   ],
   "devDependencies": {
     "bluebird": "^2.9.9",
+    "loopback": "^2.25.0",
     "mocha": "^2.1.0",
     "should": "^5.0.0"
   },
@@ -42,6 +42,9 @@
     "node-uuid": "^1.4.2",
     "qs": "^3.1.0",
     "traverse": "^0.6.6"
+  },
+  "optionalDependencies": {
+    "mongodb": "^2.0.49"
   },
   "license": "MIT"
 }
