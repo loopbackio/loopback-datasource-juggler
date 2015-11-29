@@ -345,7 +345,6 @@ describe('Memory connector', function() {
         }
       }, function (err, users) {
         should.not.exist(err);
-        console.log(users);
         users.length.should.be.equal(5);
         done();
       });
