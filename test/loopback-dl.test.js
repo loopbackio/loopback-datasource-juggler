@@ -465,6 +465,78 @@ describe('DataSource define model', function () {
       var codes = user.errors && user.errors.codes || {};
       codes.should.have.property('age').eql(['unknown-property']);
     });
+
+    it('should report validation error for unknown relations', function() {
+      var ds = new DataSource('memory');
+      var User = ds.define('User', {
+        userId: {type: 'Number', id: 1},
+        name: String
+      }, {
+        strict: 'validate'
+      });
+
+      var user = new User({
+        userId:2,
+        name: 'John',
+        extraInvalidRelation: [{invalidRelationId: 111}]
+      });
+      user.isValid().should.be.false;
+      var codes = user.errors && user.errors.codes || {};
+      codes.should.have.property('extraInvalidRelation').eql(['unknown-property']);
+    });
+
+    it('should not report any validation errors for valid relations', function() {
+      var ds = new DataSource('memory');
+      var User = ds.define('User', {
+        userId: {type: 'Number', id: 1},
+        name: String
+      }, {
+        strict: 'validate',
+        relations: {posts: {type: 'hasMany', model: 'Post', foreignKey: 'userId'}}
+      });
+      var Post = ds.define('Post', {
+        postId: {type: 'Number', id: 1},
+        userId: Number,
+        content: String
+      }, {
+        relations: {user: {type: 'belongsTo', model: 'User', foreignKey: 'userId'}}
+      });
+
+      var user = new User({
+        userId:2,
+        name: 'Joe',
+        posts: [{postId: 11, content: 'a new post'}]
+      });
+      user.isValid().should.be.true;
+    });
+
+    it('should report validation error for unknown relations mixed with valid relations', function() {
+      var ds = new DataSource('memory');
+      var User = ds.define('User', {
+        userId: {type: 'Number', id: 1},
+        name: String
+      }, {
+        strict: 'validate',
+        relations: {posts: {type: 'hasMany', model: 'Post', foreignKey: 'userId'}}
+      });
+      var Post = ds.define('Post', {
+        postId: {type: 'Number', id: 1},
+        userId: Number,
+        content: String
+      }, {
+        relations: {user: {type: 'belongsTo', model: 'User', foreignKey: 'userId'}}
+      });
+
+      var user = new User({
+        userId:2,
+        name: 'John',
+        posts: [{postId: 11, content: 'a new post'}],
+        extraInvalidRelation: [{invalidRelationId: 111}]
+      });
+      user.isValid().should.be.false;
+      var codes = user.errors && user.errors.codes || {};
+      codes.should.have.property('extraInvalidRelation').eql(['unknown-property']);
+    });
   });
 
   it('should be able to define open models', function (done) {
