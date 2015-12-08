@@ -820,7 +820,43 @@ describe('default scope', function() {
         const things = person.things();
         should.exist(things);
         things.should.be.an.instanceOf(Array);
-        things.should.have.length(1);
+        things.should.have.length(2);
+        done();
+      });
+    });
+
+    it('should find a scoped person with filtered relation - things', function(done) {
+      Person.find({include: {relation: 'things', scope: {where: {active: true}}}}, function(err, persons) {
+        should.not.exist(err);
+        should.exist(persons);
+        persons.should.be.an.instanceOf(Array);
+        persons.should.have.length(1);
+
+        var person = persons[0];
+        should.exist(person);
+        var activeThings = person.things();
+        should.exist(activeThings);
+        activeThings.should.be.an.instanceOf(Array);
+        activeThings.should.have.length(1);
+
+        done();
+      });
+    });
+
+    it('should find a scoped person with filtered relation - things', function(done) {
+      Person.withActiveThings(function(err, persons) {
+        should.not.exist(err);
+        should.exist(persons);
+        persons.should.be.an.instanceOf(Array);
+        persons.should.have.length(1);
+
+        var person = persons[0];
+        should.exist(person);
+        var activeThings = person.things();
+        should.exist(activeThings);
+        activeThings.should.be.an.instanceOf(Array);
+        activeThings.should.have.length(1);
+
         done();
       });
     });
