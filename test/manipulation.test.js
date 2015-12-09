@@ -492,7 +492,10 @@ describe('manipulation', function () {
     });
 
     it('should ignore unknown attributes when strict: true', function(done) {
-      person.updateAttributes({foo:'bar'},
+      // Using {foo: 'bar'} only causes dependent test failures due to the
+      // stripping of object properties when in strict mode (ie. {foo: 'bar'}
+      // changes to '{}' and breaks other tests
+      person.updateAttributes({name: 'John', foo:'bar'},
         function(err, p) {
           if (err) return done(err);
           should.not.exist(p.foo);
