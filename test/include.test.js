@@ -3,7 +3,6 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-// This test written in mocha+should.js
 var should = require('./init.js');
 var async = require('async');
 var assert = require('assert');
@@ -196,35 +195,340 @@ describe('include', function() {
           relation: 'posts', scope: {
             fields: ['title'], include: ['author'],
             order: 'title DESC',
-            limit: 2,
+            limit: 1,
           },
         },
       },
-      limit: 1,
+      limit: 2,
     }, function(err, passports) {
       if (err) return done(err);
-      passports.length.should.equal(1);
-      passports[0].toJSON().owner.posts.length.should.equal(2);
-      done();
-    });
-  });
 
-  it('should fetch Users with include scope on Posts - belongsTo', function(done) {
-    Post.find({
-      include: { relation: 'author', scope: { fields: ['name'] }},
-    }, function(err, posts) {
-      should.not.exist(err);
-      should.exist(posts);
-      posts.length.should.equal(5);
-
-      var author = posts[0].author();
-      author.name.should.equal('User A');
-      author.should.have.property('id');
-      author.should.have.property('age', undefined);
+      passports.length.should.equal(2);
+      var posts1 = passports[0].toJSON().owner.posts;
+      posts1.length.should.equal(1);
+      posts1[0].title.should.equal('Post C');
+      var posts2 = passports[1].toJSON().owner.posts;
+      posts2.length.should.equal(1);
+      posts2[0].title.should.equal('Post D');
 
       done();
     });
   });
+
+  describe('inq limit', function() {
+    before(function() {
+      Passport.dataSource.settings.inqLimit = 2;
+    });
+
+    after(function() {
+      delete Passport.dataSource.settings.inqLimit;
+    });
+
+    it('should support include by pagination', function(done) {
+      // `pagination` in this case is inside the implementation and set by
+      // `inqLimit = 2` in the before block. This will need to be reworked once
+      // we decouple `findWithForeignKeysByPage`.
+      //
+      // --superkhau
+      Passport.find({
+        include: {
+          owner: {
+            relation: 'posts',
+            scope: {
+              fields: ['title'], include: ['author'],
+              order: 'title ASC',
+            },
+          },
+        },
+      }, function(err, passports) {
+        if (err) return done(err);
+
+        passports.length.should.equal(4);
+        var posts1 = passports[0].toJSON().owner.posts;
+        posts1.length.should.equal(3);
+        posts1[0].title.should.equal('Post A');
+        var posts2 = passports[1].toJSON().owner.posts;
+        posts2.length.should.equal(1);
+        posts2[0].title.should.equal('Post D');
+
+        done();
+      });
+    });
+  });
+
+  describe('findWithForeignKeysByPage', function() {
+    context('filter', function() {
+      it('works when using a `where` with a foreign key', function(done) {
+        User.findOne({
+          include: {
+            relation: 'passports',
+          },
+        }, function(err, user) {
+          if (err) return done(err);
+
+          var passport = user.passports()[0];
+          passport.id.should.equal(1);
+          passport.ownerId.should.equal(1);
+          passport.number.should.equal('1');
+
+          done();
+        });
+      });
+
+      it('works when using a `where` with `and`', function(done) {
+        User.findOne({
+          include: {
+            relation: 'posts',
+            scope: {
+              where: {
+                and: [
+                  { id: 1 },
+                  { userId: 1 },
+                  { title: 'Post A' },
+                ],
+              },
+            },
+          },
+        }, function(err, user) {
+          if (err) return done(err);
+
+          user.name.should.equal('User A');
+          user.age.should.equal(21);
+          user.id.should.equal(1);
+          var posts = user.posts();
+          posts.length.should.equal(1);
+          var post = posts[0];
+          post.title.should.equal('Post A');
+          post.userId.should.equal(1);
+          post.id.should.equal(1);
+
+          done();
+        });
+      });
+
+      it('works when using `where` with `limit`', function(done) {
+        User.findOne({
+          include: {
+            relation: 'posts',
+            scope: {
+              limit: 1,
+            },
+          },
+        }, function(err, user) {
+          if (err) return done(err);
+
+          user.posts().length.should.equal(1);
+
+          done();
+        });
+      });
+
+      it('works when using `where` with `skip`', function(done) {
+        User.findOne({
+          include: {
+            relation: 'posts',
+            scope: {
+              skip: 1,
+            },
+          },
+        }, function(err, user) {
+          if (err) return done(err);
+
+          var ids = user.posts().map(function(p) { return p.id; });
+          ids.should.eql([2, 3]);
+
+          done();
+        });
+      });
+
+      it('works when using `where` with `offset`', function(done) {
+        User.findOne({
+          include: {
+            relation: 'posts',
+            scope: {
+              offset: 1,
+            },
+          },
+        }, function(err, user) {
+          if (err) return done(err);
+
+          var ids = user.posts().map(function(p) { return p.id; });
+          ids.should.eql([2, 3]);
+
+          done();
+        });
+      });
+
+      it('works when using `where` without `limit`, `skip` or `offset`',
+      function(done) {
+        User.findOne({ include: { relation: 'posts' }}, function(err, user) {
+          if (err) return done(err);
+
+          var posts = user.posts();
+          var ids = posts.map(function(p) { return p.id; });
+          ids.should.eql([1, 2, 3]);
+
+          done();
+        });
+      });
+    });
+
+    context('pagination', function() {
+      it('works with the default page size (0) and `inqlimit` is exceeded',
+      function(done) {
+        // inqLimit modifies page size in the impl (there is no way to modify
+        // page size directly as it is hardcoded (once we decouple the func,
+        // we can use ctor injection to pass in whatever page size we want).
+        //
+        // --superkhau
+        Post.dataSource.settings.inqLimit = 2;
+
+        User.find({ include: { relation: 'posts' }}, function(err, users) {
+          if (err) return done(err);
+
+          users.length.should.equal(5);
+
+          delete Post.dataSource.settings.inqLimit;
+
+          done();
+        });
+      });
+
+      it('works when page size is set to 0', function(done) {
+        Post.dataSource.settings.inqLimit = 0;
+
+        User.find({ include: { relation: 'posts' }}, function(err, users) {
+          if (err) return done(err);
+
+          users.length.should.equal(5);
+
+          delete Post.dataSource.settings.inqLimit;
+
+          done();
+        });
+      });
+    });
+
+    context('relations', function() {
+      // WARNING
+      // The code paths for in this suite of tests were verified manually due to
+      // the tight coupling of the `findWithForeignKeys` in `include.js`.
+      //
+      // TODO
+      // Decouple the utility functions into their own modules and export each
+      // function individually to allow for unit testing via DI.
+      //
+      // --superkhau
+
+      it('works when hasOne is called', function(done) {
+        User.findOne({ include: { relation: 'profile' }}, function(err, user) {
+          if (err) return done(err);
+
+          user.name.should.equal('User A');
+          user.age.should.equal(21);
+          user.id.should.equal(1);
+          profile = user.profile();
+          profile.profileName.should.equal('Profile A');
+          profile.userId.should.equal(1);
+          profile.id.should.equal(1);
+
+          done();
+        });
+      });
+
+      it('works when hasMany is called', function(done) {
+        User.findOne({ include: { relation: 'posts' }}, function(err, user) {
+          if (err) return done();
+
+          user.name.should.equal('User A');
+          user.age.should.equal(21);
+          user.id.should.equal(1);
+          user.posts().length.should.equal(3);
+
+          done();
+        });
+      });
+
+      it('works when hasManyThrough is called', function(done) {
+        Physician = db.define('Physician', { name: String });
+        Patient = db.define('Patient', { name: String });
+        Appointment = db.define('Appointment', {
+          date: {
+            type: Date,
+            default: function() {
+              return new Date();
+            },
+          },
+        });
+        Address = db.define('Address', { name: String });
+
+        Physician.hasMany(Patient, { through: Appointment });
+        Patient.hasMany(Physician, { through: Appointment });
+        Patient.belongsTo(Address);
+        Appointment.belongsTo(Patient);
+        Appointment.belongsTo(Physician);
+
+        db.automigrate(['Physician', 'Patient', 'Appointment', 'Address'],
+          function() {
+            Physician.create(function(err, physician) {
+              physician.patients.create({ name: 'a' }, function(err, patient) {
+                Address.create({ name: 'z' }, function(err, address) {
+                  patient.address(address);
+                  patient.save(function() {
+                    physician.patients({ include: 'address' },
+                      function(err, posts) {
+                        if (err) return done(err);
+
+                        posts.should.be.an.instanceOf(Array).and.have.length(1);
+                        var p = posts[0];
+                        p.name.should.equal('a');
+                        p.addressId.should.equal(1);
+                        p.address().id.should.equal(1);
+                        p.address().name.should.equal('z');
+
+                        done();
+                      });
+                  });
+                });
+              });
+            });
+          });
+      });
+
+      it('works when belongsTo is called', function(done) {
+        Profile.findOne({ include: 'user' }, function(err, profile) {
+          if (err) return done(err);
+
+          profile.profileName.should.equal('Profile A');
+          profile.userId.should.equal(1);
+          profile.id.should.equal(1);
+          user = profile.user();
+          user.name.should.equal('User A');
+          user.age.should.equal(21);
+          user.id.should.equal(1);
+
+          done();
+        });
+      });
+    });
+  });
+
+  it('should fetch Users with include scope on Posts - belongsTo',
+    function(done) {
+      Post.find({ include: { relation: 'author', scope: { fields: ['name'] }}},
+        function(err, posts) {
+          should.not.exist(err);
+          should.exist(posts);
+          posts.length.should.equal(5);
+
+          var author = posts[0].author();
+          author.name.should.equal('User A');
+          author.should.have.property('id');
+          author.should.have.property('age', undefined);
+
+          done();
+        });
+    });
 
   it('should fetch Users with include scope on Posts - hasMany', function(done) {
     User.find({
