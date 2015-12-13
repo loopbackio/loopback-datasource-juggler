@@ -1,3 +1,17 @@
+2015-12-13, Version 2.44.0
+==========================
+
+ * Fix failing test for MongoDB connector (Simon Ho)
+
+ * Make automatic validation optional (Bert Casier)
+
+ * Add refresh script (Simon Ho)
+
+ * Add clean scripts (Simon Ho)
+
+ * Refactor Makefile (Simon Ho)
+
+
 2015-11-27, Version 2.43.0
 ==========================
 
