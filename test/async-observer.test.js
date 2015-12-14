@@ -1,5 +1,6 @@
 var ModelBuilder = require('../').ModelBuilder;
 var should = require('./init');
+var Promise = require('bluebird');
 
 describe('async observer', function() {
   var TestModel;
