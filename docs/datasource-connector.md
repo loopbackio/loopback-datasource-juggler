@@ -80,7 +80,7 @@ to 'loopback-connector-<shortName>'
 
 ```
 var ds1 = new DataSource('memory');
-var ds2 = new DataSource('loopback-connector-mongodb'));
+var ds2 = new DataSource('loopback-connector-mongodb');
 var ds3 = new DataSource(require('loopback-connector-oracle'));
 ```
 

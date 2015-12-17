@@ -1,6 +1,6 @@
 {
   "name": "loopback-datasource-juggler",
-  "version": "2.41.2",
+  "version": "2.44.0",
   "description": "LoopBack DataSoure Juggler",
   "keywords": [
     "StrongLoop",
@@ -20,6 +20,9 @@
     "depd": "./lib/browser.depd.js"
   },
   "scripts": {
+    "clean": "make clean",
+    "help": "make help",
+    "refresh": "make refresh",
     "test": "make test"
   },
   "engines": [

@@ -1,3 +1,65 @@
+2015-12-13, Version 2.44.0
+==========================
+
+ * Fix failing test for MongoDB connector (Simon Ho)
+
+ * Make automatic validation optional (Bert Casier)
+
+ * Add refresh script (Simon Ho)
+
+ * Add clean scripts (Simon Ho)
+
+ * Refactor Makefile (Simon Ho)
+
+
+2015-11-27, Version 2.43.0
+==========================
+
+ * Explicitly initialize column of partition by clause and pass it in find()'s options argument (eugene-frb)
+
+ * Fix for issue #774 (Pradeep Kumar Tippa)
+
+ * silence a warning that introduced in bluebird 3.0 (Clark Wang)
+
+ * fixed a bug where an error was sent to the updateAttributesCallback and then ignored (Abe BW)
+
+ * Capture includeHasMany() as a find()'s caller by findCaller option (eugene-frb)
+
+ * UpdateAttributes: Raises an error if database fails (Wilson Júnior)
+
+ * fixes #753 (Joseph M. Persie)
+
+ * typo fix (nennad)
+
+ * Fix foreignKey length issue (nennad)
+
+
+2015-11-23, Version 2.42.0
+==========================
+
+ * Correction of a regression introduced by commit 632898b: when querying an empty array ([]) with a 'neq' filter, there were no matching. (Michael Diguet)
+
+ * dropped unused functions and tests fixed (Wert_Lex)
+
+ * One more comment (Wert_Lex)
+
+ * Looks better now (Wert_Lex)
+
+ * home-written map extended with proper .set() method (Wert_Lex)
+
+ * on the halfway to keeping original keys (Wert_Lex)
+
+ * with updated map which stores original key and tests for them (Wert_Lex)
+
+ * Moved inst initialization to place where it used (Wert_Lex)
+
+ * All tests passed (Wert_Lex)
+
+ * Dirty merge. Tests are broken (Wert_Lex)
+
+ * include utils add. Tests ported to should.js (Wert_Lex)
+
+
 2015-11-17, Version 2.41.2
 ==========================
 
