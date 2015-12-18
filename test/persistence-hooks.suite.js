@@ -1210,7 +1210,8 @@ module.exports = function(dataSource, should) {
               id: existingInstance.id,
               name: 'changed',
               extra: null
-            }
+            },
+            isNewInstance: false
           }));
 
           done();
@@ -1685,7 +1686,7 @@ module.exports = function(dataSource, should) {
           function(err, instance) {
             if (err) return done(err);
 
-            observedContexts.should.eql(aTestModelCtx({
+            var expectedContext = aTestModelCtx({
               where: { id: existingInstance.id },
               data: {
                 id: existingInstance.id,
@@ -1696,7 +1697,15 @@ module.exports = function(dataSource, should) {
                 name: 'updated name',
                 extra: undefined
               }
-            }));
+            });
+
+            if (!dataSource.connector.updateOrCreate) {
+              // When the connector does not provide updateOrCreate,
+              // DAO falls back to updateAttributes which sets this flag
+              expectedContext.isNewInstance = false;
+            }
+
+            observedContexts.should.eql(expectedContext);
             done();
           });
       });
