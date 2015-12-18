@@ -1722,7 +1722,8 @@ module.exports = function(dataSource, should) {
 
             if (dataSource.connector.updateOrCreate) {
               observedContexts.should.eql(aTestModelCtx({
-                data: { id: 'new-id', name: 'a name' }
+                data: { id: 'new-id', name: 'a name' },
+                isNewInstance: true,
               }));
             } else {
               observedContexts.should.eql(aTestModelCtx({
@@ -1750,7 +1751,8 @@ module.exports = function(dataSource, should) {
                 data: {
                   id: existingInstance.id,
                   name: 'updated name'
-                }
+                },
+                isNewInstance: false
               }));
             } else {
               // For Unoptimized connector, the callback function `pushContextAndNext`
