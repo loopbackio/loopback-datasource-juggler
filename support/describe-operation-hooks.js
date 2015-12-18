@@ -11,7 +11,7 @@ var Memory = require('../lib/connectors/memory').Memory;
 
 var HOOK_NAMES = [
   'access',
-  'before save', 'persist', 'after save',
+  'before save', 'persist', 'loaded', 'after save',
   'before delete', 'after delete'
 ];
 
