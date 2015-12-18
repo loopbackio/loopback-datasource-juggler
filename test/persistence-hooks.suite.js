@@ -129,7 +129,7 @@ module.exports = function(dataSource, should) {
 
       it('applies updates from `loaded` hook', function(done) {
         TestModel.observe('loaded', pushContextAndNext(function(ctx) {
-          ctx.instance.extra = 'hook data';
+          ctx.data.extra = 'hook data';
         }));
 
         TestModel.find(
@@ -138,7 +138,7 @@ module.exports = function(dataSource, should) {
             if (err) return done(err);
 
             observedContexts.should.eql(aTestModelCtx({
-              instance: {
+              data: {
                 id: "1",
                 name: "first",
                 extra: "hook data"
@@ -147,6 +147,8 @@ module.exports = function(dataSource, should) {
               hookState: { test: true },
               options: {}
             }));
+
+            list[0].should.have.property('extra', 'hook data');
             done();
           });
       })
@@ -1747,10 +1749,9 @@ module.exports = function(dataSource, should) {
               // returns an array and NOT a single instance.
               observedContexts.should.eql([
                 aTestModelCtx({
-                  instance: {
+                  data: {
                     id: existingInstance.id,
                     name: 'first',
-                    extra: null
                   },
                   isNewInstance: false,
                   options: { notify: false }
