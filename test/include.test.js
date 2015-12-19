@@ -102,7 +102,8 @@ describe('include', function () {
       user.id.should.eql(passport.ownerId);
       user.__cachedRelations.should.have.property('posts');
       user.should.have.property('posts');
-      user.toJSON().should.have.property('posts').and.be.an.Array.with.lengthOf(0);
+      user.toJSON().should.have.property('posts').and.be.an.Array().with
+          .lengthOf(0);
       done();
     });
   });
