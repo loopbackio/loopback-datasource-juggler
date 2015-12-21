@@ -462,6 +462,22 @@ describe('validations', function () {
         })).should.be.false;
       });
     });
+
+    it('should validate uniqueness c-i', function (done) {
+      User.validatesUniquenessOf('email', { caseInsensitive: true });
+      var u = new User({email: 'hey'});
+      Boolean(u.isValid(function (valid) {
+        valid.should.be.true;
+        u.save(function () {
+          var u2 = new User({email: 'HEY'});
+          u2.isValid(function (valid) {
+            valid.should.be.false;
+            done();
+          });
+        });
+      })).should.be.false;
+    });
+
   });
 
   describe('format', function () {
