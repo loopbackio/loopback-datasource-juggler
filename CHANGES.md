@@ -1,3 +1,11 @@
+2015-12-22, Version 3.0.0-alpha.1
+=================================
+
+ * Start development of 3.0 (Miroslav Bajtoš)
+
+ * Correct syntax for should and more (Amir Jafarian)
+
+
 2015-12-13, Version 2.44.0
 ==========================
 
