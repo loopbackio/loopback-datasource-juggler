@@ -31,7 +31,7 @@
   "devDependencies": {
     "bluebird": "^2.9.9",
     "mocha": "^2.1.0",
-    "should": "^5.0.0"
+    "should": "^8.0.2"
   },
   "dependencies": {
     "async": "~1.0.0",
