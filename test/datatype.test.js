@@ -48,22 +48,19 @@ describe('datatypes', function () {
   });
 
   it('should keep types when get read data from db', function (done) {
-    var d = new Date;
-    var id;
-    
+    var d = new Date, id;
+
     Model.create({
       str: 'hello', date: d, num: '3', bool: 1, list: ['test'], arr: [1, 'str']
     }, function (err, m) {
       should.not.exists(err);
       should.exist(m && m.id);
-      should(m.str).be.type('string');
-      should(m.num).be.type('number');
-      should(m.bool).be.type('boolean');
+      m.str.should.be.type('string');
+      m.num.should.be.type('number');
+      m.bool.should.be.type('boolean');
       m.list[0].should.be.equal('test');
       m.arr[0].should.be.equal(1);
       m.arr[1].should.be.equal('str');
-      m.date.should.be.an.instanceOf(Date);
-      m.date.toString().should.equal(d.toString())
       id = m.id;
       testFind(testAll);
     });
@@ -72,9 +69,9 @@ describe('datatypes', function () {
       Model.findById(id, function (err, m) {
         should.not.exist(err);
         should.exist(m);
-        should(m.str).be.type('string');
-        should(m.num).be.type('number');
-        should(m.bool).be.type('boolean');
+        m.str.should.be.type('string');
+        m.num.should.be.type('number');
+        m.bool.should.be.type('boolean');
         m.list[0].should.be.equal('test');
         m.arr[0].should.be.equal(1);
         m.arr[1].should.be.equal('str');
@@ -88,12 +85,15 @@ describe('datatypes', function () {
       Model.findOne(function (err, m) {
         should.not.exist(err);
         should.exist(m);
-        should(m.str).be.type('string');
-        should(m.num).be.type('number');
-        should(m.bool).be.type('boolean');
+        m.str.should.be.type('string');
+        m.num.should.be.type('number');
+        m.bool.should.be.type('boolean');
+        m.date.should.be.an.instanceOf(Date);
+        m.date.toString().should.equal(d.toString(), 'Time must match');
         done();
       });
     }
+
   });
 
   it('should respect data types when updating attributes', function (done) {
@@ -105,9 +105,9 @@ describe('datatypes', function () {
       should.exist(m && m.id);
 
       // sanity check initial types
-      should(m.str).be.type('string');
-      should(m.num).be.type('number');
-      should(m.bool).be.type('boolean');
+      m.str.should.be.type('string');
+      m.num.should.be.type('number');
+      m.bool.should.be.type('boolean');
       id = m.id;
       testDataInDB(function () {
         testUpdate(function() {
@@ -125,6 +125,7 @@ describe('datatypes', function () {
           id: m.id, num: '10'
         }, function (err, m) {
           should.not.exist(err);
+          m.num.should.be.type('number');
           done();
         });
       });
@@ -135,7 +136,7 @@ describe('datatypes', function () {
       // verify that the value stored in the db is still an object
       function cb(err, data) {
         should.exist(data);
-        should(data.num).be.type('number');
+        data.num.should.be.type('number');
         done();
       }
 
@@ -186,21 +187,21 @@ describe('datatypes', function () {
     });
 
     it('should set missing optional properties to null', function(done) {
+      var EXPECTED = { desc: null, stars: null };
       TestModel.create({ name: 'a-test-name' }, function(err, created) {
         if (err) return done(err);
-        created.should.have.property('desc', null);        
-        created.should.have.property('stars', null);
+        created.should.have.properties(EXPECTED);
 
         TestModel.findById(created.id, function(err, found) {
           if (err) return done(err);
-          created.should.have.property('desc', null);        
-          created.should.have.property('stars', null);
+          found.should.have.properties(EXPECTED);
           done();
         });
       });
     });
 
-    it('should convert property value undefined to null', function(done) {     
+    it('should convert property value undefined to null', function(done) {
+      var EXPECTED = { desc: null, extra: null };
       if (isStrict) {
         // SQL-based connectors don't support dynamic properties
         delete EXPECTED.extra;
@@ -210,15 +211,11 @@ describe('datatypes', function () {
       TestModel.create(data, function(err, created) {
         if (err) return done(err);
 
-        created.should.have.property('desc', null);        
-        created.should.have.property('stars', null);
+        created.should.have.properties(EXPECTED);
 
         TestModel.findById(created.id, function(err, found) {
           if (err) return done(err);
-          
-          created.should.have.property('desc', null);        
-          created.should.have.property('stars', null);
-          
+          found.should.have.properties(EXPECTED);
           done();
         });
       });
@@ -238,8 +235,8 @@ describe('datatypes', function () {
       inst.toObject().should.have.property('stars', null);
     });
 
-    // TODO: There is a bug for this; please refer to https://github.com/strongloop/loopback-connector-redis/issues/9
-    it.skip('should convert undefined to null on save', function(done) {
+    it('should convert undefined to null on save', function(done) {
+      var EXPECTED = { desc: null, stars: null, extra: null, dx: null };
       if (isStrict) {
         // SQL-based connectors don't support dynamic properties
         delete EXPECTED.extra;
@@ -248,7 +245,6 @@ describe('datatypes', function () {
 
       TestModel.create({}, function(err, created) {
         if (err) return done(err);
-        
         created.desc = undefined; // Note: this is may be a no-op
         created.unsetAttribute('stars');
         created.extra = undefined;
@@ -257,8 +253,8 @@ describe('datatypes', function () {
         created.save(function(err, saved) {
           if (err) return done(err);
 
-          saved.should.have.property('extra', null);
-          saved.should.have.property('dx', null);
+          created.should.have.properties(EXPECTED);
+          saved.should.have.properties(EXPECTED);
 
           function cb(err, found) {
             if (err) return done(err);
@@ -292,11 +288,9 @@ describe('datatypes', function () {
       inst.extra = undefined;
       inst.__data.dx = undefined;
 
-      var result =  inst.toObject(false);
-      result.should.have.property('desc', null);
-      result.should.have.property('stars', null);
-      result.should.have.property('extra', null);
-      result.should.have.property('dx', null);
+      inst.toObject(false).should.have.properties({
+       desc: null, stars: null, extra: null, dx: null
+      });
     });
   });
 });
