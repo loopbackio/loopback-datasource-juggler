@@ -3,7 +3,30 @@ var should = require('./init.js');
 
 var db, Model;
 
-describe('datatypes', function () {
+describe('datatypes', function() {
+  context('ObjectId', function(done) {
+    var OidModel;
+
+    before(function setup() {
+      var db = getSchema();
+      OidModel = db.define('OidModel', {
+        id: {
+          type: 'ObjectId',
+          id: true
+        }
+      });
+      db.automigrate('OidModel', done);
+    });
+
+    it('should work', function(done) {
+      OidModel.create({id: 'hello1hello1'}, function(err, inst) {
+        if (err) return done(err);
+        inst.id.should.be.type('object');
+        inst.id.toString().should.be.type('string').and.have.length(24);
+        done();
+      });
+    });
+  });
 
   before(function (done) {
     db = getSchema();
