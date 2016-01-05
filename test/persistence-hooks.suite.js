@@ -72,13 +72,16 @@ module.exports = function(dataSource, should) {
       it('triggers `access` hook', function(done) {
         TestModel.observe('access', pushContextAndNext());
 
-        TestModel.find({ where: { id: '1' } }, function(err, list) {
+        var cb = function(err, list) {
           if (err) return done(err);
           observedContexts.should.eql(aTestModelCtx({
-            query: { where: { id: '1' } }
+            query: { where: { id: '1' } },
+            end: cb
           }));
           done();
-        });
+        };
+
+        TestModel.find({ where: { id: '1' } }, cb);
       });
 
       it('aborts when `access` hook fails', function(done) {
@@ -106,13 +109,16 @@ module.exports = function(dataSource, should) {
       it('triggers `access` hook for geo queries', function(done) {
         TestModel.observe('access', pushContextAndNext());
 
-        TestModel.find({ where: { geo: { near: '10,20' }}}, function(err, list) {
+        var cb = function(err, list) {
           if (err) return done(err);
           observedContexts.should.eql(aTestModelCtx({
-            query: { where: { geo: { near: '10,20' } } }
+            query: { where: { geo: { near: '10,20' } } },
+            end: cb
           }));
           done();
-        });
+        };
+
+        TestModel.find({ where: { geo: { near: '10,20' }}}, cb);
       });
 
       it('applies updates from `access` hook for geo queries', function(done) {
@@ -459,19 +465,23 @@ module.exports = function(dataSource, should) {
       it('triggers `access` hook', function(done) {
         TestModel.observe('access', pushContextAndNext());
 
-        TestModel.findOrCreate(
-          { where: { name: 'new-record' } },
-          { name: 'new-record' },
-          function(err, record, created) {
-            if (err) return done(err);
-            observedContexts.should.eql(aTestModelCtx({ query: {
+        var cb = function(err, record, created) {
+          if (err) return done(err);
+          observedContexts.should.eql(aTestModelCtx({
+            query: {
               where: { name: 'new-record' },
               limit: 1,
               offset: 0,
               skip: 0
-            }}));
-            done();
-          });
+            }
+          }));
+          done();
+        };
+
+        TestModel.findOrCreate(
+          { where: { name: 'new-record' } },
+          { name: 'new-record' },
+          cb);
       });
 
       if (dataSource.connector.findOrCreate) {
@@ -889,13 +899,15 @@ module.exports = function(dataSource, should) {
       it('triggers `access` hook', function(done) {
         TestModel.observe('access', pushContextAndNext());
 
-        TestModel.count({ id: existingInstance.id }, function(err, count) {
+        var cb = function(err, count) {
           if (err) return done(err);
           observedContexts.should.eql(aTestModelCtx({ query: {
             where: { id: existingInstance.id }
-          }}));
+          }, end: cb }));
           done();
-        });
+        };
+
+        TestModel.count({ id: existingInstance.id }, cb);
       });
 
       it('applies updates from `access` hook', function(done) {
@@ -1426,29 +1438,32 @@ module.exports = function(dataSource, should) {
       it('triggers `access` hook on create', function(done) {
         TestModel.observe('access', pushContextAndNext());
 
+        var cb = function(err, instance) {
+          if (err) return done(err);
+          observedContexts.should.eql(aTestModelCtx({ query: {
+            where: { id: 'not-found' }
+          }, end: cb }));
+          done();
+        };
+
         TestModel.updateOrCreate(
-          { id: 'not-found', name: 'not found' },
-          function(err, instance) {
-            if (err) return done(err);
-            observedContexts.should.eql(aTestModelCtx({ query: {
-              where: { id: 'not-found' }
-            }}));
-            done();
-          });
+          { id: 'not-found', name: 'not found' }, cb);
       });
 
       it('triggers `access` hook on update', function(done) {
         TestModel.observe('access', pushContextAndNext());
 
+        var cb = function(err, instance) {
+          if (err) return done(err);
+          observedContexts.should.eql(aTestModelCtx({ query: {
+            where: { id: existingInstance.id }
+          }, end: cb }));
+          done();
+        }
+
         TestModel.updateOrCreate(
           { id: existingInstance.id, name: 'new name' },
-          function(err, instance) {
-            if (err) return done(err);
-            observedContexts.should.eql(aTestModelCtx({ query: {
-              where: { id: existingInstance.id }
-            }}));
-            done();
-          });
+          cb);
       });
 
       it('does not trigger `access` on missing id', function(done) {
@@ -1823,23 +1838,28 @@ module.exports = function(dataSource, should) {
       it('triggers `access` hook with query', function(done) {
         TestModel.observe('access', pushContextAndNext());
 
-        TestModel.deleteAll({ name: existingInstance.name }, function(err) {
+        var cb = function(err) {
           if (err) return done(err);
           observedContexts.should.eql(aTestModelCtx({
-             query: { where: { name: existingInstance.name } }
+             query: { where: { name: existingInstance.name } },
+             end: cb
           }));
           done();
-        });
+        };
+
+        TestModel.deleteAll({ name: existingInstance.name }, cb);
       });
 
       it('triggers `access` hook without query', function(done) {
         TestModel.observe('access', pushContextAndNext());
 
-        TestModel.deleteAll(function(err) {
+        var cb = function(err) {
           if (err) return done(err);
-          observedContexts.should.eql(aTestModelCtx({ query: { where: {} } }));
+          observedContexts.should.eql(aTestModelCtx({ query: { where: {} }, end: cb }));
           done();
-        });
+        }
+
+        TestModel.deleteAll(cb);
       });
 
       it('applies updates from `access` hook', function(done) {
@@ -1946,13 +1966,16 @@ module.exports = function(dataSource, should) {
       it('triggers `access` hook', function(done) {
         TestModel.observe('access', pushContextAndNext());
 
-        existingInstance.delete(function(err) {
+        var cb = function(err) {
           if (err) return done(err);
           observedContexts.should.eql(aTestModelCtx({
-             query: { where: { id: existingInstance.id } }
+             query: { where: { id: existingInstance.id } },
+             end: cb
           }));
           done();
-        });
+        }
+
+        existingInstance.delete(cb);
       });
 
       it('applies updated from `access` hook', function(done) {
@@ -2095,16 +2118,18 @@ module.exports = function(dataSource, should) {
       it('triggers `access` hook', function(done) {
         TestModel.observe('access', pushContextAndNext());
 
+        var cb = function(err, instance) {
+          if (err) return done(err);
+          observedContexts.should.eql(aTestModelCtx({ query: {
+            where: { name: 'searched' }
+          }, end: cb }));
+          done();
+        };
+
         TestModel.updateAll(
           { name: 'searched' },
           { name: 'updated' },
-          function(err, instance) {
-            if (err) return done(err);
-            observedContexts.should.eql(aTestModelCtx({ query: {
-              where: { name: 'searched' }
-            }}));
-            done();
-          });
+          cb);
       });
 
       it('applies updates from `access` hook', function(done) {
