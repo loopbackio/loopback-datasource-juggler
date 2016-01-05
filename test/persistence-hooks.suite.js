@@ -548,7 +548,6 @@ module.exports = function(dataSource, should) {
           { name: 'new-record' },
           function(err, record, created) {
             if (err) return done(err);
-            console.log(triggered);
             triggered.should.eql([
               'access',
               'before save',
