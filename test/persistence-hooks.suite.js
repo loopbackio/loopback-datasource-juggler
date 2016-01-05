@@ -129,7 +129,7 @@ module.exports = function(dataSource, should) {
 
       it('applies updates from `loaded` hook', function(done) {
         TestModel.observe('loaded', pushContextAndNext(function(ctx) {
-          ctx.instance.extra = 'hook data';
+          ctx.data.extra = 'hook data';
         }));
 
         TestModel.find(
@@ -138,7 +138,7 @@ module.exports = function(dataSource, should) {
             if (err) return done(err);
 
             observedContexts.should.eql(aTestModelCtx({
-              instance: {
+              data: {
                 id: "1",
                 name: "first",
                 extra: "hook data"
@@ -147,6 +147,8 @@ module.exports = function(dataSource, should) {
               hookState: { test: true },
               options: {}
             }));
+
+            list[0].should.have.property('extra', 'hook data');
             done();
           });
       })
@@ -1210,7 +1212,8 @@ module.exports = function(dataSource, should) {
               id: existingInstance.id,
               name: 'changed',
               extra: null
-            }
+            },
+            isNewInstance: false
           }));
 
           done();
@@ -1685,7 +1688,7 @@ module.exports = function(dataSource, should) {
           function(err, instance) {
             if (err) return done(err);
 
-            observedContexts.should.eql(aTestModelCtx({
+            var expectedContext = aTestModelCtx({
               where: { id: existingInstance.id },
               data: {
                 id: existingInstance.id,
@@ -1696,7 +1699,15 @@ module.exports = function(dataSource, should) {
                 name: 'updated name',
                 extra: undefined
               }
-            }));
+            });
+
+            if (!dataSource.connector.updateOrCreate) {
+              // When the connector does not provide updateOrCreate,
+              // DAO falls back to updateAttributes which sets this flag
+              expectedContext.isNewInstance = false;
+            }
+
+            observedContexts.should.eql(expectedContext);
             done();
           });
       });
@@ -1711,7 +1722,8 @@ module.exports = function(dataSource, should) {
 
             if (dataSource.connector.updateOrCreate) {
               observedContexts.should.eql(aTestModelCtx({
-                data: { id: 'new-id', name: 'a name' }
+                data: { id: 'new-id', name: 'a name' },
+                isNewInstance: true,
               }));
             } else {
               observedContexts.should.eql(aTestModelCtx({
@@ -1739,7 +1751,8 @@ module.exports = function(dataSource, should) {
                 data: {
                   id: existingInstance.id,
                   name: 'updated name'
-                }
+                },
+                isNewInstance: false
               }));
             } else {
               // For Unoptimized connector, the callback function `pushContextAndNext`
@@ -1747,10 +1760,9 @@ module.exports = function(dataSource, should) {
               // returns an array and NOT a single instance.
               observedContexts.should.eql([
                 aTestModelCtx({
-                  instance: {
+                  data: {
                     id: existingInstance.id,
                     name: 'first',
-                    extra: null
                   },
                   isNewInstance: false,
                   options: { notify: false }
