@@ -32,12 +32,12 @@
     "node >= 0.6"
   ],
   "devDependencies": {
-    "bluebird": "^2.9.9",
     "mocha": "^2.1.0",
     "should": "^8.0.2"
   },
   "dependencies": {
     "async": "~1.0.0",
+    "bluebird": "^3.1.1",
     "debug": "^2.1.1",
     "depd": "^1.0.0",
     "inflection": "^1.6.0",
