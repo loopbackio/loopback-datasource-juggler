@@ -428,6 +428,28 @@ describe('include', function () {
     });
   });
 
+  it('should save related items separately', function(done) {
+    User.find({
+      include: 'posts'
+    })
+      .then(function(users) {
+        var posts = users[0].posts();
+        posts.should.have.length(3);
+        return users[0].save();
+      })
+      .then(function(updatedUser) {
+        return User.findById(updatedUser.id, {
+          include: 'posts'
+        });
+      })
+      .then(function(user) {
+        var posts = user.posts();
+        posts.should.have.length(3);
+      })
+      .then(done)
+      .catch(done);
+  });
+
   describe('performance', function () {
     var all;
     beforeEach(function() {
