@@ -345,7 +345,6 @@ describe('Memory connector', function() {
         }
       }, function (err, users) {
         should.not.exist(err);
-        console.log(users);
         users.length.should.be.equal(5);
         done();
       });
@@ -694,6 +693,38 @@ describe('Memory connector', function() {
     });
 
   });
+
+  describe('findOrCreate', function() {
+    var ds, Cars;
+    before(function() {
+      ds = new DataSource({connector: 'memory'});
+      Cars = ds.define('Cars', {
+        color: String
+      });
+    });
+
+    it('should create a specific object once and in the subsequent calls it should find it', function(done) {
+      var creationNum = 0;
+      async.times(100, function(n, next) {
+        var initialData = {color: 'white'};
+        var query = {'where': initialData};
+        Cars.findOrCreate(query, initialData, function(err, car, created) {
+          if (created) creationNum++;
+          next(err, car);
+        });
+      }, function(err, cars) {
+        if (err) done(err);
+        Cars.find(function(err, data) {
+          if (err) done(err);
+          data.length.should.equal(1);
+          data[0].color.should.equal('white');
+          creationNum.should.equal(1);
+          done();
+        });
+      });
+    });
+  });
+
 
   describe('automigrate when NO models are attached', function() {
     var ds;
