@@ -379,6 +379,15 @@ describe('ModelDefinition class', function () {
     message.should.match(/Dotted.*dot\.name/);
   });
 
+  it('should report deprecation warning for property named constructor', function() {
+    var message = 'deprecation not reported';
+    process.once('deprecation', function(err) { message = err.message; });
+
+    memory.createModel('Ctor', { 'constructor': String });
+
+    message.should.match(/Property name should not be "constructor" in Model: Ctor/);
+  });
+
   it('should report deprecation warning for dynamic property names containing dot', function(done) {
     var message = 'deprecation not reported';
     process.once('deprecation', function(err) { message = err.message; });
@@ -387,6 +396,14 @@ describe('ModelDefinition class', function () {
     Model.create({ 'dot.name': 'dot.value' }, function(err) {
       if (err) return done(err);
       message.should.match(/Dotted.*dot\.name/);
+      done();
+    });
+  });
+
+  it('should throw error for dynamic property named constructor', function(done) {
+    var Model = memory.createModel('DynamicCtor');
+    Model.create({ 'constructor': 'myCtor' }, function(err) {
+      assert.equal(err.message, 'Property name "constructor" is not allowed in DynamicCtor data');
       done();
     });
   });
