@@ -6,11 +6,15 @@ An ORM/ODM that provides a common set of interfaces for interacting with databas
 
 Install Juggler:
 
-> npm install loopback-datasource-juggler
+```
+npm install loopback-datasource-juggler
+```
 
 Then install a connector:
 
-> npm install loopback-connector-mongodb // in this case, the mongodb connector
+```
+npm install loopback-connector-mongodb // in this case, the mongodb connector
+```
 
 ## Documentation
 
