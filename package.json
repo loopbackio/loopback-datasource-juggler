@@ -26,7 +26,7 @@
     "clean": "make clean",
     "help": "make help",
     "refresh": "make refresh",
-    "test": "mocha test/*.test.js"
+    "test": "make test"
   },
   "engines": [
     "node >= 0.6"
