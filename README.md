@@ -1,6 +1,6 @@
 # loopback-datasource-juggler
 
-An ORM/ODM that provides a common set of interfaces for interacting with databases, REST APIs, and other types of data sources. It is a fork of [JugglingDB](https://github.com/1602/jugglingdb).
+An ORM/ODM that provides a common set of interfaces for interacting with databases, REST APIs, and other types of data sources. It was originally forked from [JugglingDB](https://github.com/1602/jugglingdb).
 
 ## Usage
 
