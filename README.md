@@ -1,22 +1,21 @@
-# LoopBack DataSource Juggler
+# loopback-datasource-juggler
 
-LoopBack DataSource Juggler is an ORM that provides a common set of interfaces
-for interacting with databases, REST APIs, and other data sources. It was
-initially forked from [JugglingDB](https://github.com/1602/jugglingdb).
+An ORM/ODM that provides a common set of interfaces for interacting with databases, REST APIs, and other types of data sources. It is a fork of [JugglingDB](https://github.com/1602/jugglingdb).
 
-**For full documentation, see the official StrongLoop documentation**:
- [Connecting models to data sources](http://docs.strongloop.com/display/LB/Connecting+models+to+data+sources)
- 
-For information on creating data sources programmatically, see [Advanced topics: data sources](http://docs.strongloop.com/display/LB/Advanced+topics%3A+data+sources). 
+## Usage
 
-## Installation
+Install Juggler:
 
-    npm install loopback-datasource-juggler
+> npm install loopback-datasource-juggler
 
-Also install the appropriated connector, for example for mongodb:
+Then install a connector:
 
-    npm install loopback-connector-mongodb
+> npm install loopback-connector-mongodb // in this case, the mongodb connector
 
-See [StrongLoop Documentation](http://docs.strongloop.com/) for more information.
+## Documentation
 
+See the [official documentation](http://docs.strongloop.com).
 
+### Creating data sources programmatically
+
+See [Advanced topics: data sources](http://docs.strongloop.com/display/LB/Advanced+topics%3A+data+sources). 
