@@ -26,7 +26,7 @@
     "clean": "make clean",
     "help": "make help",
     "refresh": "make refresh",
-    "test": "make test"
+    "test": "NO_DEPRECATION=loopback-datasource-juggler mocha"
   },
   "engines": [
     "node >= 0.6"
