@@ -467,6 +467,8 @@ module.exports = function(dataSource, should) {
 
         var cb = function(err, record, created) {
           if (err) return done(err);
+          // Workaround to fix unoptimized...
+          if (observedContexts.end) delete observedContexts.end;
           observedContexts.should.eql(aTestModelCtx({
             query: {
               where: { name: 'new-record' },
