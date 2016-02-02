@@ -1,3 +1,27 @@
+2016-02-02, Version 2.45.0
+==========================
+
+ * Refactor `updateAttributes` (Amir Jafarian)
+
+ * Enhance "persisted" hook in DAO.updateAttributes (Miroslav Bajtoš)
+
+ * Add unit test to verify fix for #754 (Tom Kirkpatrick)
+
+ * Implement `findOrCreate` for memory connector (Amir Jafarian)
+
+ * Fix a bug when validation is off for findOrCreate (Amir Jafarian)
+
+ * Fix broken code fencings in the docs (Farid Nouri Neshat)
+
+ * Revert "Correct syntax for should and more" (Simon Ho)
+
+ * Fix test for shouldjs 8.0.2 upgrade (Simon Ho)
+
+ * Upgrade shouldjs to 8.0.2 (Simon Ho)
+
+ * Correct syntax for should and more (Amir Jafarian)
+
+
 2015-12-13, Version 2.44.0
 ==========================
 
@@ -1455,8 +1479,6 @@
 2014-06-24, Version 2.0.0-beta2
 ===============================
 
- * 2.0.0-beta2 (Miroslav Bajtoš)
-
  * validations: support non-V8 browsers (Miroslav Bajtoš)
 
  * Work around for Date default (Raymond Feng)
@@ -2074,12 +2096,12 @@
  * Update LDL doc for the strict mode (Raymond Feng)
 
 
-2013-09-12, Version strongloopsuite-1.0.0-4
+2013-09-12, Version strongloopsuite-1.0.0-5
 ===========================================
 
 
 
-2013-09-12, Version strongloopsuite-1.0.0-5
+2013-09-12, Version strongloopsuite-1.0.0-4
 ===========================================
 
  * Allow connector to report failure during initialization (Raymond Feng)
