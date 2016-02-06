@@ -61,6 +61,21 @@ var operations = [
       { id: ds.existingInstance.id, name: 'new name' });
   },
 
+  function replaceOrCreate_create(ds) {
+    return ds.TestModel.replaceOrCreate({ id: 'not-found', name: 'not found' });
+  },
+
+  function replaceOrCreate_update(ds) {
+    return ds.TestModel.replaceOrCreate(
+      { id: ds.existingInstance.id, name: 'new name' });
+  },
+
+  function replaceById(ds) {
+    return ds.TestModel.replaceById(
+      ds.existingInstance.id,
+      { name: 'new name' });
+  },
+
   function updateAll(ds) {
     return ds.TestModel.updateAll({ name: 'searched' }, { name: 'updated' });
   },
@@ -88,22 +103,12 @@ operations.forEach(function(op) {
   p = p.then(runner(op));
 });
 
-p.then(report, console.error);
+p.then(report, function(err) { console.error(err.stack); });
 
 
 function createOptimizedDataSource() {
   var ds = new DataSource({ connector: Memory });
   ds.name = 'Optimized';
-
-  ds.connector.findOrCreate = function (model, query, data, callback) {
-    this.all(model, query, {}, function (err, list) {
-      if (err || (list && list[0])) return callback(err, list && list[0], false);
-      this.create(model, data, {}, function (err) {
-        callback(err, data, true);
-      });
-    }.bind(this));
-  };
-
   return ds;
 }
 
@@ -114,6 +119,7 @@ function createUnoptimizedDataSource() {
   // disable optimized methods
   ds.connector.updateOrCreate = false;
   ds.connector.findOrCreate = false;
+  ds.connector.replaceOrCreate = false;
 
   return ds;
 }
