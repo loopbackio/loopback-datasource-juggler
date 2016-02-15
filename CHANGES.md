@@ -1,3 +1,9 @@
+2016-02-15, Version 2.45.1
+==========================
+
+ * Fix conversion for `updateAttributes` (Amir Jafarian)
+
+
 2016-02-02, Version 2.45.0
 ==========================
 
