@@ -1,3 +1,11 @@
+2016-02-22, Version 3.0.0-alpha.3
+=================================
+
+ * Fix missing connector error msg for db2, cloudant (Candy)
+
+ * Update describe-operation-hooks (Miroslav Bajtoš)
+
+
 2016-02-05, Version 3.0.0-alpha.2
 =================================
 
