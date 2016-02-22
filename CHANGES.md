@@ -1,3 +1,9 @@
+2016-02-22, Version 2.45.2
+==========================
+
+ * Fix missing connector error msg for db2, cloudant for 2.x (Candy)
+
+
 2016-02-15, Version 2.45.1
 ==========================
 
