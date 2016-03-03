@@ -127,7 +127,23 @@ describe('basic-querying', function() {
 
   describe('find', function() {
 
-    before(seed);
+    before(function() {
+      seed(function setupDelayingLoadedHook() {
+        User.observe('loaded', function(ctx, next) {
+          var randomTimeoutTrigger = Math.floor(Math.random() * 100);
+
+          setTimeout(function() {
+            process.nextTick(next);
+          }, randomTimeoutTrigger);
+        });
+      });
+    });
+
+    after(function removeDelayingLoadHook() {
+      User.observe('loaded', function(ctx, next) {
+        next();
+      });
+    });
 
     it('should query collection', function(done) {
       User.find(function(err, users) {
@@ -216,6 +232,20 @@ describe('basic-querying', function() {
         users.pop().name.should.equal('George Harrison');
         users.pop().name.should.equal('John Lennon');
         users.shift().name.should.equal('Stuart Sutcliffe');
+        done();
+      });
+    });
+
+    it('should query sorted desc by order integer field even though there' +
+       'is an async model loaded hook', function(done) {
+      User.find({ order: 'order DESC' }, function(err, users) {
+        if (err) return done(err);
+
+        should.exists(users);
+        should.not.exists(err);
+        users.pop().order.should.equal(1);
+        users.pop().order.should.equal(2);
+        users.shift().order.should.equal(6);
         done();
       });
     });
