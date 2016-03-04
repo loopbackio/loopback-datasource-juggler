@@ -853,7 +853,7 @@ describe('Optimized connector', function() {
     }.bind(this));
   };
 
-  require('./persistence-hooks.suite')(ds, should);
+  require('./persistence-hooks.suite')(ds, should, {replaceOrCreateReportsNewInstance: true});
 });
 
 describe('Unoptimized connector', function() {
@@ -862,7 +862,7 @@ describe('Unoptimized connector', function() {
   ds.connector.updateOrCreate = false;
   ds.connector.findOrCreate = false;
 
-  require('./persistence-hooks.suite')(ds, should);
+  require('./persistence-hooks.suite')(ds, should, {replaceOrCreateReportsNewInstance: true});
 });
 
 describe('Memory connector with options', function() {
