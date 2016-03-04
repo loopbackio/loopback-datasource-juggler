@@ -1,7 +1,11 @@
 var ValidationError = require('../').ValidationError;
 var traverse = require('traverse');
 
-module.exports = function(dataSource, should) {
+module.exports = function(dataSource, should, connectorCapabilities) {
+  if (!connectorCapabilities) connectorCapabilities = {};
+  if (connectorCapabilities.replaceOrCreateReportsNewInstance === undefined) {
+    console.warn('The connector does not support a recently added feature: replaceOrCreateReportsNewInstance');
+  }
   describe('Persistence hooks', function() {
     var observedContexts, expectedError, observersCalled;
     var TestModel, existingInstance;
@@ -2400,13 +2404,19 @@ module.exports = function(dataSource, should) {
             { id: 'new-id', name: 'a name' },
             function(err, instance) {
               if (err) return done(err);
-              observedContexts.should.eql(aTestModelCtx({
+              
+              var expected = {
                 data: {
                   id: 'new-id',
                   name: 'a name'
-                },
-                isNewInstance: true
-              }));     
+                }
+              };
+              
+              expected.isNewInstance = 
+                connectorCapabilities.replaceOrCreateReportsNewInstance ?
+                true : undefined;            
+              
+              observedContexts.should.eql(aTestModelCtx(expected));     
               done();
             });
         });
@@ -2419,14 +2429,19 @@ module.exports = function(dataSource, should) {
             function(err, instance) {
               if (err) return done(err);
 
+              var expected = {
+                data: {
+                  id: existingInstance.id,
+                  name: 'replaced name'
+                }
+              };
+              
+              expected.isNewInstance = 
+                connectorCapabilities.replaceOrCreateReportsNewInstance ?
+                false : undefined;
+
               if (dataSource.connector.replaceOrCreate) {
-                observedContexts.should.eql(aTestModelCtx({
-                  data: {
-                    id: existingInstance.id,
-                    name: 'replaced name'
-                  },
-                  isNewInstance: false
-                }));
+                observedContexts.should.eql(aTestModelCtx(expected));
               } else {
                 // TODO: Please see loopback-datasource-juggler/issues#836
                 // 
@@ -2476,14 +2491,20 @@ module.exports = function(dataSource, should) {
             { id: existingInstance.id, name: 'replaced name' },
             function(err, instance) {
               if (err) return done(err);
-              observedContexts.should.eql(aTestModelCtx({
+              
+              var expected = {
                 instance: {
                   id: existingInstance.id,
                   name: 'replaced name',
                   extra: undefined
-                },
-                isNewInstance: false
-              }));
+                }
+              };
+              
+              expected.isNewInstance = 
+                connectorCapabilities.replaceOrCreateReportsNewInstance ?
+                false : undefined;
+
+              observedContexts.should.eql(aTestModelCtx(expected));
               done();
             });
         });
@@ -2495,14 +2516,19 @@ module.exports = function(dataSource, should) {
             { id: 'new-id', name: 'a name' },
             function(err, instance) {
               if (err) return done(err);
-              observedContexts.should.eql(aTestModelCtx({
+              
+              var expected = {
                 instance: {
                   id: instance.id,
                   name: 'a name',
                   extra: undefined
-                },
-                isNewInstance: true
-              }));
+                }
+              };
+              expected.isNewInstance = 
+                connectorCapabilities.replaceOrCreateReportsNewInstance ?
+                true : undefined;
+              
+              observedContexts.should.eql(aTestModelCtx(expected));
               done();
             });
         });
