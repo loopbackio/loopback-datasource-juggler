@@ -602,3 +602,20 @@ describe('discoverExportedForeignKeys', function(){
       });
   });
 });
+
+describe('Mock connector', function() {
+  mockConnectors = require('./mock-connectors');
+  describe('customFieldSettings', function() {
+    ds = new DataSource(mockConnectors.customFieldSettings);
+
+    it('should be present in discoverSchemas', function(done) {
+      ds.discoverSchemas('person', function(err, schemas) {
+        should.not.exist(err);
+        schemas.should.be.an.Object;
+        schemas['public.person'].properties.name
+          .custom.storage.should.equal('quantum');
+        done();
+      });
+    });
+  });
+});
