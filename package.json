@@ -1,6 +1,6 @@
 {
   "name": "loopback-datasource-juggler",
-  "version": "2.9.9",
+  "version": "2.999.999",
   "publishConfig": {
     "tag": "next"
   },
