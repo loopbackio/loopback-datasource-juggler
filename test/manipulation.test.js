@@ -767,8 +767,8 @@ describe('manipulation', function () {
               .then(function (p) {
                 p.should.not.have.property('_id');
                 p.title.should.equal('b');
-                p.should.have.property('content', undefined);
-                p.should.have.property('comments', undefined);
+                should.not.exist(p.content);
+                should.not.exist(p.comments);
                 done();
               });
             });
@@ -797,8 +797,8 @@ describe('manipulation', function () {
               .then(function (p) {
                 p.should.not.have.property('_id');
                 p.title.should.equal('b');
-                p.should.have.property('content', undefined);
-                p.should.have.property('comments', undefined);
+                should.not.exist(p.content);
+                should.not.exist(p.comments);
                 done();
               });
             });
@@ -826,8 +826,8 @@ describe('manipulation', function () {
                 p.id.should.eql(post.id);
                 p.should.not.have.property('_id');
                 p.title.should.equal('b');
-                p.should.have.property('content', undefined);
-                p.should.have.property('comments', undefined);
+                should.not.exist(p.content);
+                should.not.exist(p.comments);
                 done();
               });
             });
@@ -855,8 +855,8 @@ describe('manipulation', function () {
                 p.id.should.eql(post.id);
                 p.should.not.have.property('_id');
                 p.title.should.equal('b');
-                p.should.have.property('content', undefined);
-                p.should.have.property('comments', undefined);
+                should.not.exist(p.content);
+                should.not.exist(p.comments);
                 done();
               });
             });
@@ -939,7 +939,7 @@ describe('manipulation', function () {
           return Post.findById(postInstance.id)
           .then(function (p) {
             p.title.should.equal('b');
-            p.should.have.property('content', undefined);
+            should.not.exist(p.content);
             done();
           });
         });
@@ -959,7 +959,7 @@ describe('manipulation', function () {
           return Post.findById(postInstance.id)
           .then(function (p) {
             p.title.should.equal('b');
-            p.should.have.property('content', undefined);
+            should.not.exist(p.content);
             done();
           });
         });
