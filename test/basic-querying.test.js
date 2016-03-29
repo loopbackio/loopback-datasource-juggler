@@ -443,9 +443,40 @@ describe('basic-querying', function () {
       });
     });
     
-    it('should support nested GeoPoint near queries', function(done){
+    it('should support nested GeoPoint near queries', function(done) {
       User.find({
         where: {and: [{addressLoc: {near: "29.9,-90.07"}}, {vip: true}]}
+      }, function(err, users){
+        if (err) return done(err);
+        users.should.have.property('length', 2);
+        users[0].addressLoc.should.not.equal(null);
+        done();
+      });
+    });
+    
+    it('should support very nested GeoPoint near queries', function(done) {
+      User.find({
+        where: {and: [
+          {and: [{addressLoc: {near: "29.9,-90.07"}}, {order: 2}]}, 
+          {vip: true}
+        ]}
+      }, function(err, users){
+        if (err) return done(err);
+        users.should.have.property('length', 1);
+        users[0].addressLoc.should.not.equal(null);
+        done();
+      });
+    });
+    
+    it('should support multiple GeoPoint near queries', function(done) {
+      User.find({
+        where: {and: [
+          {or: [
+            {addressLoc: {near: "29.9,-90.04", maxDistance: 300}}, 
+            {addressLoc: {near: "22.97, -88.03", maxDistance: 300}}
+          ]}, 
+          {vip: true}
+        ]}
       }, function(err, users){
         if (err) return done(err);
         users.should.have.property('length', 2);
