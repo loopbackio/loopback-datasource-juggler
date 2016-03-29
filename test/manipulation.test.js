@@ -694,12 +694,13 @@ describe('manipulation', function () {
     describe('replaceOrCreate', function() {
       var Post;
       var ds = getSchema();
-      before(function() {
+      before(function(done) {
         Post = ds.define('Post', {
           title: { type: String, length: 255, index: true },
           content: { type: String },
           comments: [String]
         });
+        ds.automigrate('Post', done);
       });
 
       it('works without options on create (promise variant)', function(done) {
@@ -910,12 +911,13 @@ describe('manipulation', function () {
       var postInstance;
       var Post;
       var ds = getSchema();
-      before(function () {
+      before(function (done) {
         Post = ds.define('Post', {
           title: {type: String, length: 255, index: true},
           content: {type: String},
           comments: [String]
         });
+        ds.automigrate('Post', done);
       });
       beforeEach(function (done) {
         Post.destroyAll(function () {
