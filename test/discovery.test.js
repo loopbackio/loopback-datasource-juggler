@@ -11,11 +11,11 @@ describe('Memory connector with mocked discovery', function() {
   var ds;
 
   before(function() {
-    ds = new DataSource({connector: 'memory'});
+    ds = new DataSource({ connector: 'memory' });
 
-    var models = [{type: 'table', name: 'CUSTOMER', owner: 'STRONGLOOP'},
-      {type: 'table', name: 'INVENTORY', owner: 'STRONGLOOP'},
-      {type: 'table', name: 'LOCATION', owner: 'STRONGLOOP'}];
+    var models = [{ type: 'table', name: 'CUSTOMER', owner: 'STRONGLOOP' },
+      { type: 'table', name: 'INVENTORY', owner: 'STRONGLOOP' },
+      { type: 'table', name: 'LOCATION', owner: 'STRONGLOOP' }];
 
     ds.discoverModelDefinitions = function(options, cb) {
       process.nextTick(function() {
@@ -31,7 +31,7 @@ describe('Memory connector with mocked discovery', function() {
       dataLength: 20,
       dataPrecision: null,
       dataScale: null,
-      nullable: 0
+      nullable: 0,
     },
       {
         owner: 'STRONGLOOP',
@@ -41,7 +41,7 @@ describe('Memory connector with mocked discovery', function() {
         dataLength: 20,
         dataPrecision: null,
         dataScale: null,
-        nullable: 0
+        nullable: 0,
       },
       {
         owner: 'STRONGLOOP',
@@ -51,7 +51,7 @@ describe('Memory connector with mocked discovery', function() {
         dataLength: null,
         dataPrecision: 10,
         dataScale: 0,
-        nullable: 1
+        nullable: 1,
       },
       {
         owner: 'STRONGLOOP',
@@ -61,7 +61,7 @@ describe('Memory connector with mocked discovery', function() {
         dataLength: null,
         dataPrecision: 10,
         dataScale: 0,
-        nullable: 1
+        nullable: 1,
       }];
 
     ds.discoverModelProperties = function(modelName, options, cb) {
@@ -88,7 +88,7 @@ describe('Memory connector with mocked discovery', function() {
       nameMapper: function(type, name) {
         // Convert all names to lower case
         return name.toLowerCase();
-      }
+      },
     }, function(err, schemas) {
       if (err) return done(err);
       schemas.should.have.property('STRONGLOOP.INVENTORY');
@@ -102,7 +102,7 @@ describe('Memory connector with mocked discovery', function() {
 
   it('should not convert table/column names with null custom mapper',
     function(done) {
-      ds.discoverSchemas('INVENTORY', {nameMapper: null}, function(err, schemas) {
+      ds.discoverSchemas('INVENTORY', { nameMapper: null }, function(err, schemas) {
         if (err) return done(err);
         schemas.should.have.property('STRONGLOOP.INVENTORY');
         var s = schemas['STRONGLOOP.INVENTORY'];
@@ -117,16 +117,16 @@ describe('Memory connector with mocked discovery', function() {
     function(done) {
       var models = {
         inventory: {
-          product: {type: 'string'},
-          location: {type: 'string'}
-        }
+          product: { type: 'string' },
+          location: { type: 'string' },
+        },
       };
       ds.connector.discoverSchemas = function(modelName, options, cb) {
         process.nextTick(function() {
           cb(null, models);
         });
       };
-      ds.discoverSchemas('INVENTORY', {nameMapper: null}, function(err, schemas) {
+      ds.discoverSchemas('INVENTORY', { nameMapper: null }, function(err, schemas) {
         if (err) return done(err);
         schemas.should.be.eql(models);
         done();
@@ -137,9 +137,9 @@ describe('Memory connector with mocked discovery', function() {
     function(done) {
       var models = {
         inventory: {
-          product: {type: 'string'},
-          location: {type: 'string'}
-        }
+          product: { type: 'string' },
+          location: { type: 'string' },
+        },
       };
       ds.connector.discoverSchemas = function(modelName, options, cb) {
         process.nextTick(function() {
@@ -174,9 +174,9 @@ describe('Memory connector with mocked discovery', function() {
       .catch(function(err) {
         done(err);
       });
-  });
+    });
 
-  describe('discoverSchema', function(){
+  describe('discoverSchema', function() {
     var models;
     var schema;
     before(function() {
@@ -184,7 +184,7 @@ describe('Memory connector with mocked discovery', function() {
         name: 'Inventory',
         options: {
           idInjection: false,
-          memory: { schema: 'STRONGLOOP', table: 'INVENTORY' }
+          memory: { schema: 'STRONGLOOP', table: 'INVENTORY' },
         },
         properties: {
           available: {
@@ -195,12 +195,12 @@ describe('Memory connector with mocked discovery', function() {
               dataPrecision: 10,
               dataScale: 0,
               dataType: 'int',
-              nullable: 1
+              nullable: 1,
             },
             precision: 10,
             required: false,
             scale: 0,
-            type: undefined
+            type: undefined,
           },
           locationId: {
             length: 20,
@@ -210,12 +210,12 @@ describe('Memory connector with mocked discovery', function() {
               dataPrecision: null,
               dataScale: null,
               dataType: 'varchar',
-              nullable: 0
+              nullable: 0,
             },
             precision: null,
             required: true,
             scale: null,
-            type: undefined
+            type: undefined,
           },
           productId: {
             length: 20,
@@ -225,12 +225,12 @@ describe('Memory connector with mocked discovery', function() {
               dataPrecision: null,
               dataScale: null,
               dataType: 'varchar',
-              nullable: 0
+              nullable: 0,
             },
             precision: null,
             required: true,
             scale: null,
-            type: undefined
+            type: undefined,
           },
           total: {
             length: null,
@@ -240,15 +240,15 @@ describe('Memory connector with mocked discovery', function() {
               dataPrecision: 10,
               dataScale: 0,
               dataType: 'int',
-              nullable: 1
+              nullable: 1,
             },
             precision: 10,
             required: false,
             scale: 0,
-            type: undefined
-          }
-        }
-      } ;
+            type: undefined,
+          },
+        },
+      };
     });
 
     it('should discover schema using `discoverSchema`', function(done) {
@@ -275,21 +275,21 @@ describe('Memory connector with mocked discovery', function() {
           schemas.should.be.eql(schema);
           done();
         })
-        .catch(function(err){
+        .catch(function(err) {
           done(err);
         });
     });
   });
 });
 
-describe('discoverModelDefinitions', function(){
+describe('discoverModelDefinitions', function() {
   var ds;
-  before(function(){
-    ds = new DataSource({connector: 'memory'});
+  before(function() {
+    ds = new DataSource({ connector: 'memory' });
 
-    var models = [{type: 'table', name: 'CUSTOMER', owner: 'STRONGLOOP'},
-      {type: 'table', name: 'INVENTORY', owner: 'STRONGLOOP'},
-      {type: 'table', name: 'LOCATION', owner: 'STRONGLOOP'}];
+    var models = [{ type: 'table', name: 'CUSTOMER', owner: 'STRONGLOOP' },
+      { type: 'table', name: 'INVENTORY', owner: 'STRONGLOOP' },
+      { type: 'table', name: 'LOCATION', owner: 'STRONGLOOP' }];
 
     ds.connector.discoverModelDefinitions = function(options, cb) {
       process.nextTick(function() {
@@ -307,7 +307,7 @@ describe('discoverModelDefinitions', function(){
       });
 
       tableNames.should.be.eql(
-        ["CUSTOMER", "INVENTORY", "LOCATION"]
+        ['CUSTOMER', 'INVENTORY', 'LOCATION']
       );
       done();
     });
@@ -322,7 +322,7 @@ describe('discoverModelDefinitions', function(){
       });
 
       tableNames.should.be.eql(
-        ["CUSTOMER", "INVENTORY", "LOCATION"]
+        ['CUSTOMER', 'INVENTORY', 'LOCATION']
       );
       done();
     };
@@ -338,21 +338,21 @@ describe('discoverModelDefinitions', function(){
         });
 
         tableNames.should.be.eql(
-          ["CUSTOMER", "INVENTORY", "LOCATION"]
+          ['CUSTOMER', 'INVENTORY', 'LOCATION']
         );
         done();
       })
-    .catch(function(err){
+    .catch(function(err) {
       done(err);
     });
   });
 });
 
-describe('discoverModelProperties', function(){
+describe('discoverModelProperties', function() {
   var ds;
   var modelProperties;
-  before(function(){
-    ds = new DataSource({connector: 'memory'});
+  before(function() {
+    ds = new DataSource({ connector: 'memory' });
 
     modelProperties = [{
       owner: 'STRONGLOOP',
@@ -362,38 +362,38 @@ describe('discoverModelProperties', function(){
       dataLength: 20,
       dataPrecision: null,
       dataScale: null,
-      nullable: 0
+      nullable: 0,
     },
-      {
-        owner: 'STRONGLOOP',
-        tableName: 'INVENTORY',
-        columnName: 'LOCATION_ID',
-        dataType: 'varchar',
-        dataLength: 20,
-        dataPrecision: null,
-        dataScale: null,
-        nullable: 0
-      },
-      {
-        owner: 'STRONGLOOP',
-        tableName: 'INVENTORY',
-        columnName: 'AVAILABLE',
-        dataType: 'int',
-        dataLength: null,
-        dataPrecision: 10,
-        dataScale: 0,
-        nullable: 1
-      },
-      {
-        owner: 'STRONGLOOP',
-        tableName: 'INVENTORY',
-        columnName: 'TOTAL',
-        dataType: 'int',
-        dataLength: null,
-        dataPrecision: 10,
-        dataScale: 0,
-        nullable: 1
-      }];
+    {
+      owner: 'STRONGLOOP',
+      tableName: 'INVENTORY',
+      columnName: 'LOCATION_ID',
+      dataType: 'varchar',
+      dataLength: 20,
+      dataPrecision: null,
+      dataScale: null,
+      nullable: 0,
+    },
+    {
+      owner: 'STRONGLOOP',
+      tableName: 'INVENTORY',
+      columnName: 'AVAILABLE',
+      dataType: 'int',
+      dataLength: null,
+      dataPrecision: 10,
+      dataScale: 0,
+      nullable: 1,
+    },
+    {
+      owner: 'STRONGLOOP',
+      tableName: 'INVENTORY',
+      columnName: 'TOTAL',
+      dataType: 'int',
+      dataLength: null,
+      dataPrecision: 10,
+      dataScale: 0,
+      nullable: 1,
+    }];
 
     ds.connector.discoverModelProperties = function(modelName, options, cb) {
       process.nextTick(function() {
@@ -404,11 +404,11 @@ describe('discoverModelProperties', function(){
 
   it('should callback function, passed as options parameter', function(done) {
     var options = function(err, schemas) {
-        if (err) return done(err);
+      if (err) return done(err);
 
-        schemas.should.be.eql(modelProperties);
-        done();
-      };
+      schemas.should.be.eql(modelProperties);
+      done();
+    };
 
     ds.discoverModelProperties('INVENTORY', options);
   });
@@ -428,32 +428,32 @@ describe('discoverModelProperties', function(){
         schemas.should.be.eql(modelProperties);
         done();
       })
-    .catch(function(err){
+    .catch(function(err) {
       done(err);
     });
   });
 });
 
-describe('discoverPrimaryKeys', function(){
+describe('discoverPrimaryKeys', function() {
   var ds;
   var modelProperties;
-  before(function(){
-    ds = new DataSource({connector: 'memory'});
+  before(function() {
+    ds = new DataSource({ connector: 'memory' });
 
     primaryKeys = [
-      { 
+      {
         owner: 'STRONGLOOP',
         tableName: 'INVENTORY',
         columnName: 'PRODUCT_ID',
         keySeq: 1,
-        pkName: 'ID_PK' 
-      }, 
-      { 
+        pkName: 'ID_PK'
+      },
+      {
         owner: 'STRONGLOOP',
         tableName: 'INVENTORY',
         columnName: 'LOCATION_ID',
         keySeq: 2,
-        pkName: 'ID_PK' 
+        pkName: 'ID_PK'
       }];
 
     ds.connector.discoverPrimaryKeys = function(modelName, options, cb) {
@@ -488,19 +488,19 @@ describe('discoverPrimaryKeys', function(){
         modelPrimaryKeys.should.be.eql(primaryKeys);
         done();
       })
-      .catch(function(err){
+      .catch(function(err) {
         done(err);
       });
   });
 });
 
-describe('discoverForeignKeys', function(){
+describe('discoverForeignKeys', function() {
   var ds;
   var modelProperties;
-  before(function(){
-    ds = new DataSource({connector: 'memory'});
+  before(function() {
+    ds = new DataSource({ connector: 'memory' });
 
-    foreignKeys = [{ 
+    foreignKeys = [{
       fkOwner: 'STRONGLOOP',
       fkName: 'PRODUCT_FK',
       fkTableName: 'INVENTORY',
@@ -509,7 +509,7 @@ describe('discoverForeignKeys', function(){
       pkOwner: 'STRONGLOOP',
       pkName: 'PRODUCT_PK',
       pkTableName: 'PRODUCT',
-      pkColumnName: 'ID'
+      pkColumnName: 'ID',
     }];
 
     ds.connector.discoverForeignKeys = function(modelName, options, cb) {
@@ -545,17 +545,17 @@ describe('discoverForeignKeys', function(){
         modelForeignKeys.should.be.eql(foreignKeys);
         done();
       })
-      .catch(function(err){
+      .catch(function(err) {
         done(err);
       });
   });
 });
 
-describe('discoverExportedForeignKeys', function(){
+describe('discoverExportedForeignKeys', function() {
   var ds;
   var modelProperties;
-  before(function(){
-    ds = new DataSource({connector: 'memory'});
+  before(function() {
+    ds = new DataSource({ connector: 'memory' });
 
     exportedForeignKeys = [{
       fkName: 'PRODUCT_FK',
@@ -566,7 +566,7 @@ describe('discoverExportedForeignKeys', function(){
       pkName: 'PRODUCT_PK',
       pkOwner: 'STRONGLOOP',
       pkTableName: 'PRODUCT',
-      pkColumnName: 'ID'
+      pkColumnName: 'ID',
     }];
 
     ds.connector.discoverExportedForeignKeys = function(modelName, options, cb) {
@@ -602,7 +602,7 @@ describe('discoverExportedForeignKeys', function(){
         modelForeignKeys.should.be.eql(exportedForeignKeys);
         done();
       })
-      .catch(function(err){
+      .catch(function(err) {
         done(err);
       });
   });

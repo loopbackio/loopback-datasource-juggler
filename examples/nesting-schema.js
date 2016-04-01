@@ -18,21 +18,21 @@ var User = modelBuilder.define('User', {
     city: String,
     state: String,
     zipCode: String,
-    country: String
+    country: String,
   },
   emails: [
     {
       label: String,
-      email: String
-    }
+      email: String,
+    },
   ],
-  friends: [String]
+  friends: [String],
 });
 
-var user = new User({name: 'Joe', age: 20, address: {street: '123 Main St', 'city': 'San Jose', state: 'CA'},
+var user = new User({ name: 'Joe', age: 20, address: { street: '123 Main St', 'city': 'San Jose', state: 'CA' },
   emails: [
-    {label: 'work', email: 'xyz@sample.com'}
+    { label: 'work', email: 'xyz@sample.com' },
   ],
-  friends: ['John', 'Mary']});
+  friends: ['John', 'Mary'] });
 console.log(user);
 console.log(user.toObject());
