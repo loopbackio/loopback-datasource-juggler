@@ -27,7 +27,9 @@
     "clean": "make clean",
     "help": "make help",
     "refresh": "make refresh",
-    "test": "make test"
+    "test": "make test",
+    "posttest": "npm run lint",
+    "lint": "eslint ."
   },
   "engines": [
     "node >= 0.6"
@@ -41,6 +43,8 @@
     "bluebird": "^3.1.1",
     "debug": "^2.1.1",
     "depd": "^1.0.0",
+    "eslint": "^2.5.3",
+    "eslint-config-loopback": "^1.0.0",
     "inflection": "^1.6.0",
     "loopback-connector": "^2.1.0",
     "node-uuid": "^1.4.2",
