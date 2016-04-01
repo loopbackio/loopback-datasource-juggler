@@ -421,16 +421,16 @@ describe('scope - dynamic function', function() {
 
   before(function() {
     db = getSchema();
-    Item = db.define('Item', { title: Number, creator:Number });
+    Item = db.define('Item', { title: Number, creator: Number });
     Item.scope('dynamicQuery', function() {
       seed++;
-      return { where:{ creator:seed }};
+      return { where: { creator: seed }};
     });
   });
 
   beforeEach(function(done) {
-    Item.create({ title:1, creator:1 }, function() {
-      Item.create({ title:2, creator:2 }, done);
+    Item.create({ title: 1, creator: 1 }, function() {
+      Item.create({ title: 2, creator: 2 }, done);
     });
   });
 

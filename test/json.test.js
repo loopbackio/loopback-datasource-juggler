@@ -30,7 +30,7 @@ describe('JSON property', function() {
 
   it('should accept object in setter and return object', function() {
     var m = new Model;
-    m.propertyName = {'foo': "bar" };
+    m.propertyName = { 'foo': 'bar' };
     m.propertyName.should.be.an.Object;
     m.propertyName.foo.should.equal('bar');
   });

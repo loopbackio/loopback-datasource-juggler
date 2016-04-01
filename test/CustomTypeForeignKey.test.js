@@ -13,21 +13,21 @@ describe('Datasource-specific field types for foreign keys', function() {
   before(function() {
     ds = new DataSource('memory');
     Item = ds.define('Item', {
-      'myProp': {
-        'id': true,
-        'type': 'string',
-        'memory': {
-          'dataType': "string",
+      myProp: {
+        id: true,
+        type: 'string',
+        memory: {
+          dataType: 'string',
         },
       },
     });
     Variant = ds.define('Variant', {}, {
       relations: {
-        'item': {
-          'type': 'belongsTo',
-          'as': 'item',
-          'model': 'Item',
-          'foreignKey': "myProp",
+        item: {
+          type: 'belongsTo',
+          as: 'item',
+          model: 'Item',
+          foreignKey: 'myProp',
         },
       },
     });

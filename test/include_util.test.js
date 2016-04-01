@@ -3,8 +3,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-var assert = require("assert");
-var should = require("should");
+var assert = require('assert');
+var should = require('should');
 
 var includeUtils = require('../lib/include_utils');
 
@@ -12,8 +12,8 @@ describe('include_util', function() {
   describe('#buildOneToOneIdentityMapWithOrigKeys', function() {
     it('should return an object with keys', function() {
       var objs = [
-          { id: 11, letter: "A" },
-          { id: 22, letter: "B" },
+          { id: 11, letter: 'A' },
+          { id: 22, letter: 'B' },
       ];
       var result = includeUtils.buildOneToOneIdentityMapWithOrigKeys(objs, 'id');
       result.get(11).should.be.ok;
@@ -22,11 +22,11 @@ describe('include_util', function() {
 
     it('should overwrite keys in case of collision', function() {
       var objs = [
-            { id: 11, letter: "A" },
-            { id: 22, letter: "B" },
-            { id: 33, letter: "C" },
-            { id: 11, letter: "HA!" },
-        ];
+        { id: 11, letter: 'A' },
+        { id: 22, letter: 'B' },
+        { id: 33, letter: 'C' },
+        { id: 11, letter: 'HA!' },
+      ];
 
       var result = includeUtils.buildOneToOneIdentityMapWithOrigKeys(objs, 'id');
       result.getKeys().should.containEql(11);
@@ -39,8 +39,8 @@ describe('include_util', function() {
   describe('#buildOneToOneIdentityMapWithOrigKeys', function() {
     it('should return an object with keys', function() {
       var objs = [
-        { id: 11, letter: "A" },
-        { id: 22, letter: "B" },
+        { id: 11, letter: 'A' },
+        { id: 22, letter: 'B' },
       ];
       var result = includeUtils.buildOneToOneIdentityMapWithOrigKeys(objs, 'id');
       result.get(11).should.be.ok;
@@ -50,28 +50,28 @@ describe('include_util', function() {
   });
   describe('#buildOneToManyIdentityMap', function() {
     it('should return an object with keys', function() {
-          var objs = [
-                { id: 11, letter: "A" },
-                { id: 22, letter: "B" },
-            ];
-          var result = includeUtils.buildOneToManyIdentityMapWithOrigKeys(objs, 'id');
-          result.exist(11).should.be.true;
-          result.exist(22).should.be.true;
-        });
+      var objs = [
+        { id: 11, letter: 'A' },
+        { id: 22, letter: 'B' },
+      ];
+      var result = includeUtils.buildOneToManyIdentityMapWithOrigKeys(objs, 'id');
+      result.exist(11).should.be.true;
+      result.exist(22).should.be.true;
+    });
 
     it('should collect keys in case of collision', function() {
-          var objs = [
-                { fk_id: 11, letter: "A" },
-                { fk_id: 22, letter: "B" },
-                { fk_id: 33, letter: "C" },
-                { fk_id: 11, letter: "HA!" },
-            ];
+      var objs = [
+        { 'fk_id': 11, letter: 'A' },
+        { 'fk_id': 22, letter: 'B' },
+        { 'fk_id': 33, letter: 'C' },
+        { 'fk_id': 11, letter: 'HA!' },
+      ];
 
-          var result = includeUtils.buildOneToManyIdentityMapWithOrigKeys(objs, 'fk_id');
-          result.get(11)[0]['letter'].should.equal('A');
-          result.get(11)[1]['letter'].should.equal('HA!');
-          result.get(33)[0]['letter'].should.equal('C');
-        });
+      var result = includeUtils.buildOneToManyIdentityMapWithOrigKeys(objs, 'fk_id');
+      result.get(11)[0]['letter'].should.equal('A');
+      result.get(11)[1]['letter'].should.equal('HA!');
+      result.get(33)[0]['letter'].should.equal('C');
+    });
   });
 });
 

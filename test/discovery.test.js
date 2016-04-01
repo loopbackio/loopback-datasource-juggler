@@ -446,14 +446,14 @@ describe('discoverPrimaryKeys', function() {
         tableName: 'INVENTORY',
         columnName: 'PRODUCT_ID',
         keySeq: 1,
-        pkName: 'ID_PK'
+        pkName: 'ID_PK',
       },
       {
         owner: 'STRONGLOOP',
         tableName: 'INVENTORY',
         columnName: 'LOCATION_ID',
         keySeq: 2,
-        pkName: 'ID_PK'
+        pkName: 'ID_PK',
       }];
 
     ds.connector.discoverPrimaryKeys = function(modelName, options, cb) {
@@ -596,7 +596,8 @@ describe('discoverExportedForeignKeys', function() {
     ds.discoverExportedForeignKeys('INVENTORY', options);
   });
 
-  it('should discover foreign key definitions using `discoverExportedForeignKeys` - promise variant', function(done) {
+  it('should discover foreign key definitions using `discoverExportedForeignKeys` - promise variant',
+  function(done) {
     ds.discoverExportedForeignKeys('INVENTORY', {})
       .then(function(modelForeignKeys) {
         modelForeignKeys.should.be.eql(exportedForeignKeys);

@@ -28,7 +28,7 @@ describe('ModelDefinition class', function() {
       bio: ModelBuilder.Text,
       approved: Boolean,
       joinedAt: Date,
-      age: "number",
+      age: 'number',
     });
 
     User.build();
@@ -60,7 +60,7 @@ describe('ModelDefinition class', function() {
       bio: ModelBuilder.Text,
       approved: Boolean,
       joinedAt: Date,
-      age: "number",
+      age: 'number',
     });
 
     User.build();
@@ -216,7 +216,7 @@ describe('ModelDefinition class', function() {
       bio: ModelBuilder.Text,
       approved: Boolean,
       joinedAt: Date,
-      age: "number",
+      age: 'number',
     });
 
     assert.equal(User.idName(), 'userId');
@@ -234,7 +234,7 @@ describe('ModelDefinition class', function() {
       bio: ModelBuilder.Text,
       approved: Boolean,
       joinedAt: Date,
-      age: "number",
+      age: 'number',
     });
 
     var ids = User.ids();
@@ -251,7 +251,7 @@ describe('ModelDefinition class', function() {
 
     var User = new ModelDefinition(modelBuilder, 'User', {
       userId: { type: String, id: true, oracle: { column: 'ID' }},
-      name: "string",
+      name: 'string',
     }, { oracle: { table: 'USER' }});
 
     assert.equal(User.tableName('oracle'), 'USER');

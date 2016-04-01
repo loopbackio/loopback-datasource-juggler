@@ -136,20 +136,28 @@ describe('optional-validation', function() {
     });
 
     describe('method findOrCreate', function() {
-      it('should throw on findOrCreate with validate:true with invalid data', function(done) {
-        User.findOrCreate(getNewWhere(), INVALID_DATA, { validate: true }, expectValidationError(done));
+      it('should throw on findOrCreate with validate:true with invalid data',
+      function(done) {
+        User.findOrCreate(getNewWhere(), INVALID_DATA, { validate: true },
+                          expectValidationError(done));
       });
 
-      it('should NOT throw on findOrCreate with validate:false with invalid data', function(done) {
-        User.findOrCreate(getNewWhere(), INVALID_DATA, { validate: false }, expectCreateSuccess(INVALID_DATA, done));
+      it('should NOT throw on findOrCreate with validate:false with invalid data',
+      function(done) {
+        User.findOrCreate(getNewWhere(), INVALID_DATA, { validate: false },
+                          expectCreateSuccess(INVALID_DATA, done));
       });
 
-      it('should NOT throw on findOrCreate with validate:true with valid data', function(done) {
-        User.findOrCreate(getNewWhere(), VALID_DATA, { validate: true }, expectCreateSuccess(done));
+      it('should NOT throw on findOrCreate with validate:true with valid data',
+      function(done) {
+        User.findOrCreate(getNewWhere(), VALID_DATA, { validate: true },
+                          expectCreateSuccess(done));
       });
 
-      it('should NOT throw on findOrCreate with validate:false with valid data', function(done) {
-        User.findOrCreate(getNewWhere(), VALID_DATA, { validate: false }, expectCreateSuccess(done));
+      it('should NOT throw on findOrCreate with validate:false with valid data',
+      function(done) {
+        User.findOrCreate(getNewWhere(), VALID_DATA, { validate: false },
+                          expectCreateSuccess(done));
       });
 
       it('should throw on findOrCreate with invalid data', function(done) {
@@ -162,20 +170,28 @@ describe('optional-validation', function() {
     });
 
     describe('method updateOrCreate on existing data', function() {
-      it('should throw on updateOrCreate(id) with validate:true with invalid data', function(done) {
-        callUpdateOrCreateWithExistingUserId(null, { validate: true }, expectValidationError(done));
+      it('should throw on updateOrCreate(id) with validate:true with invalid data',
+      function(done) {
+        callUpdateOrCreateWithExistingUserId(null, { validate: true },
+                                             expectValidationError(done));
       });
 
-      it('should NOT throw on updateOrCreate(id) with validate:false with invalid data', function(done) {
-        callUpdateOrCreateWithExistingUserId(null, { validate: false }, expectChangeSuccess(INVALID_DATA, done));
+      it('should NOT throw on updateOrCreate(id) with validate:false with invalid data',
+      function(done) {
+        callUpdateOrCreateWithExistingUserId(null, { validate: false },
+                                             expectChangeSuccess(INVALID_DATA, done));
       });
 
-      it('should NOT throw on updateOrCreate(id) with validate:true with valid data', function(done) {
-        callUpdateOrCreateWithExistingUserId(NEW_NAME, { validate: true }, expectChangeSuccess(done));
+      it('should NOT throw on updateOrCreate(id) with validate:true with valid data',
+      function(done) {
+        callUpdateOrCreateWithExistingUserId(NEW_NAME, { validate: true },
+                                             expectChangeSuccess(done));
       });
 
-      it('should NOT throw on updateOrCreate(id) with validate:false with valid data', function(done) {
-        callUpdateOrCreateWithExistingUserId(NEW_NAME, { validate: false }, expectChangeSuccess(done));
+      it('should NOT throw on updateOrCreate(id) with validate:false with valid data',
+      function(done) {
+        callUpdateOrCreateWithExistingUserId(NEW_NAME, { validate: false },
+                                             expectChangeSuccess(done));
       });
 
       // backwards compatible with validateUpsert
@@ -300,24 +316,33 @@ describe('optional-validation', function() {
     });
 
     describe('method findOrCreate', function() {
-      it('should throw on findOrCreate with validate:true with invalid data', function(done) {
-        User.findOrCreate(getNewWhere(), INVALID_DATA, { validate: true }, expectValidationError(done));
+      it('should throw on findOrCreate with validate:true with invalid data',
+      function(done) {
+        User.findOrCreate(getNewWhere(), INVALID_DATA, { validate: true },
+                          expectValidationError(done));
       });
 
-      it('should NOT throw on findOrCreate with validate:false with invalid data', function(done) {
-        User.findOrCreate(getNewWhere(), INVALID_DATA, { validate: false }, expectCreateSuccess(INVALID_DATA, done));
+      it('should NOT throw on findOrCreate with validate:false with invalid data',
+      function(done) {
+        User.findOrCreate(getNewWhere(), INVALID_DATA, { validate: false },
+                          expectCreateSuccess(INVALID_DATA, done));
       });
 
-      it('should NOT throw on findOrCreate with validate:true with valid data', function(done) {
-        User.findOrCreate(getNewWhere(), VALID_DATA, { validate: true }, expectCreateSuccess(done));
+      it('should NOT throw on findOrCreate with validate:true with valid data',
+      function(done) {
+        User.findOrCreate(getNewWhere(), VALID_DATA, { validate: true },
+                          expectCreateSuccess(done));
       });
 
-      it('should NOT throw on findOrCreate with validate:false with valid data', function(done) {
-        User.findOrCreate(getNewWhere(), VALID_DATA, { validate: false }, expectCreateSuccess(done));
+      it('should NOT throw on findOrCreate with validate:false with valid data',
+      function(done) {
+        User.findOrCreate(getNewWhere(), VALID_DATA, { validate: false },
+                          expectCreateSuccess(done));
       });
 
       it('should NOT throw on findOrCreate with invalid data', function(done) {
-        User.findOrCreate(getNewWhere(), INVALID_DATA, expectCreateSuccess(INVALID_DATA, done));
+        User.findOrCreate(getNewWhere(), INVALID_DATA,
+                          expectCreateSuccess(INVALID_DATA, done));
       });
 
       it('should NOT throw on findOrCreate with valid data', function(done) {
@@ -326,20 +351,28 @@ describe('optional-validation', function() {
     });
 
     describe('method updateOrCreate on existing data', function() {
-      it('should throw on updateOrCreate(id) with validate:true with invalid data', function(done) {
-        callUpdateOrCreateWithExistingUserId(null, { validate: true }, expectValidationError(done));
+      it('should throw on updateOrCreate(id) with validate:true with invalid data',
+      function(done) {
+        callUpdateOrCreateWithExistingUserId(null, { validate: true },
+                                             expectValidationError(done));
       });
 
-      it('should NOT throw on updateOrCreate(id) with validate:false with invalid data', function(done) {
-        callUpdateOrCreateWithExistingUserId(null, { validate: false }, expectChangeSuccess(INVALID_DATA, done));
+      it('should NOT throw on updateOrCreate(id) with validate:false with invalid data',
+      function(done) {
+        callUpdateOrCreateWithExistingUserId(null, { validate: false },
+                                             expectChangeSuccess(INVALID_DATA, done));
       });
 
-      it('should NOT throw on updateOrCreate(id) with validate:true with valid data', function(done) {
-        callUpdateOrCreateWithExistingUserId(NEW_NAME, { validate: true }, expectChangeSuccess(done));
+      it('should NOT throw on updateOrCreate(id) with validate:true with valid data',
+      function(done) {
+        callUpdateOrCreateWithExistingUserId(NEW_NAME, { validate: true },
+                                             expectChangeSuccess(done));
       });
 
-      it('should NOT throw on updateOrCreate(id) with validate:false with valid data', function(done) {
-        callUpdateOrCreateWithExistingUserId(NEW_NAME, { validate: false }, expectChangeSuccess(done));
+      it('should NOT throw on updateOrCreate(id) with validate:false with valid data',
+      function(done) {
+        callUpdateOrCreateWithExistingUserId(NEW_NAME, { validate: false },
+                                             expectChangeSuccess(done));
       });
 
       it('should NOT throw on updateOrCreate(id) with invalid data', function(done) {
@@ -425,20 +458,28 @@ describe('optional-validation', function() {
     });
 
     describe('method findOrCreate', function() {
-      it('should throw on findOrCreate with validate:true with invalid data', function(done) {
-        User.findOrCreate(getNewWhere(), INVALID_DATA, { validate: true }, expectValidationError(done));
+      it('should throw on findOrCreate with validate:true with invalid data',
+      function(done) {
+        User.findOrCreate(getNewWhere(), INVALID_DATA, { validate: true },
+                          expectValidationError(done));
       });
 
-      it('should NOT throw on findOrCreate with validate:false with invalid data', function(done) {
-        User.findOrCreate(getNewWhere(), INVALID_DATA, { validate: false }, expectCreateSuccess(INVALID_DATA, done));
+      it('should NOT throw on findOrCreate with validate:false with invalid data',
+      function(done) {
+        User.findOrCreate(getNewWhere(), INVALID_DATA, { validate: false },
+                          expectCreateSuccess(INVALID_DATA, done));
       });
 
-      it('should NOT throw on findOrCreate with validate:true with valid data', function(done) {
-        User.findOrCreate(getNewWhere(), VALID_DATA, { validate: true }, expectCreateSuccess(done));
+      it('should NOT throw on findOrCreate with validate:true with valid data',
+      function(done) {
+        User.findOrCreate(getNewWhere(), VALID_DATA, { validate: true },
+                          expectCreateSuccess(done));
       });
 
-      it('should NOT throw on findOrCreate with validate:false with valid data', function(done) {
-        User.findOrCreate(getNewWhere(), VALID_DATA, { validate: false }, expectCreateSuccess(done));
+      it('should NOT throw on findOrCreate with validate:false with valid data',
+      function(done) {
+        User.findOrCreate(getNewWhere(), VALID_DATA, { validate: false },
+                          expectCreateSuccess(done));
       });
 
       it('should throw on findOrCreate with invalid data', function(done) {
@@ -451,20 +492,28 @@ describe('optional-validation', function() {
     });
 
     describe('method updateOrCreate on existing data', function() {
-      it('should throw on updateOrCreate(id) with validate:true with invalid data', function(done) {
-        callUpdateOrCreateWithExistingUserId(null, { validate: true }, expectValidationError(done));
+      it('should throw on updateOrCreate(id) with validate:true with invalid data',
+      function(done) {
+        callUpdateOrCreateWithExistingUserId(null, { validate: true },
+                                             expectValidationError(done));
       });
 
-      it('should NOT throw on updateOrCreate(id) with validate:false with invalid data', function(done) {
-        callUpdateOrCreateWithExistingUserId(null, { validate: false }, expectChangeSuccess(INVALID_DATA, done));
+      it('should NOT throw on updateOrCreate(id) with validate:false with invalid data',
+      function(done) {
+        callUpdateOrCreateWithExistingUserId(null, { validate: false },
+                                             expectChangeSuccess(INVALID_DATA, done));
       });
 
-      it('should NOT throw on updateOrCreate(id) with validate:true with valid data', function(done) {
-        callUpdateOrCreateWithExistingUserId(NEW_NAME, { validate: true }, expectChangeSuccess(done));
+      it('should NOT throw on updateOrCreate(id) with validate:true with valid data',
+      function(done) {
+        callUpdateOrCreateWithExistingUserId(NEW_NAME, { validate: true },
+                                             expectChangeSuccess(done));
       });
 
-      it('should NOT throw on updateOrCreate(id) with validate:false with valid data', function(done) {
-        callUpdateOrCreateWithExistingUserId(NEW_NAME, { validate: false }, expectChangeSuccess(done));
+      it('should NOT throw on updateOrCreate(id) with validate:false with valid data',
+      function(done) {
+        callUpdateOrCreateWithExistingUserId(NEW_NAME, { validate: false },
+                                             expectChangeSuccess(done));
       });
 
       it('should throw on updateOrCreate(id) with invalid data', function(done) {

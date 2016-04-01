@@ -156,7 +156,7 @@ describe('include', function() {
 
   it('should fetch Passports with include scope on Posts', function(done) {
     Passport.find({
-      include: { owner: { relation: 'posts', scope:{
+      include: { owner: { relation: 'posts', scope: {
         fields: ['title'], include: ['author'],
         order: 'title DESC',
       }}},
@@ -211,24 +211,24 @@ describe('include', function() {
 
   it('should fetch Users with include scope on Posts - belongsTo', function(done) {
     Post.find({
-        include: { relation: 'author', scope:{ fields: ['name'] }},
-      }, function(err, posts) {
-        should.not.exist(err);
-        should.exist(posts);
-        posts.length.should.equal(5);
+      include: { relation: 'author', scope: { fields: ['name'] }},
+    }, function(err, posts) {
+      should.not.exist(err);
+      should.exist(posts);
+      posts.length.should.equal(5);
 
-        var author = posts[0].author();
-        author.name.should.equal('User A');
-        author.should.have.property('id');
-        author.should.have.property('age', undefined);
+      var author = posts[0].author();
+      author.name.should.equal('User A');
+      author.should.have.property('id');
+      author.should.have.property('age', undefined);
 
-        done();
-      });
+      done();
+    });
   });
 
   it('should fetch Users with include scope on Posts - hasMany', function(done) {
     User.find({
-      include: { relation: 'posts', scope:{
+      include: { relation: 'posts', scope: {
         order: 'title DESC',
       }},
     }, function(err, users) {
@@ -258,7 +258,7 @@ describe('include', function() {
 
   it('should fetch Users with include scope on Passports - hasMany', function(done) {
     User.find({
-      include: { relation: 'passports', scope:{
+      include: { relation: 'passports', scope: {
         where: { number: '2' },
       }},
     }, function(err, users) {
@@ -401,8 +401,7 @@ describe('include', function() {
         if (profile) {
           profile.should.be.an.instanceOf(Profile);
           usersWithProfile++;
-        }
-        else {
+        } else {
           (profile === null).should.be.true;
         }
         // The __cachedRelations should be removed from json output

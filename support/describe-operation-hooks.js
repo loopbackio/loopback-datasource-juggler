@@ -32,6 +32,7 @@ Promise.onPossiblyUnhandledRejection(function(err) {
   console.error('POSSIBLY UNHANDLED REJECTION', err.stack);
 });
 
+/* eslint-disable camelcase */
 var operations = [
   function find(ds) {
     return ds.TestModel.find({ where: { id: '1' }});
@@ -102,6 +103,7 @@ var operations = [
     return ds.TestModel.deleteAll({ name: ds.existingInstance.name });
   },
 ];
+/* eslint-enable camelcase */
 
 var p = setupTestModels();
 operations.forEach(function(op) {

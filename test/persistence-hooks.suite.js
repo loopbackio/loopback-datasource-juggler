@@ -9,7 +9,8 @@ var traverse = require('traverse');
 module.exports = function(dataSource, should, connectorCapabilities) {
   if (!connectorCapabilities) connectorCapabilities = {};
   if (connectorCapabilities.replaceOrCreateReportsNewInstance === undefined) {
-    console.warn('The connector does not support a recently added feature: replaceOrCreateReportsNewInstance');
+    console.warn('The connector does not support a recently added feature:' +
+      ' replaceOrCreateReportsNewInstance');
   }
   describe('Persistence hooks', function() {
     var observedContexts, expectedError, observersCalled;
@@ -150,7 +151,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               data: {
                 id: '1',
                 name: 'first',
-                extra: "hook data",
+                extra: 'hook data',
               },
               isNewInstance: false,
               hookState: { test: true },
@@ -1559,7 +1560,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 name: 'changed',
                 id: data.id,
               },
-              isNewInstance : false,
+              isNewInstance: false,
             }));
             done();
           });
@@ -2347,15 +2348,16 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               if (err) return done(err);
 
               var expectedContext = aTestModelCtx({
-              currentInstance: {
-                id: 'new-id',
-                name: 'a name',
-                extra: undefined,
-              }, data: {
-                id: 'new-id',
-                name: 'a name',
-              },
-            });
+                currentInstance: {
+                  id: 'new-id',
+                  name: 'a name',
+                  extra: undefined,
+                },
+                data: {
+                  id: 'new-id',
+                  name: 'a name',
+                },
+              });
 
 
 

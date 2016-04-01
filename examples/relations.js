@@ -33,7 +33,6 @@ Customer.create({ name: 'John' }, function(err, customer) {
   });
 
   Order.create({ orderDate: new Date(), items: ['Phone'] }, function(err, order) {
-
     order.customer.create({ name: 'Smith' }, function(err, customer2) {
       console.log(order, customer2);
       order.save(function(err, order) {
@@ -90,9 +89,11 @@ Physician.create({ name: 'Dr John' }, function(err, physician1) {
   Physician.create({ name: 'Dr Smith' }, function(err, physician2) {
     Patient.create({ name: 'Mary' }, function(err, patient1) {
       Patient.create({ name: 'Ben' }, function(err, patient2) {
-        Appointment.create({ appointmentDate: new Date(), physicianId: physician1.id, patientId: patient1.id },
+        Appointment.create(
+          { appointmentDate: new Date(), physicianId: physician1.id, patientId: patient1.id },
           function(err, appt1) {
-            Appointment.create({ appointmentDate: new Date(), physicianId: physician1.id, patientId: patient2.id },
+            Appointment.create(
+              { appointmentDate: new Date(), physicianId: physician1.id, patientId: patient2.id },
               function(err, appt2) {
                 physician1.patients(console.log);
                 physician1.patients({ where: { name: 'Mary' }}, console.log);
@@ -106,8 +107,6 @@ Physician.create({ name: 'Dr John' }, function(err, physician1) {
                 patient1.physicians.create({ name: 'Dr X' }, function(err, patient4) {
                   console.log('Physician 4: ', patient4, patient4.constructor.modelName);
                 });
-
-
               });
           });
       });
@@ -146,7 +145,6 @@ Assembly.create({ name: 'car' }, function(err, assembly) {
         });
       });
     });
-
   });
 });
 

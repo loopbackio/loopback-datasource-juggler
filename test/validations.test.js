@@ -280,7 +280,7 @@ describe('validations', function() {
       });
 
       it('should return validation metadata', function() {
-        var expected = { name:[{ validation: 'presence', options: {}}] };
+        var expected = { name: [{ validation: 'presence', options: {}}] };
         delete User.validations;
         User.validatesPresenceOf('name');
         var validations = User.validations;

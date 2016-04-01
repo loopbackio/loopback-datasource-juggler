@@ -500,7 +500,7 @@ describe('manipulation', function() {
       // Using {foo: 'bar'} only causes dependent test failures due to the
       // stripping of object properties when in strict mode (ie. {foo: 'bar'}
       // changes to '{}' and breaks other tests
-      person.updateAttributes({ name: 'John', foo:'bar' },
+      person.updateAttributes({ name: 'John', foo: 'bar' },
         function(err, p) {
           if (err) return done(err);
           should.not.exist(p.foo);
@@ -515,7 +515,7 @@ describe('manipulation', function() {
     it('should throw error on unknown attributes when strict: throw', function(done) {
       Person.definition.settings.strict = 'throw';
       Person.findById(person.id, function(err, p) {
-        p.updateAttributes({ foo:'bar' },
+        p.updateAttributes({ foo: 'bar' },
           function(err, p) {
             should.exist(err);
             err.name.should.equal('Error');
@@ -533,7 +533,7 @@ describe('manipulation', function() {
     it('should throw error on unknown attributes when strict: throw', function(done) {
       Person.definition.settings.strict = 'validate';
       Person.findById(person.id, function(err, p) {
-        p.updateAttributes({ foo:'bar' },
+        p.updateAttributes({ foo: 'bar' },
           function(err, p) {
             should.exist(err);
             err.name.should.equal('ValidationError');
@@ -935,7 +935,7 @@ describe('manipulation', function() {
       });
 
       it('works without options(promise variant)', function(done) {
-      Post.findById(postInstance.id)
+        Post.findById(postInstance.id)
       .then(function(p) {
         p.replaceAttributes({ title: 'b' })
         .then(function(p) {
@@ -952,10 +952,10 @@ describe('manipulation', function() {
         });
       })
       .catch(done);
-    });
+      });
 
       it('works with options(promise variant)', function(done) {
-      Post.findById(postInstance.id)
+        Post.findById(postInstance.id)
       .then(function(p) {
         p.replaceAttributes({ title: 'b' }, { validate: false })
         .then(function(p) {
@@ -972,31 +972,31 @@ describe('manipulation', function() {
         });
       })
       .catch(done);
-    });
+      });
 
       it('works without options(callback variant)', function(done) {
-      Post.findById(postInstance.id, function(err, p) {
-        if (err) return done(err);
-        p.replaceAttributes({ title: 'b' }, function(err, p) {
+        Post.findById(postInstance.id, function(err, p) {
           if (err) return done(err);
-          p.should.not.have.property('content', undefined);
-          p.title.should.equal('b');
-          done();
+          p.replaceAttributes({ title: 'b' }, function(err, p) {
+            if (err) return done(err);
+            p.should.not.have.property('content', undefined);
+            p.title.should.equal('b');
+            done();
+          });
         });
       });
-    });
 
       it('works with options(callback variant)', function(done) {
-      Post.findById(postInstance.id, function(err, p) {
-        if (err) return done(err);
-        p.replaceAttributes({ title: 'b' }, { validate: false }, function(err, p) {
+        Post.findById(postInstance.id, function(err, p) {
           if (err) return done(err);
-          p.should.not.have.property('content', undefined);
-          p.title.should.equal('b');
-          done();
+          p.replaceAttributes({ title: 'b' }, { validate: false }, function(err, p) {
+            if (err) return done(err);
+            p.should.not.have.property('content', undefined);
+            p.title.should.equal('b');
+            done();
+          });
         });
       });
-    });
     });
   }
 
@@ -1152,44 +1152,44 @@ describe('manipulation', function() {
     it('should only delete instances that satisfy the where condition',
         function(done) {
           Person.deleteAll({ name: 'John' }, function(err, info) {
-        if (err) return done(err);
-        info.should.have.property('count', 1);
-        Person.find({ where: { name: 'John' }}, function(err, data) {
-          if (err) return done(err);
-          data.should.have.length(0);
-          Person.find({ where: { name: 'Jane' }}, function(err, data) {
             if (err) return done(err);
-            data.should.have.length(1);
-            done();
+            info.should.have.property('count', 1);
+            Person.find({ where: { name: 'John' }}, function(err, data) {
+              if (err) return done(err);
+              data.should.have.length(0);
+              Person.find({ where: { name: 'Jane' }}, function(err, data) {
+                if (err) return done(err);
+                data.should.have.length(1);
+                done();
+              });
+            });
           });
-        });
-      });
         });
 
     it('should report zero deleted instances when no matches are found',
         function(done) {
           Person.deleteAll({ name: 'does-not-match' }, function(err, info) {
-        if (err) return done(err);
-        info.should.have.property('count', 0);
-        Person.count(function(err, count) {
-          if (err) return done(err);
-          count.should.equal(2);
-          done();
-        });
-      });
+            if (err) return done(err);
+            info.should.have.property('count', 0);
+            Person.count(function(err, count) {
+              if (err) return done(err);
+              count.should.equal(2);
+              done();
+            });
+          });
         });
 
     it('should delete all instances when the where condition is not provided',
         function(done) {
           Person.deleteAll(function(err, info) {
-        if (err) return done(err);
-        info.should.have.property('count', 2);
-        Person.count(function(err, count) {
-          if (err) return done(err);
-          count.should.equal(0);
-          done();
-        });
-      });
+            if (err) return done(err);
+            info.should.have.property('count', 2);
+            Person.count(function(err, count) {
+              if (err) return done(err);
+              count.should.equal(0);
+              done();
+            });
+          });
         });
   });
 
@@ -1528,46 +1528,46 @@ describe('manipulation', function() {
         function(done) {
           Person.update({ name: 'Harry Hoe' }, { name: 'Marta Moe' }, function(err,
           info) {
-        if (err) return done(err);
-        info.should.have.property('count', 0);
-        Person.find({ where: { name: 'Harry Hoe' }}, function(err, people) {
-          if (err) return done(err);
-          people.should.be.empty;
-          done();
-        });
-      });
+            if (err) return done(err);
+            info.should.have.property('count', 0);
+            Person.find({ where: { name: 'Harry Hoe' }}, function(err, people) {
+              if (err) return done(err);
+              people.should.be.empty;
+              done();
+            });
+          });
         });
 
     it('should only update instances that satisfy the where condition',
         function(done) {
           Person.update({ name: 'Brett Boe' }, { name: 'Harry Hoe' }, function(err,
           info) {
-        if (err) return done(err);
-        info.should.have.property('count', 1);
-        Person.find({ where: { age: 19 }}, function(err, people) {
-          if (err) return done(err);
-          people.should.have.length(1);
-          people[0].name.should.equal('Harry Hoe');
-          done();
-        });
-      });
+            if (err) return done(err);
+            info.should.have.property('count', 1);
+            Person.find({ where: { age: 19 }}, function(err, people) {
+              if (err) return done(err);
+              people.should.have.length(1);
+              people[0].name.should.equal('Harry Hoe');
+              done();
+            });
+          });
         });
 
     it('should update all instances when the where condition is not provided',
         function(done) {
           Person.update({ name: 'Harry Hoe' }, function(err, info) {
-        if (err) return done(err);
-        info.should.have.property('count', 5);
-        Person.find({ where: { name: 'Brett Boe' }}, function(err, people) {
-          if (err) return done(err);
-          people.should.be.empty;
-          Person.find({ where: { name: 'Harry Hoe' }}, function(err, people) {
             if (err) return done(err);
-            people.should.have.length(5);
-            done();
+            info.should.have.property('count', 5);
+            Person.find({ where: { name: 'Brett Boe' }}, function(err, people) {
+              if (err) return done(err);
+              people.should.be.empty;
+              Person.find({ where: { name: 'Harry Hoe' }}, function(err, people) {
+                if (err) return done(err);
+                people.should.have.length(5);
+                done();
+              });
+            });
           });
-        });
-      });
         });
 
     it('should ignore where conditions with undefined values',
@@ -1577,21 +1577,21 @@ describe('manipulation', function() {
             if (err) return done(err);
             info.should.have.property('count', 1);
             Person.find({ where: { name: 'Brett Boe' }}, function(err, people) {
-          if (err) return done(err);
-          people.should.have.length(1);
-          people[0].name.should.equal('Brett Boe');
-          done();
-        });
+              if (err) return done(err);
+              people.should.have.length(1);
+              people[0].name.should.equal('Brett Boe');
+              done();
+            });
           });
         });
 
     it('should not coerce invalid values provided in where conditions',
         function(done) {
           Person.update({ name: 'Brett Boe' }, { dob: 'Carla Coe' }, function(err) {
-        should.exist(err);
-        err.message.should.equal('Invalid date: Carla Coe');
-        done();
-      });
+            should.exist(err);
+            err.message.should.equal('Invalid date: Carla Coe');
+            done();
+          });
         });
   });
 });

@@ -725,13 +725,13 @@ describe('relations', function() {
       });
       function verify(physician) {
         //limit plus skip
-        physician.patients({ limit:1, skip:1 }, function(err, ch) {
+        physician.patients({ limit: 1, skip: 1 }, function(err, ch) {
           should.not.exist(err);
           should.exist(ch);
           ch.should.have.lengthOf(1);
           ch[0].name.should.eql('z');
           //offset plus skip
-          physician.patients({ limit:1, offset:1 }, function(err1, ch1) {
+          physician.patients({ limit: 1, offset: 1 }, function(err1, ch1) {
             should.not.exist(err1);
             should.exist(ch1);
             ch1.should.have.lengthOf(1);
@@ -1162,8 +1162,12 @@ describe('relations', function() {
 
     describe('when custom reverse belongsTo names for both sides', function() {
       it('can determine the collect via keyThrough', function() {
-        Physician.hasMany(Patient, { through: Appointment, foreignKey: 'fooId', keyThrough: 'barId' });
-        Patient.hasMany(Physician, { through: Appointment, foreignKey: 'barId', keyThrough: 'fooId', as: 'yyy' });
+        Physician.hasMany(Patient, {
+          through: Appointment, foreignKey: 'fooId', keyThrough: 'barId',
+        });
+        Patient.hasMany(Physician, {
+          through: Appointment, foreignKey: 'barId', keyThrough: 'fooId', as: 'yyy',
+        });
         Appointment.belongsTo(Physician, { as: 'foo' });
         Appointment.belongsTo(Patient, { as: 'bar' });
         Patient.belongsTo(Address); // jam.
@@ -1255,8 +1259,12 @@ describe('relations', function() {
         } }});
       Address = db.define('Address', { name: String });
 
-      User.hasMany(User, { as: 'followers', foreignKey: 'followeeId', keyThrough: 'followerId', through: Follow });
-      User.hasMany(User, { as: 'following', foreignKey: 'followerId', keyThrough: 'followeeId', through: Follow });
+      User.hasMany(User, {
+        as: 'followers', foreignKey: 'followeeId', keyThrough: 'followerId', through: Follow,
+      });
+      User.hasMany(User, {
+        as: 'following', foreignKey: 'followerId', keyThrough: 'followeeId', through: Follow,
+      });
       User.belongsTo(Address);
       Follow.belongsTo(User, { as: 'follower' });
       Follow.belongsTo(User, { as: 'followee' });
@@ -1303,8 +1311,12 @@ describe('relations', function() {
         } }});
       Address = db.define('Address', { name: String });
 
-      User.hasMany(User, { as: 'followers', foreignKey: 'followeeId', keyThrough: 'followerId', through: Follow });
-      User.hasMany(User, { as: 'following', foreignKey: 'followerId', keyThrough: 'followeeId', through: Follow });
+      User.hasMany(User, {
+        as: 'followers', foreignKey: 'followeeId', keyThrough: 'followerId', through: Follow,
+      });
+      User.hasMany(User, {
+        as: 'following', foreignKey: 'followerId', keyThrough: 'followeeId', through: Follow,
+      });
       User.belongsTo(Address);
       Follow.belongsTo(User, { as: 'follower' });
       Follow.belongsTo(User, { as: 'followee' });
@@ -2204,7 +2216,8 @@ describe('relations', function() {
     });
 
     it('should create polymorphic through model', function(done) {
-      PictureLink.findOne({ where: { pictureId: anotherPicture.id, imageableType: 'Author' }}, function(err, link) {
+      PictureLink.findOne({ where: { pictureId: anotherPicture.id, imageableType: 'Author' }},
+      function(err, link) {
         should.not.exist(err);
         link.pictureId.should.eql(anotherPicture.id);
         link.imageableId.should.eql(author.id);
@@ -3484,7 +3497,7 @@ describe('relations', function() {
       // db = getSchema();
       Person = db.define('Person', { name: String });
       Passport = tmp.define('Passport',
-        { name:{ type:'string', required: true }},
+        { name: { type: 'string', required: true }},
         { idInjection: false }
       );
       Address = tmp.define('Address', { street: String }, { idInjection: false });
@@ -3775,7 +3788,7 @@ describe('relations', function() {
       db = getMemoryDataSource();
       Person = db.define('Person', { name: String });
       Passport = db.define('Passport',
-        { name:{ type:'string', required: true }}
+        { name: { type: 'string', required: true }}
       );
     });
 
@@ -3787,7 +3800,7 @@ describe('relations', function() {
     });
 
     it('should create an item - to offset id', function(done) {
-      Passport.create({ name:'Wilma' }, function(err, p) {
+      Passport.create({ name: 'Wilma' }, function(err, p) {
         should.not.exist(err);
         p.id.should.equal(1);
         p.name.should.equal('Wilma');
@@ -3828,8 +3841,8 @@ describe('relations', function() {
       // db = getSchema();
       Person = db.define('Person', { name: String });
       Passport = tmp.define('Passport',
-        { id: { type:'string', id: true, generated:true }},
-        { name: { type:'string', required: true }}
+        { id: { type: 'string', id: true, generated: true }},
+        { name: { type: 'string', required: true }}
       );
     });
 
@@ -4097,7 +4110,7 @@ describe('relations', function() {
       // db = getSchema();
       Person = db.define('Person', { name: String });
       Address = tmp.define('Address', {
-        id: { type: Number, id:true },
+        id: { type: Number, id: true },
         street: String,
       });
 

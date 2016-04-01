@@ -281,7 +281,7 @@ describe('Memory connector', function() {
     });
 
     it('should successfully extract 2 users using implied and', function(done) {
-      User.find({ where: { role:'lead', vip:true }}, function(err, users) {
+      User.find({ where: { role: 'lead', vip: true }}, function(err, users) {
         should(users.length).be.equal(2);
         should(users[0].name).be.equal('John Lennon');
         should(users[1].name).be.equal('Paul McCartney');
@@ -290,7 +290,10 @@ describe('Memory connector', function() {
     });
 
     it('should successfully extract 2 users using implied and & and', function(done) {
-      User.find({ where: { name: 'John Lennon', and: [{ role:'lead' }, { vip:true }] }}, function(err, users) {
+      User.find({ where: {
+        name: 'John Lennon',
+        and: [{ role: 'lead' }, { vip: true }],
+      }}, function(err, users) {
         should(users.length).be.equal(1);
         should(users[0].name).be.equal('John Lennon');
         done();
@@ -427,11 +430,11 @@ describe('Memory connector', function() {
     it('should work when a regex is provided without the regexp operator',
         function(done) {
           User.find({ where: { name: /John.*/i }}, function(err, users) {
-        should.not.exist(err);
-        users.length.should.equal(1);
-        users[0].name.should.equal('John Lennon');
-        done();
-      });
+            should.not.exist(err);
+            users.length.should.equal(1);
+            users[0].name.should.equal('John Lennon');
+            done();
+          });
         });
 
     it('should support the regexp operator with regex strings', function(done) {
@@ -485,13 +488,13 @@ describe('Memory connector', function() {
 
     it('should support nested property with gt in query', function(done) {
       User.find({ where: { 'address.city': { gt: 'San' }}}, function(err, users) {
-          should.not.exist(err);
-          users.length.should.be.equal(2);
-          for (var i = 0; i < users.length; i++) {
-            users[i].address.state.should.be.eql('CA');
-          }
-          done();
-        });
+        should.not.exist(err);
+        users.length.should.be.equal(2);
+        for (var i = 0; i < users.length; i++) {
+          users[i].address.state.should.be.eql('CA');
+        }
+        done();
+      });
     });
 
     it('should support nested property for order in query', function(done) {

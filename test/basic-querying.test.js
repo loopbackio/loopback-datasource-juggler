@@ -304,7 +304,7 @@ describe('basic-querying', function() {
     });
 
     it('should support number "gte" that is satisfied', function(done) {
-      User.find({ order: 'seq', where: { order: { 'gte':  3 },
+      User.find({ order: 'seq', where: { order: { 'gte': 3 },
       }}, function(err, users) {
         should.not.exist(err);
         users.should.have.property('length', 4);
@@ -361,7 +361,7 @@ describe('basic-querying', function() {
     });
 
     it('should support string "gte" that is satisfied by null value', function(done) {
-      User.find({ order: 'seq', where: { name: { 'gte':  null },
+      User.find({ order: 'seq', where: { name: { 'gte': null },
       }}, function(err, users) {
         should.not.exist(err);
         users.should.have.property('length', 0);
@@ -370,7 +370,7 @@ describe('basic-querying', function() {
     });
 
     it('should support string "gte" that is satisfied', function(done) {
-      User.find({ order: 'seq', where: { name: { 'gte':  'Paul McCartney' },
+      User.find({ order: 'seq', where: { name: { 'gte': 'Paul McCartney' },
       }}, function(err, users) {
         should.not.exist(err);
         users.should.have.property('length', 4);
@@ -409,7 +409,7 @@ describe('basic-querying', function() {
     });
 
     it('should support boolean "gte" that is satisfied', function(done) {
-      User.find({ order: 'seq', where: { vip: { 'gte':  true },
+      User.find({ order: 'seq', where: { vip: { 'gte': true },
       }}, function(err, users) {
         should.not.exist(err);
         users.should.have.property('length', 3);
@@ -741,16 +741,16 @@ describe.skip('queries', function() {
     });
 
     it('should return an error for deleteById/destroyById/removeById',
-        function(done) {
-          var aliases = ['deleteById', 'destroyById', 'removeById'];
-          async.each(aliases, function(alias, cb) {
+    function(done) {
+      var aliases = ['deleteById', 'destroyById', 'removeById'];
+      async.each(aliases, function(alias, cb) {
         Todo[alias](1, function(err) {
           should.exist(err);
           err.message.should.equal(expectedErrMsg);
           cb();
         });
       }, done);
-        });
+    });
 
     it('should return an error for instance.save', function(done) {
       var todo = new Todo();

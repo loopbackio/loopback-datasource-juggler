@@ -317,7 +317,8 @@ function testOrm(dataSource) {
         post.destroy(function() {
           Post.exists(post.id, function(err, exists) {
             if (err) console.log(err);
-            test.ok(!exists, 'Hey! ORM told me that object exists, but it looks like it doesn\'t. Something went wrong...');
+            test.ok(!exists, 'Hey! ORM told me that object exists, ' +
+              ' but it looks like it doesn\'t. Something went wrong...');
             Post.findById(post.id, function(err, obj) {
               test.equal(obj, null, 'Param obj should be null');
               test.done();
@@ -480,6 +481,7 @@ function testOrm(dataSource) {
 
   });
 
+  /* eslint-disable max-len */
   it('hasMany should be cached', function(test) {
     //User.create(function (e, u) {
     //    u.posts.create({}, function (e, p) {
@@ -546,8 +548,8 @@ function testOrm(dataSource) {
         }
       }
     });
-
   });
+  /* eslint-enable max-len */
 
   // it('should handle hasOne relationship', function (test) {
   //     User.create(function (err, u) {
@@ -697,7 +699,7 @@ function testOrm(dataSource) {
 
     function doMultipleSortTest() {
       tests += 1;
-      Post.all({ order: "title ASC, subject ASC" }, function(err, posts) {
+      Post.all({ order: 'title ASC, subject ASC' }, function(err, posts) {
         if (err) console.log(err);
         test.equal(posts.length, 6);
         test.equal(posts[0].title, 'Title A');
@@ -711,7 +713,7 @@ function testOrm(dataSource) {
 
     function doMultipleReverseSortTest() {
       tests += 1;
-      Post.all({ order: "title ASC, subject DESC" }, function(err, posts) {
+      Post.all({ order: 'title ASC, subject DESC' }, function(err, posts) {
         if (err) console.log(err);
         test.equal(posts.length, 6);
         test.equal(posts[0].title, 'Title A');
