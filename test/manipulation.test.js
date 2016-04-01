@@ -1481,12 +1481,9 @@ describe('manipulation', function () {
       p1 = new Person({name: 'John', dob: undefined});
       p1.should.have.property('dob', undefined);
 
-      try {
-        p1 = new Person({name: 'John', dob: 'X'});
-        throw new Error('new Person() should have thrown');
-      } catch (e) {
-        e.should.be.eql(new Error('Invalid date: X'));
-      }
+      p1 = new Person({name: 'John', dob: 'X'});
+      p1.should.have.property('dob');
+      p1.dob.toString().should.be.eql('Invalid Date');
     });
   });
 
