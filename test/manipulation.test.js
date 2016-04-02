@@ -459,8 +459,13 @@ describe('manipulation', function () {
       });
     });
 
-    it('should update one attribute', function (done) {
-      person.updateAttribute('name', 'Paul Graham', function (err, p) {
+    it('has an alias "patchAttributes"', function(done) {
+      person.updateAttributes.should.equal(person.patchAttributes);
+      done();
+    });
+
+    it('should update one attribute', function(done) {
+      person.updateAttribute('name', 'Paul Graham', function(err, p) {
         if (err) return done(err);
         Person.all(function (e, ps) {
           if (e) return done(e);
@@ -629,6 +634,10 @@ describe('manipulation', function () {
   });
 
   describe('updateOrCreate', function() {
+    it('has an alias "patchOrCreate"', function() {
+      StubUser.updateOrCreate.should.equal(StubUser.patchOrCreate);
+    });
+
     it('should preserve properties with dynamic setters on create', function(done) {
       StubUser.updateOrCreate({ password: 'foo' }, function(err, created) {
         if (err) return done(err);
