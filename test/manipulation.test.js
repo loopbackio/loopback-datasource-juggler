@@ -658,19 +658,65 @@ describe('manipulation', function() {
   });
 
   describe('updateOrCreate', function() {
-    var ds = getSchema();
-    var Post;
+    var Post, Todo;
 
-    before('prepare "Post" model', function(done) {
-      Post = ds.define('Post', {
+    before('prepare "Post" and "Todo" models', function(done) {
+      Post = db.define('Post', {
         title: { type: String, id: true },
         content: { type: String },
       });
-      ds.automigrate('Post', done);
+      Todo = db.define('Todo', {
+        content: String,
+      });
+      db.automigrate(['Post', 'Todo'], done);
+    });
+
+    beforeEach(function deleteModelsInstances(done) {
+      Todo.deleteAll(done);
     });
 
     it('has an alias "patchOrCreate"', function() {
       StubUser.updateOrCreate.should.equal(StubUser.patchOrCreate);
+    });
+
+    it('creates a model when one does not exist', function(done) {
+      Todo.updateOrCreate({ content: 'a' }, function(err, data) {
+        if (err) return done(err);
+
+        Todo.findById(data.id, function(err, todo) {
+          should.exist(todo);
+          should.exist(todo.content);
+          todo.content.should.equal('a');
+
+          done();
+        });
+      });
+    });
+
+    it('updates a model if it exists', function(done) {
+      Todo.create({ content: 'a' }, function(err, todo) {
+        Todo.updateOrCreate({ id: todo.id, content: 'b' }, function(err, data) {
+          if (err) return done(err);
+
+          should.exist(data);
+          should.exist(data.id);
+          data.id.should.equal(todo.id);
+          should.exist(data.content);
+          data.content.should.equal('b');
+
+          done();
+        });
+      });
+    });
+
+    it('throws error for queries with array input', function(done) {
+      Todo.updateOrCreate([{ content: 'a' }], function(err, data) {
+        should.exist(err);
+        err.message.should.containEql('bulk');
+        should.not.exist(data);
+
+        done();
+      });
     });
 
     it('should preserve properties with dynamic setters on create', function(done) {
