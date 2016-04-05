@@ -625,3 +625,27 @@ describe('Mock connector', function() {
     });
   });
 });
+
+describe('Default memory connector', function() {
+  var ds, nonExistantError = 'Table \'NONEXISTENT\' does not exist.';
+
+  before(function() {
+    ds = new DataSource({ connector: 'memory' });
+  });
+
+  it('discoverSchema should return an error when table does not exist', function(done) {
+    ds.discoverSchema('NONEXISTENT', {}, function(err, schemas) {
+      should.exist(err);
+      err.message.should.eql(nonExistantError);
+      done();
+    });
+  });
+
+  it('discoverSchemas should return an error when table does not exist', function(done) {
+    ds.discoverSchemas('NONEXISTENT', {}, function(err, schemas) {
+      should.exist(err);
+      err.message.should.eql(nonExistantError);
+      done();
+    });
+  });
+});
