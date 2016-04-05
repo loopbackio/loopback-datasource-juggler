@@ -1,0 +1,7 @@
+{
+  "rules": {
+    // NOTE(bajtos) We should eventually get rid of this override,
+    // and fix those 200+ violations instead
+    "padded-blocks": "off"
+  }
+}

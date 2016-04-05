@@ -11,9 +11,9 @@ describe('events', function() {
     this.db = getSchema();
     this.TestModel = this.db.define('TestModel');
     this.db.automigrate(function(err) {
-      if(err) return done(err);
+      if (err) return done(err);
       test.TestModel.create(function(err, inst) {
-        if(err) return done(err);
+        if (err) return done(err);
         test.inst = inst;
         done();
       });
@@ -23,30 +23,30 @@ describe('events', function() {
         listener.apply(this, arguments);
         done();
       });
-    }
+    };
   });
 
   describe('changed', function() {
     it('should be emitted after save', function(done) {
-      var model = new this.TestModel({name: 'foobar'});
+      var model = new this.TestModel({ name: 'foobar' });
       this.shouldEmitEvent('changed', assertValidChangedArgs, done);
       model.save();
     });
     it('should be emitted after upsert', function(done) {
       this.shouldEmitEvent('changed', assertValidChangedArgs, done);
-      this.TestModel.upsert({name: 'batbaz'});
+      this.TestModel.upsert({ name: 'batbaz' });
     });
     it('should be emitted after create', function(done) {
       this.shouldEmitEvent('changed', assertValidChangedArgs, done);
-      this.TestModel.create({name: '...'});
+      this.TestModel.create({ name: '...' });
     });
     it('should be emitted after updateAttributes', function(done) {
       var test = this;
-      this.TestModel.create({name: 'bazzy'}, function(err, model) {
+      this.TestModel.create({ name: 'bazzy' }, function(err, model) {
         // prevent getting the changed event from "create"
         process.nextTick(function() {
           test.shouldEmitEvent('changed', assertValidChangedArgs, done);
-          model.updateAttributes({name: 'foo'});
+          model.updateAttributes({ name: 'foo' });
         });
       });
     });
@@ -68,7 +68,7 @@ describe('events', function() {
       this.shouldEmitEvent('deletedAll', function(where) {
         where.name.should.equal('foo');
       }, done);
-      this.TestModel.destroyAll({name: 'foo'});
+      this.TestModel.destroyAll({ name: 'foo' });
     });
   });
 });
