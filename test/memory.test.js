@@ -349,7 +349,7 @@ describe('Memory connector', function() {
     it('should successfully extract 5 users matching a neq filter over array values', function(done) {
       User.find({
         where: {
-          'children': { neq: 'Dhani' },
+          children: { neq: 'Dhani' },
         },
       }, function(err, users) {
         should.not.exist(err);
@@ -358,28 +358,20 @@ describe('Memory connector', function() {
       });
     });
 
-    it('should successfully extract 3 users with inq', function (done) {
+    it('should successfully extract 3 users with inq', function(done) {
       User.find({
-        where: {
-          seq: {
-            inq: [0, 1, 5]
-          }
-        }
-      }, function (err, users) {
+        where: { seq: { inq: [0, 1, 5] }},
+      }, function(err, users) {
         should.not.exist(err);
         users.length.should.be.equal(3);
         done();
       });
     });
 
-    it('should successfully extract 4 users with nin', function (done) {
+    it('should successfully extract 4 users with nin', function(done) {
       User.find({
-        where: {
-          seq: {
-            nin: [2, 3]
-          }
-        }
-      }, function (err, users) {
+        where: { seq: { nin: [2, 3] }},
+      }, function(err, users) {
         should.not.exist(err);
         users.length.should.be.equal(4);
         done();
