@@ -358,6 +358,34 @@ describe('Memory connector', function() {
       });
     });
 
+    it('should successfully extract 3 users with inq', function (done) {
+      User.find({
+        where: {
+          seq: {
+            inq: [0, 1, 5]
+          }
+        }
+      }, function (err, users) {
+        should.not.exist(err);
+        users.length.should.be.equal(3);
+        done();
+      });
+    });
+
+    it('should successfully extract 4 users with nin', function (done) {
+      User.find({
+        where: {
+          seq: {
+            nin: [2, 3]
+          }
+        }
+      }, function (err, users) {
+        should.not.exist(err);
+        users.length.should.be.equal(4);
+        done();
+      });
+    });
+
     it('should count using date string', function(done) {
       User.count({ birthday: { lt: new Date(1990, 0).toISOString() }},
         function(err, count) {
