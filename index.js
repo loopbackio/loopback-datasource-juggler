@@ -1,3 +1,8 @@
+// Copyright IBM Corp. 2011,2016. All Rights Reserved.
+// Node module: loopback-datasource-juggler
+// This file is licensed under the MIT License.
+// License text available at https://opensource.org/licenses/MIT
+
 exports.ModelBuilder = exports.LDL = require('./lib/model-builder.js').ModelBuilder;
 exports.DataSource = exports.Schema = require('./lib/datasource.js').DataSource;
 exports.ModelBaseClass = require('./lib/model.js');
