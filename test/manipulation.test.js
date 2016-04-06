@@ -37,6 +37,15 @@ describe('manipulation', function () {
   before(function setupStubUserModel(done) {
     StubUser = db.createModel('StubUser', { password: String }, { forceId: true });
     StubUser.setter.password = function(plain) {
+      var hashed = false;
+      if (!plain) return;
+      var pos = plain.indexOf('-');
+      if (pos !== -1) {
+        var head = plain.substr(0, pos);
+        var tail = plain.substr(pos + 1, plain.length);
+        hashed = head.toUpperCase() === tail;
+      }
+      if (hashed) return;
       this.$password = plain + '-' + plain.toUpperCase();
     };
     db.automigrate('StubUser', done);
@@ -462,6 +471,22 @@ describe('manipulation', function () {
     it('has an alias "patchAttributes"', function(done) {
       person.updateAttributes.should.equal(person.patchAttributes);
       done();
+    });
+
+    it('should have updated password hashed with updateAttribute',
+    function(done) {
+      StubUser.create({ password: 'foo' }, function(err, created) {
+        if (err) return done(err);
+        created.updateAttribute('password', 'test', function(err, created) {
+          if (err) return done(err);
+          created.password.should.equal('test-TEST');
+          StubUser.findById(created.id, function(err, found) {
+            if (err) return done(err);
+            found.password.should.equal('test-TEST');
+            done();
+          });
+        });
+      });
     });
 
     it('should update one attribute', function(done) {
@@ -943,10 +968,27 @@ describe('manipulation', function () {
         });
       });
 
-    it('works without options(promise variant)', function(done) {
-      Post.findById(postInstance.id)
-      .then(function(p){
-        p.replaceAttributes({title: 'b'})
+      it('should have updated password hashed with replaceAttributes',
+      function(done) {
+        StubUser.create({ password: 'foo' }, function(err, created) {
+          if (err) return done(err);
+          created.replaceAttributes({ password: 'test' },
+          function(err, created) {
+            if (err) return done(err);
+            created.password.should.equal('test-TEST');
+            StubUser.findById(created.id, function(err, found) {
+              if (err) return done(err);
+              found.password.should.equal('test-TEST');
+              done();
+            });
+          });
+        });
+      });
+
+      it('works without options(promise variant)', function(done) {
+        Post.findById(postInstance.id)
+      .then(function(p) {
+        p.replaceAttributes({ title: 'b' })
         .then(function(p) {
           should.exist(p);
           p.should.be.instanceOf(Post);
