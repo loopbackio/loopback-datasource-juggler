@@ -1,3 +1,43 @@
+2016-04-07, Version 3.0.0-alpha.4
+=================================
+
+ * Partition by foreign key for pagination (Raymond Feng)
+
+ * Fix style errors (Raymond Feng)
+
+ * fix remaining eslint issues (Miroslav Bajtoš)
+
+ * eslint --fix (Miroslav Bajtoš)
+
+ * Add eslint as "npm run lint" and "posttest" hook (Miroslav Bajtoš)
+
+ * Remove unused support/ files (Miroslav Bajtoš)
+
+ * Insert copyright headers (Ryan Graham)
+
+ * Relicense as MIT only (Ryan Graham)
+
+ * Fix Mongo compatibility issue (Amir Jafarian)
+
+ * Add automigrate to setup tables for replace test cases (Amir Jafarian)
+
+ * Allow test folder to be published (Amir Jafarian)
+
+ * support custom field settings under the connector's namespace (bitmage)
+
+ * Update error message for missing connector (gunjpan)
+
+ * Fix tests for mysql (Amir Jafarian)
+
+ * Add forgotten unit test (Miroslav Bajtoš)
+
+ * fix nin support for in memory datasource (Horia Radu)
+
+ * Improve error message on connector init error (Miroslav Bajtoš)
+
+ * discoverSchemas returns an error when modelName is not found, discoverSchema forwards that error and does not hang when no columns, no errors are returned (bitmage)
+
+
 2016-02-22, Version 3.0.0-alpha.3
 =================================
 
