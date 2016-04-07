@@ -4,8 +4,9 @@
 // License text available at https://opensource.org/licenses/MIT
 
 // This test written in mocha+should.js
+var async = require('async');
 var should = require('./init.js');
-var db, User, options, whereCount = 0;
+var db, User, options, ModelWithForceId, whereCount = 0;
 var j = require('../');
 var ValidationError = j.ValidationError;
 
@@ -18,6 +19,10 @@ describe('optional-validation', function () {
 
   before(function (done) {
     db = getSchema();
+    ModelWithForceId = db.createModel(
+    'ModelWithForceId',
+    { name: String },
+    { forceId: true });
     User = db.define('User', {
       seq: {type: Number, index: true},
       name: {type: String, index: true, sort: true},
@@ -27,9 +32,7 @@ describe('optional-validation', function () {
       order: {type: Number, index: true, sort: true},
       vip: {type: Boolean}
     }, { forceId: true, strict: true });
-
-    db.automigrate(['User'], done);
-
+    db.automigrate(['ModelWithForceId', 'User'], done);
   });
 
   beforeEach(function (done) {
@@ -107,7 +110,34 @@ describe('optional-validation', function () {
     return {name: 'DoesNotExist' + (whereCount++)};
   }
 
-  describe('no model setting', function () {
+  describe('forceId', function() {
+    context('replaceAttributes', function() {
+      it('should not fail if you do not pass the Primary key in data object',
+      function(done) {
+        ModelWithForceId.create({ name: 'foo' }, function(err, created) {
+          if (err) return done(err);
+          created.replaceAttributes({ name: 'bar' }, function(err, data) {
+            done(err);
+          });
+        });
+      });
+
+      it('should fail if you pass the Primary key in data object',
+      function(done) {
+        ModelWithForceId.create({ name: 'foo' }, function(err, created) {
+          if (err) return done(err);
+          created.replaceAttributes({ name: 'bar', id: 999 },
+          function(err, data) {
+            should.exist(err);
+            done();
+          });
+        });
+      });
+    });
+  });
+
+
+  describe('no model setting', function() {
 
     describe('method create', function() {
       it('should throw on create with validate:true with invalid data', function (done) {
