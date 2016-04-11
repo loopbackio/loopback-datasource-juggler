@@ -1,3 +1,31 @@
+2016-04-07, Version 2.46.0
+==========================
+
+ * Insert copyright headers (Miroslav Bajtoš)
+
+ * Relicense as MIT only (Miroslav Bajtoš)
+
+ * Fix Mongo compatibility issue (Amir Jafarian)
+
+ * Add automigrate to setup tables for replace test cases (Amir Jafarian)
+
+ * Remove next tag (2.x) (Amir Jafarian)
+
+ * Allow test folder to be published (Amir Jafarian)
+
+ * Fix tests for mysql (Amir Jafarian)
+
+ * Add forgotten unit test (Miroslav Bajtoš)
+
+ * Improve error message on connector init error (Miroslav Bajtoš)
+
+ * Update describe-operation-hooks (Miroslav Bajtoš)
+
+ * Fix missing connector error msg for db2, cloudant for 2.x (Candy)
+
+ * Implementtaion of replace (Amir Jafarian)
+
+
 2016-02-22, Version 2.45.2
 ==========================
 

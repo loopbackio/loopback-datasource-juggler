@@ -1,3 +1,8 @@
+// Copyright IBM Corp. 2014,2016. All Rights Reserved.
+// Node module: loopback-datasource-juggler
+// This file is licensed under the MIT License.
+// License text available at https://opensource.org/licenses/MIT
+
 var jdb = require('../');
 var DataSource = jdb.DataSource;
 var path = require('path');
@@ -853,7 +858,7 @@ describe('Optimized connector', function() {
     }.bind(this));
   };
 
-  require('./persistence-hooks.suite')(ds, should);
+  require('./persistence-hooks.suite')(ds, should, {replaceOrCreateReportsNewInstance: true});
 });
 
 describe('Unoptimized connector', function() {
@@ -862,7 +867,7 @@ describe('Unoptimized connector', function() {
   ds.connector.updateOrCreate = false;
   ds.connector.findOrCreate = false;
 
-  require('./persistence-hooks.suite')(ds, should);
+  require('./persistence-hooks.suite')(ds, should, {replaceOrCreateReportsNewInstance: true});
 });
 
 describe('Memory connector with options', function() {

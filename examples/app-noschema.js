@@ -1,3 +1,8 @@
+// Copyright IBM Corp. 2013,2016. All Rights Reserved.
+// Node module: loopback-datasource-juggler
+// This file is licensed under the MIT License.
+// License text available at https://opensource.org/licenses/MIT
+
 var DataSource = require('../../loopback-datasource-juggler').DataSource;
 var ModelBuilder = require('../../loopback-datasource-juggler').ModelBuilder;
 var introspectType = require('../lib/introspection')(ModelBuilder);
