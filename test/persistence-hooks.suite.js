@@ -13,23 +13,24 @@ var aCtxForModel = contextTestHelpers.aCtxForModel;
 var uid = require('./helpers/uid-generator');
 var getLastGeneratedUid = uid.last;
 
+var HookMonitor = require('./helpers/hook-monitor');
+
 module.exports = function(dataSource, should, connectorCapabilities) {
   if (!connectorCapabilities) connectorCapabilities = {};
   if (connectorCapabilities.replaceOrCreateReportsNewInstance === undefined) {
     console.warn('The connector does not support a recently added feature: replaceOrCreateReportsNewInstance');
   }
   describe('Persistence hooks', function() {
-    var ctxRecorder, expectedError, observersCalled;
+    var ctxRecorder, hookMonitor, expectedError;
     var TestModel, existingInstance;
     var migrated = false;
-    var triggered;
 
     var undefinedValue = undefined;
 
     beforeEach(function setupDatabase(done) {
       ctxRecorder = new ContextRecorder('hook not called');
+      hookMonitor = new HookMonitor({ includeModelName: false });
       expectedError = new Error('test error');
-      observersCalled = [];
 
       TestModel = dataSource.createModel('TestModel', {
         // Set id.generated to false to honor client side values
@@ -76,7 +77,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, list) {
             if (err) return done(err);
 
-            triggered.should.eql([
+            hookMonitor.names.should.eql([
               'access',
               'loaded'
             ]);
@@ -186,7 +187,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, record, created) {
             if (err) return done(err);
 
-            triggered.should.eql([
+            hookMonitor.names.should.eql([
               'before save',
               'persist',
               'loaded',
@@ -552,7 +553,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           { name: 'new-record' },
           function(err, record, created) {
             if (err) return done(err);
-            triggered.should.eql([
+            hookMonitor.names.should.eql([
               'access',
               'before save',
               'persist',
@@ -573,14 +574,14 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             if (err) return done(err);
 
             if (dataSource.connector.findOrCreate) {
-              triggered.should.eql([
+              hookMonitor.names.should.eql([
                 'access',
                 'before save',
                 'persist',
                 'loaded'
               ]);
             } else {
-              triggered.should.eql([
+              hookMonitor.names.should.eql([
                 'access',
                 'loaded'
               ]);
@@ -931,7 +932,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         existingInstance.save(
           function(err, record, created) {
             if (err) return done(err);
-            triggered.should.eql([
+            hookMonitor.names.should.eql([
               'before save',
               'persist',
               'loaded',
@@ -1143,7 +1144,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           { name: 'changed' },
           function(err, record, created) {
             if (err) return done(err);
-            triggered.should.eql([
+            hookMonitor.names.should.eql([
               'before save',
               'persist',
               'loaded',
@@ -1399,7 +1400,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             { name: 'replaced' },
             function(err, record, created) {
               if (err) return done(err);
-              triggered.should.eql([
+              hookMonitor.names.should.eql([
                 'before save',
                 'persist',
                 'loaded',
@@ -1642,7 +1643,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           { id: 'not-found', name: 'not found' },
           function(err, record, created) {
             if (err) return done(err);
-            triggered.should.eql([
+            hookMonitor.names.should.eql([
               'access',
               'before save',
               'persist',
@@ -1661,7 +1662,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, record, created) {
             if (err) return done(err);
             if (dataSource.connector.updateOrCreate) {
-              triggered.should.eql([
+              hookMonitor.names.should.eql([
                 'access',
                 'before save',
                 'persist',
@@ -1669,7 +1670,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 'after save'
               ]);
             } else {
-              triggered.should.eql([
+              hookMonitor.names.should.eql([
                 'access',
                 'loaded',
                 'before save',
@@ -1766,8 +1767,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       });
 
       it('triggers hooks only once', function(done) {
-        TestModel.observe('access', pushNameAndNext('access'));
-        TestModel.observe('before save', pushNameAndNext('before save'));
+        monitorHookExecution(['access', 'before save']);
 
         TestModel.observe('access', function(ctx, next) {
           ctx.query = { where: { id: { neq: existingInstance.id } } };
@@ -1778,7 +1778,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           { id: 'ignored', name: 'new name' },
           function(err, instance) {
             if (err) return done(err);
-            observersCalled.should.eql(['access', 'before save']);
+            hookMonitor.names.should.eql(['access', 'before save']);
             done();
           });
       });
@@ -2097,7 +2097,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             { id: 'not-found', name: 'not found' },
             function(err, record, created) {
               if (err) return done(err);
-              triggered.should.eql([
+              hookMonitor.names.should.eql([
                 'access',
                 'before save',
                 'persist',
@@ -2116,7 +2116,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             function(err, record, created) {
               if (err) return done(err);
               if (dataSource.connector.replaceOrCreate) {
-                triggered.should.eql([
+                hookMonitor.names.should.eql([
                   'access',
                   'before save',
                   'persist',
@@ -2133,7 +2133,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 //    loopback-datasource-juggler/issues#836.
                 // 2) It, also, gets triggered in "replaceAttributes()"
                 //    in this chain replaceORCreate()->replaceAttributes()
-                triggered.should.eql([
+                hookMonitor.names.should.eql([
                   'access',
                   'loaded',
                   'before save',
@@ -2230,8 +2230,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         });
 
         it('triggers hooks only once', function(done) {
-          TestModel.observe('access', pushNameAndNext('access'));
-          TestModel.observe('before save', pushNameAndNext('before save'));
+          monitorHookExecution(['access', 'before save']);
 
           TestModel.observe('access', function(ctx, next) {
             ctx.query = { where: { id: { neq: existingInstance.id } } };
@@ -2242,7 +2241,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             { id: 'ignored', name: 'new name' },
             function(err, instance) {
               if (err) return done(err);
-              observersCalled.should.eql(['access', 'before save']);
+              hookMonitor.names.should.eql(['access', 'before save']);
               done();
             });
         });
@@ -2802,8 +2801,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       });
 
       it('triggers hooks only once', function(done) {
-        TestModel.observe('access', pushNameAndNext('access'));
-        TestModel.observe('after delete', pushNameAndNext('after delete'));
+        monitorHookExecution();
         TestModel.observe('access', function(ctx, next) {
           ctx.query = { where: { id: { neq: existingInstance.id } } };
           next();
@@ -2811,7 +2809,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
         existingInstance.delete(function(err) {
           if (err) return done(err);
-          observersCalled.should.eql(['access', 'after delete']);
+          hookMonitor.names.should.eql(['access', 'before delete', 'after delete']);
           done();
         });
       });
@@ -2973,13 +2971,6 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
     });
 
-    function pushNameAndNext(name) {
-      return function(context, next) {
-        observersCalled.push(name);
-        next();
-      };
-    }
-
     function nextWithError(err) {
       return function(context, next) {
         next(err);
@@ -3010,13 +3001,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       TestModel.findOne({ where: { id: id } }, { notify: false }, cb);
     }
 
-    function monitorHookExecution() {
-      triggered = [];
-      TestModel._notify = TestModel.notifyObserversOf;
-      TestModel.notifyObserversOf = function(operation, context, callback) {
-        triggered.push(operation);
-        this._notify.apply(this, arguments);
-      };
+    function monitorHookExecution(hookNames) {
+      hookMonitor.install(TestModel, hookNames);
     }
   });
 
