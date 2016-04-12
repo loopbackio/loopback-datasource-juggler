@@ -10,6 +10,9 @@ var ContextRecorder = contextTestHelpers.ContextRecorder;
 var deepCloneToObject = contextTestHelpers.deepCloneToObject;
 var aCtxForModel = contextTestHelpers.aCtxForModel;
 
+var uid = require('./helpers/uid-generator');
+var getLastGeneratedUid = uid.last;
+
 module.exports = function(dataSource, should, connectorCapabilities) {
   if (!connectorCapabilities) connectorCapabilities = {};
   if (connectorCapabilities.replaceOrCreateReportsNewInstance === undefined) {
@@ -18,7 +21,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
   describe('Persistence hooks', function() {
     var ctxRecorder, expectedError, observersCalled;
     var TestModel, existingInstance;
-    var migrated = false, lastId;
+    var migrated = false;
     var triggered;
 
     var undefinedValue = undefined;
@@ -30,12 +33,12 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       TestModel = dataSource.createModel('TestModel', {
         // Set id.generated to false to honor client side values
-        id: { type: String, id: true, generated: false, default: uid },
+        id: { type: String, id: true, generated: false, default: uid.next },
         name: { type: String, required: true },
         extra: { type: String, required: false }
       });
 
-      lastId = 0;
+      uid.reset();
 
       if (migrated) {
         TestModel.deleteAll(done);
@@ -226,7 +229,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           next();
         });
 
-        TestModel.create({ id: uid(), name: 'a-name' }, function(err, instance) {
+        TestModel.create({ id: uid.next(), name: 'a-name' }, function(err, instance) {
           if (err) return done(err);
           instance.should.have.property('extra', 'hook data');
           done();
@@ -1255,7 +1258,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         });
 
         var User = dataSource.createModel('UserWithAddress', {
-          id: { type: String, id: true, default: uid() },
+          id: { type: String, id: true, default: uid.next },
           name: { type: String, required: true },
           address: {type: Address, required: false},
           extra: {type: String}
@@ -1507,7 +1510,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           });
 
           var User = dataSource.createModel('UserWithAddress', {
-            id: { type: String, id: true, default: uid() },
+            id: { type: String, id: true, default: uid.next },
             name: { type: String, required: true },
             address: {type: Address, required: false},
             extra: {type: String}
@@ -3005,15 +3008,6 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
     function loadTestModel(id, cb) {
       TestModel.findOne({ where: { id: id } }, { notify: false }, cb);
-    }
-
-    function uid() {
-      lastId += 1;
-      return '' + lastId;
-    }
-
-    function getLastGeneratedUid() {
-      return '' + lastId;
     }
 
     function monitorHookExecution() {
