@@ -2976,6 +2976,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
     function monitorHookExecution(hookNames) {
       hookMonitor.install(TestModel, hookNames);
     }
+
+    require('./operation-hooks.suite')(dataSource, should, connectorCapabilities);
   });
 
   function get(propertyName) {
