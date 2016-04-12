@@ -3010,6 +3010,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
     require('./operation-hooks.suite')(dataSource, should, connectorCapabilities);
   });
   
+  
   function get(propertyName) {
     return function(obj) {
       return obj[propertyName];
