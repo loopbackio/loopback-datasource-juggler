@@ -28,12 +28,12 @@ function context(name, tests) {
   EXT_EXP[name] = {};
   group_name = name;
   tests({
-    before: function (f) {
+    before: function(f) {
       it('setUp', f);
     },
-    after: function (f) {
+    after: function(f) {
       it('tearDown', f);
-    }
+    },
   });
   group_name = false;
 }

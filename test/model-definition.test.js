@@ -14,21 +14,21 @@ var Memory = require('../lib/connectors/memory');
 
 var ModelDefinition = require('../lib/model-definition');
 
-describe('ModelDefinition class', function () {
+describe('ModelDefinition class', function() {
   var memory;
   beforeEach(function() {
-    memory = new DataSource({connector: Memory});
+    memory = new DataSource({ connector: Memory });
   });
 
-  it('should be able to define plain models', function (done) {
+  it('should be able to define plain models', function(done) {
     var modelBuilder = new ModelBuilder();
 
     var User = new ModelDefinition(modelBuilder, 'User', {
-      name: "string",
+      name: 'string',
       bio: ModelBuilder.Text,
       approved: Boolean,
       joinedAt: Date,
-      age: "number"
+      age: 'number',
     });
 
     User.build();
@@ -39,12 +39,12 @@ describe('ModelDefinition class', function () {
     assert.equal(User.properties.age.type, Number);
 
     var json = User.toJSON();
-    assert.equal(json.name, "User");
-    assert.equal(json.properties.name.type, "String");
-    assert.equal(json.properties.bio.type, "Text");
-    assert.equal(json.properties.approved.type, "Boolean");
-    assert.equal(json.properties.joinedAt.type, "Date");
-    assert.equal(json.properties.age.type, "Number");
+    assert.equal(json.name, 'User');
+    assert.equal(json.properties.name.type, 'String');
+    assert.equal(json.properties.bio.type, 'Text');
+    assert.equal(json.properties.approved.type, 'Boolean');
+    assert.equal(json.properties.joinedAt.type, 'Date');
+    assert.equal(json.properties.age.type, 'Number');
 
     assert.deepEqual(User.toJSON(), json);
 
@@ -52,22 +52,22 @@ describe('ModelDefinition class', function () {
 
   });
 
-  it('should be able to define additional properties', function (done) {
+  it('should be able to define additional properties', function(done) {
     var modelBuilder = new ModelBuilder();
 
     var User = new ModelDefinition(modelBuilder, 'User', {
-      name: "string",
+      name: 'string',
       bio: ModelBuilder.Text,
       approved: Boolean,
       joinedAt: Date,
-      age: "number"
+      age: 'number',
     });
 
     User.build();
 
     var json = User.toJSON();
 
-    User.defineProperty("id", {type: "number", id: true});
+    User.defineProperty('id', { type: 'number', id: true });
     assert.equal(User.properties.name.type, String);
     assert.equal(User.properties.bio.type, ModelBuilder.Text);
     assert.equal(User.properties.approved.type, Boolean);
@@ -77,13 +77,13 @@ describe('ModelDefinition class', function () {
     assert.equal(User.properties.id.type, Number);
 
     json = User.toJSON();
-    assert.deepEqual(json.properties.id, {type: 'Number', id: true});
+    assert.deepEqual(json.properties.id, { type: 'Number', id: true });
 
     done();
 
   });
 
-  it('should be able to define nesting models', function (done) {
+  it('should be able to define nesting models', function(done) {
     var modelBuilder = new ModelBuilder();
 
     var User = new ModelDefinition(modelBuilder, 'User', {
@@ -96,8 +96,8 @@ describe('ModelDefinition class', function () {
         street: String,
         city: String,
         zipCode: String,
-        state: String
-      }
+        state: String,
+      },
     });
 
     User.build();
@@ -109,30 +109,30 @@ describe('ModelDefinition class', function () {
     assert.equal(typeof User.properties.address.type, 'function');
 
     var json = User.toJSON();
-    assert.equal(json.name, "User");
-    assert.equal(json.properties.name.type, "String");
-    assert.equal(json.properties.bio.type, "Text");
-    assert.equal(json.properties.approved.type, "Boolean");
-    assert.equal(json.properties.joinedAt.type, "Date");
-    assert.equal(json.properties.age.type, "Number");
+    assert.equal(json.name, 'User');
+    assert.equal(json.properties.name.type, 'String');
+    assert.equal(json.properties.bio.type, 'Text');
+    assert.equal(json.properties.approved.type, 'Boolean');
+    assert.equal(json.properties.joinedAt.type, 'Date');
+    assert.equal(json.properties.age.type, 'Number');
 
     assert.deepEqual(json.properties.address.type, { street: { type: 'String' },
       city: { type: 'String' },
       zipCode: { type: 'String' },
-      state: { type: 'String' } });
+      state: { type: 'String' }});
 
     done();
 
   });
 
-  it('should be able to define referencing models', function (done) {
+  it('should be able to define referencing models', function(done) {
     var modelBuilder = new ModelBuilder();
 
     var Address = modelBuilder.define('Address', {
       street: String,
       city: String,
       zipCode: String,
-      state: String
+      state: String,
     });
     var User = new ModelDefinition(modelBuilder, 'User', {
       name: String,
@@ -140,7 +140,7 @@ describe('ModelDefinition class', function () {
       approved: Boolean,
       joinedAt: Date,
       age: Number,
-      address: Address
+      address: Address,
 
     });
 
@@ -153,12 +153,12 @@ describe('ModelDefinition class', function () {
     assert.equal(User.properties.address.type, Address);
 
     var json = User.toJSON();
-    assert.equal(json.name, "User");
-    assert.equal(json.properties.name.type, "String");
-    assert.equal(json.properties.bio.type, "Text");
-    assert.equal(json.properties.approved.type, "Boolean");
-    assert.equal(json.properties.joinedAt.type, "Date");
-    assert.equal(json.properties.age.type, "Number");
+    assert.equal(json.name, 'User');
+    assert.equal(json.properties.name.type, 'String');
+    assert.equal(json.properties.bio.type, 'Text');
+    assert.equal(json.properties.approved.type, 'Boolean');
+    assert.equal(json.properties.joinedAt.type, 'Date');
+    assert.equal(json.properties.age.type, 'Number');
 
     assert.equal(json.properties.address.type, 'Address');
 
@@ -166,14 +166,14 @@ describe('ModelDefinition class', function () {
 
   });
 
-  it('should be able to define referencing models by name', function (done) {
+  it('should be able to define referencing models by name', function(done) {
     var modelBuilder = new ModelBuilder();
 
     var Address = modelBuilder.define('Address', {
       street: String,
       city: String,
       zipCode: String,
-      state: String
+      state: String,
     });
     var User = new ModelDefinition(modelBuilder, 'User', {
       name: String,
@@ -181,7 +181,7 @@ describe('ModelDefinition class', function () {
       approved: Boolean,
       joinedAt: Date,
       age: Number,
-      address: 'Address'
+      address: 'Address',
 
     });
 
@@ -194,12 +194,12 @@ describe('ModelDefinition class', function () {
     assert.equal(User.properties.address.type, Address);
 
     var json = User.toJSON();
-    assert.equal(json.name, "User");
-    assert.equal(json.properties.name.type, "String");
-    assert.equal(json.properties.bio.type, "Text");
-    assert.equal(json.properties.approved.type, "Boolean");
-    assert.equal(json.properties.joinedAt.type, "Date");
-    assert.equal(json.properties.age.type, "Number");
+    assert.equal(json.name, 'User');
+    assert.equal(json.properties.name.type, 'String');
+    assert.equal(json.properties.bio.type, 'Text');
+    assert.equal(json.properties.approved.type, 'Boolean');
+    assert.equal(json.properties.joinedAt.type, 'Date');
+    assert.equal(json.properties.age.type, 'Number');
 
     assert.equal(json.properties.address.type, 'Address');
 
@@ -207,16 +207,16 @@ describe('ModelDefinition class', function () {
 
   });
 
-  it('should report correct id names', function (done) {
+  it('should report correct id names', function(done) {
     var modelBuilder = new ModelBuilder();
 
     var User = new ModelDefinition(modelBuilder, 'User', {
-      userId: {type: String, id: true},
-      name: "string",
+      userId: { type: String, id: true },
+      name: 'string',
       bio: ModelBuilder.Text,
       approved: Boolean,
       joinedAt: Date,
-      age: "number"
+      age: 'number',
     });
 
     assert.equal(User.idName(), 'userId');
@@ -224,17 +224,17 @@ describe('ModelDefinition class', function () {
     done();
   });
 
-  it('should sort id properties by its index', function () {
+  it('should sort id properties by its index', function() {
     var modelBuilder = new ModelBuilder();
 
     var User = new ModelDefinition(modelBuilder, 'User', {
-      userId: {type: String, id: 2},
-      userType: {type: String, id: 1},
-      name: "string",
+      userId: { type: String, id: 2 },
+      userType: { type: String, id: 1 },
+      name: 'string',
       bio: ModelBuilder.Text,
       approved: Boolean,
       joinedAt: Date,
-      age: "number"
+      age: 'number',
     });
 
     var ids = User.ids();
@@ -246,13 +246,13 @@ describe('ModelDefinition class', function () {
     assert.equal(ids[1].name, 'userId');
   });
 
-  it('should report correct table/column names', function (done) {
+  it('should report correct table/column names', function(done) {
     var modelBuilder = new ModelBuilder();
 
     var User = new ModelDefinition(modelBuilder, 'User', {
-      userId: {type: String, id: true, oracle: {column: 'ID'}},
-      name: "string"
-    }, {oracle: {table: 'USER'}});
+      userId: { type: String, id: true, oracle: { column: 'ID' }},
+      name: 'string',
+    }, { oracle: { table: 'USER' }});
 
     assert.equal(User.tableName('oracle'), 'USER');
     assert.equal(User.tableName('mysql'), 'User');
@@ -261,15 +261,15 @@ describe('ModelDefinition class', function () {
     done();
   });
 
-  it('should inherit prototype using option.base', function () {
+  it('should inherit prototype using option.base', function() {
     var modelBuilder = memory.modelBuilder;
     var parent = memory.createModel('parent', {}, {
       relations: {
         children: {
           type: 'hasMany',
-          model: 'anotherChild'
-        }
-      }
+          model: 'anotherChild',
+        },
+      },
     });
     var baseChild = modelBuilder.define('baseChild');
     baseChild.attachTo(memory);
@@ -301,30 +301,30 @@ describe('ModelDefinition class', function () {
   it('should serialize protected properties into JSON', function() {
     var modelBuilder = memory.modelBuilder;
     var ProtectedModel = memory.createModel('protected', {}, {
-      protected: ['protectedProperty']
+      protected: ['protectedProperty'],
     });
     var pm = new ProtectedModel({
-      id: 1, foo: 'bar', protectedProperty: 'protected'
+      id: 1, foo: 'bar', protectedProperty: 'protected',
     });
     var serialized = pm.toJSON();
     assert.deepEqual(serialized, {
-      id: 1, foo: 'bar', protectedProperty: 'protected'
+      id: 1, foo: 'bar', protectedProperty: 'protected',
     });
   });
 
-  it('should not serialize protected properties of nested models into JSON', function(done){
+  it('should not serialize protected properties of nested models into JSON', function(done) {
     var modelBuilder = memory.modelBuilder;
     var Parent = memory.createModel('parent');
-    var Child = memory.createModel('child', {}, {protected: ['protectedProperty']});
+    var Child = memory.createModel('child', {}, { protected: ['protectedProperty'] });
     Parent.hasMany(Child);
     Parent.create({
-      name: 'parent'
+      name: 'parent',
     }, function(err, parent) {
       parent.children.create({
         name: 'child',
-        protectedProperty: 'protectedValue'
+        protectedProperty: 'protectedValue',
       }, function(err, child) {
-        Parent.find({include: 'children'}, function(err, parents) {
+        Parent.find({ include: 'children' }, function(err, parents) {
           var serialized = parents[0].toJSON();
           var child = serialized.children[0];
           assert.equal(child.name, 'child');
@@ -335,36 +335,36 @@ describe('ModelDefinition class', function () {
     });
   });
 
-  it('should not serialize hidden properties into JSON', function () {
+  it('should not serialize hidden properties into JSON', function() {
     var modelBuilder = memory.modelBuilder;
     var HiddenModel = memory.createModel('hidden', {}, {
-      hidden: ['secret']
+      hidden: ['secret'],
     });
     var hm = new HiddenModel({
       id: 1,
       foo: 'bar',
-      secret: 'secret'
+      secret: 'secret',
     });
     var serialized = hm.toJSON();
     assert.deepEqual(serialized, {
       id: 1,
-      foo: 'bar'
+      foo: 'bar',
     });
   });
 
-  it('should not serialize hidden properties of nested models into JSON', function (done) {
+  it('should not serialize hidden properties of nested models into JSON', function(done) {
     var modelBuilder = memory.modelBuilder;
     var Parent = memory.createModel('parent');
-    var Child = memory.createModel('child', {}, {hidden: ['secret']});
+    var Child = memory.createModel('child', {}, { hidden: ['secret'] });
     Parent.hasMany(Child);
     Parent.create({
-      name: 'parent'
+      name: 'parent',
     }, function(err, parent) {
       parent.children.create({
         name: 'child',
-        secret: 'secret'
+        secret: 'secret',
       }, function(err, child) {
-        Parent.find({include: 'children'}, function(err, parents) {
+        Parent.find({ include: 'children' }, function(err, parents) {
           var serialized = parents[0].toJSON();
           var child = serialized.children[0];
           assert.equal(child.name, 'child');
@@ -399,7 +399,7 @@ describe('ModelDefinition class', function () {
   it('should support "array" type shortcut', function() {
     var Model = memory.createModel('TwoArrays', {
       regular: Array,
-      sugar: 'array'
+      sugar: 'array',
     });
 
     var props = Model.definition.properties;
@@ -411,11 +411,11 @@ describe('ModelDefinition class', function () {
       var Todo;
       before(function prepModel() {
         Todo = new ModelDefinition(new ModelBuilder(), 'Todo', {
-          content: 'string'
+          content: 'string',
         });
         Todo.defineProperty('id', {
           type: 'number',
-          id: true
+          id: true,
         });
         Todo.build();
       });
@@ -429,7 +429,7 @@ describe('ModelDefinition class', function () {
       var Todo;
       before(function prepModel() {
         Todo = new ModelDefinition(new ModelBuilder(), 'Todo', {
-          content: 'string'
+          content: 'string',
         });
         Todo.build();
       });
