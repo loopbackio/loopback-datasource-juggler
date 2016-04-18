@@ -45,7 +45,7 @@ function timestamps(Model, options) {
 
 mixins.define('TimeStamp', timestamps);
 
-describe('Model class', function () {
+describe('Model class', function() {
 
   it('should define mixins', function() {
     mixins.define('Example', function(Model, options) {
@@ -65,12 +65,12 @@ describe('Model class', function () {
   it('should apply a mixin class', function() {
     var Address = modelBuilder.define('Address', {
       street: { type: 'string', required: true },
-      city: { type: 'string', required: true }
+      city: { type: 'string', required: true },
     });
 
-    var memory = new DataSource('mem', {connector: Memory}, modelBuilder);
+    var memory = new DataSource('mem', { connector: Memory }, modelBuilder);
     var Item = memory.createModel('Item', { name: 'string' }, {
-      mixins: { Address: true }
+      mixins: { Address: true },
     });
 
     var properties = Item.definition.properties;
@@ -80,15 +80,15 @@ describe('Model class', function () {
   });
 
   it('should apply mixins', function(done) {
-    var memory = new DataSource('mem', {connector: Memory}, modelBuilder);
+    var memory = new DataSource('mem', { connector: Memory }, modelBuilder);
     var Item = memory.createModel('Item', { name: 'string' }, {
       mixins: {
         TimeStamp: true, Demo: { value: true },
         Multi: [
           { key: 'foo', value: 'bar' },
-          { key: 'fox', value: 'baz' }
-        ]
-      }
+          { key: 'fox', value: 'baz' },
+        ],
+      },
     });
 
     Item.mixin('Example', { foo: 'bar' });
@@ -110,31 +110,31 @@ describe('Model class', function () {
     });
   });
 
-  describe('#mixin()', function () {
+  describe('#mixin()', function() {
 
     var Person, Author, Address;
 
-    beforeEach(function () {
+    beforeEach(function() {
       Address = modelBuilder.define('Address', {
         street: { type: 'string', required: true },
-        city: { type: 'string', required: true }
+        city: { type: 'string', required: true },
       });
-      var memory = new DataSource('mem', {connector: Memory}, modelBuilder);
+      var memory = new DataSource('mem', { connector: Memory }, modelBuilder);
       Person = memory.createModel('Person', { name: 'string' });
       Author = memory.createModel('Author', { name: 'string' });
     });
 
-    it('should register mixin class into _mixins', function () {
+    it('should register mixin class into _mixins', function() {
       Person.mixin(Address);
       Person._mixins.should.containEql(Address);
     });
 
-    it('should NOT share mixins registry', function () {
+    it('should NOT share mixins registry', function() {
       Person.mixin(Address);
       Author._mixins.should.not.containEql(Address);
     });
 
-    it('should able to mixin same class', function () {
+    it('should able to mixin same class', function() {
       Person.mixin(Address);
       Author.mixin(Address);
       Author._mixins.should.containEql(Address);

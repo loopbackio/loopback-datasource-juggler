@@ -160,7 +160,7 @@ describe('async observer', function() {
   it('passes context to final callback', function(done) {
     var context = {};
     TestModel.notifyObserversOf('event', context, function(err, ctx) {
-      (ctx || "null").should.equal(context);
+      (ctx || 'null').should.equal(context);
       done();
     });
   });
