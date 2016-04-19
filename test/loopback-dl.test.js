@@ -735,7 +735,6 @@ describe('Load models with base', function() {
     u.should.have.property('email', 'x@y.com');
   });
 
-
   it('should set up base class via parent arg', function() {
     var ds = new ModelBuilder();
 

@@ -439,8 +439,6 @@ describe('hooks', function() {
   });
 });
 
-
-
 function addHooks(name, done) {
   var called = false, random = String(Math.floor(Math.random() * 1000));
   User['before' + name] = function(next, data) {
