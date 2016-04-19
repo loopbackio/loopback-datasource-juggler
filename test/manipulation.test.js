@@ -5,6 +5,7 @@
 
 // This test written in mocha+should.js
 var async = require('async');
+var dao = require('./dao.suite/index.js');
 var should = require('./init.js');
 
 var db, Person;
@@ -13,7 +14,8 @@ var ValidationError = require('..').ValidationError;
 var UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 describe('manipulation', function() {
-
+  db = getSchema();
+  dao(db, should);
   before(function(done) {
     db = getSchema();
 
@@ -726,6 +728,118 @@ describe('manipulation', function() {
         });
     });
   });
+
+//  describe('patchById', function() {
+//    var personId;
+//    before(function(done) {
+//      Person.destroyAll(function() {
+//        Person.create({ name: 'Mary', age: 15 }, function(err, p) {
+//          if (err) return done(err);
+//          personId = p.id;
+//          person = p;
+//          done();
+//        });
+//      });
+//    });
+//
+//    // TODO: Please see loopback-datasource-juggler/issues#912
+//    it.skip('should have updated password hashed with patchById',
+//    function(done) {
+//      StubUser.create({ password: 'foo' }, function(err, created) {
+//        if (err) return done(err);
+//        StubUser.patchById(created.id, { 'password': 'test' }, function(err, info) {
+//          if (err) return done(err);
+//          StubUser.findById(created.id, function(err, found) {
+//            if (err) return done(err);
+//            found.password.should.equal('test-TEST');
+//            done();
+//          });
+//        });
+//      });
+//    });
+//
+//    it('should ignore undefined values on patchById', function(done) {
+//      Person.patchById(personId, { 'name': 'John', age: undefined },
+//        function(err, p) {
+//          if (err) return done(err);
+//          Person.findById(personId, function(e, p) {
+//            if (e) return done(e);
+//            p.name.should.equal('John');
+//            p.age.should.equal(15);
+//            done();
+//          });
+//        });
+//    });
+//
+//    it('should allow same id value on patchById', function(done) {
+//      Person.patchById(personId, { id: personId, name: 'John' },
+//        function(err, p) {
+//          if (err) return done(err);
+//          Person.findById(personId, function(e, p) {
+//            if (e) return done(e);
+//            p.name.should.equal('John');
+//            p.age.should.equal(15);
+//            done();
+//          });
+//        });
+//    });
+//
+//    it('should allow same stringified id value on patchById',
+//      function(done) {
+//        var pid = personId;
+//        if (typeof pid === 'object' || typeof pid === 'number') {
+//          // For example MongoDB ObjectId
+//          pid = pid.toString();
+//        }
+//        Person.patchById(pid, { id: pid, name: 'John' },
+//          function(err, p) {
+//            if (err) return done(err);
+//            Person.findById(personId, function(e, p) {
+//              if (e) return done(e);
+//              p.name.should.equal('John');
+//              p.age.should.equal(15);
+//              done();
+//            });
+//          });
+//      });
+//
+//    it('should fail if an id value is to be changed on updateAttributes',
+//      function(done) {
+//        Person.patchById(personId, { id: personId + 1, name: 'John' },
+//        function(err, p) {
+//          should.exist(err);
+//          done();
+//        });
+//      });
+//
+//    it.skip('should allow model instance on updateAttributes', function(done) {
+//      // QUESTION-test[1]: Can we pass undefined here and should we remove undefined in the method?
+//      // Please see the other comment in patch-by-id.js
+//      Person.patchById(personId, new Person({ 'name': 'John', age: undefined }),
+//       function(err, p) {
+//         if (err) return done(err);
+//         Person.findById(personId, function(e, p) {
+//           if (e) return done(e);
+//           p.name.should.equal('John');
+//           p.age.should.equal(15);
+//           done();
+//         });
+//       });
+//    });
+//
+//    it('should allow model instance on patchById (promise variant)', function(done) {
+//      Person.patchById(personId, { 'name': 'Jane' })
+//        .then(function(p) {
+//          return Person.findById(personId)
+//            .then(function(p) {
+//              p.name.should.equal('Jane');
+//              p.age.should.equal(15);
+//              done();
+//            });
+//        })
+//        .catch(done);
+//    });
+//  });
 
   if (!getSchema().connector.replaceById) {
     describe.skip('replaceById - not implemented', function() {});
