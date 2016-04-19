@@ -82,5 +82,3 @@ User.create(user, function(err, u1) {
     console.log('Found: ', u2.toObject());
   });
 });
-
-

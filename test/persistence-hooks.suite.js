@@ -2361,8 +2361,6 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 },
               });
 
-
-
               if (dataSource.connector.replaceOrCreate) {
                 expectedContext.where = { id: 'new-id' };
               } else {
@@ -2979,7 +2977,6 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       hookMonitor.install(TestModel, hookNames);
     }
   });
-
 
   function get(propertyName) {
     return function(obj) {

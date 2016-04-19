@@ -136,7 +136,6 @@ describe('optional-validation', function() {
     });
   });
 
-
   describe('no model setting', function() {
 
     describe('method create', function() {
