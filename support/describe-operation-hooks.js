@@ -110,7 +110,6 @@ operations.forEach(function(op) {
 
 p.then(report, function(err) { console.error(err.stack); });
 
-
 function createOptimizedDataSource() {
   var ds = new DataSource({ connector: Memory });
   ds.name = 'Optimized';

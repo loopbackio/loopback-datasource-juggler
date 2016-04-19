@@ -418,7 +418,6 @@ describe('include', function() {
     });
   });
 
-
   // Not implemented correctly, see: loopback-datasource-juggler/issues/166
   // fixed by DB optimization
   it('should support include scope on hasAndBelongsToMany', function(done) {
@@ -578,7 +577,6 @@ describe('include', function() {
         done();
       });
     });
-
 
     it('should not make n+1 db calls in relation syntax',
       function(done) {

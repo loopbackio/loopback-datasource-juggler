@@ -329,9 +329,7 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
 });
 
 describe('scope - dynamic target class', function() {
-
   var Collection, Media, Image, Video;
-
 
   before(function() {
     db = getSchema();

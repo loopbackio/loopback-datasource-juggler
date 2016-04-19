@@ -1448,7 +1448,6 @@ describe('manipulation', function() {
       });
     });
 
-
     describe('uuidv4 defaultFn', function() {
       var CustomModel;
 

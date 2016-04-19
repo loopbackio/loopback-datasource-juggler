@@ -3006,7 +3006,6 @@ module.exports = function(dataSource, should, connectorCapabilities) {
     }
   });
 
-
   function get(propertyName) {
     return function(obj) {
       return obj[propertyName];

@@ -1263,7 +1263,6 @@ describe('relations', function() {
       db.automigrate(['User', 'Follow'], done);
     });
 
-
     it('should set foreignKeys of through model correctly in first relation',
       function(done) {
         var follower = new User({ id: 1 });
@@ -3181,7 +3180,6 @@ describe('relations', function() {
     });
   });
 
-
   describe('hasMany with primaryKey different from model PK', function() {
     var Employee, Boss;
     var COMPANY_ID = 'Company1';
@@ -3238,7 +3236,6 @@ describe('relations', function() {
       });
     });
   });
-
 
   describe('belongsTo with primaryKey different from model PK', function() {
     var Employee, Boss;
@@ -3414,7 +3411,6 @@ describe('relations', function() {
       })
       .catch(done);
     });
-
 
     it('should set targetClass on scope property', function() {
       should.equal(Article.prototype.tagNames._targetClass, 'TagName');
@@ -5096,8 +5092,6 @@ describe('relations', function() {
       }).catch(done);
     });
 
-
-
     it('should not allow duplicate record on scope with promises', function(done) {
       Category.findOne()
       .then(function(cat) {
@@ -5346,9 +5340,7 @@ describe('relations', function() {
       })
       .catch(done);
     });
-
   });
-
 
   describe('custom relation/scope methods', function() {
     var categoryId;

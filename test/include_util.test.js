@@ -75,7 +75,6 @@ describe('include_util', function() {
   });
 });
 
-
 describe('KVMap', function() {
   it('should allow to set and get value with key string', function() {
     var map = new includeUtils.KVMap();

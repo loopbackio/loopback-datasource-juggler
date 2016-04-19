@@ -730,7 +730,6 @@ describe('Memory connector', function() {
     });
   });
 
-
   describe('automigrate when NO models are attached', function() {
     var ds;
     beforeEach(function() {
@@ -988,5 +987,3 @@ describe('Memory connector with observers', function() {
     });
   });
 });
-
-

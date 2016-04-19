@@ -447,7 +447,6 @@ describe('basic-querying', function() {
       });
     });
 
-
     it('should only include fields as specified', function(done) {
       var remaining = 0;
 
