@@ -28,3 +28,7 @@ HookMonitor.prototype.install = function(ObservedModel, hookNames) {
     this._notify.apply(this, arguments);
   };
 };
+
+HookMonitor.prototype.resetNames = function() {
+  this.names = [];
+};
