@@ -68,6 +68,56 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         });
     });
 
+    it('should ignore unknown attributes when strict: true', function(done) {
+      Person.patchById(personId, { name: 'John', foo: 'bar' },
+        function(err, p) {
+          if (err) return done(err);
+          should.not.exist(p.foo);
+          Person.findById(personId, function(e, p) {
+            if (e) return done(e);
+            should.not.exist(p.foo);
+            done();
+          });
+        });
+    });
+
+    // TODO: skiping for now; for some reason`var strict = this.__strict;`
+    // in patch-by-id.js is not working in `patch-by-id.js`
+    it.skip('should throw error on unknown attributes when strict: throw', function(done) {
+      Person.definition.settings.strict = 'throw';
+      Person.findById(personId, function(err, p) {
+        Person.patchById(personId, { foo: 'bar' },
+          function(err, info) {
+            should.exist(err);
+            err.name.should.equal('Error');
+            err.message.should.equal('Unknown property: foo');
+            should.not.exist(info);
+            Person.findById(personId, function(e, p) {
+              if (e) return done(e);
+              should.not.exist(p.foo);
+              done();
+            });
+          });
+      });
+    });
+
+    it('should throw error on unknown attributes when strict: validate', function(done) {
+      Person.definition.settings.strict = 'validate';
+      Person.findById(personId, function(err, p) {
+        Person.patchById(personId, { foo: 'bar' },
+          function(err, info) {
+            should.exist(err);
+            err.name.should.equal('ValidationError');
+            err.message.should.containEql('`foo` is not defined in the model');
+            Person.findById(personId, function(e, p) {
+              if (e) return done(e);
+              should.not.exist(p.foo);
+              done();
+            });
+          });
+      });
+    });
+
     it('should allow same id value on patchById', function(done) {
       Person.patchById(personId, { id: personId, name: 'John' },
         function(err, info) {
