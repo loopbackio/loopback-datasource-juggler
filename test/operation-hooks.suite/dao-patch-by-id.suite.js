@@ -3,6 +3,7 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+var ValidationError = require('../..').ValidationError;
 var contextTestHelpers = require('../helpers/context-test-helpers');
 var ContextRecorder = contextTestHelpers.ContextRecorder;
 var aCtxForModel = contextTestHelpers.aCtxForModel;
@@ -95,6 +96,16 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
           done();
         });
+      });
+    });
+
+    it('validates model after `before save` hook', function(done) {
+      TestModel.observe('before save', invalidateData);
+
+      TestModel.patchById(instanceId, { name: 'updated' }, function(err) {
+        err.should.be.instanceOf(ValidationError);
+        (err.details.codes || {}).should.eql({ name: ['presence'] });
+        done();
       });
     });
 
@@ -206,6 +217,11 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       return function(context, next) {
         next(err);
       };
+    }
+
+    function invalidateData(context, next) {
+      delete context.data.name;
+      next();
     }
   });
 };

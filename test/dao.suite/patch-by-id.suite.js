@@ -100,7 +100,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           });
       });
 
-    it('should fail if an id value is to be changed on updateAttributes',
+    it('should fail if an id value is to be changed on patchById',
       function(done) {
         Person.patchById(personId, { id: personId + 1, name: 'John' },
         function(err, info) {
@@ -109,7 +109,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         });
       });
 
-    it.skip('should allow model instance on updateAttributes', function(done) {
+    it.skip('should allow model instance on patchById', function(done) {
       // QUESTION-test[1]: Can we pass undefined here and should we remove undefined in the method?
       // Please see the other comment in patch-by-id.js
       Person.patchById(personId, new Person({ 'name': 'John', age: undefined }),
