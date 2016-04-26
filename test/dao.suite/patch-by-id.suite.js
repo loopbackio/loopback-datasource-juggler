@@ -81,8 +81,6 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         });
     });
 
-    // TODO: skiping for now; for some reason`var strict = this.__strict;`
-    // in patch-by-id.js is not working in `patch-by-id.js`
     it('should throw error on unknown attributes when strict: throw', function(done) {
       Person.definition.settings.strict = 'throw';
       Person.findById(personId, function(err, p) {
