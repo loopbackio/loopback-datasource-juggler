@@ -115,14 +115,12 @@ describe('manipulation', function() {
 
     });
 
-    it('should return instance of object', function(done) {
+    it('should not return instance of object', function(done) {
       var person = Person.create(function(err, p) {
-        p.id.should.eql(person.id);
+        should.exist(p.id);
+        if (person) person.should.not.be.an.instanceOf(Person);
         done();
       });
-      should.exist(person);
-      person.should.be.an.instanceOf(Person);
-      should.not.exist(person.id);
     });
 
     it('should not allow user-defined value for the id of object - create', function(done) {
@@ -235,7 +233,8 @@ describe('manipulation', function() {
         { name: 'Boltay' },
         {},
       ];
-      Person.create(batch, function(e, ps) {
+      var res = Person.create(batch, function(e, ps) {
+        if (res) res.should.not.be.instanceOf(Array);
         should.not.exist(e);
         should.exist(ps);
         ps.should.be.instanceOf(Array);
@@ -254,8 +253,8 @@ describe('manipulation', function() {
           persons.should.have.lengthOf(batch.length);
           persons[0].errors.should.be.false;
           done();
-        }).should.be.instanceOf(Array);
-      }).should.have.lengthOf(3);
+        });
+      });
     });
 
     it('should create batch of objects with beforeCreate', function(done) {
