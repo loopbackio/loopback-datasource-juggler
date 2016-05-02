@@ -620,4 +620,41 @@ describe('validations', function() {
       return err.message.replace(/^.*Details: /, '');
     }
   });
+
+  describe('submodel inheritance', function() {
+    var subUser;
+
+    afterEach(function(done) {
+      subUser.destroyAll(function() {
+        delete subUser.validations;
+        done();
+      });
+    });
+
+    it('should inherit validations from parent model', function(done) {
+      User.validatesFormatOf('email', { with: /^a/, message: {
+        with: 'email must start with a',
+      }});
+      subUser = User.extend('subUser');
+      subUser.attachTo(db);
+      subUser.validations.should.eql(User.validations);
+      aUser = new subUser({ email: 'user_with_email@test.com' });
+      aUser.save(function(err) {
+        err.should.instanceOf(ValidationError);
+        done();
+      });
+    });
+
+    //to make sure child validation is cloned and not referenced
+    it('submodel should not share info back to parent', function(done) {
+      User.validatesFormatOf('email', { with: /^a/,
+        message: { with: 'email must start with a' }});
+      subUser = User.extend('subUser');
+      subUser.attachTo(db);
+      subUser.validatesPresenceOf('email');
+      subUser.validations.email.should.length(2);
+      User.validations.email.should.length(1);
+      done();
+    });
+  });
 });

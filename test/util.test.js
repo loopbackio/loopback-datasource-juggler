@@ -522,7 +522,7 @@ describe('util.hasRegExpFlags', function() {
 });
 
 describe('util.inCollection', function() {
-  it('should return true if object is in a collection', function(){
+  it('should return true if object is in a collection', function() {
     var haystack = [
       { foo1: 'bar1' },
       { foo2: 'bar2' },
@@ -530,11 +530,11 @@ describe('util.inCollection', function() {
       { foo4: 'bar4' },
       { foo5: 'bar5' },
     ];
-    utils.inCollection(haystack, {foo3: 'bar3'}).should.equal(true);
-    utils.inCollection(haystack, {foo3: 'bar4'}).should.equal(false);
+    utils.inCollection(haystack, { foo3: 'bar3' }).should.equal(true);
+    utils.inCollection(haystack, { foo3: 'bar4' }).should.equal(false);
   });
 
-  it('should search objects keys too', function(){
+  it('should search objects keys too', function() {
     var notACollection = { foo: 'bar2' };
     utils.inCollection(notACollection, 'bar2').should.equal(true);
     utils.inCollection(notACollection, 'bar').should.equal(false);
