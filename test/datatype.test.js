@@ -241,7 +241,7 @@ describe('datatypes', function() {
     });
 
     it('should convert undefined to null on save', function(done) {
-      var EXPECTED = { desc: null, stars: null, extra: null, dx: null };
+      var EXPECTED = { desc: null, stars: null };
       if (isStrict) {
         // SQL-based connectors don't support dynamic properties
         delete EXPECTED.extra;

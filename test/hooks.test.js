@@ -135,7 +135,8 @@ describe('hooks', function() {
       });
     });
 
-    it('should be triggered on save', function(done) {
+    // legacy hook which will be deprecated
+    it.skip('should be triggered on save', function(done) {
       User.create(function(err, user) {
         addHooks('Save', done);
         user.name = 'Hamburger';
@@ -143,7 +144,8 @@ describe('hooks', function() {
       });
     });
 
-    it('should save full object', function(done) {
+    // legacy hook which will be deprecated
+    it.skip('should save full object', function(done) {
       User.create(function(err, user) {
         User.beforeSave = function(next, data) {
           data.should.have.keys('id', 'name', 'email',
@@ -163,7 +165,7 @@ describe('hooks', function() {
         User.create({
           email: 'james.bond@example.com',
           password: '53cr3t',
-        }, function() {
+        }, function(err, data) {
           User.findOne({
             where: { email: 'james.bond@example.com' },
           }, function(err, jb) {
@@ -198,12 +200,14 @@ describe('hooks', function() {
       });
     });
 
-    it('beforeSave should be able to skip next', function(done) {
+    // legacy hook which will be deprecated
+    it.skip('beforeSave should be able to skip next', function(done) {
       User.create(function(err, user) {
         User.beforeSave = function(next, data) {
           next(null, 'XYZ');
         };
         user.save(function(err, result) {
+          console.log('>>>result2:', result);
           result.should.be.eql('XYZ');
           done();
         });
@@ -238,7 +242,8 @@ describe('hooks', function() {
       });
     });
 
-    it('should be triggered on save', function(done) {
+    // legacy hook which will be deprecated
+    it.skip('should be triggered on save', function(done) {
       User.create(function(err, user) {
         addHooks('Update', done);
         user.name = 'Hamburger';
@@ -256,7 +261,8 @@ describe('hooks', function() {
       });
     });
 
-    it('should not trigger after-hook on failed save', function(done) {
+    // legacy hook which will be deprecated
+    it.skip('should not trigger after-hook on failed save', function(done) {
       User.afterUpdate = function() {
         should.fail('afterUpdate shouldn\'t be called');
       };
