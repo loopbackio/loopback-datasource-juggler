@@ -656,5 +656,27 @@ describe('validations', function() {
       User.validations.email.should.length(1);
       done();
     });
+
+    // to make sure child validation is cloned and not referenced
+    it('should not inherit grand parent', function(done) {
+      // grand parent
+      User.validatesFormatOf('email', { with: /^a/,
+        message: { with: 'email must start with a' }});
+      // parent parent
+      subUser = User.extend('subUser');
+      subUser.attachTo(db);
+      delete subUser.validations.email;
+      subUser.validatesPresenceOf('name');
+      // child
+      thirdLevel = subUser.extend('thirdLevel');
+      thirdLevel.attachTo(db);
+      should.not.exist(subUser.validations.email);
+      User.validations.email.should.length(1);
+      should.not.exist(thirdLevel.validations.email);
+      thirdLevel.validations.should.deepEqual(
+        { name: [{ validation: 'presence', options: {}}] }
+      );
+      done();
+    });
   });
 });
