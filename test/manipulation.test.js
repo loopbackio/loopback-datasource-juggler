@@ -388,7 +388,7 @@ describe('manipulation', function() {
       });
     });
 
-    it.skip('should save existing object (promise variant)', function(done) {
+    it('should save existing object (promise variant)', function(done) {
       Person.findOne()
         .then(function(p) {
           p.name = 'Fritz';
