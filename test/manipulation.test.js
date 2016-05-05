@@ -404,8 +404,8 @@ describe('manipulation', function() {
         .catch(done);
     });
 
-    // TODO: validation failure:
-    // validation-failure[1]: this test case is not going to work because
+    // TODO: [2] validation failure:
+    // validation-failure: this test case is not going to work because
     // `p.isValid` is not valid in replaceByd where instance is crated from the
     // dataobject not `this`
     // (see: https://github.com/strongloop/loopback-datasource-juggler/blob/2189b9a746071b599d6a129313b2cdd11052e36b/lib/dao.js#L2657)
@@ -427,7 +427,7 @@ describe('manipulation', function() {
       });
     });
 
-    // TODO: validation failure: see validation-failure[1]
+    // TODO: validation failure: see validation-failure[2]
     it.skip('should save invalid object (skipping validation - promise variant)', function(done) {
       Person.findOne()
         .then(function(p) {
@@ -466,7 +466,8 @@ describe('manipulation', function() {
       });
     });
 
-    // TODO: see loopback-datasource-juggler#912 (known issue)
+    // TODO: instance created by `var inst = new Model(data, { persisted: true });`
+    // in replaceById misses password field, although data has password field 
     it.skip('should preserve properties with dynamic setters', function(done) {
       // This test reproduces a problem discovered by LoopBack unit-test
       // "User.hasPassword() should match a password after it is changed"
