@@ -363,7 +363,32 @@ describe('manipulation', function() {
       });
     });
 
-    it('should save existing object (promise variant)', function(done) {
+    it('should replace', function(done) {
+      Person.create({ name: 'John', gender: 'male', married: false }, function(err, p) {
+        should.not.exist(err);
+        p.name = 'Hans';
+        p.unsetAttribute('gender');
+        p.unsetAttribute('married');
+        p.save(function(err, p1) {
+          should.not.exist(p1.age);
+          // p2.should.not.have.property('age');
+          should.not.exist(p1.married);
+          //  p2.should.not.have.property('married');
+          should.not.exist(err);
+          Person.findById(p1.id, function(err, p2) {
+            should.not.exist(p2.age);
+            // p2.should.not.have.property('age');
+            should.not.exist(p2.married);
+            // p2.should.not.have.property('married');
+            should.not.exist(err);
+            p2.name.should.equal('Hans');
+            done();
+          });
+        });
+      });
+    });
+
+    it.skip('should save existing object (promise variant)', function(done) {
       Person.findOne()
         .then(function(p) {
           p.name = 'Fritz';

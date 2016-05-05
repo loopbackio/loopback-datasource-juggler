@@ -165,7 +165,7 @@ describe('hooks', function() {
         User.create({
           email: 'james.bond@example.com',
           password: '53cr3t',
-        }, function(err, data) {
+        }, function() {
           User.findOne({
             where: { email: 'james.bond@example.com' },
           }, function(err, jb) {
