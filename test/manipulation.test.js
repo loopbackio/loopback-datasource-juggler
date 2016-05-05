@@ -467,7 +467,7 @@ describe('manipulation', function() {
     });
 
     // TODO: instance created by `var inst = new Model(data, { persisted: true });`
-    // in replaceById misses password field, although data has password field 
+    // in replaceById misses password field, although data has password field
     it.skip('should preserve properties with dynamic setters', function(done) {
       // This test reproduces a problem discovered by LoopBack unit-test
       // "User.hasPassword() should match a password after it is changed"
