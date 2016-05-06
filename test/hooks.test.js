@@ -135,25 +135,6 @@ describe('hooks', function() {
       });
     });
 
-    it('should be triggered on save', function(done) {
-      User.create(function(err, user) {
-        addHooks('Save', done);
-        user.name = 'Hamburger';
-        user.save();
-      });
-    });
-
-    it('should save full object', function(done) {
-      User.create(function(err, user) {
-        User.beforeSave = function(next, data) {
-          data.should.have.keys('id', 'name', 'email',
-            'password', 'state');
-          done();
-        };
-        user.save();
-      });
-    });
-
     it('should save actual modifications to database', function(done) {
       User.beforeSave = function(next, data) {
         data.password = 'hash';
@@ -197,19 +178,6 @@ describe('hooks', function() {
         });
       });
     });
-
-    it('beforeSave should be able to skip next', function(done) {
-      User.create(function(err, user) {
-        User.beforeSave = function(next, data) {
-          next(null, 'XYZ');
-        };
-        user.save(function(err, result) {
-          result.should.be.eql('XYZ');
-          done();
-        });
-      });
-    });
-
   });
 
   describe('update', function() {
@@ -238,14 +206,6 @@ describe('hooks', function() {
       });
     });
 
-    it('should be triggered on save', function(done) {
-      User.create(function(err, user) {
-        addHooks('Update', done);
-        user.name = 'Hamburger';
-        user.save();
-      });
-    });
-
     it('should update limited set of fields', function(done) {
       User.create(function(err, user) {
         User.beforeUpdate = function(next, data) {
@@ -253,23 +213,6 @@ describe('hooks', function() {
           done();
         };
         user.updateAttributes({ name: 1, email: 2 });
-      });
-    });
-
-    it('should not trigger after-hook on failed save', function(done) {
-      User.afterUpdate = function() {
-        should.fail('afterUpdate shouldn\'t be called');
-      };
-      User.create(function(err, user) {
-        var save = User.dataSource.connector.save;
-        User.dataSource.connector.save = function(modelName, id, cb) {
-          User.dataSource.connector.save = save;
-          cb(new Error('Error'));
-        };
-
-        user.save(function(err) {
-          done();
-        });
       });
     });
   });
