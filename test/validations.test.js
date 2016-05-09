@@ -678,5 +678,21 @@ describe('validations', function() {
       );
       done();
     });
+
+    it('disable inheritance should avoid inheritance', function(done) {
+      User.validatesFormatOf('username', { with: /dont-inherit/, disableInherit: true });
+      User.validatesFormatOf('email', { with: /dont-inherit/, disableInherit: true });
+      User.validatesFormatOf('username', { with: 'should-inherit' });
+      User.validatesFormatOf('email', { with: 'should-inherit' });
+      subUser = User.extend('subUser');
+      subUser.attachTo(db);
+      subUser.validations.email.should.containEql(
+        { validation: 'format', with: 'should-inherit', options: {}}
+      );
+      subUser.validations.username.should.containEql(
+        { validation: 'format', with: 'should-inherit', options: {}}
+      );
+      done();
+    });
   });
 });
