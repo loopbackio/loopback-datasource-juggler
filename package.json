@@ -23,10 +23,9 @@
     "depd": "./lib/browser.depd.js"
   },
   "scripts": {
-    "clean": "make clean",
-    "help": "make help",
-    "refresh": "make refresh",
-    "test": "make test"
+    "lint": "eslint .",
+    "test": "mocha",
+    "posttest": "npm run lint"
   },
   "engines": [
     "node >= 0.6"
