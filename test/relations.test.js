@@ -3836,6 +3836,7 @@ describe('relations', function() {
       tmp = getTransientDataSource();
       // db = getSchema();
       Person = db.define('Person', { name: String });
+      // mark name required
       Passport = tmp.define('Passport',
         {
           id: { type: 'string', id: true, generated: true },
