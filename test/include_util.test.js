@@ -3,6 +3,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+/* eslint-disable camelcase */
+
 var assert = require('assert');
 var should = require('should');
 
@@ -53,7 +55,7 @@ describe('include_util', function() {
       var objs = [
                 { id: 11, letter: 'A' },
                 { id: 22, letter: 'B' },
-          ];
+      ];
       var result = includeUtils.buildOneToManyIdentityMapWithOrigKeys(objs, 'id');
       result.exist(11).should.be.true;
       result.exist(22).should.be.true;
@@ -65,7 +67,7 @@ describe('include_util', function() {
                 { fk_id: 22, letter: 'B' },
                 { fk_id: 33, letter: 'C' },
                 { fk_id: 11, letter: 'HA!' },
-          ];
+      ];
 
       var result = includeUtils.buildOneToManyIdentityMapWithOrigKeys(objs, 'fk_id');
       result.get(11)[0]['letter'].should.equal('A');

@@ -13,7 +13,6 @@ var ValidationError = require('..').ValidationError;
 var UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 describe('manipulation', function() {
-
   before(function(done) {
     db = getSchema();
 
@@ -27,7 +26,6 @@ describe('manipulation', function() {
     }, { forceId: true, strict: true });
 
     db.automigrate(['Person'], done);
-
   });
 
   // A simplified implementation of LoopBack's User model
@@ -56,7 +54,6 @@ describe('manipulation', function() {
   });
 
   describe('create', function() {
-
     before(function(done) {
       Person.destroyAll(done);
     });
@@ -112,7 +109,6 @@ describe('manipulation', function() {
           done();
         })
         .catch(done);
-
     });
 
     it('should return instance of object', function(done) {
@@ -328,7 +324,6 @@ describe('manipulation', function() {
   });
 
   describe('save', function() {
-
     it('should save new object', function(done) {
       var p = new Person;
       p.save(function(err) {
@@ -530,7 +525,7 @@ describe('manipulation', function() {
       // Using {foo: 'bar'} only causes dependent test failures due to the
       // stripping of object properties when in strict mode (ie. {foo: 'bar'}
       // changes to '{}' and breaks other tests
-      person.updateAttributes({ name: 'John', foo:'bar' },
+      person.updateAttributes({ name: 'John', foo: 'bar' },
         function(err, p) {
           if (err) return done(err);
           should.not.exist(p.foo);
@@ -545,7 +540,7 @@ describe('manipulation', function() {
     it('should throw error on unknown attributes when strict: throw', function(done) {
       Person.definition.settings.strict = 'throw';
       Person.findById(person.id, function(err, p) {
-        p.updateAttributes({ foo:'bar' },
+        p.updateAttributes({ foo: 'bar' },
           function(err, p) {
             should.exist(err);
             err.name.should.equal('Error');
@@ -563,7 +558,7 @@ describe('manipulation', function() {
     it('should throw error on unknown attributes when strict: throw', function(done) {
       Person.definition.settings.strict = 'validate';
       Person.findById(person.id, function(err, p) {
-        p.updateAttributes({ foo:'bar' },
+        p.updateAttributes({ foo: 'bar' },
           function(err, p) {
             should.exist(err);
             err.name.should.equal('ValidationError');
@@ -1029,11 +1024,11 @@ describe('manipulation', function() {
         Post.findById(postInstance.id, function(err, p) {
           if (err) return done(err);
           p.replaceAttributes({ title: 'b' }, function(err, p) {
-          if (err) return done(err);
-          p.should.not.have.property('content', undefined);
-          p.title.should.equal('b');
-          done();
-        });
+            if (err) return done(err);
+            p.should.not.have.property('content', undefined);
+            p.title.should.equal('b');
+            done();
+          });
         });
       });
 
@@ -1041,11 +1036,11 @@ describe('manipulation', function() {
         Post.findById(postInstance.id, function(err, p) {
           if (err) return done(err);
           p.replaceAttributes({ title: 'b' }, { validate: false }, function(err, p) {
-          if (err) return done(err);
-          p.should.not.have.property('content', undefined);
-          p.title.should.equal('b');
-          done();
-        });
+            if (err) return done(err);
+            p.should.not.have.property('content', undefined);
+            p.title.should.equal('b');
+            done();
+          });
         });
       });
     });
@@ -1117,7 +1112,6 @@ describe('manipulation', function() {
   });
 
   describe('destroy', function() {
-
     it('should destroy record', function(done) {
       Person.create(function(err, p) {
         p.destroy(function(err) {
@@ -1175,7 +1169,6 @@ describe('manipulation', function() {
             });
         })
         .catch(done);
-
     });
 
     // TODO: implement destroy with filtered set
@@ -1209,10 +1202,10 @@ describe('manipulation', function() {
               if (err) return done(err);
               data.should.have.length(0);
               Person.find({ where: { name: 'Jane' }}, function(err, data) {
-            if (err) return done(err);
-            data.should.have.length(1);
-            done();
-          });
+                if (err) return done(err);
+                data.should.have.length(1);
+                done();
+              });
             });
           });
         });
@@ -1514,7 +1507,6 @@ describe('manipulation', function() {
 
       p1 = new Person({ name: 'John', married: undefined });
       p1.should.have.property('married', undefined);
-
     });
 
     it('should coerce boolean types properly', function() {
@@ -1612,10 +1604,10 @@ describe('manipulation', function() {
               if (err) return done(err);
               people.should.be.empty;
               Person.find({ where: { name: 'Harry Hoe' }}, function(err, people) {
-            if (err) return done(err);
-            people.should.have.length(5);
-            done();
-          });
+                if (err) return done(err);
+                people.should.have.length(5);
+                done();
+              });
             });
           });
         });

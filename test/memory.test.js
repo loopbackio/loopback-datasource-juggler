@@ -135,7 +135,6 @@ describe('Memory connector', function() {
         assert.equal(users.length, 2);
         done(err);
       });
-
     });
   });
 
@@ -281,7 +280,7 @@ describe('Memory connector', function() {
     });
 
     it('should successfully extract 2 users using implied and', function(done) {
-      User.find({ where: { role:'lead', vip:true }}, function(err, users) {
+      User.find({ where: { role: 'lead', vip: true }}, function(err, users) {
         should(users.length).be.equal(2);
         should(users[0].name).be.equal('John Lennon');
         should(users[1].name).be.equal('Paul McCartney');
@@ -289,8 +288,14 @@ describe('Memory connector', function() {
       });
     });
 
-    it('should successfully extract 2 users using implied and & and', function(done) {
-      User.find({ where: { name: 'John Lennon', and: [{ role:'lead' }, { vip:true }] }}, function(err, users) {
+    it('should successfully extract 2 users using implied and & and',
+    function(done) {
+      User.find({
+        where: {
+          name: 'John Lennon',
+          and: [{ role: 'lead' }, { vip: true }],
+        },
+      }, function(err, users) {
         should(users.length).be.equal(1);
         should(users[0].name).be.equal('John Lennon');
         done();
@@ -488,8 +493,8 @@ describe('Memory connector', function() {
         should.not.exist(err);
         users.length.should.be.equal(2);
         for (var i = 0; i < users.length; i++) {
-            users[i].address.state.should.be.eql('CA');
-          }
+          users[i].address.state.should.be.eql('CA');
+        }
         done();
       });
     });
@@ -574,7 +579,6 @@ describe('Memory connector', function() {
         },
       ], done);
     }
-
   });
 
   it('should use collection setting', function(done) {
@@ -696,7 +700,6 @@ describe('Memory connector', function() {
           done();
         });
     });
-
   });
 
   describe('findOrCreate', function() {
@@ -941,7 +944,6 @@ describe('Memory connector with options', function() {
         done(err);
       });
   });
-
 });
 
 describe('Memory connector with observers', function() {

@@ -9,7 +9,6 @@ var async = require('async');
 var db, User;
 
 describe('basic-querying', function() {
-
   before(function(done) {
     db = getSchema();
     User = db.define('User', {
@@ -23,7 +22,6 @@ describe('basic-querying', function() {
     });
 
     db.automigrate(done);
-
   });
 
   describe('ping', function() {
@@ -36,7 +34,6 @@ describe('basic-querying', function() {
   });
 
   describe('findById', function() {
-
     before(function(done) {
       User.destroyAll(done);
     });
@@ -61,7 +58,6 @@ describe('basic-querying', function() {
         });
       });
     });
-
   });
 
   describe('findByIds', function() {
@@ -122,11 +118,9 @@ describe('basic-querying', function() {
           done();
         });
     });
-
   });
 
   describe('find', function() {
-
     before(seed);
 
     it('should query collection', function(done) {
@@ -304,7 +298,7 @@ describe('basic-querying', function() {
     });
 
     it('should support number "gte" that is satisfied', function(done) {
-      User.find({ order: 'seq', where: { order: { 'gte':  3 },
+      User.find({ order: 'seq', where: { order: { 'gte': 3 },
       }}, function(err, users) {
         should.not.exist(err);
         users.should.have.property('length', 4);
@@ -361,7 +355,7 @@ describe('basic-querying', function() {
     });
 
     it('should support string "gte" that is satisfied by null value', function(done) {
-      User.find({ order: 'seq', where: { name: { 'gte':  null },
+      User.find({ order: 'seq', where: { name: { 'gte': null },
       }}, function(err, users) {
         should.not.exist(err);
         users.should.have.property('length', 0);
@@ -370,7 +364,7 @@ describe('basic-querying', function() {
     });
 
     it('should support string "gte" that is satisfied', function(done) {
-      User.find({ order: 'seq', where: { name: { 'gte':  'Paul McCartney' },
+      User.find({ order: 'seq', where: { name: { 'gte': 'Paul McCartney' },
       }}, function(err, users) {
         should.not.exist(err);
         users.should.have.property('length', 4);
@@ -409,7 +403,7 @@ describe('basic-querying', function() {
     });
 
     it('should support boolean "gte" that is satisfied', function(done) {
-      User.find({ order: 'seq', where: { vip: { 'gte':  true },
+      User.find({ order: 'seq', where: { vip: { 'gte': true },
       }}, function(err, users) {
         should.not.exist(err);
         users.should.have.property('length', 3);
@@ -451,12 +445,10 @@ describe('basic-querying', function() {
       var remaining = 0;
 
       function sample(fields) {
-
         return {
           expect: function(arr) {
             remaining++;
             User.find({ fields: fields }, function(err, users) {
-
               remaining--;
               if (err) return done(err);
 
@@ -493,11 +485,9 @@ describe('basic-querying', function() {
       sample(['id']).expect(['id']);
       sample(['email']).expect(['email']);
     });
-
   });
 
   describe('count', function() {
-
     before(seed);
 
     it('should query total count', function(done) {
@@ -520,7 +510,6 @@ describe('basic-querying', function() {
   });
 
   describe('findOne', function() {
-
     before(seed);
 
     it('should find first record (default sort by id)', function(done) {
@@ -576,11 +565,9 @@ describe('basic-querying', function() {
         });
       });
     });
-
   });
 
   describe('exists', function() {
-
     before(seed);
 
     it('should check whether record exist', function(done) {
@@ -744,10 +731,10 @@ describe.skip('queries', function() {
           var aliases = ['deleteById', 'destroyById', 'removeById'];
           async.each(aliases, function(alias, cb) {
             Todo[alias](1, function(err) {
-          should.exist(err);
-          err.message.should.equal(expectedErrMsg);
-          cb();
-        });
+              should.exist(err);
+              err.message.should.equal(expectedErrMsg);
+              cb();
+            });
           }, done);
         });
 

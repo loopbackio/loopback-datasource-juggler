@@ -65,7 +65,7 @@ describe('defaults', function() {
 
   it('should preserve defaults in upsert update', function(done) {
     Server.findOne({}, function(err, server) {
-      Server.upsert({ id:server.id, port: 1337 }, function(err, s) {
+      Server.upsert({ id: server.id, port: 1337 }, function(err, s) {
         should.not.exist(err);
         (Number(1337)).should.equal(s.port);
         server.createdAt.should.eql(s.createdAt);
@@ -73,5 +73,4 @@ describe('defaults', function() {
       });
     });
   });
-
 });

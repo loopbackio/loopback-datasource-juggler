@@ -18,7 +18,8 @@ var HookMonitor = require('./helpers/hook-monitor');
 module.exports = function(dataSource, should, connectorCapabilities) {
   if (!connectorCapabilities) connectorCapabilities = {};
   if (connectorCapabilities.replaceOrCreateReportsNewInstance === undefined) {
-    console.warn('The connector does not support a recently added feature: replaceOrCreateReportsNewInstance');
+    console.warn('The connector does not support a recently added feature: ' +
+      'replaceOrCreateReportsNewInstance');
   }
   describe('Persistence hooks', function() {
     var ctxRecorder, hookMonitor, expectedError;
@@ -319,7 +320,6 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               });
               done();
             });
-
           });
       });
 
@@ -1564,7 +1564,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 name: 'changed',
                 id: data.id,
               },
-              isNewInstance : false,
+              isNewInstance: false,
             }));
             done();
           });
@@ -2968,7 +2968,6 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             done();
           });
       });
-
     });
 
     function nextWithError(err) {

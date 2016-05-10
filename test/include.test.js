@@ -13,7 +13,6 @@ var DataSource = require('../').DataSource;
 var db, User, Profile, AccessToken, Post, Passport, City, Street, Building, Assembly, Part;
 
 describe('include', function() {
-
   before(setup);
 
   it('should fetch belongsTo relation', function(done) {
@@ -61,7 +60,6 @@ describe('include', function() {
 
   it('should fetch Passport - Owner - Posts', function(done) {
     Passport.find({ include: { owner: 'posts' }}, function(err, passports) {
-
       should.not.exist(err);
       should.exist(passports);
       passports.length.should.be.ok;
@@ -156,7 +154,7 @@ describe('include', function() {
 
   it('should fetch Passports with include scope on Posts', function(done) {
     Passport.find({
-      include: { owner: { relation: 'posts', scope:{
+      include: { owner: { relation: 'posts', scope: {
         fields: ['title'], include: ['author'],
         order: 'title DESC',
       }}},
@@ -211,7 +209,7 @@ describe('include', function() {
 
   it('should fetch Users with include scope on Posts - belongsTo', function(done) {
     Post.find({
-      include: { relation: 'author', scope:{ fields: ['name'] }},
+      include: { relation: 'author', scope: { fields: ['name'] }},
     }, function(err, posts) {
       should.not.exist(err);
       should.exist(posts);
@@ -228,9 +226,12 @@ describe('include', function() {
 
   it('should fetch Users with include scope on Posts - hasMany', function(done) {
     User.find({
-      include: { relation: 'posts', scope:{
-        order: 'title DESC',
-      }},
+      include: {
+        relation: 'posts',
+        scope: {
+          order: 'title DESC',
+        },
+      },
     }, function(err, users) {
       should.not.exist(err);
       should.exist(users);
@@ -258,9 +259,12 @@ describe('include', function() {
 
   it('should fetch Users with include scope on Passports - hasMany', function(done) {
     User.find({
-      include: { relation: 'passports', scope:{
-        where: { number: '2' },
-      }},
+      include: {
+        relation: 'passports',
+        scope: {
+          where: { number: '2' },
+        },
+      },
     }, function(err, users) {
       should.not.exist(err);
       should.exist(users);
@@ -373,13 +377,11 @@ describe('include', function() {
 
             // Create a part
             assembly.parts.create({ partNumber: 'door' }, function(err, part4) {
-
               Assembly.find({ include: 'parts' }, function(err, assemblies) {
                 assemblies.length.should.equal(1);
                 assemblies[0].parts().length.should.equal(2);
                 done();
               });
-
             });
           });
         });
@@ -401,8 +403,7 @@ describe('include', function() {
         if (profile) {
           profile.should.be.an.instanceOf(Profile);
           usersWithProfile++;
-        }
-        else {
+        } else {
           (profile === null).should.be.true;
         }
         // The __cachedRelations should be removed from json output
@@ -744,7 +745,6 @@ function setup(done) {
         }
       );
     }
-
   });
 }
 
@@ -826,7 +826,6 @@ describe('Model instance with included relation .toJSON()', function() {
       function(err) {
         done(err);
       });
-
   });
 
   function createChallengers(callback) {
@@ -850,7 +849,6 @@ describe('Model instance with included relation .toJSON()', function() {
   it('should recursively serialize objects', function(done) {
     var filter = { include: { gameParticipations: 'results' }};
     ChallengerModel.find(filter, function(err, challengers) {
-
       var levelOneInclusion = challengers[0].toJSON().gameParticipations[0];
       assert(levelOneInclusion.__data === undefined, '.__data of a level 1 inclusion is undefined.');
 

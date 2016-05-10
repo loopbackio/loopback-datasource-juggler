@@ -3,6 +3,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+/* eslint-disable camelcase */
+
 /*
  if (!process.env.TRAVIS) {
  var semicov = require('semicov');
