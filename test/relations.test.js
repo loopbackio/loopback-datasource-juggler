@@ -2527,42 +2527,6 @@ describe('relations', function() {
         done();
       });
     });
-
-    it('should allow to create belongsTo model in beforeCreate hook', function(done) {
-      var mind;
-      Fear.beforeCreate = function(next) {
-        this.mind.create(function(err, m) {
-          mind = m;
-          if (err) next(err); else next();
-        });
-      };
-      Fear.create(function(err, fear) {
-        should.not.exists(err);
-        should.exists(fear);
-        fear.mindId.should.be.equal(mind.id);
-        should.exists(fear.mind());
-        done();
-      });
-    });
-
-    it('should allow to create belongsTo model in beforeCreate hook with promises', function(done) {
-      var mind;
-      Fear.beforeCreate = function(next) {
-        this.mind.create()
-        .then(function(m) {
-          mind = m;
-          next();
-        }).catch(next);
-      };
-      Fear.create()
-      .then(function(fear) {
-        should.exists(fear);
-        fear.mindId.should.be.equal(mind.id);
-        should.exists(fear.mind());
-        done();
-      }).catch(done);
-    });
-
   });
 
   describe('belongsTo with scope', function() {
