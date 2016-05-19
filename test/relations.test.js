@@ -5107,20 +5107,17 @@ describe('relations', function() {
 
     it('should not allow duplicate record on scope with promises', function(done) {
       Category.findOne()
-      .then(function(cat) {
-        cat.jobIds = [job2.id, job2.id];
-        cat.save();
-      })
-      .then(function(p) {
-        should.not.exist(p);
-        done();
-      })
-      .catch(function(err) {
-        should.exist(err);
-        err.name.should.equal('ValidationError');
-        err.details.codes.jobs.should.eql(['uniqueness']);
-        done();
-      });
+        .then(function(cat) {
+          cat.jobIds = [job2.id, job2.id];
+          return cat.save();
+        })
+        .then(
+           function(p) { done(new Error('save() should have failed')); },
+           function(err) {
+             err.name.should.equal('ValidationError');
+             err.details.codes.jobs.should.eql(['uniqueness']);
+             done();
+           });
     });
 
     it('should find items on scope with promises', function(done) {
