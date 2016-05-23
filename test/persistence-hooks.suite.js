@@ -154,11 +154,40 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               },
               isNewInstance: false,
               hookState: { test: true },
+              last: true,
               options: {}
             }));
             done();
           });
-      })
+      });
+
+      it('applies updates from `loaded` hook - lastExtra', function(done) {
+        TestModel.observe('loaded', pushContextAndNext(function(ctx) {
+          ctx.instance.extra = 'hook data';
+          ctx.instance.lastExtra = ctx.last;
+        }));
+
+        TestModel.find(
+          {where: {id: {inq: [1, 2]}}, order: 'id desc'},
+          function (err, list) {
+            if (err) return done(err);
+
+            observedContexts.should.eql([aTestModelCtx({
+              instance: {id: "2", name: "second", extra: "hook data", lastExtra: false},
+              isNewInstance: false,
+              hookState: { test: true },
+              last: false,
+              options: {}
+            }), aTestModelCtx({
+              instance: {id: "1", name: "first", extra: "hook data", lastExtra: true},
+              isNewInstance: false,
+              hookState: { test: true },
+              last: true,
+              options: {}
+            })]);
+            done();
+          });
+      });
 
       it('emits error when `loaded` hook fails', function(done) {
         TestModel.observe('loaded', nextWithError(expectedError));
@@ -1381,7 +1410,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         });
       });
     });
-    
+
     if (!getSchema().connector.replaceById) {
       describe.skip('replaceById - not implemented', function(){});
     } else {
@@ -1412,7 +1441,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               instance: {
                 id: existingInstance.id,
                 name: 'changed',
-                extra: undefined,              
+                extra: undefined,
               },
               isNewInstance: false
             }));
@@ -1494,7 +1523,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             instance.should.not.have.property('extra', 'hook data');
             done();
           });
-        });      
+        });
 
         it('applies updates from `persist` hook - for nested model instance', function(done) {
           var Address = dataSource.createModel('NestedAddress', {
@@ -1553,7 +1582,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             if (err) return done(err);
 
             observedContexts.should.eql(aTestModelCtx({
-              data: { 
+              data: {
                 name: 'changed',
                 id: data.id
               },
@@ -1583,7 +1612,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             instance.should.have.property('name', 'changed in hook');
             done();
           });
-        });      
+        });
 
         it('triggers `after save` hook', function(done) {
           TestModel.observe('after save', pushContextAndNext());
@@ -1624,8 +1653,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             instance.should.have.property('extra', 'hook data');
             done();
           });
-        });      
-      });      
+        });
+      });
     }
 
     describe('PersistedModel.updateOrCreate', function() {
@@ -2017,6 +2046,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                     extra: null
                   },
                   isNewInstance: false,
+                  last: true,
                   options: { notify: false }
                 }),
                 aTestModelCtx({
@@ -2116,16 +2146,16 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                   'persist',
                   'loaded',
                   'after save'
-                ]); 
+                ]);
               } else {
                 // TODO: Please see loopback-datasource-juggler/issues#836
-                // 
+                //
                 // loaded hook is triggered twice in non-atomic version:
                 // 1) It gets triggered once by "find()" in this chain:
-                //    "replaceORCreate()->findOne()->find()", 
-                //    which is a bug; Please see this ticket: 
+                //    "replaceORCreate()->findOne()->find()",
+                //    which is a bug; Please see this ticket:
                 //    loopback-datasource-juggler/issues#836.
-                // 2) It, also, gets triggered in "replaceAttributes()" 
+                // 2) It, also, gets triggered in "replaceAttributes()"
                 //    in this chain replaceORCreate()->replaceAttributes()
                 triggered.should.eql([
                   'access',
@@ -2257,7 +2287,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             }
             done();
           });
-        });      
+        });
 
         it('triggers `before save` hook on replace', function(done) {
           TestModel.observe('before save', pushContextAndNext());
@@ -2409,19 +2439,19 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             { id: 'new-id', name: 'a name' },
             function(err, instance) {
               if (err) return done(err);
-              
+
               var expected = {
                 data: {
                   id: 'new-id',
                   name: 'a name'
                 }
               };
-              
-              expected.isNewInstance = 
+
+              expected.isNewInstance =
                 connectorCapabilities.replaceOrCreateReportsNewInstance ?
-                true : undefined;            
-              
-              observedContexts.should.eql(aTestModelCtx(expected));     
+                true : undefined;
+
+              observedContexts.should.eql(aTestModelCtx(expected));
               done();
             });
         });
@@ -2440,8 +2470,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                   name: 'replaced name'
                 }
               };
-              
-              expected.isNewInstance = 
+
+              expected.isNewInstance =
                 connectorCapabilities.replaceOrCreateReportsNewInstance ?
                 false : undefined;
 
@@ -2449,13 +2479,13 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 observedContexts.should.eql(aTestModelCtx(expected));
               } else {
                 // TODO: Please see loopback-datasource-juggler/issues#836
-                // 
+                //
                 // loaded hook is triggered twice in non-atomic version:
                 // 1) It gets triggered once by "find()" in this chain:
-                //    "replaceORCreate()->findOne()->find()", 
-                //    which is a bug; Please see this ticket: 
+                //    "replaceORCreate()->findOne()->find()",
+                //    which is a bug; Please see this ticket:
                 //    loopback-datasource-juggler/issues#836.
-                // 2) It, also, gets triggered in "replaceAttributes()" 
+                // 2) It, also, gets triggered in "replaceAttributes()"
                 //    in this chain replaceORCreate()->replaceAttributes()
                 observedContexts.should.eql([
                   aTestModelCtx({
@@ -2487,7 +2517,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               [err].should.eql([expectedError]);
               done();
             });
-        });      
+        });
 
         it('triggers `after save` hook on replace', function(done) {
           TestModel.observe('after save', pushContextAndNext());
@@ -2496,7 +2526,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             { id: existingInstance.id, name: 'replaced name' },
             function(err, instance) {
               if (err) return done(err);
-              
+
               var expected = {
                 instance: {
                   id: existingInstance.id,
@@ -2504,8 +2534,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                   extra: undefined
                 }
               };
-              
-              expected.isNewInstance = 
+
+              expected.isNewInstance =
                 connectorCapabilities.replaceOrCreateReportsNewInstance ?
                 false : undefined;
 
@@ -2521,7 +2551,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             { id: 'new-id', name: 'a name' },
             function(err, instance) {
               if (err) return done(err);
-              
+
               var expected = {
                 instance: {
                   id: instance.id,
@@ -2529,10 +2559,10 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                   extra: undefined
                 }
               };
-              expected.isNewInstance = 
+              expected.isNewInstance =
                 connectorCapabilities.replaceOrCreateReportsNewInstance ?
                 true : undefined;
-              
+
               observedContexts.should.eql(aTestModelCtx(expected));
               done();
             });
