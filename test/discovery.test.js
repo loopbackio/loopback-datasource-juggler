@@ -596,7 +596,8 @@ describe('discoverExportedForeignKeys', function() {
     ds.discoverExportedForeignKeys('INVENTORY', options);
   });
 
-  it('should discover foreign key definitions using `discoverExportedForeignKeys` - promise variant', function(done) {
+  it('should discover foreign key definitions using ' +
+      '`discoverExportedForeignKeys` - promise variant', function(done) {
     ds.discoverExportedForeignKeys('INVENTORY', {})
       .then(function(modelForeignKeys) {
         modelForeignKeys.should.be.eql(exportedForeignKeys);

@@ -9,7 +9,6 @@ var should = require('./init.js');
 var db, Model;
 
 describe('datatypes', function() {
-
   before(function(done) {
     db = getSchema();
     Nested = db.define('Nested', {});
@@ -98,7 +97,6 @@ describe('datatypes', function() {
         done();
       });
     }
-
   });
 
   it('should respect data types when updating attributes', function(done) {
@@ -137,7 +135,6 @@ describe('datatypes', function() {
     }
 
     function testDataInDB(done) {
-
       // verify that the value stored in the db is still an object
       function cb(err, data) {
         should.exist(data);

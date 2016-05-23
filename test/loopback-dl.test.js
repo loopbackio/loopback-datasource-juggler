@@ -13,7 +13,6 @@ var ModelBuilder = jdb.ModelBuilder;
 var DataSource = jdb.DataSource;
 
 describe('ModelBuilder define model', function() {
-
   it('should be able to define plain models', function(done) {
     var modelBuilder = new ModelBuilder();
 
@@ -260,7 +259,6 @@ describe('ModelBuilder define model', function() {
     follow.should.have.property('id');
     assert.deepEqual(follow.id, { followerId: 1, followeeId: 2 });
   });
-
 });
 
 describe('DataSource ping', function() {
@@ -398,7 +396,6 @@ describe('DataSource define model', function() {
     Color.all(function(err, colors) {
       colors.should.have.lengthOf(3);
     });
-
   });
 
   it('should emit events during attach', function() {
@@ -435,7 +432,6 @@ describe('DataSource define model', function() {
     var User = ds.define('User', { name: String, bio: String }, { strict: true });
 
     User.create({ name: 'Joe', age: 20 }, function(err, user) {
-
       User.modelName.should.equal('User');
       user.should.be.type('object');
       assert(user.name === 'Joe');
@@ -479,7 +475,6 @@ describe('DataSource define model', function() {
     User.modelName.should.equal('User');
 
     User.create({ name: 'Joe', age: 20 }, function(err, user) {
-
       user.should.be.type('object').and.have.property('name', 'Joe');
       user.should.have.property('name', 'Joe');
       user.should.have.property('age', 20);
@@ -501,7 +496,6 @@ describe('DataSource define model', function() {
     var User = ds.define('User', {});
 
     User.create({ name: 'Joe', age: 20 }, function(err, user) {
-
       User.modelName.should.equal('User');
       user.should.be.type('object').and.have.property('name', 'Joe');
       user.should.have.property('name', 'Joe');
@@ -576,7 +570,6 @@ describe('DataSource define model', function() {
     user.toObject().should.not.have.property('age');
     user.toObject(true).should.not.have.property('age');
     user.toObject(false).should.have.property('age', 20);
-
   });
 
   it('should update the instance with unknown properties', function(done) {
@@ -601,7 +594,6 @@ describe('DataSource define model', function() {
           done();
         });
       });
-
     });
   });
 
@@ -656,7 +648,6 @@ describe('DataSource define model', function() {
     });
     User.http.path.should.equal('/accounts');
   });
-
 });
 
 describe('Load models with base', function() {
@@ -791,7 +782,6 @@ describe('Models attached to a dataSource', function() {
           done();
         });
       });
-
     });
   });
 
@@ -816,7 +806,6 @@ describe('Models attached to a dataSource', function() {
           done();
         });
       });
-
     });
   });
 
@@ -838,7 +827,6 @@ describe('Models attached to a dataSource', function() {
         done();
       });
     });
-
   });
 
   it('save should update the instance with the same id', function(done) {
@@ -859,7 +847,6 @@ describe('Models attached to a dataSource', function() {
           done();
         });
       });
-
     });
   });
 
@@ -881,7 +868,6 @@ describe('Models attached to a dataSource', function() {
           done();
         });
       });
-
     });
   });
 
@@ -903,7 +889,6 @@ describe('Models attached to a dataSource', function() {
         done();
       });
     });
-
   });
 });
 
@@ -940,7 +925,6 @@ describe('DataSource connector types', function() {
     result = ds.supportTypes(['rdbms']);
     assert(!result);
   });
-
 });
 
 describe('DataSource constructor', function() {
@@ -1012,7 +996,11 @@ describe('Load models with relations', function() {
     var ds = new DataSource('memory');
 
     var Post = ds.define('Post', { userId: Number, content: String });
-    var User = ds.define('User', { name: String }, { relations: { posts: { type: 'hasMany', model: 'Post' }}});
+    var User = ds.define(
+      'User',
+      { name: String },
+      { relations: { posts: { type: 'hasMany', model: 'Post' }}}
+    );
 
     assert(User.relations['posts']);
     done();
@@ -1022,7 +1010,11 @@ describe('Load models with relations', function() {
     var ds = new DataSource('memory');
 
     var User = ds.define('User', { name: String });
-    var Post = ds.define('Post', { userId: Number, content: String }, { relations: { user: { type: 'belongsTo', model: 'User' }}});
+    var Post = ds.define(
+      'Post',
+      { userId: Number, content: String },
+      { relations: { user: { type: 'belongsTo', model: 'User' }}}
+    );
 
     assert(Post.relations['user']);
     done();
@@ -1032,7 +1024,11 @@ describe('Load models with relations', function() {
     var ds = new DataSource('memory');
 
     var Post = ds.define('Post', { userId: Number, content: String });
-    var User = ds.define('User', { name: String }, { relations: { posts: { type: 'referencesMany', model: 'Post' }}});
+    var User = ds.define(
+      'User',
+      { name: String },
+      { relations: { posts: { type: 'referencesMany', model: 'Post' }}}
+    );
 
     assert(User.relations['posts']);
     done();
@@ -1042,7 +1038,11 @@ describe('Load models with relations', function() {
     var ds = new DataSource('memory');
 
     var Post = ds.define('Post', { userId: Number, content: String });
-    var User = ds.define('User', { name: String }, { relations: { posts: { type: 'embedsMany', model: 'Post' }}});
+    var User = ds.define(
+      'User',
+      { name: String },
+      { relations: { posts: { type: 'embedsMany', model: 'Post' }}}
+    );
 
     assert(User.relations['posts']);
     done();
@@ -1095,8 +1095,15 @@ describe('Load models with relations', function() {
   it('should set up foreign key with the correct type', function(done) {
     var ds = new DataSource('memory');
 
-    var User = ds.define('User', { name: String, id: { type: String, id: true }});
-    var Post = ds.define('Post', { content: String }, { relations: { user: { type: 'belongsTo', model: 'User' }}});
+    var User = ds.define(
+      'User',
+      { name: String, id: { type: String, id: true }}
+    );
+    var Post = ds.define(
+      'Post',
+      { content: String },
+      { relations: { user: { type: 'belongsTo', model: 'User' }}}
+    );
 
     var fk = Post.definition.properties['userId'];
     assert(fk, 'The foreign key should be added');
@@ -1108,14 +1115,37 @@ describe('Load models with relations', function() {
   it('should set up hasMany and belongsTo relations', function(done) {
     var ds = new DataSource('memory');
 
-    var User = ds.define('User', { name: String }, { relations: { posts: { type: 'hasMany', model: 'Post' }, accounts: { type: 'hasMany', model: 'Account' }}});
+    var User = ds.define(
+      'User',
+      { name: String },
+      {
+        relations: {
+          posts: {
+            type: 'hasMany',
+            model: 'Post',
+          },
+          accounts: {
+            type: 'hasMany',
+            model: 'Account',
+          },
+        },
+      }
+    );
 
     assert(!User.relations['posts']);
     assert(!User.relations['accounts']);
 
-    var Post = ds.define('Post', { userId: Number, content: String }, { relations: { user: { type: 'belongsTo', model: 'User' }}});
+    var Post = ds.define(
+      'Post',
+      { userId: Number, content: String },
+      { relations: { user: { type: 'belongsTo', model: 'User' }}}
+    );
 
-    var Account = ds.define('Account', { userId: Number, type: String }, { relations: { user: { type: 'belongsTo', model: 'User' }}});
+    var Account = ds.define(
+      'Account',
+      { userId: Number, type: String },
+      { relations: { user: { type: 'belongsTo', model: 'User' }}}
+    );
 
     assert(Post.relations['user']);
     assert.deepEqual(Post.relations['user'].toJSON(), {
@@ -1157,11 +1187,14 @@ describe('Load models with relations', function() {
     var Post = ds.define('Post', { userId: Number, content: String });
 
     try {
-      var User = ds.define('User', { name: String }, { relations: { posts: { model: 'Post' }}});
+      var User = ds.define(
+        'User',
+        { name: String },
+        { relations: { posts: { model: 'Post' }}}
+      );
     } catch (e) {
       done();
     }
-
   });
 
   it('should throw if the relation type is invalid', function(done) {
@@ -1170,11 +1203,14 @@ describe('Load models with relations', function() {
     var Post = ds.define('Post', { userId: Number, content: String });
 
     try {
-      var User = ds.define('User', { name: String }, { relations: { posts: { type: 'hasXYZ', model: 'Post' }}});
+      var User = ds.define(
+        'User',
+        { name: String },
+        { relations: { posts: { type: 'hasXYZ', model: 'Post' }}}
+      );
     } catch (e) {
       done();
     }
-
   });
 
   it('should handle hasMany through', function(done) {
@@ -1190,11 +1226,21 @@ describe('Load models with relations', function() {
     assert(!Physician.relations['patients']); // Appointment hasn't been resolved yet
     assert(!Patient.relations['physicians']); // Appointment hasn't been resolved yet
 
-    var Appointment = ds.createModel('Appointment', {
-      physicianId: Number,
-      patientId: Number,
-      appointmentDate: Date,
-    }, { relations: { patient: { type: 'belongsTo', model: 'Patient' }, physician: { type: 'belongsTo', model: 'Physician' }}});
+    var Appointment = ds.createModel('Appointment',
+      { physicianId: Number, patientId: Number, appointmentDate: Date },
+      {
+        relations: {
+          patient: {
+            type: 'belongsTo',
+            model: 'Patient',
+          },
+          physician: {
+            type: 'belongsTo',
+            model: 'Physician',
+          },
+        },
+      }
+    );
 
     assert(Physician.relations['patients']);
     assert(Patient.relations['physicians']);
@@ -1203,19 +1249,47 @@ describe('Load models with relations', function() {
 
   it('should handle hasMany through options', function(done) {
     var ds = new DataSource('memory');
-    var Physician = ds.createModel('Physician', {
-      name: String,
-    }, { relations: { patients: { model: 'Patient', type: 'hasMany', foreignKey: 'leftId', through: 'Appointment' }}});
-
-    var Patient = ds.createModel('Patient', {
-      name: String,
-    }, { relations: { physicians: { model: 'Physician', type: 'hasMany', foreignKey: 'rightId', through: 'Appointment' }}});
-
-    var Appointment = ds.createModel('Appointment', {
-      physicianId: Number,
-      patientId: Number,
-      appointmentDate: Date,
-    }, { relations: { patient: { type: 'belongsTo', model: 'Patient' }, physician: { type: 'belongsTo', model: 'Physician' }}});
+    var Physician = ds.createModel('Physician',
+      { name: String },
+      {
+        relations: {
+          patients: {
+            model: 'Patient',
+            type: 'hasMany',
+            foreignKey: 'leftId',
+            through: 'Appointment',
+          },
+        },
+      }
+    );
+    var Patient = ds.createModel('Patient',
+      { name: String },
+      {
+        relations: {
+          physicians: {
+            model: 'Physician',
+            type: 'hasMany',
+            foreignKey: 'rightId',
+            through: 'Appointment',
+          },
+        },
+      }
+    );
+    var Appointment = ds.createModel('Appointment',
+      { physicianId: Number, patientId: Number, appointmentDate: Date },
+      {
+        relations: {
+          patient: {
+            type: 'belongsTo',
+            model: 'Patient',
+          },
+          physician: {
+            type: 'belongsTo',
+            model: 'Physician',
+          },
+        },
+      }
+    );
 
     assert(Physician.relations['patients'].keyTo === 'leftId');
     assert(Patient.relations['physicians'].keyTo === 'rightId');
@@ -1227,7 +1301,11 @@ describe('Load models with relations', function() {
     var modelBuilder = new ModelBuilder();
 
     var Post = modelBuilder.define('Post', { userId: Number, content: String });
-    var User = modelBuilder.define('User', { name: String }, { relations: { posts: { type: 'hasMany', model: 'Post' }}});
+    var User = modelBuilder.define(
+      'User',
+      { name: String },
+      { relations: { posts: { type: 'hasMany', model: 'Post' }}}
+    );
 
     assert(!User.relations['posts']);
     Post.attachTo(ds);
@@ -1235,7 +1313,6 @@ describe('Load models with relations', function() {
     assert(User.relations['posts']);
     done();
   });
-
 });
 
 describe('Model with scopes', function() {
@@ -1355,7 +1432,6 @@ describe('DataAccessObject', function() {
 
     where = model._coerce({ vip: '' });
     assert.deepEqual(where, { vip: false });
-
   });
 
   it('should be able to coerce where clause with and operators', function() {
@@ -1547,7 +1623,6 @@ describe('DataAccessObject', function() {
       ds.settings.test = 'willNotGet';
       assert.notEqual(model._getSetting('test'), ds.settings.test, 'Should not get datasource setting');
     });
-
 });
 
 describe('Load models from json', function() {
@@ -1575,7 +1650,6 @@ describe('Load models from json', function() {
   }
 
   it('should be able to define models from json', function() {
-
     var models = loadSchemasSync(path.join(__dirname, 'test1-schemas.json'));
 
     models.should.have.property('AnonymousModel_0');
@@ -1828,5 +1902,4 @@ describe('ModelBuilder options.models', function() {
       var M1 = builder.define('M1');
       assert.equal(M2.M1, M1, 'M1 should be injected to M2');
     });
-
 });

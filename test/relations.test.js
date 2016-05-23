@@ -24,7 +24,6 @@ var getMemoryDataSource = function(settings) {
 };
 
 describe('relations', function() {
-
   before(function() {
     db = getSchema();
   });
@@ -63,7 +62,6 @@ describe('relations', function() {
     });
 
     describe('with scope', function() {
-
       before(function(done) {
         Book.hasMany(Chapter);
         done();
@@ -552,7 +550,6 @@ describe('relations', function() {
         }).catch(done);
       });
     });
-
   });
 
   describe('hasMany through', function() {
@@ -673,7 +670,6 @@ describe('relations', function() {
       });
       function verify(physician) {
         physician.patients(function(err, ch) {
-
           var patients = physician.patients();
           patients.should.eql(ch);
 
@@ -702,7 +698,6 @@ describe('relations', function() {
       function verify(physician) {
         return physician.patients.getAsync()
         .then(function(ch) {
-
           var patients = physician.patients();
           patients.should.eql(ch);
 
@@ -725,13 +720,13 @@ describe('relations', function() {
       });
       function verify(physician) {
         //limit plus skip
-        physician.patients({ limit:1, skip:1 }, function(err, ch) {
+        physician.patients({ limit: 1, skip: 1 }, function(err, ch) {
           should.not.exist(err);
           should.exist(ch);
           ch.should.have.lengthOf(1);
           ch[0].name.should.eql('z');
           //offset plus skip
-          physician.patients({ limit:1, offset:1 }, function(err1, ch1) {
+          physician.patients({ limit: 1, offset: 1 }, function(err1, ch1) {
             should.not.exist(err1);
             should.exist(ch1);
             ch1.should.have.lengthOf(1);
@@ -1123,7 +1118,6 @@ describe('relations', function() {
         });
       });
     });
-
   });
 
   describe('hasMany through - collect', function() {
@@ -1162,8 +1156,17 @@ describe('relations', function() {
 
     describe('when custom reverse belongsTo names for both sides', function() {
       it('can determine the collect via keyThrough', function() {
-        Physician.hasMany(Patient, { through: Appointment, foreignKey: 'fooId', keyThrough: 'barId' });
-        Patient.hasMany(Physician, { through: Appointment, foreignKey: 'barId', keyThrough: 'fooId', as: 'yyy' });
+        Physician.hasMany(Patient, {
+          through: Appointment,
+          foreignKey: 'fooId',
+          keyThrough: 'barId',
+        });
+        Patient.hasMany(Physician, {
+          through: Appointment,
+          foreignKey: 'barId',
+          keyThrough: 'fooId',
+          as: 'yyy',
+        });
         Appointment.belongsTo(Physician, { as: 'foo' });
         Appointment.belongsTo(Patient, { as: 'bar' });
         Patient.belongsTo(Address); // jam.
@@ -1217,7 +1220,6 @@ describe('relations', function() {
     });
 
     describe('when custom reverse belongsTo name for one side only', function() {
-
       beforeEach(function() {
         Physician.hasMany(Patient, { as: 'xxx', through: Appointment, foreignKey: 'fooId' });
         Patient.hasMany(Physician, { as: 'yyy', through: Appointment, keyThrough: 'fooId' });
@@ -1255,8 +1257,18 @@ describe('relations', function() {
         } }});
       Address = db.define('Address', { name: String });
 
-      User.hasMany(User, { as: 'followers', foreignKey: 'followeeId', keyThrough: 'followerId', through: Follow });
-      User.hasMany(User, { as: 'following', foreignKey: 'followerId', keyThrough: 'followeeId', through: Follow });
+      User.hasMany(User, {
+        as: 'followers',
+        foreignKey: 'followeeId',
+        keyThrough: 'followerId',
+        through: Follow,
+      });
+      User.hasMany(User, {
+        as: 'following',
+        foreignKey: 'followerId',
+        keyThrough: 'followeeId',
+        through: Follow,
+      });
       User.belongsTo(Address);
       Follow.belongsTo(User, { as: 'follower' });
       Follow.belongsTo(User, { as: 'followee' });
@@ -1302,8 +1314,18 @@ describe('relations', function() {
         } }});
       Address = db.define('Address', { name: String });
 
-      User.hasMany(User, { as: 'followers', foreignKey: 'followeeId', keyThrough: 'followerId', through: Follow });
-      User.hasMany(User, { as: 'following', foreignKey: 'followerId', keyThrough: 'followeeId', through: Follow });
+      User.hasMany(User, {
+        as: 'followers',
+        foreignKey: 'followeeId',
+        keyThrough: 'followerId',
+        through: Follow,
+      });
+      User.hasMany(User, {
+        as: 'following',
+        foreignKey: 'followerId',
+        keyThrough: 'followeeId',
+        through: Follow,
+      });
       User.belongsTo(Address);
       Follow.belongsTo(User, { as: 'follower' });
       Follow.belongsTo(User, { as: 'followee' });
@@ -1556,7 +1578,6 @@ describe('relations', function() {
         });
       });
     });
-
   });
 
   describe('polymorphic hasOne', function() {
@@ -1703,7 +1724,6 @@ describe('relations', function() {
         });
       });
     });
-
   });
 
   describe('polymorphic hasOne with non standard ids', function() {
@@ -2056,7 +2076,6 @@ describe('relations', function() {
             done();
           });
       });
-
   });
 
   describe('polymorphic hasAndBelongsToMany through', function() {
@@ -2203,7 +2222,12 @@ describe('relations', function() {
     });
 
     it('should create polymorphic through model', function(done) {
-      PictureLink.findOne({ where: { pictureId: anotherPicture.id, imageableType: 'Author' }}, function(err, link) {
+      PictureLink.findOne({
+        where: {
+          pictureId: anotherPicture.id,
+          imageableType: 'Author',
+        },
+      }, function(err, link) {
         should.not.exist(err);
         link.pictureId.should.eql(anotherPicture.id);
         link.imageableId.should.eql(author.id);
@@ -2339,7 +2363,6 @@ describe('relations', function() {
         });
       });
     });
-
   });
 
   describe('belongsTo', function() {
@@ -2549,7 +2572,6 @@ describe('relations', function() {
         done();
       }).catch(done);
     });
-
   });
 
   describe('belongsTo with scope', function() {
@@ -2621,7 +2643,6 @@ describe('relations', function() {
       })
       .catch(done);
     });
-
   });
 
   // Disable the tests until the issue in
@@ -2907,11 +2928,9 @@ describe('relations', function() {
         done();
       });
     });
-
   });
 
   describe('hasOne with scope', function() {
-
     var Supplier, Account;
     var supplierId, accountId;
 
@@ -3017,7 +3036,6 @@ describe('relations', function() {
       })
       .catch(done);
     });
-
   });
 
   describe('hasOne with non standard id', function() {
@@ -3104,7 +3122,6 @@ describe('relations', function() {
         done();
       });
     });
-
   });
 
   describe('hasOne with primaryKey different from model PK', function() {
@@ -3470,7 +3487,6 @@ describe('relations', function() {
   });
 
   describe('embedsOne', function() {
-
     var person;
     var Passport;
     var Other;
@@ -3480,7 +3496,7 @@ describe('relations', function() {
       // db = getSchema();
       Person = db.define('Person', { name: String });
       Passport = tmp.define('Passport',
-        { name:{ type:'string', required: true }},
+        { name: { type: 'string', required: true }},
         { idInjection: false }
       );
       Address = tmp.define('Address', { street: String }, { idInjection: false });
@@ -3762,7 +3778,6 @@ describe('relations', function() {
   });
 
   describe('embedsOne - persisted model', function() {
-
     // This test spefically uses the Memory connector
     // in order to test the use of the auto-generated
     // id, in the sequence of the related model.
@@ -3771,7 +3786,7 @@ describe('relations', function() {
       db = getMemoryDataSource();
       Person = db.define('Person', { name: String });
       Passport = db.define('Passport',
-        { name:{ type:'string', required: true }}
+        { name: { type: 'string', required: true }}
       );
     });
 
@@ -3783,7 +3798,7 @@ describe('relations', function() {
     });
 
     it('should create an item - to offset id', function(done) {
-      Passport.create({ name:'Wilma' }, function(err, p) {
+      Passport.create({ name: 'Wilma' }, function(err, p) {
         should.not.exist(err);
         p.id.should.equal(1);
         p.name.should.equal('Wilma');
@@ -3814,18 +3829,16 @@ describe('relations', function() {
         });
       }).catch(done);
     });
-
   });
 
   describe('embedsOne - generated id', function() {
-
     before(function() {
       tmp = getTransientDataSource();
       // db = getSchema();
       Person = db.define('Person', { name: String });
       Passport = tmp.define('Passport',
-        { id: { type:'string', id: true, generated:true }},
-        { name: { type:'string', required: true }}
+        { id: { type: 'string', id: true, generated: true }},
+        { name: { type: 'string', required: true }}
       );
     });
 
@@ -3845,11 +3858,9 @@ describe('relations', function() {
         });
       });
     });
-
   });
 
   describe('embedsMany', function() {
-
     var address1, address2;
 
     before(function(done) {
@@ -4083,20 +4094,17 @@ describe('relations', function() {
         done();
       });
     });
-
   });
 
   describe('embedsMany - numeric ids + forceId', function() {
-
     before(function(done) {
       tmp = getTransientDataSource();
       // db = getSchema();
       Person = db.define('Person', { name: String });
       Address = tmp.define('Address', {
-        id: { type: Number, id:true },
+        id: { type: Number, id: true },
         street: String,
       });
-
       db.automigrate(['Person'], done);
     });
 
@@ -4120,7 +4128,6 @@ describe('relations', function() {
         });
       });
     });
-
   });
 
   describe('embedsMany - explicit ids', function() {
@@ -4289,11 +4296,9 @@ describe('relations', function() {
         });
       });
     });
-
   });
 
   describe('embedsMany - persisted model', function() {
-
     var address0, address1, address2;
     var person;
 
@@ -4415,11 +4420,9 @@ describe('relations', function() {
         });
       });
     });
-
   });
 
   describe('embedsMany - relations, scope and properties', function() {
-
     var category, job1, job2, job3;
 
     before(function() {
@@ -4647,11 +4650,9 @@ describe('relations', function() {
         done();
       });
     });
-
   });
 
   describe('embedsMany - polymorphic relations', function() {
-
     var person1, person2;
 
     before(function(done) {
@@ -4757,7 +4758,6 @@ describe('relations', function() {
     });
 
     it('should include nested related items on scope', function(done) {
-
       // There's some date duplication going on, so it might
       // make sense to override toObject on a case-by-case basis
       // to sort this out (delete links, keep people).
@@ -4784,11 +4784,9 @@ describe('relations', function() {
         done();
       });
     });
-
   });
 
   describe('referencesMany', function() {
-
     var job1, job2, job3;
 
     before(function(done) {
@@ -5433,7 +5431,5 @@ describe('relations', function() {
       })
       .catch(done);
     });
-
   });
-
 });

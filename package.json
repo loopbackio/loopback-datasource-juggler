@@ -41,6 +41,7 @@
     "async": "~1.0.0",
     "debug": "^2.1.1",
     "depd": "^1.0.0",
+    "eslint": "^2.9.0",
     "inflection": "^1.6.0",
     "loopback-connector": "^2.1.0",
     "node-uuid": "^1.4.2",

@@ -30,7 +30,6 @@ var json = {
 };
 
 describe('Introspection of model definitions from JSON', function() {
-
   it('should handle simple types', function() {
     assert.equal(introspectType('123'), 'string');
     assert.equal(introspectType(true), 'boolean');
@@ -129,6 +128,5 @@ describe('Introspection of model definitions from JSON', function() {
     assert.deepEqual(obj, copy);
     done();
   });
-
 });
 

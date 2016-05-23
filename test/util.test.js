@@ -24,7 +24,6 @@ describe('util.fieldsToArray', function() {
 
   it('Turn objects and strings into an array of fields' +
     ' to include when finding models', function() {
-
     sample(false).expect(undefined);
     sample(null).expect(undefined);
     sample({}).expect(undefined);
@@ -37,7 +36,6 @@ describe('util.fieldsToArray', function() {
   });
 
   it('should exclude unknown properties', function() {
-
     sample(false, true).expect(undefined);
     sample(null, true).expect(undefined);
     sample({}, true).expect(undefined);
@@ -77,7 +75,6 @@ describe('util.removeUndefined', function() {
 
     var q6 = { where: { x: 1, y: undefined }};
     (function() { removeUndefined(q6, 'throw'); }).should.throw(/`undefined` in query/);
-
   });
 });
 
@@ -94,7 +91,6 @@ describe('util.parseSettings', function() {
     should.equal(settings.connector, 'mongodb');
     should.equal(settings.w, '2');
     should.equal(settings.url, 'mongodb://x:y@localhost:27017/mydb?w=2');
-
   });
 
   it('Parse a url without auth into a settings object', function() {
@@ -109,7 +105,6 @@ describe('util.parseSettings', function() {
     should.equal(settings.connector, 'mongodb');
     should.equal(settings.w, '2');
     should.equal(settings.url, 'mongodb://localhost:27017/mydb/abc?w=2');
-
   });
 
   it('Parse a url with complex query into a settings object', function() {
@@ -126,7 +121,6 @@ describe('util.parseSettings', function() {
     should.equal(settings.x.b, '2');
     should.equal(settings.engine, 'InnoDB');
     should.equal(settings.url, 'mysql://127.0.0.1:3306/mydb?x[a]=1&x[b]=2&engine=InnoDB');
-
   });
 
   it('Parse a url without auth into a settings object', function() {
@@ -139,9 +133,7 @@ describe('util.parseSettings', function() {
     should.equal(settings.connector, 'memory');
     should.equal(settings.x, '1');
     should.equal(settings.url, 'memory://?x=1');
-
   });
-
 });
 
 describe('mergeSettings', function() {
@@ -217,7 +209,6 @@ describe('mergeSettings', function() {
 });
 
 describe('sortObjectsByIds', function() {
-
   var items = [
     { id: 1, name: 'a' },
     { id: 2, name: 'b' },
@@ -244,11 +235,9 @@ describe('sortObjectsByIds', function() {
     var names = sorted.map(function(u) { return u.name; });
     should.deepEqual(names, ['e', 'c', 'b']);
   });
-
 });
 
 describe('util.mergeIncludes', function() {
-
   function checkInputOutput(baseInclude, updateInclude, expectedInclude) {
     var mergedInclude = mergeIncludes(baseInclude, updateInclude);
     should.deepEqual(mergedInclude, expectedInclude,
@@ -390,7 +379,6 @@ describe('util.mergeIncludes', function() {
 });
 
 describe('util.uniq', function() {
-
   it('should dedupe an array with duplicate number entries', function() {
     var a = [1, 2, 1, 3];
     var b = uniq(a);
@@ -430,7 +418,6 @@ describe('util.uniq', function() {
       err.should.be.instanceof(Error);
     }
   });
-
 });
 
 describe('util.toRegExp', function() {

@@ -23,7 +23,6 @@ function getValidAttributes() {
 }
 
 describe('validations', function() {
-
   var User, Entry;
 
   before(function(done) {
@@ -61,9 +60,7 @@ describe('validations', function() {
   });
 
   describe('commons', function() {
-
     describe('skipping', function() {
-
       it('should NOT skip when `if` is fulfilled', function() {
         User.validatesPresenceOf('pendingPeriod', { if: 'createdByAdmin' });
         var user = new User;
@@ -103,11 +100,9 @@ describe('validations', function() {
         user.pendingPeriod = 1;
         user.isValid().should.be.true;
       });
-
     });
 
     describe('skipping in async validation', function() {
-
       it('should skip when `if` is NOT fulfilled', function(done) {
         User.validateAsync('pendingPeriod', function(err, done) {
           if (!this.pendingPeriod) err();
@@ -163,11 +158,9 @@ describe('validations', function() {
           done();
         });
       });
-
     });
 
     describe('lifecycle', function() {
-
       it('should work on create', function(done) {
         delete User.validations;
         User.validatesPresenceOf('name');
@@ -280,7 +273,7 @@ describe('validations', function() {
       });
 
       it('should return validation metadata', function() {
-        var expected = { name:[{ validation: 'presence', options: {}}] };
+        var expected = { name: [{ validation: 'presence', options: {}}] };
         delete User.validations;
         User.validatesPresenceOf('name');
         var validations = User.validations;
@@ -290,7 +283,6 @@ describe('validations', function() {
   });
 
   describe('presence', function() {
-
     it('should validate presence', function() {
       User.validatesPresenceOf('name', 'email');
 
@@ -337,11 +329,9 @@ describe('validations', function() {
       user.domain = 'domain';
       user.isValid().should.be.true;
     });
-
   });
 
   describe('absence', function() {
-
     it('should validate absence', function() {
       User.validatesAbsenceOf('reserved', { if: 'locked' });
       var u = new User({ reserved: 'foo', locked: true });
@@ -351,7 +341,6 @@ describe('validations', function() {
       var u = new User({ reserved: 'foo', locked: false });
       u.isValid().should.be.true;
     });
-
   });
 
   describe('uniqueness', function() {
