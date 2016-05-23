@@ -176,18 +176,6 @@ describe('manipulation', function() {
         .catch(done);
     });
 
-    it('should work when called without callback', function(done) {
-      Person.afterCreate = function(next) {
-        this.should.be.an.instanceOf(Person);
-        this.name.should.equal('Nickolay');
-        should.exist(this.id);
-        Person.afterCreate = null;
-        next();
-        setTimeout(done, 10);
-      };
-      Person.create({ name: 'Nickolay' });
-    });
-
     it('should create instance with blank data', function(done) {
       Person.create(function(err, p) {
         should.not.exist(err);
@@ -213,18 +201,6 @@ describe('manipulation', function() {
             done();
           });
         }).catch(done);
-    });
-
-    it('should work when called with no data and callback', function(done) {
-      Person.afterCreate = function(next) {
-        this.should.be.an.instanceOf(Person);
-        should.not.exist(this.name);
-        should.exist(this.id);
-        Person.afterCreate = null;
-        next();
-        setTimeout(done, 30);
-      };
-      Person.create();
     });
 
     it('should create batch of objects', function(done) {
@@ -254,29 +230,6 @@ describe('manipulation', function() {
           persons[0].errors.should.be.false;
           done();
         });
-      });
-    });
-
-    it('should create batch of objects with beforeCreate', function(done) {
-      Person.beforeCreate = function(next, data) {
-        if (data && data.name === 'A') {
-          return next(null, { id: 'a', name: 'A' });
-        } else {
-          return next();
-        }
-      };
-      var batch = [
-        { name: 'A' },
-        { name: 'B' },
-        undefined,
-      ];
-      Person.create(batch, function(e, ps) {
-        should.not.exist(e);
-        should.exist(ps);
-        ps.should.be.instanceOf(Array);
-        ps.should.have.lengthOf(batch.length);
-        ps[0].should.be.eql({ id: 'a', name: 'A' });
-        done();
       });
     });
 
@@ -327,7 +280,6 @@ describe('manipulation', function() {
   });
 
   describe('save', function() {
-
     it('should save new object', function(done) {
       var p = new Person;
       p.save(function(err) {
