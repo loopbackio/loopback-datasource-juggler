@@ -79,11 +79,22 @@ describe('Model class', function() {
     properties.city.should.eql({ type: String, required: true });
   });
 
+  it('should fail to apply an undefined mixin class', function() {
+    var memory = new DataSource('mem', { connector: Memory }, modelBuilder);
+    function applyMixin() {
+      memory.createModel('Item', { name: 'string' }, {
+        mixins: { UndefinedMixin: true },
+      });
+    }
+    should.throws(applyMixin, 'failed to apply undefined mixin class');
+  });
+
   it('should apply mixins', function(done) {
     var memory = new DataSource('mem', { connector: Memory }, modelBuilder);
     var Item = memory.createModel('Item', { name: 'string' }, {
       mixins: {
-        TimeStamp: true, Demo: { value: true },
+        TimeStamp: true,
+        Demo: { value: true },
         Multi: [
           { key: 'foo', value: 'bar' },
           { key: 'fox', value: 'baz' },
@@ -108,6 +119,16 @@ describe('Model class', function() {
       inst.example().should.eql({ foo: 'bar' });
       done();
     });
+  });
+
+  it('should fail to apply undefined mixin', function() {
+    var memory = new DataSource('mem', { connector: Memory }, modelBuilder);
+    var Item = memory.createModel('Item', { name: 'string' });
+
+    function applyMixin() {
+      Item.mixin('UndefinedMixin', { foo: 'bar' });
+    }
+    should.throws(applyMixin, 'failed to apply undefined mixin');
   });
 
   describe('#mixin()', function() {
