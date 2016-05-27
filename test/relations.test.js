@@ -3837,8 +3837,10 @@ describe('relations', function() {
       // db = getSchema();
       Person = db.define('Person', { name: String });
       Passport = tmp.define('Passport',
-        { id: { type: 'string', id: true, generated: true }},
-        { name: { type: 'string', required: true }}
+        {
+          id: { type: 'string', id: true, generated: true },
+          name: { type: 'string', required: true },
+        }
       );
     });
 
