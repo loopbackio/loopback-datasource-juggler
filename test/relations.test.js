@@ -3775,6 +3775,30 @@ describe('relations', function() {
         done();
       }).catch(done);
     });
+
+    it('should also save changes when directly saving the embedded model', function(done) {
+      // Passport should normally have an id for the direct save to work. For now override the check
+      var originalHasPK = Passport.definition.hasPK;
+      Passport.definition.hasPK = function(){ return true };
+      Person.findById(personId)
+        .then(function(p) {
+          return p.passportItem.create({ name: 'Mitsos' });
+        })
+        .then(function (passport) {
+          passport.name = 'Jim';
+          return passport.save();
+        })
+        .then(function() {
+          return Person.findById(personId);
+        })
+        .then(function(person) {
+          person.passportItem().toObject().should.eql({ name: 'Jim' });
+          // restore original hasPk
+          Passport.definition.hasPK = originalHasPK;
+          done();
+        })
+        .catch(done);
+    });
   });
 
   describe('embedsOne - persisted model', function() {
