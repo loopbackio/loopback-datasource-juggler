@@ -1135,6 +1135,9 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers `after save` hook on create', function(done) {
         TestModel.observe('after save', ctxRecorder.recordAndNext());
 
+        // The rationale behind passing { persisted: true } is to bypass the check
+        // made by DAO to determine whether the instance should be saved via
+        // PersistedModel.create and force it to call connector.save()
         var instance = new TestModel(
           { id: 'new-id', name: 'created' },
           { persisted: true });
