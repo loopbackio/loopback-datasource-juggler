@@ -3779,12 +3779,12 @@ describe('relations', function() {
     it('should also save changes when directly saving the embedded model', function(done) {
       // Passport should normally have an id for the direct save to work. For now override the check
       var originalHasPK = Passport.definition.hasPK;
-      Passport.definition.hasPK = function(){ return true };
+      Passport.definition.hasPK = function() { return true; };
       Person.findById(personId)
         .then(function(p) {
           return p.passportItem.create({ name: 'Mitsos' });
         })
-        .then(function (passport) {
+        .then(function(passport) {
           passport.name = 'Jim';
           return passport.save();
         })
