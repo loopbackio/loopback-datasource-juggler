@@ -3772,6 +3772,53 @@ describe('relations', function() {
         done();
       }).catch(done);
     });
+
+    it('should also save changes when directly saving the embedded model', function(done) {
+      // Passport should normally have an id for the direct save to work. For now override the check
+      var originalHasPK = Passport.definition.hasPK;
+      Passport.definition.hasPK = function() { return true; };
+      Person.findById(personId)
+        .then(function(p) {
+          return p.passportItem.create({ name: 'Mitsos' });
+        })
+        .then(function(passport) {
+          passport.name = 'Jim';
+          return passport.save();
+        })
+        .then(function() {
+          return Person.findById(personId);
+        })
+        .then(function(person) {
+          person.passportItem().toObject().should.eql({ name: 'Jim' });
+          // restore original hasPk
+          Passport.definition.hasPK = originalHasPK;
+          done();
+        })
+        .catch(function(err) {
+          Passport.definition.hasPK = originalHasPK;
+          done(err);
+        });
+    });
+
+    it('should delete the embedded document and also update parent', function(done) {
+      var originalHasPK = Passport.definition.hasPK;
+      Passport.definition.hasPK = function() { return true; };
+      Person.findById(personId)
+        .then(function(p) {
+          return p.passportItem().destroy();
+        })
+        .then(function() {
+          return Person.findById(personId);
+        })
+        .then(function(person) {
+          person.should.have.property('passport', null);
+          done();
+        })
+        .catch(function(err) {
+          Passport.definition.hasPK = originalHasPK;
+          done(err);
+        });
+    });
   });
 
   describe('embedsOne - persisted model', function() {
