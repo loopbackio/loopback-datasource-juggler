@@ -1880,4 +1880,82 @@ describe('ModelBuilder options.models', function() {
       assert.equal(M2.M1, M1, 'M1 should be injected to M2');
     });
 
+  it('should use false strict mode for embedded models by default', function() {
+    var builder = new ModelBuilder();
+    var M1 = builder.define('testEmbedded', {
+      name: 'string',
+      address: {
+        street: 'string',
+      },
+    });
+    var m1 = new M1({
+      name: 'Jim',
+      address: {
+        street: 'washington st',
+        number: 5512,
+      },
+    });
+    assert.equal(m1.address.number, 5512, 'm1 should contain number property in address');
+  });
+
+  it('should use the strictEmbeddedModels setting (true) when applied on modelBuilder', function() {
+    var builder = new ModelBuilder();
+    builder.settings.strictEmbeddedModels = true;
+    var M1 = builder.define('testEmbedded', {
+      name: 'string',
+      address: {
+        street: 'string',
+      },
+    });
+    var m1 = new M1({
+      name: 'Jim',
+      address: {
+        street: 'washington st',
+        number: 5512,
+      },
+    });
+    assert.equal(m1.address.number, undefined, 'm1 should not contain number property in address');
+  });
+
+  it('should use strictEmbeddedModels setting (validate) when applied on modelBuilder', function() {
+    var builder = new ModelBuilder();
+    builder.settings.strictEmbeddedModels = 'validate';
+    var M1 = builder.define('testEmbedded', {
+      name: 'string',
+      address: {
+        street: 'string',
+      },
+    });
+    var m1 = new M1({
+      name: 'Jim',
+      address: {
+        street: 'washington st',
+        number: 5512,
+      },
+    });
+    assert.equal(m1.address.number, undefined, 'm1 should not contain number property in address');
+    assert.equal(m1.address.isValid(), false, 'm1 address should not validate with extra property');
+    var codes = m1.address.errors && m1.address.errors.codes || {};
+    assert.deepEqual(codes.number, ['unknown-property']);
+  });
+
+  it('should use the strictEmbeddedModels setting (throw) when applied on modelBuilder', function() {
+    var builder = new ModelBuilder();
+    builder.settings.strictEmbeddedModels = 'throw';
+    var M1 = builder.define('testEmbedded', {
+      name: 'string',
+      address: {
+        street: 'string',
+      },
+    });
+    assert.throws(function() {
+      var m1 = new M1({
+        name: 'Jim',
+        address: {
+          street: 'washington st',
+          number: 5512,
+        },
+      });
+    });
+  });
 });
