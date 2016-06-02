@@ -1024,6 +1024,18 @@ describe('manipulation', function() {
       .catch(done);
       });
 
+      it('should fail when changing id', function(done) {
+        Post.findById(postInstance.id, function(err, p) {
+          if (err) return done(err);
+          p.replaceAttributes({ title: 'b', id: 999 }, function(err, p) {
+            should.exist(err);
+            var expectedErrMsg = 'id property (id) cannot be updated from ' + postInstance.id + ' to 999';
+            err.message.should.equal(expectedErrMsg);
+            done();
+          });
+        });
+      });
+
       it('works without options(callback variant)', function(done) {
         Post.findById(postInstance.id, function(err, p) {
           if (err) return done(err);
