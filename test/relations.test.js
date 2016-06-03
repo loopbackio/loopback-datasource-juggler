@@ -3797,7 +3797,10 @@ describe('relations', function() {
           Passport.definition.hasPK = originalHasPK;
           done();
         })
-        .catch(done);
+        .catch(function(err) {
+          Passport.definition.hasPK = originalHasPK;
+          done(err);
+        });
     });
   });
 
