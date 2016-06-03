@@ -617,6 +617,29 @@ describe('include', function() {
         });
       });
   });
+
+  it('should support disableInclude for hasAndBelongsToMany', function() {
+    var Patient = db.define('Patient', { name: String });
+    var Doctor = db.define('Doctor', { name: String });
+    var DoctorPatient = db.define('DoctorPatient');
+    Doctor.hasAndBelongsToMany('patients', {
+      model: 'Patient',
+      options: { disableInclude: true },
+    });
+
+    var doctor;
+    return db.automigrate(['Patient', 'Doctor', 'DoctorPatient']).then(function() {
+      return Doctor.create({ name: 'Who' });
+    }).then(function(inst) {
+      doctor = inst;
+      return doctor.patients.create({ name: 'Lazarus' });
+    }).then(function() {
+      return Doctor.find({ include: ['patients'] });
+    }).then(function(list) {
+      list.should.have.length(1);
+      list[0].toJSON().should.not.have.property('patients');
+    });
+  });
 });
 
 function setup(done) {
