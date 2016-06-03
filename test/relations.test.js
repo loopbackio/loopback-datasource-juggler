@@ -3802,6 +3802,26 @@ describe('relations', function() {
           done(err);
         });
     });
+
+    it('should delete the embedded document and also update parent', function(done) {
+      var originalHasPK = Passport.definition.hasPK;
+      Passport.definition.hasPK = function() { return true; };
+      Person.findById(personId)
+        .then(function(p) {
+          return p.passportItem().destroy();
+        })
+        .then(function() {
+          return Person.findById(personId);
+        })
+        .then(function(person) {
+          person.should.have.property('passport', null);
+          done();
+        })
+        .catch(function(err) {
+          Passport.definition.hasPK = originalHasPK;
+          done(err);
+        });
+    });
   });
 
   describe('embedsOne - persisted model', function() {
