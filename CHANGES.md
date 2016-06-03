@@ -1,3 +1,49 @@
+2016-06-03, Version 2.46.1
+==========================
+
+ * fix (Miroslav Bajtoš)
+
+ * Retun err for UPSERT if the connector returns err (Amir Jafarian)
+
+ * Fix error message (Amir Jafarian)
+
+ * Add test's description (Amir Jafarian)
+
+ * ModelBuilder: add new setting strictEmbeddedModels (Dimitris Halatsis)
+
+ * Fix incompatibility between different connectors PR#938 (Amir Jafarian)
+
+ * travis: add v4, v6, drop io.js (Miroslav Bajtoš)
+
+ * Backport ESLint from master (Simon Ho)
+
+ * Set ESLint as devdep (Simon Ho)
+
+ * Use mocha instead of Makefile for testing (Simon Ho)
+
+ * Implement operation hooks for EmbedsMany methods (Miroslav Bajtoš)
+
+ * Implement operation hooks for EmbedsOne methods (Miroslav Bajtoš)
+
+ * eslint config 2.0 + remove extra empty lines (Miroslav Bajtoš)
+
+ * Fix eslint errors in memory connector (Miroslav Bajtoš)
+
+ * Run `eslint --fix` with config from master (Miroslav Bajtoš)
+
+ * Test coverages for hashed password (Amir Jafarian)
+
+ * Fix `forceId` check for `replaceByIds` PR#896 (Amir Jafarian)
+
+ * test: extract hook-monitor helper (Miroslav Bajtoš)
+
+ * test: extract uid-generator helper (Miroslav Bajtoš)
+
+ * test: extract context-test-helpers (Miroslav Bajtoš)
+
+ * Define `patch` aliases (Amir Jafarian)
+
+
 2016-04-07, Version 2.46.0
 ==========================
 
