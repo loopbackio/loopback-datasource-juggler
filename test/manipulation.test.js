@@ -980,6 +980,58 @@ describe('manipulation', function() {
         });
       });
 
+      it('should ignore PK if it is set for `instance`' +
+      'in `before save` operation hook', function(done) {
+        Post.findById(postInstance.id, function(err, p) {
+          if (err) return done(err);
+          changePostIdInHook('before save');
+          p.replaceAttributes({ title: 'b' }, function(err, data) {
+            data.id.should.eql(postInstance.id);
+            if (err) return done(err);
+            Post.find(function(err, p) {
+              if (err) return done(err);
+              p[0].id.should.eql(postInstance.id);
+              done();
+            });
+          });
+        });
+      });
+
+      it('should set cannotOverwritePKInBeforeSaveHook flag, if `instance` in' +
+      '`before save` operation hook is set, so we report a warning just once',
+      function(done) {
+        Post.findById(postInstance.id, function(err, p) {
+          if (err) return done(err);
+          changePostIdInHook('before save');
+          p.replaceAttributes({ title: 'b' }, function(err, data) {
+            if (err) return done(err);
+            Post._warned.cannotOverwritePKInBeforeSaveHook.should.equal(true);
+            data.id.should.equal(postInstance.id);
+            done();
+          });
+        });
+      });
+
+      it('should ignore PK if it is set for `data`' +
+      'in `loaded` operation hook', function(done) {
+        Post.findById(postInstance.id, function(err, p) {
+          if (err) return done(err);
+          changePostIdInHook('loaded');
+          p.replaceAttributes({ title: 'b' }, function(err, data) {
+            data.id.should.eql(postInstance.id);
+            if (err) return done(err);
+            // clear observers to make sure `loaded`
+            // hook does not affect `find()` method
+            Post.clearObservers('loaded');
+            Post.find(function(err, p) {
+              if (err) return done(err);
+              p[0].id.should.eql(postInstance.id);
+              done();
+            });
+          });
+        });
+      });
+
       it('works without options(promise variant)', function(done) {
         Post.findById(postInstance.id)
       .then(function(p) {
@@ -1055,6 +1107,13 @@ describe('manipulation', function() {
           });
         });
       });
+
+      function changePostIdInHook(operationHook) {
+        Post.observe(operationHook, function(ctx, next) {
+          (ctx.data || ctx.instance).id = 99;
+          next();
+        });
+      }
     });
   }
 
