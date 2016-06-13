@@ -1,3 +1,61 @@
+2016-06-13, Version 3.0.0-alpha.5
+=================================
+
+ * Give warning if PK is changed in hooks (Amir Jafarian)
+
+ * Remove model events (Candy)
+
+ * Persist changes on parent for embedsOne (Dimitris Halatsis)
+
+ * Fix (Amir Jafarian)
+
+ * Fix error message (Amir Jafarian)
+
+ * ModelBuilder: add new setting strictEmbeddedModels (Dimitris Halatsis)
+
+ * Retun err for UPSERT if the connector returns err (Amir Jafarian)
+
+ * fix error handling when applying undefined mixins (Alex Pitigoi)
+
+ * Add test's description (Amir Jafarian)
+
+ * Fix incompatibility between different connectors (Amir Jafarian)
+
+ * travis: add v4, v6, drop io.js (Miroslav Bajtoš)
+
+ * fix avoid duplicate record on scope with promise (Alex Pitigoi)
+
+ * Document promise support for DAO::find (Sequoia McDowell)
+
+ * Set ESLint as devdep (Simon Ho)
+
+ * Use mocha instead of Makefile for testing (Simon Ho)
+
+ * DAO.create: don't return the instance (Miroslav Bajtoš)
+
+ * RELEASE-NOTES: describe 30283291 (Miroslav Bajtoš)
+
+ * Implement operation hooks for EmbedsMany methods (Miroslav Bajtoš)
+
+ * Implement operation hooks for EmbedsOne methods (Miroslav Bajtoš)
+
+ * eslint config 2.0 + remove extra empty lines (Miroslav Bajtoš)
+
+ * Test coverages for hashed password (Amir Jafarian)
+
+ * Fix `forceId` check for `replaceById` (Amir Jafarian)
+
+ * Fix `notify` bugs for `find` (Amir Jafarian)
+
+ * test: extract hook-monitor helper (Miroslav Bajtoš)
+
+ * test: extract uid-generator helper (Miroslav Bajtoš)
+
+ * test: extract context-test-helpers (Miroslav Bajtoš)
+
+ * Define `patch` aliases (Amir Jafarian)
+
+
 2016-04-07, Version 3.0.0-alpha.4
 =================================
 
