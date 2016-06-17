@@ -766,7 +766,7 @@ describe('Models attached to a dataSource', function() {
       title: { type: String, length: 255, index: true },
       content: { type: String },
       comments: [String],
-    });
+    }, { forceId: false });
   });
 
   beforeEach(function(done) {
