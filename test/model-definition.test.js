@@ -375,13 +375,10 @@ describe('ModelDefinition class', function() {
     });
   });
 
-  it('should report deprecation warning for property names containing dot', function() {
-    var message = 'deprecation not reported';
-    process.once('deprecation', function(err) { message = err.message; });
-
-    memory.createModel('Dotted', { 'dot.name': String });
-
-    message.should.match(/Dotted.*dot\.name/);
+  it('should throw error for property names containing dot', function() {
+    (function() { memory.createModel('Dotted', { 'dot.name': String }); })
+      .should
+      .throw(/dot\(s\).*Dotted.*dot\.name/);
   });
 
   it('should report deprecation warning for property named constructor', function() {
@@ -393,17 +390,15 @@ describe('ModelDefinition class', function() {
     message.should.match(/Property name should not be "constructor" in Model: Ctor/);
   });
 
-  it('should report deprecation warning for dynamic property names containing dot', function(done) {
-    var message = 'deprecation not reported';
-    process.once('deprecation', function(err) { message = err.message; });
-
-    var Model = memory.createModel('DynamicDotted');
-    Model.create({ 'dot.name': 'dot.value' }, function(err) {
-      if (err) return done(err);
-      message.should.match(/Dotted.*dot\.name/);
-      done();
+  it('should throw error for dynamic property names containing dot',
+    function(done) {
+      var Model = memory.createModel('DynamicDotted');
+      Model.create({ 'dot.name': 'dot.value' }, function(err) {
+        err.should.be.instanceOf(Error);
+        err.message.should.match(/dot\(s\).*DynamicDotted.*dot\.name/);
+        done();
+      });
     });
-  });
 
   it('should throw error for dynamic property named constructor', function(done) {
     var Model = memory.createModel('DynamicCtor');
