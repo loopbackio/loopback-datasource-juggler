@@ -289,6 +289,64 @@ describe('validations', function() {
     });
   });
 
+  describe('validation with or without options', function() {
+    it('should work on update with options', function(done) {
+      delete User.validations;
+      User.validatesPresenceOf('name');
+      User.create({ name: 'Valid' }, function(e, d) {
+        d.updateAttribute('name', null, { options: 'options' }, function(e) {
+          should.exist(e);
+          e.should.be.instanceOf(Error);
+          e.should.be.instanceOf(ValidationError);
+          d.updateAttribute('name', 'Vasiliy', { options: 'options' }, function(e) {
+            should.not.exist(e);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should work on update without options', function(done) {
+      delete User.validations;
+      User.validatesPresenceOf('name');
+      User.create({ name: 'Valid' }, function(e, d) {
+        d.updateAttribute('name', null, function(e) {
+          should.exist(e);
+          e.should.be.instanceOf(Error);
+          e.should.be.instanceOf(ValidationError);
+          d.updateAttribute('name', 'Vasiliy', function(e) {
+            should.not.exist(e);
+            done();
+          });
+        });
+      });
+    });
+
+    it('should work on create with options', function(done) {
+      delete User.validations;
+      User.validatesPresenceOf('name');
+      User.create(function(e, u) {
+        should.exist(e);
+        User.create({ name: 'Valid' }, { options: 'options' }, function(e, d) {
+          should.not.exist(e);
+          done();
+        });
+      });
+    });
+
+    it('should work on create without options', function(done) {
+      delete User.validations;
+      User.validatesPresenceOf('name');
+      User.create(function(e, u) {
+        should.exist(e);
+        User.create({ name: 'Valid' }, function(e, d) {
+          should.not.exist(e);
+          done();
+        });
+      });
+    });
+  });
+
   describe('presence', function() {
 
     it('should validate presence', function() {
