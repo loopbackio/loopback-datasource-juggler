@@ -654,6 +654,17 @@ describe('manipulation', function() {
   });
 
   describe('updateOrCreate', function() {
+    var ds = getSchema();
+    var Post;
+
+    before('prepare "Post" model', function(done) {
+      Post = ds.define('Post', {
+        title: { type: String, id: true },
+        content: { type: String },
+      });
+      ds.automigrate('Post', done);
+    });
+
     it('has an alias "patchOrCreate"', function() {
       StubUser.updateOrCreate.should.equal(StubUser.patchOrCreate);
     });
@@ -710,6 +721,37 @@ describe('manipulation', function() {
               done();
             });
         });
+    });
+
+    it('updates specific instances when PK is not an auto-generated id', function(done) {
+      Post.create([
+        { title: 'postA', content: 'contentA' },
+        { title: 'postB', content: 'contentB' },
+      ], function(err, instance) {
+        if (err) return done(err);
+
+        Post.updateOrCreate({
+          title: 'postA', content: 'newContent',
+        }, function(err, instance) {
+          if (err) return done(err);
+
+          var result = instance.toObject();
+          result.should.have.properties({
+            title: 'postA',
+            content: 'newContent',
+          });
+          Post.find(function(err, posts) {
+            if (err) return done(err);
+
+            posts.should.have.length(2);
+            posts[0].title.should.equal('postA');
+            posts[0].content.should.equal('newContent');
+            posts[1].title.should.equal('postB');
+            posts[1].content.should.equal('contentB');
+            done();
+          });
+        });
+      });
     });
 
     it('should allow save() of the created instance', function(done) {
