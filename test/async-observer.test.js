@@ -1,3 +1,8 @@
+// Copyright IBM Corp. 2015,2016. All Rights Reserved.
+// Node module: loopback-datasource-juggler
+// This file is licensed under the MIT License.
+// License text available at https://opensource.org/licenses/MIT
+
 var ModelBuilder = require('../').ModelBuilder;
 var should = require('./init');
 var Promise = require('bluebird');
@@ -156,7 +161,7 @@ describe('async observer', function() {
   it('passes context to final callback', function(done) {
     var context = {};
     TestModel.notifyObserversOf('event', context, function(err, ctx) {
-      (ctx || "null").should.equal(context);
+      (ctx || 'null').should.equal(context);
       done();
     });
   });

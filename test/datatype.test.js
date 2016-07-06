@@ -1,11 +1,16 @@
+// Copyright IBM Corp. 2013,2016. All Rights Reserved.
+// Node module: loopback-datasource-juggler
+// This file is licensed under the MIT License.
+// License text available at https://opensource.org/licenses/MIT
+
 // This test written in mocha+should.js
 var should = require('./init.js');
 
 var db, Model;
 
-describe('datatypes', function () {
+describe('datatypes', function() {
 
-  before(function (done) {
+  before(function(done) {
     db = getSchema();
     Nested = db.define('Nested', {});
 
@@ -14,45 +19,45 @@ describe('datatypes', function () {
       date: Date,
       num: Number,
       bool: Boolean,
-      list: {type: [String]},
+      list: { type: [String] },
       arr: Array,
-      nested: Nested
+      nested: Nested,
     });
     db.automigrate(['Model'], done);
   });
 
   it('should return 400 when property of type array is set to string value',
-    function (done) {
+    function(done) {
       var myModel = db.define('myModel', {
-        list: { type: ['object'] }
+        list: { type: ['object'] },
       });
 
-      (function(){
+      (function() {
         myModel.create({ list: 'This string will crash the server' });
       }).should.throw({ statusCode: 400 });
 
       done();
-  });
+    });
 
   it('should return 400 when property of type array is set to object value',
-    function (done) {
+    function(done) {
       var myModel = db.define('myModel', {
-        list: { type: ['object'] }
+        list: { type: ['object'] },
       });
 
-      (function(){
-        myModel.create({ list: { key: 'This string will crash the server' } });
+      (function() {
+        myModel.create({ list: { key: 'This string will crash the server' }});
       }).should.throw({ statusCode: 400 });
 
       done();
-  });
+    });
 
-  it('should keep types when get read data from db', function (done) {
+  it('should keep types when get read data from db', function(done) {
     var d = new Date, id;
 
     Model.create({
-      str: 'hello', date: d, num: '3', bool: 1, list: ['test'], arr: [1, 'str']
-    }, function (err, m) {
+      str: 'hello', date: d, num: '3', bool: 1, list: ['test'], arr: [1, 'str'],
+    }, function(err, m) {
       should.not.exists(err);
       should.exist(m && m.id);
       m.str.should.be.type('string');
@@ -66,7 +71,7 @@ describe('datatypes', function () {
     });
 
     function testFind(next) {
-      Model.findById(id, function (err, m) {
+      Model.findById(id, function(err, m) {
         should.not.exist(err);
         should.exist(m);
         m.str.should.be.type('string');
@@ -82,7 +87,7 @@ describe('datatypes', function () {
     }
 
     function testAll() {
-      Model.findOne(function (err, m) {
+      Model.findOne(function(err, m) {
         should.not.exist(err);
         should.exist(m);
         m.str.should.be.type('string');
@@ -96,11 +101,11 @@ describe('datatypes', function () {
 
   });
 
-  it('should respect data types when updating attributes', function (done) {
+  it('should respect data types when updating attributes', function(done) {
     var d = new Date, id;
 
     Model.create({
-      str: 'hello', date: d, num: '3', bool: 1}, function(err, m) {
+      str: 'hello', date: d, num: '3', bool: 1 }, function(err, m) {
       should.not.exist(err);
       should.exist(m && m.id);
 
@@ -109,7 +114,7 @@ describe('datatypes', function () {
       m.num.should.be.type('number');
       m.bool.should.be.type('boolean');
       id = m.id;
-      testDataInDB(function () {
+      testDataInDB(function() {
         testUpdate(function() {
           testDataInDB(done);
         });
@@ -122,8 +127,8 @@ describe('datatypes', function () {
 
         // update using updateAttributes
         m.updateAttributes({
-          id: m.id, num: '10'
-        }, function (err, m) {
+          id: m.id, num: '10',
+        }, function(err, m) {
           should.not.exist(err);
           m.num.should.be.type('number');
           done();
@@ -149,18 +154,18 @@ describe('datatypes', function () {
   });
 
   it('should not coerce nested objects into ModelConstructor types', function() {
-      var coerced = Model._coerce({ nested: { foo: 'bar' } });
-      coerced.nested.constructor.name.should.equal('Object');
+    var coerced = Model._coerce({ nested: { foo: 'bar' }});
+    coerced.nested.constructor.name.should.equal('Object');
   });
 
   it('rejects array value converted to NaN for a required property',
   function(done) {
     db = getSchema();
     Model = db.define('RequiredNumber', {
-      num: { type: Number, required: true }
+      num: { type: Number, required: true },
     });
-    db.automigrate(['Model'], function () {
-      Model.create({ num: [1,2,3] }, function(err, inst) {
+    db.automigrate(['Model'], function() {
+      Model.create({ num: [1, 2, 3] }, function(err, inst) {
         should.exist(err);
         err.should.have.property('name').equal('ValidationError');
         done();
@@ -175,10 +180,10 @@ describe('datatypes', function () {
         'TestModel',
         {
           desc: { type: String, required: false },
-          stars: { type: Number, required: false }
+          stars: { type: Number, required: false },
         },
         {
-          persistUndefinedAsNull: true
+          persistUndefinedAsNull: true,
         });
 
       isStrict = TestModel.definition.settings.strict;
@@ -207,7 +212,7 @@ describe('datatypes', function () {
         delete EXPECTED.extra;
       }
 
-      var data ={ desc: undefined, extra: undefined };
+      var data = { desc: undefined, extra: undefined };
       TestModel.create(data, function(err, created) {
         if (err) return done(err);
 
@@ -266,14 +271,14 @@ describe('datatypes', function () {
           if (TestModel.dataSource.connector.all.length === 4) {
             TestModel.dataSource.connector.all(
               TestModel.modelName,
-              {where: {id: created.id}},
+              { where: { id: created.id }},
               {},
               cb
             );
           } else {
             TestModel.dataSource.connector.all(
               TestModel.modelName,
-              {where: {id: created.id}},
+              { where: { id: created.id }},
               cb
             );
           }
@@ -289,7 +294,7 @@ describe('datatypes', function () {
       inst.__data.dx = undefined;
 
       inst.toObject(false).should.have.properties({
-       desc: null, stars: null, extra: null, dx: null
+        desc: null, stars: null, extra: null, dx: null,
       });
     });
   });

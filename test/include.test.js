@@ -1,4 +1,8 @@
-// This test written in mocha+should.js
+// Copyright IBM Corp. 2013,2015. All Rights Reserved.
+// Node module: loopback-datasource-juggler
+// This file is licensed under the MIT License.
+// License text available at https://opensource.org/licenses/MIT
+
 var should = require('./init.js');
 var async = require('async');
 var assert = require('assert');
@@ -7,14 +11,14 @@ var DataSource = require('../').DataSource;
 
 var db, User, Profile, AccessToken, Post, Passport, City, Street, Building, Assembly, Part;
 
-describe('include', function () {
+describe('include', function() {
 
   before(setup);
 
-  it('should fetch belongsTo relation', function (done) {
-    Passport.find({include: 'owner'}, function (err, passports) {
+  it('should fetch belongsTo relation', function(done) {
+    Passport.find({ include: 'owner' }, function(err, passports) {
       passports.length.should.be.ok;
-      passports.forEach(function (p) {
+      passports.forEach(function(p) {
         p.__cachedRelations.should.have.property('owner');
 
         // The relation should be promoted as the 'owner' property
@@ -34,19 +38,19 @@ describe('include', function () {
     });
   });
 
-  it('should fetch hasMany relation', function (done) {
-    User.find({include: 'posts'}, function (err, users) {
+  it('should fetch hasMany relation', function(done) {
+    User.find({ include: 'posts' }, function(err, users) {
       should.not.exist(err);
       should.exist(users);
       users.length.should.be.ok;
-      users.forEach(function (u) {
+      users.forEach(function(u) {
         // The relation should be promoted as the 'owner' property
         u.should.have.property('posts');
         // The __cachedRelations should be removed from json output
         u.toJSON().should.not.have.property('__cachedRelations');
 
         u.__cachedRelations.should.have.property('posts');
-        u.__cachedRelations.posts.forEach(function (p) {
+        u.__cachedRelations.posts.forEach(function(p) {
           p.userId.should.eql(u.id);
         });
       });
@@ -54,13 +58,13 @@ describe('include', function () {
     });
   });
 
-  it('should fetch Passport - Owner - Posts', function (done) {
-    Passport.find({include: {owner: 'posts'}}, function (err, passports) {
+  it('should fetch Passport - Owner - Posts', function(done) {
+    Passport.find({ include: { owner: 'posts' }}, function(err, passports) {
 
       should.not.exist(err);
       should.exist(passports);
       passports.length.should.be.ok;
-      passports.forEach(function (p) {
+      passports.forEach(function(p) {
         p.__cachedRelations.should.have.property('owner');
 
         // The relation should be promoted as the 'owner' property
@@ -77,7 +81,7 @@ describe('include', function () {
           user.__cachedRelations.should.have.property('posts');
           user.should.have.property('posts');
           user.toJSON().should.have.property('posts').and.be.an.Array;
-          user.__cachedRelations.posts.forEach(function (pp) {
+          user.__cachedRelations.posts.forEach(function(pp) {
             pp.userId.should.eql(user.id);
           });
         }
@@ -86,8 +90,8 @@ describe('include', function () {
     });
   });
 
-  it('should fetch Passport - Owner - empty Posts', function (done) {
-    Passport.findOne({where: {number: '4'}, include: {owner: 'posts'}}, function (err, passport) {
+  it('should fetch Passport - Owner - empty Posts', function(done) {
+    Passport.findOne({ where: { number: '4' }, include: { owner: 'posts' }}, function(err, passport) {
       should.not.exist(err);
       should.exist(passport);
       passport.__cachedRelations.should.have.property('owner');
@@ -108,8 +112,8 @@ describe('include', function () {
     });
   });
 
-  it('should fetch Passport - Owner - Posts - alternate syntax', function (done) {
-    Passport.find({include: {owner: {relation: 'posts'}}}, function (err, passports) {
+  it('should fetch Passport - Owner - Posts - alternate syntax', function(done) {
+    Passport.find({ include: { owner: { relation: 'posts' }}}, function(err, passports) {
       should.not.exist(err);
       should.exist(passports);
       passports.length.should.be.ok;
@@ -119,14 +123,14 @@ describe('include', function () {
     });
   });
 
-  it('should fetch Passports - User - Posts - User', function (done) {
+  it('should fetch Passports - User - Posts - User', function(done) {
     Passport.find({
-      include: {owner: {posts: 'author'}}
-    }, function (err, passports) {
+      include: { owner: { posts: 'author' }},
+    }, function(err, passports) {
       should.not.exist(err);
       should.exist(passports);
       passports.length.should.be.ok;
-      passports.forEach(function (p) {
+      passports.forEach(function(p) {
         p.__cachedRelations.should.have.property('owner');
         var user = p.__cachedRelations.owner;
         if (!p.ownerId) {
@@ -135,7 +139,7 @@ describe('include', function () {
           should.exist(user);
           user.id.should.eql(p.ownerId);
           user.__cachedRelations.should.have.property('posts');
-          user.__cachedRelations.posts.forEach(function (pp) {
+          user.__cachedRelations.posts.forEach(function(pp) {
             pp.should.have.property('id');
             pp.userId.should.eql(user.id);
             pp.should.have.property('author');
@@ -149,13 +153,13 @@ describe('include', function () {
     });
   });
 
-  it('should fetch Passports with include scope on Posts', function (done) {
+  it('should fetch Passports with include scope on Posts', function(done) {
     Passport.find({
-      include: {owner: {relation: 'posts', scope:{
+      include: { owner: { relation: 'posts', scope: {
         fields: ['title'], include: ['author'],
-        order: 'title DESC'
-      }}}
-    }, function (err, passports) {
+        order: 'title DESC',
+      }}},
+    }, function(err, passports) {
       should.not.exist(err);
       should.exist(passports);
       passports.length.should.equal(4);
@@ -191,42 +195,347 @@ describe('include', function () {
           relation: 'posts', scope: {
             fields: ['title'], include: ['author'],
             order: 'title DESC',
-            limit: 2
-          }
-        }
+            limit: 1,
+          },
+        },
       },
-      limit: 1
+      limit: 2,
     }, function(err, passports) {
       if (err) return done(err);
-      passports.length.should.equal(1);
-      passports[0].toJSON().owner.posts.length.should.equal(2);
+
+      passports.length.should.equal(2);
+      var posts1 = passports[0].toJSON().owner.posts;
+      posts1.length.should.equal(1);
+      posts1[0].title.should.equal('Post C');
+      var posts2 = passports[1].toJSON().owner.posts;
+      posts2.length.should.equal(1);
+      posts2[0].title.should.equal('Post D');
+
       done();
     });
   });
 
-  it('should fetch Users with include scope on Posts - belongsTo', function (done) {
-      Post.find({
-        include: { relation: 'author', scope:{ fields: ['name'] }}
-      }, function (err, posts) {
-        should.not.exist(err);
-        should.exist(posts);
-        posts.length.should.equal(5);
+  describe('inq limit', function() {
+    before(function() {
+      Passport.dataSource.settings.inqLimit = 2;
+    });
 
-        var author = posts[0].author();
-        author.name.should.equal('User A');
-        author.should.have.property('id');
-        author.should.have.property('age', undefined);
+    after(function() {
+      delete Passport.dataSource.settings.inqLimit;
+    });
+
+    it('should support include by pagination', function(done) {
+      // `pagination` in this case is inside the implementation and set by
+      // `inqLimit = 2` in the before block. This will need to be reworked once
+      // we decouple `findWithForeignKeysByPage`.
+      //
+      // --superkhau
+      Passport.find({
+        include: {
+          owner: {
+            relation: 'posts',
+            scope: {
+              fields: ['title'], include: ['author'],
+              order: 'title ASC',
+            },
+          },
+        },
+      }, function(err, passports) {
+        if (err) return done(err);
+
+        passports.length.should.equal(4);
+        var posts1 = passports[0].toJSON().owner.posts;
+        posts1.length.should.equal(3);
+        posts1[0].title.should.equal('Post A');
+        var posts2 = passports[1].toJSON().owner.posts;
+        posts2.length.should.equal(1);
+        posts2[0].title.should.equal('Post D');
 
         done();
       });
     });
+  });
 
-  it('should fetch Users with include scope on Posts - hasMany', function (done) {
+  describe('findWithForeignKeysByPage', function() {
+    context('filter', function() {
+      it('works when using a `where` with a foreign key', function(done) {
+        User.findOne({
+          include: {
+            relation: 'passports',
+          },
+        }, function(err, user) {
+          if (err) return done(err);
+
+          var passport = user.passports()[0];
+          passport.id.should.equal(1);
+          passport.ownerId.should.equal(1);
+          passport.number.should.equal('1');
+
+          done();
+        });
+      });
+
+      it('works when using a `where` with `and`', function(done) {
+        User.findOne({
+          include: {
+            relation: 'posts',
+            scope: {
+              where: {
+                and: [
+                  { id: 1 },
+                  { userId: 1 },
+                  { title: 'Post A' },
+                ],
+              },
+            },
+          },
+        }, function(err, user) {
+          if (err) return done(err);
+
+          user.name.should.equal('User A');
+          user.age.should.equal(21);
+          user.id.should.equal(1);
+          var posts = user.posts();
+          posts.length.should.equal(1);
+          var post = posts[0];
+          post.title.should.equal('Post A');
+          post.userId.should.equal(1);
+          post.id.should.equal(1);
+
+          done();
+        });
+      });
+
+      it('works when using `where` with `limit`', function(done) {
+        User.findOne({
+          include: {
+            relation: 'posts',
+            scope: {
+              limit: 1,
+            },
+          },
+        }, function(err, user) {
+          if (err) return done(err);
+
+          user.posts().length.should.equal(1);
+
+          done();
+        });
+      });
+
+      it('works when using `where` with `skip`', function(done) {
+        User.findOne({
+          include: {
+            relation: 'posts',
+            scope: {
+              skip: 1,
+            },
+          },
+        }, function(err, user) {
+          if (err) return done(err);
+
+          var ids = user.posts().map(function(p) { return p.id; });
+          ids.should.eql([2, 3]);
+
+          done();
+        });
+      });
+
+      it('works when using `where` with `offset`', function(done) {
+        User.findOne({
+          include: {
+            relation: 'posts',
+            scope: {
+              offset: 1,
+            },
+          },
+        }, function(err, user) {
+          if (err) return done(err);
+
+          var ids = user.posts().map(function(p) { return p.id; });
+          ids.should.eql([2, 3]);
+
+          done();
+        });
+      });
+
+      it('works when using `where` without `limit`, `skip` or `offset`',
+      function(done) {
+        User.findOne({ include: { relation: 'posts' }}, function(err, user) {
+          if (err) return done(err);
+
+          var posts = user.posts();
+          var ids = posts.map(function(p) { return p.id; });
+          ids.should.eql([1, 2, 3]);
+
+          done();
+        });
+      });
+    });
+
+    context('pagination', function() {
+      it('works with the default page size (0) and `inqlimit` is exceeded',
+      function(done) {
+        // inqLimit modifies page size in the impl (there is no way to modify
+        // page size directly as it is hardcoded (once we decouple the func,
+        // we can use ctor injection to pass in whatever page size we want).
+        //
+        // --superkhau
+        Post.dataSource.settings.inqLimit = 2;
+
+        User.find({ include: { relation: 'posts' }}, function(err, users) {
+          if (err) return done(err);
+
+          users.length.should.equal(5);
+
+          delete Post.dataSource.settings.inqLimit;
+
+          done();
+        });
+      });
+
+      it('works when page size is set to 0', function(done) {
+        Post.dataSource.settings.inqLimit = 0;
+
+        User.find({ include: { relation: 'posts' }}, function(err, users) {
+          if (err) return done(err);
+
+          users.length.should.equal(5);
+
+          delete Post.dataSource.settings.inqLimit;
+
+          done();
+        });
+      });
+    });
+
+    context('relations', function() {
+      // WARNING
+      // The code paths for in this suite of tests were verified manually due to
+      // the tight coupling of the `findWithForeignKeys` in `include.js`.
+      //
+      // TODO
+      // Decouple the utility functions into their own modules and export each
+      // function individually to allow for unit testing via DI.
+      //
+      // --superkhau
+
+      it('works when hasOne is called', function(done) {
+        User.findOne({ include: { relation: 'profile' }}, function(err, user) {
+          if (err) return done(err);
+
+          user.name.should.equal('User A');
+          user.age.should.equal(21);
+          user.id.should.equal(1);
+          profile = user.profile();
+          profile.profileName.should.equal('Profile A');
+          profile.userId.should.equal(1);
+          profile.id.should.equal(1);
+
+          done();
+        });
+      });
+
+      it('works when hasMany is called', function(done) {
+        User.findOne({ include: { relation: 'posts' }}, function(err, user) {
+          if (err) return done();
+
+          user.name.should.equal('User A');
+          user.age.should.equal(21);
+          user.id.should.equal(1);
+          user.posts().length.should.equal(3);
+
+          done();
+        });
+      });
+
+      it('works when hasManyThrough is called', function(done) {
+        Physician = db.define('Physician', { name: String });
+        Patient = db.define('Patient', { name: String });
+        Appointment = db.define('Appointment', {
+          date: {
+            type: Date,
+            default: function() {
+              return new Date();
+            },
+          },
+        });
+        Address = db.define('Address', { name: String });
+
+        Physician.hasMany(Patient, { through: Appointment });
+        Patient.hasMany(Physician, { through: Appointment });
+        Patient.belongsTo(Address);
+        Appointment.belongsTo(Patient);
+        Appointment.belongsTo(Physician);
+
+        db.automigrate(['Physician', 'Patient', 'Appointment', 'Address'],
+          function() {
+            Physician.create(function(err, physician) {
+              physician.patients.create({ name: 'a' }, function(err, patient) {
+                Address.create({ name: 'z' }, function(err, address) {
+                  patient.address(address);
+                  patient.save(function() {
+                    physician.patients({ include: 'address' },
+                      function(err, posts) {
+                        if (err) return done(err);
+
+                        posts.should.be.an.instanceOf(Array).and.have.length(1);
+                        var p = posts[0];
+                        p.name.should.equal('a');
+                        p.addressId.should.equal(1);
+                        p.address().id.should.equal(1);
+                        p.address().name.should.equal('z');
+
+                        done();
+                      });
+                  });
+                });
+              });
+            });
+          });
+      });
+
+      it('works when belongsTo is called', function(done) {
+        Profile.findOne({ include: 'user' }, function(err, profile) {
+          if (err) return done(err);
+
+          profile.profileName.should.equal('Profile A');
+          profile.userId.should.equal(1);
+          profile.id.should.equal(1);
+          user = profile.user();
+          user.name.should.equal('User A');
+          user.age.should.equal(21);
+          user.id.should.equal(1);
+
+          done();
+        });
+      });
+    });
+  });
+
+  it('should fetch Users with include scope on Posts - belongsTo',
+    function(done) {
+      Post.find({ include: { relation: 'author', scope: { fields: ['name'] }}},
+        function(err, posts) {
+          should.not.exist(err);
+          should.exist(posts);
+          posts.length.should.equal(5);
+
+          var author = posts[0].author();
+          author.name.should.equal('User A');
+          author.should.have.property('id');
+          author.should.have.property('age', undefined);
+
+          done();
+        });
+    });
+
+  it('should fetch Users with include scope on Posts - hasMany', function(done) {
     User.find({
-      include: {relation: 'posts', scope:{
-        order: 'title DESC'
-      }}
-    }, function (err, users) {
+      include: { relation: 'posts', scope: {
+        order: 'title DESC',
+      }},
+    }, function(err, users) {
       should.not.exist(err);
       should.exist(users);
       users.length.should.equal(5);
@@ -251,12 +560,12 @@ describe('include', function () {
     });
   });
 
-  it('should fetch Users with include scope on Passports - hasMany', function (done) {
+  it('should fetch Users with include scope on Passports - hasMany', function(done) {
     User.find({
-      include: {relation: 'passports', scope:{
-        where: { number: '2' }
-      }}
-    }, function (err, users) {
+      include: { relation: 'passports', scope: {
+        where: { number: '2' },
+      }},
+    }, function(err, users) {
       should.not.exist(err);
       should.exist(users);
       users.length.should.equal(5);
@@ -272,12 +581,12 @@ describe('include', function () {
     });
   });
 
-  it('should fetch User - Posts AND Passports', function (done) {
-    User.find({include: ['posts', 'passports']}, function (err, users) {
+  it('should fetch User - Posts AND Passports', function(done) {
+    User.find({ include: ['posts', 'passports'] }, function(err, users) {
       should.not.exist(err);
       should.exist(users);
       users.length.should.be.ok;
-      users.forEach(function (user) {
+      users.forEach(function(user) {
         // The relation should be promoted as the 'owner' property
         user.should.have.property('posts');
         user.should.have.property('passports');
@@ -293,10 +602,10 @@ describe('include', function () {
 
         user.__cachedRelations.should.have.property('posts');
         user.__cachedRelations.should.have.property('passports');
-        user.__cachedRelations.posts.forEach(function (p) {
+        user.__cachedRelations.posts.forEach(function(p) {
           p.userId.should.eql(user.id);
         });
-        user.__cachedRelations.passports.forEach(function (pp) {
+        user.__cachedRelations.passports.forEach(function(pp) {
           pp.ownerId.should.eql(user.id);
         });
       });
@@ -306,12 +615,12 @@ describe('include', function () {
 
   it('should fetch User - Posts AND Passports in relation syntax',
     function(done) {
-      User.find({include: [
-        {relation: 'posts', scope: {
-          where: {title: 'Post A'}
+      User.find({ include: [
+        { relation: 'posts', scope: {
+          where: { title: 'Post A' },
         }},
-        'passports'
-      ]}, function(err, users) {
+        'passports',
+      ] }, function(err, users) {
         should.not.exist(err);
         should.exist(users);
         users.length.should.be.ok;
@@ -343,12 +652,12 @@ describe('include', function () {
       });
     });
 
-  it('should not fetch User - AccessTokens', function (done) {
-    User.find({include: ['accesstokens']}, function (err, users) {
+  it('should not fetch User - AccessTokens', function(done) {
+    User.find({ include: ['accesstokens'] }, function(err, users) {
       should.not.exist(err);
       should.exist(users);
       users.length.should.be.ok;
-      users.forEach(function (user) {
+      users.forEach(function(user) {
         var userObj = user.toJSON();
         userObj.should.not.have.property('accesstokens');
       });
@@ -356,20 +665,20 @@ describe('include', function () {
     });
   });
 
-  it('should support hasAndBelongsToMany', function (done) {
-    Assembly.create({name: 'car'}, function (err, assembly) {
-      Part.create({partNumber: 'engine'}, function (err, part) {
-        assembly.parts.add(part, function (err, data) {
-          assembly.parts(function (err, parts) {
+  it('should support hasAndBelongsToMany', function(done) {
+    Assembly.create({ name: 'car' }, function(err, assembly) {
+      Part.create({ partNumber: 'engine' }, function(err, part) {
+        assembly.parts.add(part, function(err, data) {
+          assembly.parts(function(err, parts) {
             should.not.exist(err);
             should.exists(parts);
             parts.length.should.equal(1);
             parts[0].partNumber.should.equal('engine');
 
             // Create a part
-            assembly.parts.create({partNumber: 'door'}, function (err, part4) {
+            assembly.parts.create({ partNumber: 'door' }, function(err, part4) {
 
-              Assembly.find({include: 'parts'}, function (err, assemblies) {
+              Assembly.find({ include: 'parts' }, function(err, assemblies) {
                 assemblies.length.should.equal(1);
                 assemblies[0].parts().length.should.equal(2);
                 done();
@@ -382,13 +691,13 @@ describe('include', function () {
     });
   });
 
-  it('should fetch User - Profile (HasOne)', function (done) {
-    User.find({include: ['profile']}, function (err, users) {
+  it('should fetch User - Profile (HasOne)', function(done) {
+    User.find({ include: ['profile'] }, function(err, users) {
       should.not.exist(err);
       should.exist(users);
       users.length.should.be.ok;
       var usersWithProfile = 0;
-      users.forEach(function (user) {
+      users.forEach(function(user) {
         // The relation should be promoted as the 'owner' property
         user.should.have.property('profile');
         var userObj = user.toJSON();
@@ -396,8 +705,7 @@ describe('include', function () {
         if (profile) {
           profile.should.be.an.instanceOf(Profile);
           usersWithProfile++;
-        }
-        else {
+        } else {
           (profile === null).should.be.true;
         }
         // The __cachedRelations should be removed from json output
@@ -413,13 +721,12 @@ describe('include', function () {
     });
   });
 
-
   // Not implemented correctly, see: loopback-datasource-juggler/issues/166
   // fixed by DB optimization
-  it('should support include scope on hasAndBelongsToMany', function (done) {
-    Assembly.find({include: { relation: 'parts', scope: {
-     where: { partNumber: 'engine' }
-    }}}, function (err, assemblies) {
+  it('should support include scope on hasAndBelongsToMany', function(done) {
+    Assembly.find({ include: { relation: 'parts', scope: {
+      where: { partNumber: 'engine' },
+    }}}, function(err, assemblies) {
       assemblies.length.should.equal(1);
       var parts = assemblies[0].parts();
       parts.should.have.length(1);
@@ -430,7 +737,7 @@ describe('include', function () {
 
   it('should save related items separately', function(done) {
     User.find({
-      include: 'posts'
+      include: 'posts',
     })
       .then(function(users) {
         var posts = users[0].posts();
@@ -439,7 +746,7 @@ describe('include', function () {
       })
       .then(function(updatedUser) {
         return User.findById(updatedUser.id, {
-          include: 'posts'
+          include: 'posts',
         });
       })
       .then(function(user) {
@@ -450,7 +757,7 @@ describe('include', function () {
       .catch(done);
   });
 
-  describe('performance', function () {
+  describe('performance', function() {
     var all;
     beforeEach(function() {
       this.called = 0;
@@ -464,11 +771,11 @@ describe('include', function () {
     afterEach(function() {
       db.connector.all = all;
     });
-    it('including belongsTo should make only 2 db calls', function (done) {
+    it('including belongsTo should make only 2 db calls', function(done) {
       var self = this;
-      Passport.find({include: 'owner'}, function (err, passports) {
+      Passport.find({ include: 'owner' }, function(err, passports) {
         passports.length.should.be.ok;
-        passports.forEach(function (p) {
+        passports.forEach(function(p) {
           p.__cachedRelations.should.have.property('owner');
           // The relation should be promoted as the 'owner' property
           p.should.have.property('owner');
@@ -487,16 +794,16 @@ describe('include', function () {
       });
     });
 
-    it('including hasManyThrough should make only 3 db calls', function (done) {
+    it('including hasManyThrough should make only 3 db calls', function(done) {
       var self = this;
-      Assembly.create([{name: 'sedan'}, {name: 'hatchback'},
-          {name: 'SUV'}],
-        function (err, assemblies) {
-          Part.create([{partNumber: 'engine'}, {partNumber: 'bootspace'},
-              {partNumber: 'silencer'}],
-            function (err, parts) {
-              async.each(parts, function (part, next) {
-                async.each(assemblies, function (assembly, next) {
+      Assembly.create([{ name: 'sedan' }, { name: 'hatchback' },
+          { name: 'SUV' }],
+        function(err, assemblies) {
+          Part.create([{ partNumber: 'engine' }, { partNumber: 'bootspace' },
+              { partNumber: 'silencer' }],
+            function(err, parts) {
+              async.each(parts, function(part, next) {
+                async.each(assemblies, function(assembly, next) {
                   if (assembly.name === 'SUV') {
                     return next();
                   }
@@ -504,20 +811,20 @@ describe('include', function () {
                     part.partNumber === 'bootspace') {
                     return next();
                   }
-                  assembly.parts.add(part, function (err, data) {
+                  assembly.parts.add(part, function(err, data) {
                     next();
                   });
                 }, next);
-              }, function (err) {
+              }, function(err) {
                 self.called = 0;
                 Assembly.find({
                   where: {
                     name: {
-                      inq: ['sedan', 'hatchback', 'SUV']
-                    }
+                      inq: ['sedan', 'hatchback', 'SUV'],
+                    },
                   },
-                  include: 'parts'
-                }, function (err, result) {
+                  include: 'parts',
+                }, function(err, result) {
                   should.not.exist(err);
                   should.exists(result);
                   result.length.should.equal(3);
@@ -540,13 +847,13 @@ describe('include', function () {
         });
     });
 
-    it('including hasMany should make only 2 db calls', function (done) {
+    it('including hasMany should make only 2 db calls', function(done) {
       var self = this;
-      User.find({include: ['posts', 'passports']}, function (err, users) {
+      User.find({ include: ['posts', 'passports'] }, function(err, users) {
         should.not.exist(err);
         should.exist(users);
         users.length.should.be.ok;
-        users.forEach(function (user) {
+        users.forEach(function(user) {
           // The relation should be promoted as the 'owner' property
           user.should.have.property('posts');
           user.should.have.property('passports');
@@ -562,10 +869,10 @@ describe('include', function () {
 
           user.__cachedRelations.should.have.property('posts');
           user.__cachedRelations.should.have.property('passports');
-          user.__cachedRelations.posts.forEach(function (p) {
+          user.__cachedRelations.posts.forEach(function(p) {
             p.userId.should.eql(user.id);
           });
-          user.__cachedRelations.passports.forEach(function (pp) {
+          user.__cachedRelations.passports.forEach(function(pp) {
             pp.ownerId.should.eql(user.id);
           });
         });
@@ -574,17 +881,16 @@ describe('include', function () {
       });
     });
 
-
     it('should not make n+1 db calls in relation syntax',
-      function (done) {
+      function(done) {
         var self = this;
-        User.find({include: [{ relation: 'posts', scope: {
-              where: {title: 'Post A'}
-            }}, 'passports']}, function (err, users) {
+        User.find({ include: [{ relation: 'posts', scope: {
+          where: { title: 'Post A' },
+        }}, 'passports'] }, function(err, users) {
           should.not.exist(err);
           should.exist(users);
           users.length.should.be.ok;
-          users.forEach(function (user) {
+          users.forEach(function(user) {
             // The relation should be promoted as the 'owner' property
             user.should.have.property('posts');
             user.should.have.property('passports');
@@ -600,11 +906,11 @@ describe('include', function () {
 
             user.__cachedRelations.should.have.property('posts');
             user.__cachedRelations.should.have.property('passports');
-            user.__cachedRelations.posts.forEach(function (p) {
+            user.__cachedRelations.posts.forEach(function(p) {
               p.userId.should.eql(user.id);
               p.title.should.be.equal('Post A');
             });
-            user.__cachedRelations.passports.forEach(function (pp) {
+            user.__cachedRelations.passports.forEach(function(pp) {
               pp.ownerId.should.eql(user.id);
             });
           });
@@ -612,6 +918,29 @@ describe('include', function () {
           done();
         });
       });
+  });
+
+  it('should support disableInclude for hasAndBelongsToMany', function() {
+    var Patient = db.define('Patient', { name: String });
+    var Doctor = db.define('Doctor', { name: String });
+    var DoctorPatient = db.define('DoctorPatient');
+    Doctor.hasAndBelongsToMany('patients', {
+      model: 'Patient',
+      options: { disableInclude: true },
+    });
+
+    var doctor;
+    return db.automigrate(['Patient', 'Doctor', 'DoctorPatient']).then(function() {
+      return Doctor.create({ name: 'Who' });
+    }).then(function(inst) {
+      doctor = inst;
+      return doctor.patients.create({ name: 'Lazarus' });
+    }).then(function() {
+      return Doctor.find({ include: ['patients'] });
+    }).then(function(list) {
+      list.should.have.length(1);
+      list[0].toJSON().should.not.have.property('patients');
+    });
   });
 });
 
@@ -622,44 +951,44 @@ function setup(done) {
   Building = db.define('Building');
   User = db.define('User', {
     name: String,
-    age: Number
+    age: Number,
   });
   Profile = db.define('Profile', {
-    profileName: String
+    profileName: String,
   });
   AccessToken = db.define('AccessToken', {
-    token: String
+    token: String,
   });
   Passport = db.define('Passport', {
-    number: String
+    number: String,
   });
   Post = db.define('Post', {
-    title: String
+    title: String,
   });
 
-  Passport.belongsTo('owner', {model: User});
-  User.hasMany('passports', {foreignKey: 'ownerId'});
-  User.hasMany('posts', {foreignKey: 'userId'});
+  Passport.belongsTo('owner', { model: User });
+  User.hasMany('passports', { foreignKey: 'ownerId' });
+  User.hasMany('posts', { foreignKey: 'userId' });
   User.hasMany('accesstokens', {
     foreignKey: 'userId',
-    options: {disableInclude: true}
+    options: { disableInclude: true },
   });
-  Profile.belongsTo('user', {model: User});
-  User.hasOne('profile', {foreignKey: 'userId'});
-  Post.belongsTo('author', {model: User, foreignKey: 'userId'});
+  Profile.belongsTo('user', { model: User });
+  User.hasOne('profile', { foreignKey: 'userId' });
+  Post.belongsTo('author', { model: User, foreignKey: 'userId' });
 
   Assembly = db.define('Assembly', {
-    name: String
+    name: String,
   });
 
   Part = db.define('Part', {
-    partNumber: String
+    partNumber: String,
   });
 
   Assembly.hasAndBelongsToMany(Part);
   Part.hasAndBelongsToMany(Assembly);
 
-  db.automigrate(function () {
+  db.automigrate(function() {
     var createdUsers = [];
     var createdPassports = [];
     var createdProfiles = [];
@@ -669,13 +998,13 @@ function setup(done) {
       clearAndCreate(
         User,
         [
-          {name: 'User A', age: 21},
-          {name: 'User B', age: 22},
-          {name: 'User C', age: 23},
-          {name: 'User D', age: 24},
-          {name: 'User E', age: 25}
+          { name: 'User A', age: 21 },
+          { name: 'User B', age: 22 },
+          { name: 'User C', age: 23 },
+          { name: 'User D', age: 24 },
+          { name: 'User E', age: 25 },
         ],
-        function (items) {
+        function(items) {
           createdUsers = items;
           createPassports();
           createAccessTokens();
@@ -687,10 +1016,10 @@ function setup(done) {
       clearAndCreate(
         AccessToken,
         [
-          {token: '1', userId: createdUsers[0].id},
-          {token: '2', userId: createdUsers[1].id}
+          { token: '1', userId: createdUsers[0].id },
+          { token: '2', userId: createdUsers[1].id },
         ],
-        function (items) {}
+        function(items) {}
       );
     }
 
@@ -698,12 +1027,12 @@ function setup(done) {
       clearAndCreate(
         Passport,
         [
-          {number: '1', ownerId: createdUsers[0].id},
-          {number: '2', ownerId: createdUsers[1].id},
-          {number: '3'},
-          {number: '4', ownerId: createdUsers[2].id},
+          { number: '1', ownerId: createdUsers[0].id },
+          { number: '2', ownerId: createdUsers[1].id },
+          { number: '3' },
+          { number: '4', ownerId: createdUsers[2].id },
         ],
-        function (items) {
+        function(items) {
           createdPassports = items;
           createPosts();
         }
@@ -714,12 +1043,12 @@ function setup(done) {
       clearAndCreate(
         Profile,
         [
-          {profileName: 'Profile A', userId: createdUsers[0].id},
-          {profileName: 'Profile B', userId: createdUsers[1].id},
-          {profileName: 'Profile Z'}
+          { profileName: 'Profile A', userId: createdUsers[0].id },
+          { profileName: 'Profile B', userId: createdUsers[1].id },
+          { profileName: 'Profile Z' },
         ],
-        function (items) {
-          createdProfiles = items
+        function(items) {
+          createdProfiles = items;
           done();
         }
       );
@@ -729,13 +1058,13 @@ function setup(done) {
       clearAndCreate(
         Post,
         [
-          {title: 'Post A', userId: createdUsers[0].id},
-          {title: 'Post B', userId: createdUsers[0].id},
-          {title: 'Post C', userId: createdUsers[0].id},
-          {title: 'Post D', userId: createdUsers[1].id},
-          {title: 'Post E'}
+          { title: 'Post A', userId: createdUsers[0].id },
+          { title: 'Post B', userId: createdUsers[0].id },
+          { title: 'Post C', userId: createdUsers[0].id },
+          { title: 'Post D', userId: createdUsers[1].id },
+          { title: 'Post E' },
         ],
-        function (items) {
+        function(items) {
           createdPosts = items;
           createProfiles();
         }
@@ -747,7 +1076,7 @@ function setup(done) {
 
 function clearAndCreate(model, data, callback) {
   var createdItems = [];
-  model.destroyAll(function () {
+  model.destroyAll(function() {
     nextItem(null, null);
   });
 
@@ -770,38 +1099,38 @@ describe('Model instance with included relation .toJSON()', function() {
   var db, ChallengerModel, GameParticipationModel, ResultModel;
 
   before(function(done) {
-    db = new DataSource({connector: 'memory'});
+    db = new DataSource({ connector: 'memory' });
     ChallengerModel = db.createModel('Challenger',
       {
-        name: String
+        name: String,
       },
       {
         relations: {
           gameParticipations: {
             type: 'hasMany',
             model: 'GameParticipation',
-            foreignKey: ''
-          }
-        }
+            foreignKey: '',
+          },
+        },
       }
     );
     GameParticipationModel = db.createModel('GameParticipation',
       {
-        date: Date
+        date: Date,
       },
       {
         relations: {
           challenger: {
             type: 'belongsTo',
             model: 'Challenger',
-            foreignKey: ''
+            foreignKey: '',
           },
           results: {
             type: 'hasMany',
             model: 'Result',
-            foreignKey: ''
-          }
-        }
+            foreignKey: '',
+          },
+        },
       }
     );
     ResultModel = db.createModel('Result', {
@@ -811,9 +1140,9 @@ describe('Model instance with included relation .toJSON()', function() {
         gameParticipation: {
           type: 'belongsTo',
           model: 'GameParticipation',
-          foreignKey: ''
-        }
-      }
+          foreignKey: '',
+        },
+      },
     });
 
     async.waterfall([
@@ -827,25 +1156,25 @@ describe('Model instance with included relation .toJSON()', function() {
   });
 
   function createChallengers(callback) {
-    ChallengerModel.create([{name: 'challenger1'}, {name: 'challenger2'}], callback);
+    ChallengerModel.create([{ name: 'challenger1' }, { name: 'challenger2' }], callback);
   }
 
   function createGameParticipations(challengers, callback) {
     GameParticipationModel.create([
-      {challengerId: challengers[0].id, date: Date.now()},
-      {challengerId: challengers[0].id, date: Date.now()}
+      { challengerId: challengers[0].id, date: Date.now() },
+      { challengerId: challengers[0].id, date: Date.now() },
     ], callback);
   }
 
   function createResults(gameParticipations, callback) {
     ResultModel.create([
-      {gameParticipationId: gameParticipations[0].id, points: 10},
-      {gameParticipationId: gameParticipations[0].id, points: 20}
+      { gameParticipationId: gameParticipations[0].id, points: 10 },
+      { gameParticipationId: gameParticipations[0].id, points: 20 },
     ], callback);
   }
 
   it('should recursively serialize objects', function(done) {
-    var filter = {include: {gameParticipations: 'results'}};
+    var filter = { include: { gameParticipations: 'results' }};
     ChallengerModel.find(filter, function(err, challengers) {
 
       var levelOneInclusion = challengers[0].toJSON().gameParticipations[0];

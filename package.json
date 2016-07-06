@@ -1,8 +1,9 @@
 {
   "name": "loopback-datasource-juggler",
-  "version": "2.999.999",
+  "version": "3.0.0-alpha.5",
   "publishConfig": {
-    "tag": "next"
+    "tag": "next",
+    "export-tests": true
   },
   "description": "LoopBack DataSoure Juggler",
   "keywords": [
@@ -23,15 +24,16 @@
     "depd": "./lib/browser.depd.js"
   },
   "scripts": {
-    "clean": "make clean",
-    "help": "make help",
-    "refresh": "make refresh",
-    "test": "make test"
+    "lint": "eslint .",
+    "test": "mocha",
+    "posttest": "npm run lint"
   },
   "engines": [
     "node >= 0.6"
   ],
   "devDependencies": {
+    "eslint": "^2.5.3",
+    "eslint-config-loopback": "^2.0.0",
     "mocha": "^2.1.0",
     "should": "^8.0.2"
   },

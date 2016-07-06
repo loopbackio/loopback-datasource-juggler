@@ -1,3 +1,8 @@
+// Copyright IBM Corp. 2013,2016. All Rights Reserved.
+// Node module: loopback-datasource-juggler
+// This file is licensed under the MIT License.
+// License text available at https://opensource.org/licenses/MIT
+
 // This test written in mocha+should.js
 var should = require('./init.js');
 var jdb = require('../');
@@ -11,34 +16,34 @@ var Person, Address;
 var Link;
 
 var getTransientDataSource = function(settings) {
-    return new DataSource('transient', settings, db.modelBuilder);
+  return new DataSource('transient', settings, db.modelBuilder);
 };
 
 var getMemoryDataSource = function(settings) {
-    return new DataSource('memory', settings, db.modelBuilder);
+  return new DataSource('memory', settings, db.modelBuilder);
 };
 
-describe('relations', function () {
+describe('relations', function() {
 
   before(function() {
     db = getSchema();
   });
 
-  describe('hasMany', function () {
-    before(function (done) {
-      Book = db.define('Book', {name: String, type: String});
-      Chapter = db.define('Chapter', {name: {type: String, index: true},
-        bookType: String});
-      Author = db.define('Author', {name: String});
-      Reader = db.define('Reader', {name: String});
+  describe('hasMany', function() {
+    before(function(done) {
+      Book = db.define('Book', { name: String, type: String });
+      Chapter = db.define('Chapter', { name: { type: String, index: true },
+        bookType: String });
+      Author = db.define('Author', { name: String });
+      Reader = db.define('Reader', { name: String });
 
       db.automigrate(['Book', 'Chapter', 'Author', 'Reader'], done);
     });
 
-    it('can be declared in different ways', function (done) {
+    it('can be declared in different ways', function(done) {
       Book.hasMany(Chapter);
-      Book.hasMany(Reader, {as: 'users'});
-      Book.hasMany(Author, {foreignKey: 'projectId'});
+      Book.hasMany(Reader, { as: 'users' });
+      Book.hasMany(Author, { foreignKey: 'projectId' });
       var b = new Book;
       b.chapters.should.be.an.instanceOf(Function);
       b.users.should.be.an.instanceOf(Function);
@@ -49,7 +54,7 @@ describe('relations', function () {
       db.automigrate(['Book', 'Chapter', 'Author', 'Reader'], done);
     });
 
-    it('can be declared in short form', function (done) {
+    it('can be declared in short form', function(done) {
       Author.hasMany('readers');
       (new Author).readers.should.be.an.instanceOf(Function);
       Object.keys((new Reader).toObject()).should.containEql('authorId');
@@ -59,22 +64,22 @@ describe('relations', function () {
 
     describe('with scope', function() {
 
-      before(function (done) {
+      before(function(done) {
         Book.hasMany(Chapter);
         done();
       });
 
-      it('should build record on scope', function (done) {
-        Book.create(function (err, book) {
+      it('should build record on scope', function(done) {
+        Book.create(function(err, book) {
           var c = book.chapters.build();
           c.bookId.should.eql(book.id);
           c.save(done);
         });
       });
 
-      it('should create record on scope', function (done) {
-        Book.create(function (err, book) {
-          book.chapters.create(function (err, c) {
+      it('should create record on scope', function(done) {
+        Book.create(function(err, book) {
+          book.chapters.create(function(err, c) {
             should.not.exist(err);
             should.exist(c);
             c.bookId.should.eql(book.id);
@@ -83,11 +88,11 @@ describe('relations', function () {
         });
       });
 
-      it('should create record on scope with promises', function (done) {
+      it('should create record on scope with promises', function(done) {
         Book.create()
-        .then (function (book) {
+        .then (function(book) {
           return book.chapters.create()
-          .then (function (c) {
+          .then (function(c) {
             should.exist(c);
             c.bookId.should.eql(book.id);
             done();
@@ -95,14 +100,14 @@ describe('relations', function () {
         }).catch(done);
       });
 
-      it('should create a batch of records on scope', function (done) {
+      it('should create a batch of records on scope', function(done) {
         var chapters = [
-          {name: 'a'},
-          {name: 'z'},
-          {name: 'c'}
+          { name: 'a' },
+          { name: 'z' },
+          { name: 'c' },
         ];
-        Book.create(function (err, book) {
-          book.chapters.create(chapters, function (err, chs) {
+        Book.create(function(err, book) {
+          book.chapters.create(chapters, function(err, chs) {
             should.not.exist(err);
             should.exist(chs);
             chs.should.have.lengthOf(chapters.length);
@@ -114,15 +119,15 @@ describe('relations', function () {
         });
       });
 
-      it('should create a batch of records on scope with promises', function (done) {
+      it('should create a batch of records on scope with promises', function(done) {
         var chapters = [
-          {name: 'a'},
-          {name: 'z'},
-          {name: 'c'}
+          { name: 'a' },
+          { name: 'z' },
+          { name: 'c' },
         ];
-        Book.create(function (err, book) {
+        Book.create(function(err, book) {
           book.chapters.create(chapters)
-          .then(function (chs) {
+          .then(function(chs) {
             should.exist(chs);
             chs.should.have.lengthOf(chapters.length);
             chs.forEach(function(c) {
@@ -133,18 +138,18 @@ describe('relations', function () {
         });
       });
 
-      it('should fetch all scoped instances', function (done) {
-        Book.create(function (err, book) {
-          book.chapters.create({name: 'a'}, function () {
-            book.chapters.create({name: 'z'}, function () {
-              book.chapters.create({name: 'c'}, function () {
+      it('should fetch all scoped instances', function(done) {
+        Book.create(function(err, book) {
+          book.chapters.create({ name: 'a' }, function() {
+            book.chapters.create({ name: 'z' }, function() {
+              book.chapters.create({ name: 'c' }, function() {
                 verify(book);
               });
             });
           });
         });
         function verify(book) {
-          book.chapters(function (err, ch) {
+          book.chapters(function(err, ch) {
             should.not.exist(err);
             should.exist(ch);
             ch.should.have.lengthOf(3);
@@ -152,7 +157,7 @@ describe('relations', function () {
             var chapters = book.chapters();
             chapters.should.eql(ch);
 
-            book.chapters({order: 'name DESC'}, function (e, c) {
+            book.chapters({ order: 'name DESC' }, function(e, c) {
               should.not.exist(e);
               should.exist(c);
 
@@ -164,32 +169,32 @@ describe('relations', function () {
         }
       });
 
-      it('should fetch all scoped instances with promises', function (done) {
+      it('should fetch all scoped instances with promises', function(done) {
         Book.create()
-        .then(function (book) {
-          return book.chapters.create({name: 'a'})
-          .then(function () {
-            return book.chapters.create({name: 'z'})
+        .then(function(book) {
+          return book.chapters.create({ name: 'a' })
+          .then(function() {
+            return book.chapters.create({ name: 'z' });
           })
-          .then(function () {
-            return book.chapters.create({name: 'c'})
+          .then(function() {
+            return book.chapters.create({ name: 'c' });
           })
-          .then(function () {
+          .then(function() {
             return verify(book);
           });
         }).catch(done);
 
         function verify(book) {
           return book.chapters.getAsync()
-          .then(function (ch) {
+          .then(function(ch) {
             should.exist(ch);
             ch.should.have.lengthOf(3);
 
             var chapters = book.chapters();
             chapters.should.eql(ch);
 
-            return book.chapters.getAsync({order: 'name DESC'})
-            .then(function (c) {
+            return book.chapters.getAsync({ order: 'name DESC' })
+            .then(function(c) {
               should.exist(c);
 
               c.shift().name.should.equal('z');
@@ -200,18 +205,18 @@ describe('relations', function () {
         }
       });
 
-      it('should fetch all scoped instances with getAsync with callback and condition', function (done) {
-        Book.create(function (err, book) {
-          book.chapters.create({name: 'a'}, function () {
-            book.chapters.create({name: 'z'}, function () {
-              book.chapters.create({name: 'c'}, function () {
+      it('should fetch all scoped instances with getAsync with callback and condition', function(done) {
+        Book.create(function(err, book) {
+          book.chapters.create({ name: 'a' }, function() {
+            book.chapters.create({ name: 'z' }, function() {
+              book.chapters.create({ name: 'c' }, function() {
                 verify(book);
               });
             });
           });
         });
         function verify(book) {
-          book.chapters(function (err, ch) {
+          book.chapters(function(err, ch) {
             should.not.exist(err);
             should.exist(ch);
             ch.should.have.lengthOf(3);
@@ -219,7 +224,7 @@ describe('relations', function () {
             var chapters = book.chapters();
             chapters.should.eql(ch);
 
-            book.chapters.getAsync({order: 'name DESC'}, function (e, c) {
+            book.chapters.getAsync({ order: 'name DESC' }, function(e, c) {
               should.not.exist(e);
               should.exist(c);
 
@@ -231,18 +236,18 @@ describe('relations', function () {
         }
       });
 
-      it('should fetch all scoped instances with getAsync with callback and no condition', function (done) {
-        Book.create(function (err, book) {
-          book.chapters.create({name: 'a'}, function () {
-            book.chapters.create({name: 'z'}, function () {
-              book.chapters.create({name: 'c'}, function () {
+      it('should fetch all scoped instances with getAsync with callback and no condition', function(done) {
+        Book.create(function(err, book) {
+          book.chapters.create({ name: 'a' }, function() {
+            book.chapters.create({ name: 'z' }, function() {
+              book.chapters.create({ name: 'c' }, function() {
                 verify(book);
               });
             });
           });
         });
         function verify(book) {
-          book.chapters(function (err, ch) {
+          book.chapters(function(err, ch) {
             should.not.exist(err);
             should.exist(ch);
             ch.should.have.lengthOf(3);
@@ -250,7 +255,7 @@ describe('relations', function () {
             var chapters = book.chapters();
             chapters.should.eql(ch);
 
-            book.chapters.getAsync(function (e, c) {
+            book.chapters.getAsync(function(e, c) {
               should.not.exist(e);
               should.exist(c);
               should.exist(c.length);
@@ -262,13 +267,13 @@ describe('relations', function () {
         }
       });
 
-      it('should find scoped record', function (done) {
+      it('should find scoped record', function(done) {
         var id;
-        Book.create(function (err, book) {
-          book.chapters.create({name: 'a'}, function (err, ch) {
+        Book.create(function(err, book) {
+          book.chapters.create({ name: 'a' }, function(err, ch) {
             id = ch.id;
-            book.chapters.create({name: 'z'}, function () {
-              book.chapters.create({name: 'c'}, function () {
+            book.chapters.create({ name: 'z' }, function() {
+              book.chapters.create({ name: 'c' }, function() {
                 verify(book);
               });
             });
@@ -276,7 +281,7 @@ describe('relations', function () {
         });
 
         function verify(book) {
-          book.chapters.findById(id, function (err, ch) {
+          book.chapters.findById(id, function(err, ch) {
             should.not.exist(err);
             should.exist(ch);
             ch.id.should.eql(id);
@@ -285,26 +290,26 @@ describe('relations', function () {
         }
       });
 
-      it('should find scoped record with promises', function (done) {
+      it('should find scoped record with promises', function(done) {
         var id;
         Book.create()
-        .then(function (book) {
-          return book.chapters.create({name: 'a'})
-          .then(function (ch) {
+        .then(function(book) {
+          return book.chapters.create({ name: 'a' })
+          .then(function(ch) {
             id = ch.id;
-            return book.chapters.create({name: 'z'})
+            return book.chapters.create({ name: 'z' });
           })
-          .then(function () {
-            return book.chapters.create({name: 'c'})
+          .then(function() {
+            return book.chapters.create({ name: 'c' });
           })
-          .then(function () {
+          .then(function() {
             return verify(book);
-          })
+          });
         }).catch(done);
 
         function verify(book) {
           return book.chapters.findById(id)
-          .then(function (ch) {
+          .then(function(ch) {
             should.exist(ch);
             ch.id.should.eql(id);
             done();
@@ -312,11 +317,11 @@ describe('relations', function () {
         }
       });
 
-      it('should count scoped records - all and filtered', function (done) {
-        Book.create(function (err, book) {
-          book.chapters.create({name: 'a'}, function (err, ch) {
-            book.chapters.create({name: 'b'}, function () {
-              book.chapters.create({name: 'c'}, function () {
+      it('should count scoped records - all and filtered', function(done) {
+        Book.create(function(err, book) {
+          book.chapters.create({ name: 'a' }, function(err, ch) {
+            book.chapters.create({ name: 'b' }, function() {
+              book.chapters.create({ name: 'c' }, function() {
                 verify(book);
               });
             });
@@ -324,10 +329,10 @@ describe('relations', function () {
         });
 
         function verify(book) {
-          book.chapters.count(function (err, count) {
+          book.chapters.count(function(err, count) {
             should.not.exist(err);
             count.should.equal(3);
-            book.chapters.count({ name: 'b' }, function (err, count) {
+            book.chapters.count({ name: 'b' }, function(err, count) {
               should.not.exist(err);
               count.should.equal(1);
               done();
@@ -336,28 +341,28 @@ describe('relations', function () {
         }
       });
 
-      it('should count scoped records - all and filtered with promises', function (done) {
+      it('should count scoped records - all and filtered with promises', function(done) {
         Book.create()
-        .then(function (book) {
-          book.chapters.create({name: 'a'})
-          .then(function () {
-            return book.chapters.create({name: 'b'})
+        .then(function(book) {
+          book.chapters.create({ name: 'a' })
+          .then(function() {
+            return book.chapters.create({ name: 'b' });
           })
-          .then(function () {
-            return book.chapters.create({name: 'c'})
+          .then(function() {
+            return book.chapters.create({ name: 'c' });
           })
-          .then(function () {
+          .then(function() {
             return verify(book);
           });
         }).catch(done);
 
         function verify(book) {
           return book.chapters.count()
-          .then(function (count) {
+          .then(function(count) {
             count.should.equal(3);
-            return book.chapters.count({ name: 'b' })
+            return book.chapters.count({ name: 'b' });
           })
-          .then(function (count) {
+          .then(function(count) {
             count.should.equal(1);
             done();
           });
@@ -368,19 +373,19 @@ describe('relations', function () {
         should.equal(Book.prototype.chapters._targetClass, 'Chapter');
       });
 
-      it('should update scoped record', function (done) {
+      it('should update scoped record', function(done) {
         var id;
-        Book.create(function (err, book) {
-          book.chapters.create({name: 'a'}, function (err, ch) {
+        Book.create(function(err, book) {
+          book.chapters.create({ name: 'a' }, function(err, ch) {
             id = ch.id;
-            book.chapters.updateById(id, {name: 'aa'}, function(err, ch) {
+            book.chapters.updateById(id, { name: 'aa' }, function(err, ch) {
               verify(book);
             });
           });
         });
 
         function verify(book) {
-          book.chapters.findById(id, function (err, ch) {
+          book.chapters.findById(id, function(err, ch) {
             should.not.exist(err);
             should.exist(ch);
             ch.id.should.eql(id);
@@ -390,14 +395,14 @@ describe('relations', function () {
         }
       });
 
-      it('should update scoped record with promises', function (done) {
+      it('should update scoped record with promises', function(done) {
         var id;
         Book.create()
-        .then(function (book) {
-          return book.chapters.create({name: 'a'})
-          .then(function (ch) {
+        .then(function(book) {
+          return book.chapters.create({ name: 'a' })
+          .then(function(ch) {
             id = ch.id;
-            return book.chapters.updateById(id, {name: 'aa'})
+            return book.chapters.updateById(id, { name: 'aa' });
           })
           .then(function(ch) {
             return verify(book);
@@ -407,7 +412,7 @@ describe('relations', function () {
 
         function verify(book) {
           return book.chapters.findById(id)
-          .then(function (ch) {
+          .then(function(ch) {
             should.exist(ch);
             ch.id.should.eql(id);
             ch.name.should.equal('aa');
@@ -416,10 +421,10 @@ describe('relations', function () {
         }
       });
 
-      it('should destroy scoped record', function (done) {
+      it('should destroy scoped record', function(done) {
         var id;
-        Book.create(function (err, book) {
-          book.chapters.create({name: 'a'}, function (err, ch) {
+        Book.create(function(err, book) {
+          book.chapters.create({ name: 'a' }, function(err, ch) {
             id = ch.id;
             book.chapters.destroy(id, function(err, ch) {
               verify(book);
@@ -428,21 +433,21 @@ describe('relations', function () {
         });
 
         function verify(book) {
-          book.chapters.findById(id, function (err, ch) {
+          book.chapters.findById(id, function(err, ch) {
             should.exist(err);
             done();
           });
         }
       });
 
-      it('should destroy scoped record with promises', function (done) {
+      it('should destroy scoped record with promises', function(done) {
         var id;
         Book.create()
-        .then(function (book) {
-          return book.chapters.create({name: 'a'})
-          .then(function (ch) {
+        .then(function(book) {
+          return book.chapters.create({ name: 'a' })
+          .then(function(ch) {
             id = ch.id;
-            return book.chapters.destroy(id)
+            return book.chapters.destroy(id);
           })
           .then(function(ch) {
             return verify(book);
@@ -452,20 +457,20 @@ describe('relations', function () {
 
         function verify(book) {
           return book.chapters.findById(id)
-          .catch(function (err) {
+          .catch(function(err) {
             should.exist(err);
             done();
           });
         }
       });
 
-      it('should check existence of a scoped record', function (done) {
+      it('should check existence of a scoped record', function(done) {
         var id;
-        Book.create(function (err, book) {
-          book.chapters.create({name: 'a'}, function (err, ch) {
+        Book.create(function(err, book) {
+          book.chapters.create({ name: 'a' }, function(err, ch) {
             id = ch.id;
-            book.chapters.create({name: 'z'}, function () {
-              book.chapters.create({name: 'c'}, function () {
+            book.chapters.create({ name: 'z' }, function() {
+              book.chapters.create({ name: 'c' }, function() {
                 verify(book);
               });
             });
@@ -473,7 +478,7 @@ describe('relations', function () {
         });
 
         function verify(book) {
-          book.chapters.exists(id, function (err, flag) {
+          book.chapters.exists(id, function(err, flag) {
             should.not.exist(err);
             flag.should.be.eql(true);
             done();
@@ -481,34 +486,34 @@ describe('relations', function () {
         }
       });
 
-      it('should check existence of a scoped record with promises', function (done) {
+      it('should check existence of a scoped record with promises', function(done) {
         var id;
         Book.create()
-        .then(function (book) {
-          return book.chapters.create({name: 'a'})
-          .then(function (ch) {
+        .then(function(book) {
+          return book.chapters.create({ name: 'a' })
+          .then(function(ch) {
             id = ch.id;
-            return book.chapters.create({name: 'z'})
+            return book.chapters.create({ name: 'z' });
           })
-          .then(function () {
-            return book.chapters.create({name: 'c'})
+          .then(function() {
+            return book.chapters.create({ name: 'c' });
           })
-          .then(function () {
+          .then(function() {
             return verify(book);
           });
         }).catch(done);
 
         function verify(book) {
           return book.chapters.exists(id)
-          .then(function (flag) {
+          .then(function(flag) {
             flag.should.be.eql(true);
             done();
           });
         }
       });
 
-      it('should check ignore related data on creation - array', function (done) {
-        Book.create({ chapters: [] }, function (err, book) {
+      it('should check ignore related data on creation - array', function(done) {
+        Book.create({ chapters: [] }, function(err, book) {
           should.not.exist(err);
           book.chapters.should.be.a.function;
           var obj = book.toObject();
@@ -517,9 +522,9 @@ describe('relations', function () {
         });
       });
 
-      it('should check ignore related data on creation with promises - array', function (done) {
+      it('should check ignore related data on creation with promises - array', function(done) {
         Book.create({ chapters: [] })
-        .then(function (book) {
+        .then(function(book) {
           book.chapters.should.be.a.function;
           var obj = book.toObject();
           should.not.exist(obj.chapters);
@@ -527,8 +532,8 @@ describe('relations', function () {
         }).catch(done);
       });
 
-      it('should check ignore related data on creation - object', function (done) {
-        Book.create({ chapters: {} }, function (err, book) {
+      it('should check ignore related data on creation - object', function(done) {
+        Book.create({ chapters: {}}, function(err, book) {
           should.not.exist(err);
           book.chapters.should.be.a.function;
           var obj = book.toObject();
@@ -537,9 +542,9 @@ describe('relations', function () {
         });
       });
 
-      it('should check ignore related data on creation with promises - object', function (done) {
-        Book.create({ chapters: {} })
-        .then(function (book) {
+      it('should check ignore related data on creation with promises - object', function(done) {
+        Book.create({ chapters: {}})
+        .then(function(book) {
           book.chapters.should.be.a.function;
           var obj = book.toObject();
           should.not.exist(obj.chapters);
@@ -550,21 +555,21 @@ describe('relations', function () {
 
   });
 
-  describe('hasMany through', function () {
+  describe('hasMany through', function() {
     var Physician, Patient, Appointment, Address;
 
-    before(function (done) {
+    before(function(done) {
       // db = getSchema();
-      Physician = db.define('Physician', {name: String});
-      Patient = db.define('Patient', {name: String});
-      Appointment = db.define('Appointment', {date: {type: Date,
-        default: function () {
+      Physician = db.define('Physician', { name: String });
+      Patient = db.define('Patient', { name: String });
+      Appointment = db.define('Appointment', { date: { type: Date,
+        default: function() {
           return new Date();
-        }}});
-      Address = db.define('Address', {name: String});
+        } }});
+      Address = db.define('Address', { name: String });
 
-      Physician.hasMany(Patient, {through: Appointment});
-      Patient.hasMany(Physician, {through: Appointment});
+      Physician.hasMany(Patient, { through: Appointment });
+      Patient.hasMany(Physician, { through: Appointment });
       Patient.belongsTo(Address);
       Appointment.belongsTo(Patient);
       Appointment.belongsTo(Physician);
@@ -572,83 +577,83 @@ describe('relations', function () {
       db.automigrate(['Physician', 'Patient', 'Appointment', 'Address'], done);
     });
 
-    it('should build record on scope', function (done) {
-      Physician.create(function (err, physician) {
+    it('should build record on scope', function(done) {
+      Physician.create(function(err, physician) {
         var patient = physician.patients.build();
         patient.physicianId.should.eql(physician.id);
         patient.save(done);
       });
     });
 
-    it('should create record on scope', function (done) {
-      Physician.create(function (err, physician) {
-        physician.patients.create(function (err, patient) {
+    it('should create record on scope', function(done) {
+      Physician.create(function(err, physician) {
+        physician.patients.create(function(err, patient) {
           should.not.exist(err);
           should.exist(patient);
-          Appointment.find({where: {physicianId: physician.id, patientId: patient.id}},
+          Appointment.find({ where: { physicianId: physician.id, patientId: patient.id }},
             function(err, apps) {
               should.not.exist(err);
               apps.should.have.lengthOf(1);
               done();
-          });
+            });
         });
       });
     });
 
-    it('should create record on scope with promises', function (done) {
+    it('should create record on scope with promises', function(done) {
       Physician.create()
-      .then(function (physician) {
+      .then(function(physician) {
         return physician.patients.create()
-        .then(function (patient) {
+        .then(function(patient) {
           should.exist(patient);
-          return Appointment.find({where: {physicianId: physician.id, patientId: patient.id}})
-          .then(function (apps) {
-              apps.should.have.lengthOf(1);
-              done();
+          return Appointment.find({ where: { physicianId: physician.id, patientId: patient.id }})
+          .then(function(apps) {
+            apps.should.have.lengthOf(1);
+            done();
           });
         });
       }).catch(done);
     });
 
-    it('should create multiple records on scope', function (done) {
+    it('should create multiple records on scope', function(done) {
       var async = require('async');
-      Physician.create(function (err, physician) {
-        physician.patients.create([{}, {}], function (err, patients) {
+      Physician.create(function(err, physician) {
+        physician.patients.create([{}, {}], function(err, patients) {
           should.not.exist(err);
           should.exist(patients);
           patients.should.have.lengthOf(2);
           function verifyPatient(patient, next) {
-            Appointment.find({where: {
+            Appointment.find({ where: {
               physicianId: physician.id,
-              patientId: patient.id
+              patientId: patient.id,
             }},
               function(err, apps) {
                 should.not.exist(err);
                 apps.should.have.lengthOf(1);
                 next();
-            });
+              });
           }
           async.forEach(patients, verifyPatient, done);
         });
       });
     });
 
-    it('should create multiple records on scope with promises', function (done) {
+    it('should create multiple records on scope with promises', function(done) {
       var async = require('async');
       Physician.create()
-      .then(function (physician) {
+      .then(function(physician) {
         return physician.patients.create([{}, {}])
-        .then(function (patients) {
+        .then(function(patients) {
           should.exist(patients);
           patients.should.have.lengthOf(2);
           function verifyPatient(patient, next) {
-            Appointment.find({where: {
+            Appointment.find({ where: {
               physicianId: physician.id,
-              patientId: patient.id
+              patientId: patient.id,
             }})
             .then(function(apps) {
-                apps.should.have.lengthOf(1);
-                next();
+              apps.should.have.lengthOf(1);
+              next();
             });
           }
           async.forEach(patients, verifyPatient, done);
@@ -656,18 +661,18 @@ describe('relations', function () {
       }).catch(done);
     });
 
-    it('should fetch all scoped instances', function (done) {
-      Physician.create(function (err, physician) {
-        physician.patients.create({name: 'a'}, function () {
-          physician.patients.create({name: 'z'}, function () {
-            physician.patients.create({name: 'c'}, function () {
+    it('should fetch all scoped instances', function(done) {
+      Physician.create(function(err, physician) {
+        physician.patients.create({ name: 'a' }, function() {
+          physician.patients.create({ name: 'z' }, function() {
+            physician.patients.create({ name: 'c' }, function() {
               verify(physician);
             });
           });
         });
       });
       function verify(physician) {
-        physician.patients(function (err, ch) {
+        physician.patients(function(err, ch) {
 
           var patients = physician.patients();
           patients.should.eql(ch);
@@ -680,23 +685,23 @@ describe('relations', function () {
       }
     });
 
-    it('should fetch all scoped instances with promises', function (done) {
+    it('should fetch all scoped instances with promises', function(done) {
       Physician.create()
-      .then(function (physician) {
-        return physician.patients.create({name: 'a'})
-        .then(function () {
-          return physician.patients.create({name: 'z'})
+      .then(function(physician) {
+        return physician.patients.create({ name: 'a' })
+        .then(function() {
+          return physician.patients.create({ name: 'z' });
         })
-        .then(function () {
-          return physician.patients.create({name: 'c'})
+        .then(function() {
+          return physician.patients.create({ name: 'c' });
         })
-        .then(function () {
+        .then(function() {
           return verify(physician);
-        })
+        });
       }).catch(done);
       function verify(physician) {
         return physician.patients.getAsync()
-        .then(function (ch) {
+        .then(function(ch) {
 
           var patients = physician.patients();
           patients.should.eql(ch);
@@ -708,11 +713,11 @@ describe('relations', function () {
       }
     });
 
-    it('should fetch scoped instances with paging filters', function (done) {
-      Physician.create(function (err, physician) {
-        physician.patients.create({name: 'a'}, function () {
-          physician.patients.create({name: 'z'}, function () {
-            physician.patients.create({name: 'c'}, function () {
+    it('should fetch scoped instances with paging filters', function(done) {
+      Physician.create(function(err, physician) {
+        physician.patients.create({ name: 'a' }, function() {
+          physician.patients.create({ name: 'z' }, function() {
+            physician.patients.create({ name: 'c' }, function() {
               verify(physician);
             });
           });
@@ -720,19 +725,19 @@ describe('relations', function () {
       });
       function verify(physician) {
         //limit plus skip
-        physician.patients({ limit:1, skip:1 },function (err, ch) {
+        physician.patients({ limit: 1, skip: 1 }, function(err, ch) {
           should.not.exist(err);
           should.exist(ch);
           ch.should.have.lengthOf(1);
           ch[0].name.should.eql('z');
           //offset plus skip
-          physician.patients({ limit:1, offset:1 },function (err1, ch1) {
+          physician.patients({ limit: 1, offset: 1 }, function(err1, ch1) {
             should.not.exist(err1);
             should.exist(ch1);
             ch1.should.have.lengthOf(1);
             ch1[0].name.should.eql('z');
             //order
-            physician.patients({ order: "patientId DESC" },function (err2, ch2) {
+            physician.patients({ order: 'patientId DESC' }, function(err2, ch2) {
               should.not.exist(err2);
               should.exist(ch2);
               ch2.should.have.lengthOf(3);
@@ -744,13 +749,13 @@ describe('relations', function () {
       }
     });
 
-    it('should find scoped record', function (done) {
+    it('should find scoped record', function(done) {
       var id;
-      Physician.create(function (err, physician) {
-        physician.patients.create({name: 'a'}, function (err, ch) {
+      Physician.create(function(err, physician) {
+        physician.patients.create({ name: 'a' }, function(err, ch) {
           id = ch.id;
-          physician.patients.create({name: 'z'}, function () {
-            physician.patients.create({name: 'c'}, function () {
+          physician.patients.create({ name: 'z' }, function() {
+            physician.patients.create({ name: 'c' }, function() {
               verify(physician);
             });
           });
@@ -758,7 +763,7 @@ describe('relations', function () {
       });
 
       function verify(physician) {
-        physician.patients.findById(id, function (err, ch) {
+        physician.patients.findById(id, function(err, ch) {
           should.not.exist(err);
           should.exist(ch);
           ch.id.should.eql(id);
@@ -767,25 +772,25 @@ describe('relations', function () {
       }
     });
 
-    it('should find scoped record with promises', function (done) {
+    it('should find scoped record with promises', function(done) {
       var id;
       Physician.create()
-      .then(function (physician) {
-        return physician.patients.create({name: 'a'})
-        .then(function (ch) {
+      .then(function(physician) {
+        return physician.patients.create({ name: 'a' })
+        .then(function(ch) {
           id = ch.id;
-          return physician.patients.create({name: 'z'})
+          return physician.patients.create({ name: 'z' });
         })
-        .then(function () {
-          return physician.patients.create({name: 'c'})
+        .then(function() {
+          return physician.patients.create({ name: 'c' });
         })
-        .then(function () {
+        .then(function() {
           return verify(physician);
         });
       }).catch(done);
 
       function verify(physician) {
-        return physician.patients.findById(id, function (err, ch) {
+        return physician.patients.findById(id, function(err, ch) {
           should.not.exist(err);
           should.exist(ch);
           ch.id.should.eql(id);
@@ -794,10 +799,10 @@ describe('relations', function () {
       }
     });
 
-    it('should allow to use include syntax on related data', function (done) {
-      Physician.create(function (err, physician) {
-        physician.patients.create({name: 'a'}, function (err, patient) {
-          Address.create({name: 'z'}, function (err, address) {
+    it('should allow to use include syntax on related data', function(done) {
+      Physician.create(function(err, physician) {
+        physician.patients.create({ name: 'a' }, function(err, patient) {
+          Address.create({ name: 'z' }, function(err, address) {
             should.not.exist(err);
             patient.address(address);
             patient.save(function() {
@@ -807,7 +812,7 @@ describe('relations', function () {
         });
       });
       function verify(physician, addressId) {
-        physician.patients({include: 'address'}, function (err, ch) {
+        physician.patients({ include: 'address' }, function(err, ch) {
           should.not.exist(err);
           should.exist(ch);
           ch.should.have.lengthOf(1);
@@ -821,13 +826,13 @@ describe('relations', function () {
       }
     });
 
-    it('should allow to use include syntax on related data with promises', function (done) {
+    it('should allow to use include syntax on related data with promises', function(done) {
       Physician.create()
-      .then(function (physician) {
-        return physician.patients.create({name: 'a'})
-        .then(function (patient) {
-          return Address.create({name: 'z'})
-          .then(function (address) {
+      .then(function(physician) {
+        return physician.patients.create({ name: 'a' })
+        .then(function(patient) {
+          return Address.create({ name: 'z' })
+          .then(function(address) {
             patient.address(address);
             return patient.save()
             .then(function() {
@@ -838,8 +843,8 @@ describe('relations', function () {
       }).catch(done);
 
       function verify(physician, addressId) {
-        return physician.patients.getAsync({include: 'address'})
-        .then(function (ch) {
+        return physician.patients.getAsync({ include: 'address' })
+        .then(function(ch) {
           should.exist(ch);
           ch.should.have.lengthOf(1);
           ch[0].addressId.should.eql(addressId);
@@ -856,19 +861,19 @@ describe('relations', function () {
       should.equal(Physician.prototype.patients._targetClass, 'Patient');
     });
 
-    it('should update scoped record', function (done) {
+    it('should update scoped record', function(done) {
       var id;
-      Physician.create(function (err, physician) {
-        physician.patients.create({name: 'a'}, function (err, ch) {
+      Physician.create(function(err, physician) {
+        physician.patients.create({ name: 'a' }, function(err, ch) {
           id = ch.id;
-          physician.patients.updateById(id, {name: 'aa'}, function(err, ch) {
+          physician.patients.updateById(id, { name: 'aa' }, function(err, ch) {
             verify(physician);
           });
         });
       });
 
       function verify(physician) {
-        physician.patients.findById(id, function (err, ch) {
+        physician.patients.findById(id, function(err, ch) {
           should.not.exist(err);
           should.exist(ch);
           ch.id.should.eql(id);
@@ -878,14 +883,14 @@ describe('relations', function () {
       }
     });
 
-    it('should update scoped record with promises', function (done) {
+    it('should update scoped record with promises', function(done) {
       var id;
       Physician.create()
-      .then(function (physician) {
-        return physician.patients.create({name: 'a'})
-        .then(function (ch) {
+      .then(function(physician) {
+        return physician.patients.create({ name: 'a' })
+        .then(function(ch) {
           id = ch.id;
-          return physician.patients.updateById(id, {name: 'aa'})
+          return physician.patients.updateById(id, { name: 'aa' })
           .then(function(ch) {
             return verify(physician);
           });
@@ -894,7 +899,7 @@ describe('relations', function () {
 
       function verify(physician) {
         return physician.patients.findById(id)
-        .then(function (ch) {
+        .then(function(ch) {
           should.exist(ch);
           ch.id.should.eql(id);
           ch.name.should.equal('aa');
@@ -903,10 +908,10 @@ describe('relations', function () {
       }
     });
 
-    it('should destroy scoped record', function (done) {
+    it('should destroy scoped record', function(done) {
       var id;
-      Physician.create(function (err, physician) {
-        physician.patients.create({name: 'a'}, function (err, ch) {
+      Physician.create(function(err, physician) {
+        physician.patients.create({ name: 'a' }, function(err, ch) {
           id = ch.id;
           physician.patients.destroy(id, function(err, ch) {
             verify(physician);
@@ -915,19 +920,19 @@ describe('relations', function () {
       });
 
       function verify(physician) {
-        physician.patients.findById(id, function (err, ch) {
+        physician.patients.findById(id, function(err, ch) {
           should.exist(err);
           done();
         });
       }
     });
 
-    it('should destroy scoped record with promises', function (done) {
+    it('should destroy scoped record with promises', function(done) {
       var id;
       Physician.create()
-      .then(function (physician) {
-        return physician.patients.create({name: 'a'})
-        .then(function (ch) {
+      .then(function(physician) {
+        return physician.patients.create({ name: 'a' })
+        .then(function(ch) {
           id = ch.id;
           return physician.patients.destroy(id)
           .then(function(ch) {
@@ -938,25 +943,25 @@ describe('relations', function () {
 
       function verify(physician) {
         return physician.patients.findById(id)
-        .then(function (ch) {
+        .then(function(ch) {
           should.not.exist(ch);
           done();
         })
-        .catch(function (err) {
+        .catch(function(err) {
           should.exist(err);
           done();
         });
       }
     });
 
-    it('should check existence of a scoped record', function (done) {
+    it('should check existence of a scoped record', function(done) {
       var id;
-      Physician.create(function (err, physician) {
-        physician.patients.create({name: 'a'}, function (err, ch) {
+      Physician.create(function(err, physician) {
+        physician.patients.create({ name: 'a' }, function(err, ch) {
           should.not.exist(err);
           id = ch.id;
-          physician.patients.create({name: 'z'}, function () {
-            physician.patients.create({name: 'c'}, function () {
+          physician.patients.create({ name: 'z' }, function() {
+            physician.patients.create({ name: 'c' }, function() {
               verify(physician);
             });
           });
@@ -964,7 +969,7 @@ describe('relations', function () {
       });
 
       function verify(physician) {
-        physician.patients.exists(id, function (err, flag) {
+        physician.patients.exists(id, function(err, flag) {
           should.not.exist(err);
           flag.should.be.eql(true);
           done();
@@ -972,36 +977,36 @@ describe('relations', function () {
       }
     });
 
-    it('should check existence of a scoped record with promises', function (done) {
+    it('should check existence of a scoped record with promises', function(done) {
       var id;
       Physician.create()
-      .then(function (physician) {
-        return physician.patients.create({name: 'a'})
-        .then(function (ch) {
+      .then(function(physician) {
+        return physician.patients.create({ name: 'a' })
+        .then(function(ch) {
           id = ch.id;
-          return physician.patients.create({name: 'z'})
+          return physician.patients.create({ name: 'z' });
         })
-        .then(function () {
-          return physician.patients.create({name: 'c'})
+        .then(function() {
+          return physician.patients.create({ name: 'c' });
         })
-        .then(function () {
+        .then(function() {
           return verify(physician);
         });
       }).catch(done);
 
       function verify(physician) {
         return physician.patients.exists(id)
-        .then(function (flag) {
+        .then(function(flag) {
           flag.should.be.eql(true);
           done();
         });
       }
     });
 
-    it('should allow to add connection with instance', function (done) {
-      Physician.create({name: 'ph1'}, function (e, physician) {
-        Patient.create({name: 'pa1'}, function (e, patient) {
-          physician.patients.add(patient, function (e, app) {
+    it('should allow to add connection with instance', function(done) {
+      Physician.create({ name: 'ph1' }, function(e, physician) {
+        Patient.create({ name: 'pa1' }, function(e, patient) {
+          physician.patients.add(patient, function(e, app) {
             should.not.exist(e);
             should.exist(app);
             app.should.be.an.instanceOf(Appointment);
@@ -1013,13 +1018,13 @@ describe('relations', function () {
       });
     });
 
-    it('should allow to add connection with instance with promises', function (done) {
-      Physician.create({name: 'ph1'})
-      .then(function (physician) {
-        return Patient.create({name: 'pa1'})
-        .then(function (patient) {
+    it('should allow to add connection with instance with promises', function(done) {
+      Physician.create({ name: 'ph1' })
+      .then(function(physician) {
+        return Patient.create({ name: 'pa1' })
+        .then(function(patient) {
           return physician.patients.add(patient)
-          .then(function (app) {
+          .then(function(app) {
             should.exist(app);
             app.should.be.an.instanceOf(Appointment);
             app.physicianId.should.eql(physician.id);
@@ -1030,11 +1035,11 @@ describe('relations', function () {
       }).catch(done);
     });
 
-    it('should allow to add connection with through data', function (done) {
-      Physician.create({name: 'ph1'}, function (e, physician) {
-        Patient.create({name: 'pa1'}, function (e, patient) {
+    it('should allow to add connection with through data', function(done) {
+      Physician.create({ name: 'ph1' }, function(e, physician) {
+        Patient.create({ name: 'pa1' }, function(e, patient) {
           var now = Date.now();
-          physician.patients.add(patient, { date: new Date(now) }, function (e, app) {
+          physician.patients.add(patient, { date: new Date(now) }, function(e, app) {
             should.not.exist(e);
             should.exist(app);
             app.should.be.an.instanceOf(Appointment);
@@ -1048,14 +1053,14 @@ describe('relations', function () {
       });
     });
 
-    it('should allow to add connection with through data with promises', function (done) {
-      Physician.create({name: 'ph1'})
-      .then(function (physician) {
-        return Patient.create({name: 'pa1'})
-        .then(function (patient) {
+    it('should allow to add connection with through data with promises', function(done) {
+      Physician.create({ name: 'ph1' })
+      .then(function(physician) {
+        return Patient.create({ name: 'pa1' })
+        .then(function(patient) {
           var now = Date.now();
           return physician.patients.add(patient, { date: new Date(now) })
-          .then(function (app) {
+          .then(function(app) {
             should.exist(app);
             app.should.be.an.instanceOf(Appointment);
             app.physicianId.should.eql(physician.id);
@@ -1068,19 +1073,19 @@ describe('relations', function () {
       }).catch(done);
     });
 
-    it('should allow to remove connection with instance', function (done) {
+    it('should allow to remove connection with instance', function(done) {
       var id;
-      Physician.create(function (err, physician) {
-        physician.patients.create({name: 'a'}, function (err, patient) {
+      Physician.create(function(err, physician) {
+        physician.patients.create({ name: 'a' }, function(err, patient) {
           id = patient.id;
-          physician.patients.remove(id, function (err, ch) {
+          physician.patients.remove(id, function(err, ch) {
             verify(physician);
           });
         });
       });
 
       function verify(physician) {
-        physician.patients.exists(id, function (err, flag) {
+        physician.patients.exists(id, function(err, flag) {
           should.not.exist(err);
           flag.should.be.eql(false);
           done();
@@ -1088,15 +1093,15 @@ describe('relations', function () {
       }
     });
 
-    it('should allow to remove connection with instance with promises', function (done) {
+    it('should allow to remove connection with instance with promises', function(done) {
       var id;
       Physician.create()
-      .then(function (physician) {
-        return physician.patients.create({name: 'a'})
-        .then(function (patient) {
+      .then(function(physician) {
+        return physician.patients.create({ name: 'a' })
+        .then(function(patient) {
           id = patient.id;
           return physician.patients.remove(id)
-          .then(function (ch) {
+          .then(function(ch) {
             return verify(physician);
           });
         });
@@ -1104,16 +1109,16 @@ describe('relations', function () {
 
       function verify(physician) {
         return physician.patients.exists(id)
-        .then(function (flag) {
+        .then(function(flag) {
           flag.should.be.eql(false);
           done();
         });
       }
     });
 
-    beforeEach(function (done) {
-      Appointment.destroyAll(function (err) {
-        Physician.destroyAll(function (err) {
+    beforeEach(function(done) {
+      Appointment.destroyAll(function(err) {
+        Physician.destroyAll(function(err) {
           Patient.destroyAll(done);
         });
       });
@@ -1121,116 +1126,120 @@ describe('relations', function () {
 
   });
 
-  describe('hasMany through - collect', function () {
+  describe('hasMany through - collect', function() {
     var Physician, Patient, Appointment, Address;
 
-    beforeEach(function (done) {
+    beforeEach(function(done) {
       // db = getSchema();
-      Physician = db.define('Physician', {name: String});
-      Patient = db.define('Patient', {name: String});
-      Appointment = db.define('Appointment', {date: {type: Date,
-        default: function () {
+      Physician = db.define('Physician', { name: String });
+      Patient = db.define('Patient', { name: String });
+      Appointment = db.define('Appointment', { date: { type: Date,
+        default: function() {
           return new Date();
-        }}});
-      Address = db.define('Address', {name: String});
+        } }});
+      Address = db.define('Address', { name: String });
 
       db.automigrate(['Physician', 'Patient', 'Appointment', 'Address'], done);
     });
 
-    describe('with default options', function () {
-      it('can determine the collect by modelTo\'s name as default', function () {
-        Physician.hasMany(Patient, {through: Appointment});
-        Patient.hasMany(Physician, {through: Appointment, as: 'yyy'});
+    describe('with default options', function() {
+      it('can determine the collect by modelTo\'s name as default', function() {
+        Physician.hasMany(Patient, { through: Appointment });
+        Patient.hasMany(Physician, { through: Appointment, as: 'yyy' });
         Patient.belongsTo(Address);
         Appointment.belongsTo(Physician);
         Appointment.belongsTo(Patient);
-        var physician = new Physician({id: 1});
+        var physician = new Physician({ id: 1 });
         var scope1 = physician.patients._scope;
         scope1.should.have.property('collect', 'patient');
         scope1.should.have.property('include', 'patient');
-        var patient = new Patient({id: 1});
+        var patient = new Patient({ id: 1 });
         var scope2 = patient.yyy._scope;
         scope2.should.have.property('collect', 'physician');
         scope2.should.have.property('include', 'physician');
       });
     });
 
-    describe('when custom reverse belongsTo names for both sides', function () {
-      it('can determine the collect via keyThrough', function () {
-        Physician.hasMany(Patient, {through: Appointment, foreignKey: 'fooId', keyThrough: 'barId'});
-        Patient.hasMany(Physician, {through: Appointment, foreignKey: 'barId', keyThrough: 'fooId', as: 'yyy'});
-        Appointment.belongsTo(Physician, {as: 'foo'});
-        Appointment.belongsTo(Patient, {as: 'bar'});
+    describe('when custom reverse belongsTo names for both sides', function() {
+      it('can determine the collect via keyThrough', function() {
+        Physician.hasMany(Patient, {
+          through: Appointment, foreignKey: 'fooId', keyThrough: 'barId',
+        });
+        Patient.hasMany(Physician, {
+          through: Appointment, foreignKey: 'barId', keyThrough: 'fooId', as: 'yyy',
+        });
+        Appointment.belongsTo(Physician, { as: 'foo' });
+        Appointment.belongsTo(Patient, { as: 'bar' });
         Patient.belongsTo(Address); // jam.
-        Appointment.belongsTo(Patient, {as: 'car'}); // jam. Should we complain in this case???
+        Appointment.belongsTo(Patient, { as: 'car' }); // jam. Should we complain in this case???
 
-        var physician = new Physician({id: 1});
+        var physician = new Physician({ id: 1 });
         var scope1 = physician.patients._scope;
         scope1.should.have.property('collect', 'bar');
         scope1.should.have.property('include', 'bar');
-        var patient = new Patient({id: 1});
+        var patient = new Patient({ id: 1 });
         var scope2 = patient.yyy._scope;
         scope2.should.have.property('collect', 'foo');
         scope2.should.have.property('include', 'foo');
       });
 
-      it('can determine the collect via modelTo name', function () {
-        Physician.hasMany(Patient, {through: Appointment});
-        Patient.hasMany(Physician, {through: Appointment, as: 'yyy'});
-        Appointment.belongsTo(Physician, {as: 'foo', foreignKey: 'physicianId'});
-        Appointment.belongsTo(Patient, {as: 'bar', foreignKey: 'patientId'});
+      it('can determine the collect via modelTo name', function() {
+        Physician.hasMany(Patient, { through: Appointment });
+        Patient.hasMany(Physician, { through: Appointment, as: 'yyy' });
+        Appointment.belongsTo(Physician, { as: 'foo', foreignKey: 'physicianId' });
+        Appointment.belongsTo(Patient, { as: 'bar', foreignKey: 'patientId' });
         Patient.belongsTo(Address); // jam.
 
-        var physician = new Physician({id: 1});
+        var physician = new Physician({ id: 1 });
         var scope1 = physician.patients._scope;
         scope1.should.have.property('collect', 'bar');
         scope1.should.have.property('include', 'bar');
-        var patient = new Patient({id: 1});
+        var patient = new Patient({ id: 1 });
         var scope2 = patient.yyy._scope;
         scope2.should.have.property('collect', 'foo');
         scope2.should.have.property('include', 'foo');
       });
 
-      it('can determine the collect via modelTo name (with jams)', function () {
-        Physician.hasMany(Patient, {through: Appointment});
-        Patient.hasMany(Physician, {through: Appointment, as: 'yyy'});
-        Appointment.belongsTo(Physician, {as: 'foo', foreignKey: 'physicianId'});
-        Appointment.belongsTo(Patient, {as: 'bar', foreignKey: 'patientId'});
+      it('can determine the collect via modelTo name (with jams)', function() {
+        Physician.hasMany(Patient, { through: Appointment });
+        Patient.hasMany(Physician, { through: Appointment, as: 'yyy' });
+        Appointment.belongsTo(Physician, { as: 'foo', foreignKey: 'physicianId' });
+        Appointment.belongsTo(Patient, { as: 'bar', foreignKey: 'patientId' });
         Patient.belongsTo(Address); // jam.
-        Appointment.belongsTo(Physician, {as: 'goo', foreignKey: 'physicianId'}); // jam. Should we complain in this case???
-        Appointment.belongsTo(Patient, {as: 'car', foreignKey: 'patientId'}); // jam. Should we complain in this case???
+        Appointment.belongsTo(Physician, { as: 'goo', foreignKey: 'physicianId' }); // jam. Should we complain in this case???
+        Appointment.belongsTo(Patient, { as: 'car', foreignKey: 'patientId' }); // jam. Should we complain in this case???
 
-        var physician = new Physician({id: 1});
+        var physician = new Physician({ id: 1 });
         var scope1 = physician.patients._scope;
         scope1.should.have.property('collect', 'bar');
         scope1.should.have.property('include', 'bar');
-        var patient = new Patient({id: 1});
+        var patient = new Patient({ id: 1 });
         var scope2 = patient.yyy._scope;
         scope2.should.have.property('collect', 'foo'); // first matched relation
         scope2.should.have.property('include', 'foo'); // first matched relation
       });
     });
 
-    describe('when custom reverse belongsTo name for one side only', function () {
+    describe('when custom reverse belongsTo name for one side only', function() {
 
-      beforeEach(function () {
-        Physician.hasMany(Patient, {as: 'xxx', through: Appointment, foreignKey: 'fooId'});
-        Patient.hasMany(Physician, {as: 'yyy', through: Appointment, keyThrough: 'fooId'});
-        Appointment.belongsTo(Physician, {as: 'foo'});
+      beforeEach(function() {
+        Physician.hasMany(Patient, { as: 'xxx', through: Appointment, foreignKey: 'fooId' });
+        Patient.hasMany(Physician, { as: 'yyy', through: Appointment, keyThrough: 'fooId' });
+        Appointment.belongsTo(Physician, { as: 'foo' });
         Appointment.belongsTo(Patient);
         Patient.belongsTo(Address); // jam.
-        Appointment.belongsTo(Physician, {as: 'bar'}); // jam. Should we complain in this case???
+        Appointment.belongsTo(Physician, { as: 'bar' }); // jam. Should we complain in this case???
       });
 
-      it('can determine the collect via model name', function () {
-        var physician = new Physician({id: 1});
+      it('can determine the collect via model name', function() {
+        var physician = new Physician({ id: 1 });
         var scope1 = physician.xxx._scope;
         scope1.should.have.property('collect', 'patient');
         scope1.should.have.property('include', 'patient');
       });
 
-      it('can determine the collect via keyThrough', function () {
-        var patient = new Patient({id: 1});
+      it('can determine the collect via keyThrough', function() {
+        var patient = new Patient({ id: 1 });
         var scope2 = patient.yyy._scope;
         scope2.should.have.property('collect', 'foo');
         scope2.should.have.property('include', 'foo');
@@ -1238,32 +1247,35 @@ describe('relations', function () {
     });
   });
 
-  describe('hasMany through bi-directional relations on the same model', function () {
+  describe('hasMany through bi-directional relations on the same model', function() {
     var User, Follow, Address;
 
-    before(function (done) {
+    before(function(done) {
       // db = getSchema();
-      User = db.define('User', {name: String});
-      Follow = db.define('Follow', {date: {type: Date,
-        default: function () {
+      User = db.define('User', { name: String });
+      Follow = db.define('Follow', { date: { type: Date,
+        default: function() {
           return new Date();
-        }}});
-      Address = db.define('Address', {name: String});
+        } }});
+      Address = db.define('Address', { name: String });
 
-      User.hasMany(User, {as: 'followers', foreignKey: 'followeeId', keyThrough: 'followerId', through: Follow});
-      User.hasMany(User, {as: 'following', foreignKey: 'followerId', keyThrough: 'followeeId', through: Follow});
+      User.hasMany(User, {
+        as: 'followers', foreignKey: 'followeeId', keyThrough: 'followerId', through: Follow,
+      });
+      User.hasMany(User, {
+        as: 'following', foreignKey: 'followerId', keyThrough: 'followeeId', through: Follow,
+      });
       User.belongsTo(Address);
-      Follow.belongsTo(User, {as: 'follower'});
-      Follow.belongsTo(User, {as: 'followee'});
+      Follow.belongsTo(User, { as: 'follower' });
+      Follow.belongsTo(User, { as: 'followee' });
       db.automigrate(['User', 'Follow'], done);
     });
 
-
     it('should set foreignKeys of through model correctly in first relation',
-      function (done) {
-        var follower = new User({id: 1});
-        var followee = new User({id: 2});
-        followee.followers.add(follower, function (err, throughInst) {
+      function(done) {
+        var follower = new User({ id: 1 });
+        var followee = new User({ id: 2 });
+        followee.followers.add(follower, function(err, throughInst) {
           should.not.exist(err);
           should.exist(throughInst);
           throughInst.followerId.should.eql(follower.id);
@@ -1273,10 +1285,10 @@ describe('relations', function () {
       });
 
     it('should set foreignKeys of through model correctly in second relation',
-      function (done) {
-        var follower = new User({id: 3});
-        var followee = new User({id: 4});
-        follower.following.add(followee, function (err, throughInst) {
+      function(done) {
+        var follower = new User({ id: 3 });
+        var followee = new User({ id: 4 });
+        follower.following.add(followee, function(err, throughInst) {
           should.not.exist(err);
           should.exist(throughInst);
           throughInst.followeeId.should.eql(followee.id);
@@ -1286,30 +1298,34 @@ describe('relations', function () {
       });
   });
 
-  describe('hasMany through - between same models', function () {
+  describe('hasMany through - between same models', function() {
     var User, Follow, Address;
 
-    before(function (done) {
+    before(function(done) {
       // db = getSchema();
-      User = db.define('User', {name: String});
-      Follow = db.define('Follow', {date: {type: Date,
-        default: function () {
+      User = db.define('User', { name: String });
+      Follow = db.define('Follow', { date: { type: Date,
+        default: function() {
           return new Date();
-        }}});
-      Address = db.define('Address', {name: String});
+        } }});
+      Address = db.define('Address', { name: String });
 
-      User.hasMany(User, {as: 'followers', foreignKey: 'followeeId', keyThrough: 'followerId', through: Follow});
-      User.hasMany(User, {as: 'following', foreignKey: 'followerId', keyThrough: 'followeeId', through: Follow});
+      User.hasMany(User, {
+        as: 'followers', foreignKey: 'followeeId', keyThrough: 'followerId', through: Follow,
+      });
+      User.hasMany(User, {
+        as: 'following', foreignKey: 'followerId', keyThrough: 'followeeId', through: Follow,
+      });
       User.belongsTo(Address);
-      Follow.belongsTo(User, {as: 'follower'});
-      Follow.belongsTo(User, {as: 'followee'});
+      Follow.belongsTo(User, { as: 'follower' });
+      Follow.belongsTo(User, { as: 'followee' });
       db.automigrate(['User', 'Follow', 'Address'], done);
     });
 
-    it('should set the keyThrough and the foreignKey', function (done) {
-      var user = new User({id: 1});
-      var user2 = new User({id: 2});
-      user.following.add(user2, function (err, f) {
+    it('should set the keyThrough and the foreignKey', function(done) {
+      var user = new User({ id: 1 });
+      var user2 = new User({ id: 2 });
+      user.following.add(user2, function(err, f) {
         should.not.exist(err);
         should.exist(f);
         f.followeeId.should.eql(user2.id);
@@ -1318,8 +1334,8 @@ describe('relations', function () {
       });
     });
 
-    it('can determine the collect via keyThrough for each side', function () {
-      var user = new User({id: 1});
+    it('can determine the collect via keyThrough for each side', function() {
+      var user = new User({ id: 1 });
       var scope1 = user.followers._scope;
       scope1.should.have.property('collect', 'follower');
       scope1.should.have.property('include', 'follower');
@@ -1329,15 +1345,15 @@ describe('relations', function () {
     });
   });
 
-  describe('hasMany with properties', function () {
-    it('can be declared with properties', function (done) {
-      Book.hasMany(Chapter, { properties: { type: 'bookType' } });
+  describe('hasMany with properties', function() {
+    it('can be declared with properties', function(done) {
+      Book.hasMany(Chapter, { properties: { type: 'bookType' }});
       db.automigrate(['Book', 'Chapter'], done);
     });
 
-    it('should create record on scope', function (done) {
-      Book.create({ type: 'fiction' }, function (err, book) {
-        book.chapters.create(function (err, c) {
+    it('should create record on scope', function(done) {
+      Book.create({ type: 'fiction' }, function(err, book) {
+        book.chapters.create(function(err, c) {
           should.not.exist(err);
           should.exist(c);
           c.bookId.should.eql(book.id);
@@ -1347,11 +1363,11 @@ describe('relations', function () {
       });
     });
 
-    it('should create record on scope with promises', function (done) {
+    it('should create record on scope with promises', function(done) {
       Book.create({ type: 'fiction' })
-      .then(function (book) {
+      .then(function(book) {
         return book.chapters.create()
-        .then(function (c) {
+        .then(function(c) {
           should.exist(c);
           c.bookId.should.eql(book.id);
           c.bookType.should.equal('fiction');
@@ -1361,11 +1377,11 @@ describe('relations', function () {
     });
   });
 
-  describe('hasMany with scope and properties', function () {
-    it('can be declared with properties', function (done) {
+  describe('hasMany with scope and properties', function() {
+    it('can be declared with properties', function(done) {
       // db = getSchema();
-      Category = db.define('Category', {name: String, jobType: String});
-      Job = db.define('Job', {name: String, type: String});
+      Category = db.define('Category', { name: String, jobType: String });
+      Job = db.define('Job', { name: String, type: String });
 
       Category.hasMany(Job, {
         properties: function(inst, target) {
@@ -1375,13 +1391,13 @@ describe('relations', function () {
         scope: function(inst, filter) {
           var m = this.properties(inst); // re-use properties
           if (m) return { where: m };
-        }
+        },
       });
       db.automigrate(['Category', 'Job'], done);
     });
 
-    it('should create record on scope', function (done) {
-      Category.create(function (err, c) {
+    it('should create record on scope', function(done) {
+      Category.create(function(err, c) {
         should.not.exists(err);
         c.jobs.create({ type: 'book' }, function(err, p) {
           should.not.exists(err);
@@ -1397,15 +1413,15 @@ describe('relations', function () {
       });
     });
 
-    it('should create record on scope with promises', function (done) {
+    it('should create record on scope with promises', function(done) {
       Category.create()
-      .then(function (c) {
+      .then(function(c) {
         return c.jobs.create({ type: 'book' })
-        .then(function (p) {
+        .then(function(p) {
           p.categoryId.should.eql(c.id);
           p.type.should.equal('book');
           return c.jobs.create({ type: 'widget' })
-          .then(function (p) {
+          .then(function(p) {
             p.categoryId.should.eql(c.id);
             p.type.should.equal('widget');
             done();
@@ -1414,8 +1430,8 @@ describe('relations', function () {
       }).catch(done);
     });
 
-    it('should find records on scope', function (done) {
-      Category.findOne(function (err, c) {
+    it('should find records on scope', function(done) {
+      Category.findOne(function(err, c) {
         should.not.exists(err);
         c.jobs(function(err, jobs) {
           should.not.exists(err);
@@ -1425,10 +1441,10 @@ describe('relations', function () {
       });
     });
 
-    it('should find records on scope with promises', function (done) {
+    it('should find records on scope with promises', function(done) {
       Category.findOne()
-      .then(function (c) {
-        return c.jobs.getAsync()
+      .then(function(c) {
+        return c.jobs.getAsync();
       })
       .then(function(jobs) {
         jobs.should.have.length(2);
@@ -1437,10 +1453,10 @@ describe('relations', function () {
       .catch(done);
     });
 
-    it('should find record on scope - filtered', function (done) {
-      Category.findOne(function (err, c) {
+    it('should find record on scope - filtered', function(done) {
+      Category.findOne(function(err, c) {
         should.not.exists(err);
-        c.jobs({ where: { type: 'book' } }, function(err, jobs) {
+        c.jobs({ where: { type: 'book' }}, function(err, jobs) {
           should.not.exists(err);
           jobs.should.have.length(1);
           jobs[0].type.should.equal('book');
@@ -1449,10 +1465,10 @@ describe('relations', function () {
       });
     });
 
-    it('should find record on scope with promises - filtered', function (done) {
+    it('should find record on scope with promises - filtered', function(done) {
       Category.findOne()
-      .then(function (c) {
-        return c.jobs.getAsync({ where: { type: 'book' } })
+      .then(function(c) {
+        return c.jobs.getAsync({ where: { type: 'book' }});
       })
       .then(function(jobs) {
         jobs.should.have.length(1);
@@ -1471,8 +1487,8 @@ describe('relations', function () {
     //
     // The code below simulates this.
 
-    it('should create record on scope - properties', function (done) {
-      Category.findOne(function (err, c) {
+    it('should create record on scope - properties', function(done) {
+      Category.findOne(function(err, c) {
         should.not.exists(err);
         c.jobType = 'tool'; // temporary
         c.jobs.create(function(err, p) {
@@ -1483,8 +1499,8 @@ describe('relations', function () {
       });
     });
 
-    it('should find records on scope', function (done) {
-      Category.findOne(function (err, c) {
+    it('should find records on scope', function(done) {
+      Category.findOne(function(err, c) {
         should.not.exists(err);
         c.jobs(function(err, jobs) {
           should.not.exists(err);
@@ -1494,8 +1510,8 @@ describe('relations', function () {
       });
     });
 
-    it('should find record on scope - scoped', function (done) {
-      Category.findOne(function (err, c) {
+    it('should find record on scope - scoped', function(done) {
+      Category.findOne(function(err, c) {
         should.not.exists(err);
         c.jobType = 'book'; // temporary, for scoping
         c.jobs(function(err, jobs) {
@@ -1507,8 +1523,8 @@ describe('relations', function () {
       });
     });
 
-    it('should find record on scope - scoped', function (done) {
-      Category.findOne(function (err, c) {
+    it('should find record on scope - scoped', function(done) {
+      Category.findOne(function(err, c) {
         should.not.exists(err);
         c.jobType = 'tool'; // temporary, for scoping
         c.jobs(function(err, jobs) {
@@ -1520,8 +1536,8 @@ describe('relations', function () {
       });
     });
 
-    it('should find count of records on scope - scoped', function (done) {
-      Category.findOne(function (err, c) {
+    it('should find count of records on scope - scoped', function(done) {
+      Category.findOne(function(err, c) {
         should.not.exists(err);
         c.jobType = 'tool'; // temporary, for scoping
         c.jobs.count(function(err, count) {
@@ -1532,8 +1548,8 @@ describe('relations', function () {
       });
     });
 
-    it('should delete records on scope - scoped', function (done) {
-      Category.findOne(function (err, c) {
+    it('should delete records on scope - scoped', function(done) {
+      Category.findOne(function(err, c) {
         should.not.exists(err);
         c.jobType = 'tool'; // temporary, for scoping
         c.jobs.destroyAll(function(err, result) {
@@ -1542,8 +1558,8 @@ describe('relations', function () {
       });
     });
 
-    it('should find record on scope - verify', function (done) {
-      Category.findOne(function (err, c) {
+    it('should find record on scope - verify', function(done) {
+      Category.findOne(function(err, c) {
         should.not.exists(err);
         c.jobs(function(err, jobs) {
           should.not.exists(err);
@@ -1555,27 +1571,27 @@ describe('relations', function () {
 
   });
 
-  describe('polymorphic hasOne', function () {
-    before(function (done) {
+  describe('polymorphic hasOne', function() {
+    before(function(done) {
       // db = getSchema();
-      Picture = db.define('Picture', {name: String});
-      Author = db.define('Author', {name: String});
-      Reader = db.define('Reader', {name: String});
+      Picture = db.define('Picture', { name: String });
+      Author = db.define('Author', { name: String });
+      Reader = db.define('Reader', { name: String });
 
       db.automigrate(['Picture', 'Author', 'Reader'], done);
     });
 
-    it('can be declared', function (done) {
+    it('can be declared', function(done) {
       Author.hasOne(Picture, { as: 'avatar', polymorphic: 'imageable' });
       Reader.hasOne(Picture, { as: 'mugshot', polymorphic: 'imageable' });
       Picture.belongsTo('imageable', { polymorphic: true });
       db.automigrate(['Picture', 'Author', 'Reader'], done);
     });
 
-    it('should create polymorphic relation - author', function (done) {
-      Author.create({name: 'Author 1' }, function (err, author) {
+    it('should create polymorphic relation - author', function(done) {
+      Author.create({ name: 'Author 1' }, function(err, author) {
         should.not.exists(err);
-        author.avatar.create({ name: 'Avatar' }, function (err, p) {
+        author.avatar.create({ name: 'Avatar' }, function(err, p) {
           should.not.exist(err);
           should.exist(p);
           p.imageableId.should.eql(author.id);
@@ -1585,11 +1601,11 @@ describe('relations', function () {
       });
     });
 
-    it('should create polymorphic relation with promises - author', function (done) {
-      Author.create({name: 'Author 1' })
-      .then(function (author) {
+    it('should create polymorphic relation with promises - author', function(done) {
+      Author.create({ name: 'Author 1' })
+      .then(function(author) {
         return author.avatar.create({ name: 'Avatar' })
-        .then(function (p) {
+        .then(function(p) {
           should.exist(p);
           p.imageableId.should.eql(author.id);
           p.imageableType.should.equal('Author');
@@ -1598,10 +1614,10 @@ describe('relations', function () {
       }).catch(done);
     });
 
-    it('should create polymorphic relation - reader', function (done) {
-      Reader.create({name: 'Reader 1' }, function (err, reader) {
+    it('should create polymorphic relation - reader', function(done) {
+      Reader.create({ name: 'Reader 1' }, function(err, reader) {
         should.not.exists(err);
-        reader.mugshot.create({ name: 'Mugshot' }, function (err, p) {
+        reader.mugshot.create({ name: 'Mugshot' }, function(err, p) {
           should.not.exist(err);
           should.exist(p);
           p.imageableId.should.eql(reader.id);
@@ -1611,10 +1627,10 @@ describe('relations', function () {
       });
     });
 
-    it('should find polymorphic relation - author', function (done) {
-      Author.findOne(function (err, author) {
+    it('should find polymorphic relation - author', function(done) {
+      Author.findOne(function(err, author) {
         should.not.exists(err);
-        author.avatar(function (err, p) {
+        author.avatar(function(err, p) {
           should.not.exist(err);
 
           var avatar = author.avatar();
@@ -1628,10 +1644,10 @@ describe('relations', function () {
       });
     });
 
-    it('should find polymorphic relation - reader', function (done) {
-      Reader.findOne(function (err, reader) {
+    it('should find polymorphic relation - reader', function(done) {
+      Reader.findOne(function(err, reader) {
         should.not.exists(err);
-        reader.mugshot(function (err, p) {
+        reader.mugshot(function(err, p) {
           should.not.exist(err);
           p.name.should.equal('Mugshot');
           p.imageableId.should.eql(reader.id);
@@ -1641,8 +1657,8 @@ describe('relations', function () {
       });
     });
 
-    it('should include polymorphic relation - author', function (done) {
-      Author.findOne({include: 'avatar'}, function (err, author) {
+    it('should include polymorphic relation - author', function(done) {
+      Author.findOne({ include: 'avatar' }, function(err, author) {
         should.not.exists(err);
         var avatar = author.avatar();
         should.exist(avatar);
@@ -1651,11 +1667,11 @@ describe('relations', function () {
       });
     });
 
-    it('should find polymorphic relation with promises - reader', function (done) {
+    it('should find polymorphic relation with promises - reader', function(done) {
       Reader.findOne()
-      .then(function (reader) {
+      .then(function(reader) {
         return reader.mugshot.getAsync()
-        .then(function (p) {
+        .then(function(p) {
           p.name.should.equal('Mugshot');
           p.imageableId.should.eql(reader.id);
           p.imageableType.should.equal('Reader');
@@ -1664,10 +1680,10 @@ describe('relations', function () {
       }).catch(done);
     });
 
-    it('should find inverse polymorphic relation - author', function (done) {
-      Picture.findOne({ where: { name: 'Avatar' } }, function (err, p) {
+    it('should find inverse polymorphic relation - author', function(done) {
+      Picture.findOne({ where: { name: 'Avatar' }}, function(err, p) {
         should.not.exists(err);
-        p.imageable(function (err, imageable) {
+        p.imageable(function(err, imageable) {
           should.not.exist(err);
           imageable.should.be.instanceof(Author);
           imageable.name.should.equal('Author 1');
@@ -1676,9 +1692,9 @@ describe('relations', function () {
       });
     });
 
-    it('should include inverse polymorphic relation - author', function (done) {
-      Picture.findOne({where: {name: 'Avatar'}, include: 'imageable'},
-        function (err, p) {
+    it('should include inverse polymorphic relation - author', function(done) {
+      Picture.findOne({ where: { name: 'Avatar' }, include: 'imageable' },
+        function(err, p) {
           should.not.exists(err);
           var imageable = p.imageable();
           should.exist(imageable);
@@ -1688,10 +1704,10 @@ describe('relations', function () {
         });
     });
 
-    it('should find inverse polymorphic relation - reader', function (done) {
-      Picture.findOne({ where: { name: 'Mugshot' } }, function (err, p) {
+    it('should find inverse polymorphic relation - reader', function(done) {
+      Picture.findOne({ where: { name: 'Mugshot' }}, function(err, p) {
         should.not.exists(err);
-        p.imageable(function (err, imageable) {
+        p.imageable(function(err, imageable) {
           should.not.exist(err);
           imageable.should.be.instanceof(Reader);
           imageable.name.should.equal('Reader 1');
@@ -1702,52 +1718,52 @@ describe('relations', function () {
 
   });
 
-  describe('polymorphic hasOne with non standard ids', function () {
-    before(function (done) {
+  describe('polymorphic hasOne with non standard ids', function() {
+    before(function(done) {
       // db = getSchema();
-      Picture = db.define('Picture', {name: String});
+      Picture = db.define('Picture', { name: String });
       Author = db.define('Author', {
-        username: {type: String, id: true, generated: true},
-        name: String
+        username: { type: String, id: true, generated: true },
+        name: String,
       });
       Reader = db.define('Reader', {
-        username: {type: String, id: true, generated: true},
-        name: String
+        username: { type: String, id: true, generated: true },
+        name: String,
       });
 
       db.automigrate(['Picture', 'Author', 'Reader'], done);
     });
 
-    it('can be declared with non standard foreign key', function (done) {
+    it('can be declared with non standard foreign key', function(done) {
       Author.hasOne(Picture, {
         as: 'avatar',
         polymorphic: {
           foreignKey: 'oid',
-          discriminator: 'type'
-        }
+          discriminator: 'type',
+        },
       });
       Reader.hasOne(Picture, {
         as: 'mugshot',
         polymorphic: {
           foreignKey: 'oid',
-          discriminator: 'type'
-        }
+          discriminator: 'type',
+        },
       });
       Picture.belongsTo('owner', {
         idName: 'username',
         polymorphic: {
           idType: Author.definition.properties.username.type,
           foreignKey: 'oid',
-          discriminator: 'type'
-        }
+          discriminator: 'type',
+        },
       });
       db.automigrate(['Picture', 'Author', 'Reader'], done);
     });
 
-    it('should create polymorphic relation - author', function (done) {
-      Author.create({name: 'Author 1' }, function (err, author) {
+    it('should create polymorphic relation - author', function(done) {
+      Author.create({ name: 'Author 1' }, function(err, author) {
         should.not.exists(err);
-        author.avatar.create({ name: 'Avatar' }, function (err, p) {
+        author.avatar.create({ name: 'Avatar' }, function(err, p) {
           should.not.exist(err);
           should.exist(p);
           p.oid.toString().should.equal(author.username.toString());
@@ -1757,11 +1773,11 @@ describe('relations', function () {
       });
     });
 
-    it('should create polymorphic relation with promises - author', function (done) {
-      Author.create({name: 'Author 1' })
-      .then(function (author) {
+    it('should create polymorphic relation with promises - author', function(done) {
+      Author.create({ name: 'Author 1' })
+      .then(function(author) {
         return author.avatar.create({ name: 'Avatar' })
-        .then(function (p) {
+        .then(function(p) {
           should.exist(p);
           p.oid.toString().should.equal(author.username.toString());
           p.type.should.equal('Author');
@@ -1770,10 +1786,10 @@ describe('relations', function () {
       }).catch(done);
     });
 
-    it('should create polymorphic relation - reader', function (done) {
-      Reader.create({name: 'Reader 1' }, function (err, reader) {
+    it('should create polymorphic relation - reader', function(done) {
+      Reader.create({ name: 'Reader 1' }, function(err, reader) {
         should.not.exists(err);
-        reader.mugshot.create({ name: 'Mugshot' }, function (err, p) {
+        reader.mugshot.create({ name: 'Mugshot' }, function(err, p) {
           should.not.exist(err);
           should.exist(p);
           p.oid.toString().should.equal(reader.username.toString());
@@ -1783,10 +1799,10 @@ describe('relations', function () {
       });
     });
 
-    it('should find polymorphic relation - author', function (done) {
-      Author.findOne(function (err, author) {
+    it('should find polymorphic relation - author', function(done) {
+      Author.findOne(function(err, author) {
         should.not.exists(err);
-        author.avatar(function (err, p) {
+        author.avatar(function(err, p) {
           should.not.exist(err);
 
           var avatar = author.avatar();
@@ -1800,10 +1816,10 @@ describe('relations', function () {
       });
     });
 
-    it('should find polymorphic relation - reader', function (done) {
-      Reader.findOne(function (err, reader) {
+    it('should find polymorphic relation - reader', function(done) {
+      Reader.findOne(function(err, reader) {
         should.not.exists(err);
-        reader.mugshot(function (err, p) {
+        reader.mugshot(function(err, p) {
           should.not.exist(err);
           p.name.should.equal('Mugshot');
           p.oid.toString().should.equal(reader.username.toString());
@@ -1813,10 +1829,10 @@ describe('relations', function () {
       });
     });
 
-    it('should find inverse polymorphic relation - author', function (done) {
-      Picture.findOne({ where: { name: 'Avatar' } }, function (err, p) {
+    it('should find inverse polymorphic relation - author', function(done) {
+      Picture.findOne({ where: { name: 'Avatar' }}, function(err, p) {
         should.not.exists(err);
-        p.owner(function (err, owner) {
+        p.owner(function(err, owner) {
           should.not.exist(err);
           owner.should.be.instanceof(Author);
           owner.name.should.equal('Author 1');
@@ -1825,10 +1841,10 @@ describe('relations', function () {
       });
     });
 
-    it('should find inverse polymorphic relation - reader', function (done) {
-      Picture.findOne({ where: { name: 'Mugshot' } }, function (err, p) {
+    it('should find inverse polymorphic relation - reader', function(done) {
+      Picture.findOne({ where: { name: 'Mugshot' }}, function(err, p) {
         should.not.exists(err);
-        p.owner(function (err, owner) {
+        p.owner(function(err, owner) {
           should.not.exist(err);
           owner.should.be.instanceof(Reader);
           owner.name.should.equal('Reader 1');
@@ -1837,9 +1853,9 @@ describe('relations', function () {
       });
     });
 
-    it('should include polymorphic relation - reader', function (done) {
-      Reader.findOne({include: 'mugshot'},
-        function (err, reader) {
+    it('should include polymorphic relation - reader', function(done) {
+      Reader.findOne({ include: 'mugshot' },
+        function(err, reader) {
           should.not.exists(err);
           var mugshot = reader.mugshot();
           should.exist(mugshot);
@@ -1848,9 +1864,9 @@ describe('relations', function () {
         });
     });
 
-    it('should include inverse polymorphic relation - reader', function (done) {
-      Picture.findOne({where: {name: 'Mugshot'}, include: 'owner'},
-        function (err, p) {
+    it('should include inverse polymorphic relation - reader', function(done) {
+      Picture.findOne({ where: { name: 'Mugshot' }, include: 'owner' },
+        function(err, p) {
           should.not.exists(err);
           var owner = p.owner();
           should.exist(owner);
@@ -1861,22 +1877,22 @@ describe('relations', function () {
     });
   });
 
-  describe('polymorphic hasMany', function () {
-    before(function (done) {
+  describe('polymorphic hasMany', function() {
+    before(function(done) {
       // db = getSchema();
-      Picture = db.define('Picture', {name: String});
-      Author = db.define('Author', {name: String});
-      Reader = db.define('Reader', {name: String});
+      Picture = db.define('Picture', { name: String });
+      Author = db.define('Author', { name: String });
+      Reader = db.define('Reader', { name: String });
 
       db.automigrate(['Picture', 'Author', 'Reader'], done);
     });
 
-    it('can be declared', function (done) {
+    it('can be declared', function(done) {
       Author.hasMany(Picture, { polymorphic: 'imageable' });
       Reader.hasMany(Picture, { polymorphic: { // alt syntax
         as: 'imageable', foreignKey: 'imageableId',
-        discriminator: 'imageableType'
-      } });
+        discriminator: 'imageableType',
+      }});
       Picture.belongsTo('imageable', { polymorphic: true });
 
       Author.relations['pictures'].toJSON().should.eql({
@@ -1890,8 +1906,8 @@ describe('relations', function () {
         polymorphic: {
           as: 'imageable',
           foreignKey: 'imageableId',
-          discriminator: 'imageableType'
-        }
+          discriminator: 'imageableType',
+        },
       });
 
       Picture.relations['imageable'].toJSON().should.eql({
@@ -1905,17 +1921,17 @@ describe('relations', function () {
         polymorphic: {
           as: 'imageable',
           foreignKey: 'imageableId',
-          discriminator: 'imageableType'
-        }
+          discriminator: 'imageableType',
+        },
       });
 
       db.automigrate(['Picture', 'Author', 'Reader'], done);
     });
 
-    it('should create polymorphic relation - author', function (done) {
-      Author.create({ name: 'Author 1' }, function (err, author) {
+    it('should create polymorphic relation - author', function(done) {
+      Author.create({ name: 'Author 1' }, function(err, author) {
         should.not.exists(err);
-        author.pictures.create({ name: 'Author Pic' }, function (err, p) {
+        author.pictures.create({ name: 'Author Pic' }, function(err, p) {
           should.not.exist(err);
           should.exist(p);
           p.imageableId.should.eql(author.id);
@@ -1925,10 +1941,10 @@ describe('relations', function () {
       });
     });
 
-    it('should create polymorphic relation - reader', function (done) {
-      Reader.create({ name: 'Reader 1' }, function (err, reader) {
+    it('should create polymorphic relation - reader', function(done) {
+      Reader.create({ name: 'Reader 1' }, function(err, reader) {
         should.not.exists(err);
-        reader.pictures.create({ name: 'Reader Pic' }, function (err, p) {
+        reader.pictures.create({ name: 'Reader Pic' }, function(err, p) {
           should.not.exist(err);
           should.exist(p);
           p.imageableId.should.eql(reader.id);
@@ -1938,10 +1954,10 @@ describe('relations', function () {
       });
     });
 
-    it('should find polymorphic items - author', function (done) {
-      Author.findOne(function (err, author) {
+    it('should find polymorphic items - author', function(done) {
+      Author.findOne(function(err, author) {
         should.not.exists(err);
-        author.pictures(function (err, pics) {
+        author.pictures(function(err, pics) {
           should.not.exist(err);
 
           var pictures = author.pictures();
@@ -1954,10 +1970,10 @@ describe('relations', function () {
       });
     });
 
-    it('should find polymorphic items - reader', function (done) {
-      Reader.findOne(function (err, reader) {
+    it('should find polymorphic items - reader', function(done) {
+      Reader.findOne(function(err, reader) {
         should.not.exists(err);
-        reader.pictures(function (err, pics) {
+        reader.pictures(function(err, pics) {
           should.not.exist(err);
           pics.should.have.length(1);
           pics[0].name.should.equal('Reader Pic');
@@ -1966,8 +1982,8 @@ describe('relations', function () {
       });
     });
 
-    it('should find the inverse of polymorphic relation - author', function (done) {
-      Picture.findOne({ where: { name: 'Author Pic' } }, function (err, p) {
+    it('should find the inverse of polymorphic relation - author', function(done) {
+      Picture.findOne({ where: { name: 'Author Pic' }}, function(err, p) {
         should.not.exist(err);
         p.imageableType.should.equal('Author');
         p.imageable(function(err, imageable) {
@@ -1979,8 +1995,8 @@ describe('relations', function () {
       });
     });
 
-    it('should find the inverse of polymorphic relation - reader', function (done) {
-      Picture.findOne({ where: { name: 'Reader Pic' } }, function (err, p) {
+    it('should find the inverse of polymorphic relation - reader', function(done) {
+      Picture.findOne({ where: { name: 'Reader Pic' }}, function(err, p) {
         should.not.exist(err);
         p.imageableType.should.equal('Reader');
         p.imageable(function(err, imageable) {
@@ -1992,8 +2008,8 @@ describe('relations', function () {
       });
     });
 
-    it('should include the inverse of polymorphic relation', function (done) {
-      Picture.find({ include: 'imageable' }, function (err, pics) {
+    it('should include the inverse of polymorphic relation', function(done) {
+      Picture.find({ include: 'imageable' }, function(err, pics) {
         should.not.exist(err);
         pics.should.have.length(2);
         pics[0].name.should.equal('Author Pic');
@@ -2015,10 +2031,10 @@ describe('relations', function () {
       });
     });
 
-    it('should find polymorphic items - author', function (done) {
-      Author.findOne({ where: { name: 'Author 2' } }, function (err, author) {
+    it('should find polymorphic items - author', function(done) {
+      Author.findOne({ where: { name: 'Author 2' }}, function(err, author) {
         should.not.exists(err);
-        author.pictures(function (err, pics) {
+        author.pictures(function(err, pics) {
           should.not.exist(err);
           pics.should.have.length(1);
           pics[0].name.should.equal('Sample');
@@ -2027,8 +2043,8 @@ describe('relations', function () {
       });
     });
 
-    it('should find the inverse of polymorphic relation - author', function (done) {
-      Picture.findOne({ where: { name: 'Sample' } }, function (err, p) {
+    it('should find the inverse of polymorphic relation - author', function(done) {
+      Picture.findOne({ where: { name: 'Sample' }}, function(err, p) {
         should.not.exist(err);
         p.imageableType.should.equal('Author');
         p.imageable(function(err, imageable) {
@@ -2041,9 +2057,9 @@ describe('relations', function () {
     });
 
     it('should include the inverse of polymorphic relation - author',
-      function (done) {
-        Picture.findOne({where: {name: 'Sample'}, include: 'imageable'},
-          function (err, p) {
+      function(done) {
+        Picture.findOne({ where: { name: 'Sample' }, include: 'imageable' },
+          function(err, p) {
             should.not.exist(err);
             var imageable = p.imageable();
             should.exist(imageable);
@@ -2055,18 +2071,18 @@ describe('relations', function () {
 
   });
 
-  describe('polymorphic hasAndBelongsToMany through', function () {
-    before(function (done) {
+  describe('polymorphic hasAndBelongsToMany through', function() {
+    before(function(done) {
       // db = getSchema();
-      Picture = db.define('Picture', {name: String});
-      Author = db.define('Author', {name: String});
-      Reader = db.define('Reader', {name: String});
+      Picture = db.define('Picture', { name: String });
+      Author = db.define('Author', { name: String });
+      Reader = db.define('Reader', { name: String });
       PictureLink = db.define('PictureLink', {});
 
       db.automigrate(['Picture', 'Author', 'Reader', 'PictureLink'], done);
     });
 
-    it('can be declared', function (done) {
+    it('can be declared', function(done) {
       Author.hasAndBelongsToMany(Picture, { through: PictureLink, polymorphic: 'imageable' });
       Reader.hasAndBelongsToMany(Picture, { through: PictureLink, polymorphic: 'imageable' });
       // Optionally, define inverse relations:
@@ -2075,21 +2091,21 @@ describe('relations', function () {
       db.automigrate(['Picture', 'Author', 'Reader', 'PictureLink'], done);
     });
 
-    it('can determine the collect via modelTo name', function () {
+    it('can determine the collect via modelTo name', function() {
       Author.hasAndBelongsToMany(Picture, { through: PictureLink, polymorphic: 'imageable' });
       Reader.hasAndBelongsToMany(Picture, { through: PictureLink, polymorphic: 'imageable' });
       // Optionally, define inverse relations:
       Picture.hasMany(Author, { through: PictureLink, polymorphic: 'imageable', invert: true });
       Picture.hasMany(Reader, { through: PictureLink, polymorphic: 'imageable', invert: true });
-      var author = new Author({id: 1});
+      var author = new Author({ id: 1 });
       var scope1 = author.pictures._scope;
       scope1.should.have.property('collect', 'picture');
       scope1.should.have.property('include', 'picture');
-      var reader = new Reader({id: 1});
+      var reader = new Reader({ id: 1 });
       var scope2 = reader.pictures._scope;
       scope2.should.have.property('collect', 'picture');
       scope2.should.have.property('include', 'picture');
-      var picture = new Picture({id: 1});
+      var picture = new Picture({ id: 1 });
       var scope3 = picture.authors._scope;
       scope3.should.have.property('collect', 'imageable');
       scope3.should.have.property('include', 'imageable');
@@ -2099,14 +2115,14 @@ describe('relations', function () {
     });
 
     var author, reader, pictures = [];
-    it('should create polymorphic relation - author', function (done) {
-      Author.create({ name: 'Author 1' }, function (err, a) {
+    it('should create polymorphic relation - author', function(done) {
+      Author.create({ name: 'Author 1' }, function(err, a) {
         should.not.exist(err);
         author = a;
-        author.pictures.create({ name: 'Author Pic 1' }, function (err, p) {
+        author.pictures.create({ name: 'Author Pic 1' }, function(err, p) {
           should.not.exist(err);
           pictures.push(p);
-          author.pictures.create({ name: 'Author Pic 2' }, function (err, p) {
+          author.pictures.create({ name: 'Author Pic 2' }, function(err, p) {
             should.not.exist(err);
             pictures.push(p);
             done();
@@ -2115,11 +2131,11 @@ describe('relations', function () {
       });
     });
 
-    it('should create polymorphic relation - reader', function (done) {
-      Reader.create({ name: 'Reader 1' }, function (err, r) {
+    it('should create polymorphic relation - reader', function(done) {
+      Reader.create({ name: 'Reader 1' }, function(err, r) {
         should.not.exist(err);
         reader = r;
-        reader.pictures.create({ name: 'Reader Pic 1' }, function (err, p) {
+        reader.pictures.create({ name: 'Reader Pic 1' }, function(err, p) {
           should.not.exist(err);
           pictures.push(p);
           done();
@@ -2127,7 +2143,7 @@ describe('relations', function () {
       });
     });
 
-    it('should create polymorphic through model', function (done) {
+    it('should create polymorphic through model', function(done) {
       PictureLink.findOne(function(err, link) {
         should.not.exist(err);
         link.pictureId.should.eql(pictures[0].id); // eql for mongo ObjectId
@@ -2141,7 +2157,7 @@ describe('relations', function () {
       });
     });
 
-    it('should get polymorphic relation through model - author', function (done) {
+    it('should get polymorphic relation through model - author', function(done) {
       Author.findById(author.id, function(err, author) {
         should.not.exist(err);
         author.name.should.equal('Author 1');
@@ -2155,7 +2171,7 @@ describe('relations', function () {
       });
     });
 
-    it('should get polymorphic relation through model - reader', function (done) {
+    it('should get polymorphic relation through model - reader', function(done) {
       Reader.findById(reader.id, function(err, reader) {
         should.not.exist(err);
         reader.name.should.equal('Reader 1');
@@ -2168,7 +2184,7 @@ describe('relations', function () {
       });
     });
 
-    it('should include polymorphic items', function (done) {
+    it('should include polymorphic items', function(done) {
       Author.find({ include: 'pictures' }, function(err, authors) {
         authors.should.have.length(1);
         authors[0].pictures(function(err, pics) {
@@ -2181,9 +2197,9 @@ describe('relations', function () {
     });
 
     var anotherPicture;
-    it('should add to a polymorphic relation - author', function (done) {
+    it('should add to a polymorphic relation - author', function(done) {
       Author.findById(author.id, function(err, author) {
-        Picture.create({name: 'Example' }, function(err, p) {
+        Picture.create({ name: 'Example' }, function(err, p) {
           should.not.exist(err);
           pictures.push(p);
           anotherPicture = p;
@@ -2198,8 +2214,9 @@ describe('relations', function () {
       });
     });
 
-    it('should create polymorphic through model', function (done) {
-      PictureLink.findOne({ where: { pictureId: anotherPicture.id, imageableType: 'Author' } }, function(err, link) {
+    it('should create polymorphic through model', function(done) {
+      PictureLink.findOne({ where: { pictureId: anotherPicture.id, imageableType: 'Author' }},
+      function(err, link) {
         should.not.exist(err);
         link.pictureId.should.eql(anotherPicture.id);
         link.imageableId.should.eql(author.id);
@@ -2209,29 +2226,29 @@ describe('relations', function () {
     });
 
     var anotherAuthor, anotherReader;
-    it('should add to a polymorphic relation - author', function (done) {
-      Author.create({ name: 'Author 2' }, function (err, author) {
+    it('should add to a polymorphic relation - author', function(done) {
+      Author.create({ name: 'Author 2' }, function(err, author) {
         should.not.exist(err);
         anotherAuthor = author;
-        author.pictures.add(anotherPicture.id, function (err, p) {
+        author.pictures.add(anotherPicture.id, function(err, p) {
           should.not.exist(err);
           done();
         });
       });
     });
 
-    it('should add to a polymorphic relation - author', function (done) {
-      Reader.create({name: 'Reader 2' }, function (err, reader) {
+    it('should add to a polymorphic relation - author', function(done) {
+      Reader.create({ name: 'Reader 2' }, function(err, reader) {
         should.not.exist(err);
         anotherReader = reader;
-        reader.pictures.add(anotherPicture.id, function (err, p) {
+        reader.pictures.add(anotherPicture.id, function(err, p) {
           should.not.exist(err);
           done();
         });
       });
     });
 
-    it('should get the inverse polymorphic relation - author', function (done) {
+    it('should get the inverse polymorphic relation - author', function(done) {
       Picture.findById(anotherPicture.id, function(err, p) {
         p.authors(function(err, authors) {
           authors.should.have.length(2);
@@ -2242,7 +2259,7 @@ describe('relations', function () {
       });
     });
 
-    it('should get the inverse polymorphic relation - reader', function (done) {
+    it('should get the inverse polymorphic relation - reader', function(done) {
       Picture.findById(anotherPicture.id, function(err, p) {
         p.readers(function(err, readers) {
           readers.should.have.length(1);
@@ -2252,7 +2269,7 @@ describe('relations', function () {
       });
     });
 
-    it('should find polymorphic items - author', function (done) {
+    it('should find polymorphic items - author', function(done) {
       Author.findById(author.id, function(err, author) {
         author.pictures(function(err, pics) {
           pics.should.have.length(3);
@@ -2264,7 +2281,7 @@ describe('relations', function () {
       });
     });
 
-    it('should check if polymorphic relation exists - author', function (done) {
+    it('should check if polymorphic relation exists - author', function(done) {
       Author.findById(author.id, function(err, author) {
         author.pictures.exists(anotherPicture.id, function(err, exists) {
           exists.should.be.true;
@@ -2273,7 +2290,7 @@ describe('relations', function () {
       });
     });
 
-    it('should remove from a polymorphic relation - author', function (done) {
+    it('should remove from a polymorphic relation - author', function(done) {
       Author.findById(author.id, function(err, author) {
         author.pictures.remove(anotherPicture.id, function(err) {
           should.not.exist(err);
@@ -2282,7 +2299,7 @@ describe('relations', function () {
       });
     });
 
-    it('should find polymorphic items - author', function (done) {
+    it('should find polymorphic items - author', function(done) {
       Author.findById(author.id, function(err, author) {
         author.pictures(function(err, pics) {
           pics.should.have.length(2);
@@ -2293,7 +2310,7 @@ describe('relations', function () {
       });
     });
 
-    it('should check if polymorphic relation exists - author', function (done) {
+    it('should check if polymorphic relation exists - author', function(done) {
       Author.findById(author.id, function(err, author) {
         author.pictures.exists(7, function(err, exists) {
           exists.should.be.false;
@@ -2302,7 +2319,7 @@ describe('relations', function () {
       });
     });
 
-    it('should create polymorphic item through relation scope', function (done) {
+    it('should create polymorphic item through relation scope', function(done) {
       Picture.findById(anotherPicture.id, function(err, p) {
         p.authors.create({ name: 'Author 3' }, function(err, a) {
           should.not.exist(err);
@@ -2313,10 +2330,10 @@ describe('relations', function () {
       });
     });
 
-    it('should create polymorphic through model - new author', function (done) {
+    it('should create polymorphic through model - new author', function(done) {
       PictureLink.findOne({ where: {
-          pictureId: anotherPicture.id, imageableId: author.id, imageableType: 'Author'
-        } }, function(err, link) {
+        pictureId: anotherPicture.id, imageableId: author.id, imageableType: 'Author',
+      }}, function(err, link) {
         should.not.exist(err);
         link.pictureId.should.eql(anotherPicture.id);
         link.imageableId.should.eql(author.id);
@@ -2325,7 +2342,7 @@ describe('relations', function () {
       });
     });
 
-    it('should find polymorphic items - new author', function (done) {
+    it('should find polymorphic items - new author', function(done) {
       Author.findById(author.id, function(err, author) {
         author.pictures(function(err, pics) {
           pics.should.have.length(1);
@@ -2338,14 +2355,14 @@ describe('relations', function () {
 
   });
 
-  describe('belongsTo', function () {
+  describe('belongsTo', function() {
     var List, Item, Fear, Mind;
 
     var listId, itemId;
 
-    it('can be declared in different ways', function () {
-      List = db.define('List', {name: String});
-      Item = db.define('Item', {name: String});
+    it('can be declared in different ways', function() {
+      List = db.define('List', { name: String });
+      Item = db.define('Item', { name: String });
       Fear = db.define('Fear');
       Mind = db.define('Mind');
 
@@ -2356,7 +2373,7 @@ describe('relations', function () {
 
       // syntax 2 (new)
       Fear.belongsTo('mind', {
-        methods: { check: function() { return true; } }
+        methods: { check: function() { return true; } },
       });
 
       Object.keys((new Fear).toObject()).should.containEql('mindId');
@@ -2368,7 +2385,7 @@ describe('relations', function () {
       var rel = Fear.relations['mind'];
       rel.defineMethod('other', function() {
         return true;
-      })
+      });
     });
 
     it('should have setup a custom method on accessor', function() {
@@ -2379,16 +2396,16 @@ describe('relations', function () {
       f.mind.other().should.be.true;
     });
 
-    it('can be used to query data', function (done) {
-      List.hasMany('todos', {model: Item});
-      db.automigrate(['List', 'Item', 'Fear', 'Mind'], function () {
-        List.create({name: 'List 1'}, function (e, list) {
+    it('can be used to query data', function(done) {
+      List.hasMany('todos', { model: Item });
+      db.automigrate(['List', 'Item', 'Fear', 'Mind'], function() {
+        List.create({ name: 'List 1' }, function(e, list) {
           listId = list.id;
           should.not.exist(e);
           should.exist(list);
-          list.todos.create({name: 'Item 1'},function (err, todo) {
+          list.todos.create({ name: 'Item 1' }, function(err, todo) {
             itemId = todo.id;
-            todo.list(function (e, l) {
+            todo.list(function(e, l) {
               should.not.exist(e);
               should.exist(l);
               l.should.be.an.instanceOf(List);
@@ -2401,16 +2418,16 @@ describe('relations', function () {
       });
     });
 
-    it('can be used to query data with getAsync with callback', function (done) {
-      List.hasMany('todos', {model: Item});
-      db.automigrate(['List', 'Item', 'Fear', 'Find'], function () {
-        List.create({name: 'List 1'}, function (e, list) {
+    it('can be used to query data with getAsync with callback', function(done) {
+      List.hasMany('todos', { model: Item });
+      db.automigrate(['List', 'Item', 'Fear', 'Find'], function() {
+        List.create({ name: 'List 1' }, function(e, list) {
           listId = list.id;
           should.not.exist(e);
           should.exist(list);
-          list.todos.create({name: 'Item 1'},function (err, todo) {
+          list.todos.create({ name: 'Item 1' }, function(err, todo) {
             itemId = todo.id;
-            todo.list.getAsync(function (e, l) {
+            todo.list.getAsync(function(e, l) {
               should.not.exist(e);
               should.exist(l);
               l.should.be.an.instanceOf(List);
@@ -2423,19 +2440,19 @@ describe('relations', function () {
       });
     });
 
-    it('can be used to query data with promises', function (done) {
-      List.hasMany('todos', {model: Item});
-      db.automigrate(['List', 'Item', 'Fear', 'Find'], function () {
-        List.create({name: 'List 1'})
-        .then(function (list) {
+    it('can be used to query data with promises', function(done) {
+      List.hasMany('todos', { model: Item });
+      db.automigrate(['List', 'Item', 'Fear', 'Find'], function() {
+        List.create({ name: 'List 1' })
+        .then(function(list) {
           listId = list.id;
           should.exist(list);
-          return list.todos.create({name: 'Item 1'})
+          return list.todos.create({ name: 'Item 1' });
         })
-        .then(function (todo) {
+        .then(function(todo) {
           itemId = todo.id;
           return todo.list.getAsync()
-          .then(function (l) {
+          .then(function(l) {
             should.exist(l);
             l.should.be.an.instanceOf(List);
             todo.list().id.should.equal(l.id);
@@ -2447,11 +2464,11 @@ describe('relations', function () {
       });
     });
 
-    it('could accept objects when creating on scope', function (done) {
-      List.create(function (e, list) {
+    it('could accept objects when creating on scope', function(done) {
+      List.create(function(e, list) {
         should.not.exist(e);
         should.exist(list);
-        Item.create({list: list}, function (err, item) {
+        Item.create({ list: list }, function(err, item) {
           should.not.exist(err);
           should.exist(item);
           should.exist(item.listId);
@@ -2463,8 +2480,8 @@ describe('relations', function () {
     });
 
     it('should update related item on scope', function(done) {
-      Item.findById(itemId, function (e, todo) {
-        todo.list.update({name: 'List A'}, function(err, list) {
+      Item.findById(itemId, function(e, todo) {
+        todo.list.update({ name: 'List A' }, function(err, list) {
           should.not.exist(err);
           should.exist(list);
           list.name.should.equal('List A');
@@ -2474,7 +2491,7 @@ describe('relations', function () {
     });
 
     it('should get related item on scope', function(done) {
-      Item.findById(itemId, function (e, todo) {
+      Item.findById(itemId, function(e, todo) {
         todo.list(function(err, list) {
           should.not.exist(err);
           should.exist(list);
@@ -2485,7 +2502,7 @@ describe('relations', function () {
     });
 
     it('should destroy related item on scope', function(done) {
-      Item.findById(itemId, function (e, todo) {
+      Item.findById(itemId, function(e, todo) {
         todo.list.destroy(function(err) {
           should.not.exist(err);
           done();
@@ -2494,7 +2511,7 @@ describe('relations', function () {
     });
 
     it('should get related item on scope - verify', function(done) {
-      Item.findById(itemId, function (e, todo) {
+      Item.findById(itemId, function(e, todo) {
         todo.list(function(err, list) {
           should.not.exist(err);
           should.not.exist(list);
@@ -2504,22 +2521,22 @@ describe('relations', function () {
     });
 
     it('should not have deleted related item', function(done) {
-      List.findById(listId, function (e, list) {
+      List.findById(listId, function(e, list) {
         should.not.exist(e);
         should.exist(list);
         done();
       });
     });
 
-    it('should allow to create belongsTo model in beforeCreate hook', function (done) {
+    it('should allow to create belongsTo model in beforeCreate hook', function(done) {
       var mind;
-      Fear.beforeCreate = function (next) {
-        this.mind.create(function (err, m) {
+      Fear.beforeCreate = function(next) {
+        this.mind.create(function(err, m) {
           mind = m;
           if (err) next(err); else next();
         });
       };
-      Fear.create(function (err, fear) {
+      Fear.create(function(err, fear) {
         should.not.exists(err);
         should.exists(fear);
         fear.mindId.should.be.equal(mind.id);
@@ -2528,17 +2545,17 @@ describe('relations', function () {
       });
     });
 
-    it('should allow to create belongsTo model in beforeCreate hook with promises', function (done) {
+    it('should allow to create belongsTo model in beforeCreate hook with promises', function(done) {
       var mind;
-      Fear.beforeCreate = function (next) {
+      Fear.beforeCreate = function(next) {
         this.mind.create()
-        .then(function (m) {
+        .then(function(m) {
           mind = m;
           next();
         }).catch(next);
       };
       Fear.create()
-      .then(function (fear) {
+      .then(function(fear) {
         should.exists(fear);
         fear.mindId.should.be.equal(mind.id);
         should.exists(fear.mind());
@@ -2548,36 +2565,36 @@ describe('relations', function () {
 
   });
 
-  describe('belongsTo with scope', function () {
+  describe('belongsTo with scope', function() {
     var Person, Passport;
 
-    it('can be declared with scope and properties', function (done) {
-      Person = db.define('Person', {name: String, age: Number, passportNotes: String});
-      Passport = db.define('Passport', {name: String, notes: String});
+    it('can be declared with scope and properties', function(done) {
+      Person = db.define('Person', { name: String, age: Number, passportNotes: String });
+      Passport = db.define('Passport', { name: String, notes: String });
       Passport.belongsTo(Person, {
         properties: { notes: 'passportNotes' },
-        scope: { fields: { id: true, name: true } }
+        scope: { fields: { id: true, name: true }},
       });
       db.automigrate(['Person', 'Passport'], done);
     });
 
     var personCreated;
-    it('should create record on scope', function (done) {
+    it('should create record on scope', function(done) {
       var p = new Passport({ name: 'Passport', notes: 'Some notes...' });
-      p.person.create({name: 'Fred', age: 36 }, function(err, person) {
+      p.person.create({ name: 'Fred', age: 36 }, function(err, person) {
         personCreated = person;
         p.personId.should.equal(person.id);
         person.name.should.equal('Fred');
         person.passportNotes.should.equal('Some notes...');
-        p.save(function (err, passport) {
+        p.save(function(err, passport) {
           should.not.exists(err);
           done();
         });
       });
     });
 
-    it('should find record on scope', function (done) {
-      Passport.findOne(function (err, p) {
+    it('should find record on scope', function(done) {
+      Passport.findOne(function(err, p) {
         p.personId.should.eql(personCreated.id);
         p.person(function(err, person) {
           person.name.should.equal('Fred');
@@ -2588,28 +2605,28 @@ describe('relations', function () {
       });
     });
 
-    it('should create record on scope with promises', function (done) {
+    it('should create record on scope with promises', function(done) {
       var p = new Passport({ name: 'Passport', notes: 'Some notes...' });
-      p.person.create({name: 'Fred', age: 36 })
-      .then(function (person) {
+      p.person.create({ name: 'Fred', age: 36 })
+      .then(function(person) {
         p.personId.should.equal(person.id);
         person.name.should.equal('Fred');
         person.passportNotes.should.equal('Some notes...');
-        return p.save()
+        return p.save();
       })
-      .then(function (passport) {
+      .then(function(passport) {
         done();
       })
       .catch(done);
     });
 
-    it('should find record on scope with promises', function (done) {
+    it('should find record on scope with promises', function(done) {
       Passport.findOne()
-      .then(function (p) {
+      .then(function(p) {
         p.personId.should.eql(personCreated.id);
-        return p.person.getAsync()
+        return p.person.getAsync();
       })
-      .then(function (person) {
+      .then(function(person) {
         person.name.should.equal('Fred');
         person.should.have.property('age', undefined);
         person.should.have.property('passportNotes', undefined);
@@ -2623,36 +2640,36 @@ describe('relations', function () {
   // Disable the tests until the issue in
   // https://github.com/strongloop/loopback-datasource-juggler/pull/399
   // is fixed
-  describe.skip('belongsTo with embed', function () {
+  describe.skip('belongsTo with embed', function() {
     var Person, Passport;
 
-    it('can be declared with embed and properties', function (done) {
-      Person = db.define('Person', {name: String, age: Number});
-      Passport = db.define('Passport', {name: String, notes: String});
+    it('can be declared with embed and properties', function(done) {
+      Person = db.define('Person', { name: String, age: Number });
+      Passport = db.define('Passport', { name: String, notes: String });
       Passport.belongsTo(Person, {
         properties: ['name'],
-        options: { embedsProperties: true, invertProperties: true }
+        options: { embedsProperties: true, invertProperties: true },
       });
       db.automigrate(['Person', 'Passport'], done);
     });
 
-    it('should create record with embedded data', function (done) {
-      Person.create({name: 'Fred', age: 36 }, function(err, person) {
+    it('should create record with embedded data', function(done) {
+      Person.create({ name: 'Fred', age: 36 }, function(err, person) {
         var p = new Passport({ name: 'Passport', notes: 'Some notes...' });
         p.person(person);
         p.personId.should.equal(person.id);
         var data = p.toObject(true);
         data.person.id.should.equal(person.id);
         data.person.name.should.equal('Fred');
-        p.save(function (err) {
+        p.save(function(err) {
           should.not.exists(err);
           done();
         });
       });
     });
 
-    it('should find record with embedded data', function (done) {
-      Passport.findOne(function (err, p) {
+    it('should find record with embedded data', function(done) {
+      Passport.findOne(function(err, p) {
         should.not.exists(err);
         var data = p.toObject(true);
         data.person.id.should.equal(p.personId);
@@ -2661,9 +2678,9 @@ describe('relations', function () {
       });
     });
 
-    it('should find record with embedded data with promises', function (done) {
+    it('should find record with embedded data with promises', function(done) {
       Passport.findOne()
-      .then(function (p) {
+      .then(function(p) {
         var data = p.toObject(true);
         data.person.id.should.equal(p.personId);
         data.person.name.should.equal('Fred');
@@ -2672,20 +2689,20 @@ describe('relations', function () {
     });
   });
 
-  describe('hasOne', function () {
+  describe('hasOne', function() {
     var Supplier, Account;
     var supplierId, accountId;
 
-    before(function () {
+    before(function() {
       // db = getSchema();
-      Supplier = db.define('Supplier', {name: String});
-      Account = db.define('Account', {accountNo: String, supplierName: String});
+      Supplier = db.define('Supplier', { name: String });
+      Account = db.define('Account', { accountNo: String, supplierName: String });
     });
 
-    it('can be declared using hasOne method', function () {
+    it('can be declared using hasOne method', function() {
       Supplier.hasOne(Account, {
         properties: { name: 'supplierName' },
-        methods: { check: function() { return true; } }
+        methods: { check: function() { return true; } },
       });
       Object.keys((new Account()).toObject()).should.containEql('supplierId');
       (new Supplier()).account.should.be.an.instanceOf(Function);
@@ -2695,7 +2712,7 @@ describe('relations', function () {
       var rel = Supplier.relations['account'];
       rel.defineMethod('other', function() {
         return true;
-      })
+      });
     });
 
     it('should have setup a custom method on accessor', function() {
@@ -2706,14 +2723,14 @@ describe('relations', function () {
       s.account.other().should.be.true;
     });
 
-    it('can be used to query data', function (done) {
-      db.automigrate(['Supplier', 'Account'], function () {
-        Supplier.create({name: 'Supplier 1'}, function (e, supplier) {
+    it('can be used to query data', function(done) {
+      db.automigrate(['Supplier', 'Account'], function() {
+        Supplier.create({ name: 'Supplier 1' }, function(e, supplier) {
           supplierId = supplier.id;
           should.not.exist(e);
           should.exist(supplier);
-          supplier.account.create({accountNo: 'a01'}, function (err, account) {
-            supplier.account(function (e, act) {
+          supplier.account.create({ accountNo: 'a01' }, function(err, account) {
+            supplier.account(function(e, act) {
               accountId = act.id;
               should.not.exist(e);
               should.exist(act);
@@ -2727,14 +2744,14 @@ describe('relations', function () {
       });
     });
 
-    it('can be used to query data with getAsync with callback', function (done) {
-      db.automigrate(['Supplier', 'Account'], function () {
-        Supplier.create({name: 'Supplier 1'}, function (e, supplier) {
+    it('can be used to query data with getAsync with callback', function(done) {
+      db.automigrate(['Supplier', 'Account'], function() {
+        Supplier.create({ name: 'Supplier 1' }, function(e, supplier) {
           supplierId = supplier.id;
           should.not.exist(e);
           should.exist(supplier);
-          supplier.account.create({accountNo: 'a01'}, function (err, account) {
-            supplier.account.getAsync(function (e, act) {
+          supplier.account.create({ accountNo: 'a01' }, function(err, account) {
+            supplier.account.getAsync(function(e, act) {
               accountId = act.id;
               should.not.exist(e);
               should.exist(act);
@@ -2748,24 +2765,24 @@ describe('relations', function () {
       });
     });
 
-    it('can be used to query data with promises', function (done) {
-      db.automigrate(['Supplier', 'Account'], function () {
-        Supplier.create({name: 'Supplier 1'})
-        .then(function (supplier) {
+    it('can be used to query data with promises', function(done) {
+      db.automigrate(['Supplier', 'Account'], function() {
+        Supplier.create({ name: 'Supplier 1' })
+        .then(function(supplier) {
           supplierId = supplier.id;
           should.exist(supplier);
-          return supplier.account.create({accountNo: 'a01'})
-          .then(function (account) {
-            return supplier.account.getAsync()
+          return supplier.account.create({ accountNo: 'a01' })
+          .then(function(account) {
+            return supplier.account.getAsync();
           })
-          .then(function (act) {
+          .then(function(act) {
             accountId = act.id;
             should.exist(act);
             act.should.be.an.instanceOf(Account);
             supplier.account().id.should.equal(act.id);
             act.supplierName.should.equal(supplier.name);
             done();
-          })
+          });
         })
         .catch(done);
       });
@@ -2779,7 +2796,7 @@ describe('relations', function () {
       Supplier.findById(supplierId, function(e, supplier) {
         should.not.exist(e);
         should.exist(supplier);
-        supplier.account.update({supplierName: 'Supplier A'}, function(err, act) {
+        supplier.account.update({ supplierName: 'Supplier A' }, function(err, act) {
           should.not.exist(e);
           act.supplierName.should.equal('Supplier A');
           done();
@@ -2791,7 +2808,7 @@ describe('relations', function () {
       Supplier.findById(supplierId)
       .then(function(supplier) {
         should.exist(supplier);
-        return supplier.account.update({supplierName: 'Supplier B'})
+        return supplier.account.update({ supplierName: 'Supplier B' });
       })
       .then(function(act) {
         act.supplierName.should.equal('Supplier B');
@@ -2801,13 +2818,13 @@ describe('relations', function () {
     });
 
     it('should ignore the foreign key in the update', function(done) {
-      Supplier.create({name: 'Supplier 2'}, function (e, supplier) {
+      Supplier.create({ name: 'Supplier 2' }, function(e, supplier) {
         var sid = supplier.id;
         Supplier.findById(supplierId, function(e, supplier) {
           should.not.exist(e);
           should.exist(supplier);
-          supplier.account.update({supplierName: 'Supplier A',
-              supplierId: sid},
+          supplier.account.update({ supplierName: 'Supplier A',
+              supplierId: sid },
             function(err, act) {
               should.not.exist(e);
               act.supplierName.should.equal('Supplier A');
@@ -2835,9 +2852,9 @@ describe('relations', function () {
       Supplier.findById(supplierId)
       .then(function(supplier) {
         should.exist(supplier);
-        return supplier.account.getAsync()
+        return supplier.account.getAsync();
       })
-      .then(function (act) {
+      .then(function(act) {
         should.exist(act);
         act.supplierName.should.equal('Supplier A');
         done();
@@ -2858,13 +2875,13 @@ describe('relations', function () {
 
     it('should destroy the related item on scope with promises', function(done) {
       Supplier.findById(supplierId)
-      .then(function (supplier) {
+      .then(function(supplier) {
         should.exist(supplier);
-        return supplier.account.create({accountNo: 'a01'})
-        .then(function (account) {
-          return supplier.account.destroy()
+        return supplier.account.create({ accountNo: 'a01' })
+        .then(function(account) {
+          return supplier.account.destroy();
         })
-        .then(function (err) {
+        .then(function(err) {
           done();
         });
       })
@@ -2887,7 +2904,7 @@ describe('relations', function () {
       Supplier.findById(supplierId)
       .then(function(supplier) {
         should.exist(supplier);
-        return supplier.account.getAsync()
+        return supplier.account.getAsync();
       })
       .then(function(act) {
         should.not.exist(act);
@@ -2897,7 +2914,7 @@ describe('relations', function () {
     });
 
     it('should have deleted related item', function(done) {
-      Supplier.findById(supplierId, function (e, supplier) {
+      Supplier.findById(supplierId, function(e, supplier) {
         should.not.exist(e);
         should.exist(supplier);
         done();
@@ -2906,26 +2923,26 @@ describe('relations', function () {
 
   });
 
-  describe('hasOne with scope', function () {
+  describe('hasOne with scope', function() {
 
     var Supplier, Account;
     var supplierId, accountId;
 
-    before(function () {
+    before(function() {
       // db = getSchema();
-      Supplier = db.define('Supplier', {name: String});
-      Account = db.define('Account', {accountNo: String, supplierName: String, block: Boolean});
-      Supplier.hasOne(Account, { scope: { where: { block: false } }, properties: { name: 'supplierName' } });
+      Supplier = db.define('Supplier', { name: String });
+      Account = db.define('Account', { accountNo: String, supplierName: String, block: Boolean });
+      Supplier.hasOne(Account, { scope: { where: { block: false }}, properties: { name: 'supplierName' }});
     });
 
-    it('can be used to query data', function (done) {
-      db.automigrate(['Supplier', 'Account'], function () {
-        Supplier.create({name: 'Supplier 1'}, function (e, supplier) {
+    it('can be used to query data', function(done) {
+      db.automigrate(['Supplier', 'Account'], function() {
+        Supplier.create({ name: 'Supplier 1' }, function(e, supplier) {
           supplierId = supplier.id;
           should.not.exist(e);
           should.exist(supplier);
-          supplier.account.create({accountNo: 'a01', block: false}, function (err, account) {
-            supplier.account(function (e, act) {
+          supplier.account.create({ accountNo: 'a01', block: false }, function(err, account) {
+            supplier.account(function(e, act) {
               accountId = act.id;
               should.not.exist(e);
               should.exist(act);
@@ -2942,7 +2959,7 @@ describe('relations', function () {
     });
 
     it('should include record that matches scope', function(done) {
-      Supplier.findById(supplierId, {include: 'account'}, function(err, supplier) {
+      Supplier.findById(supplierId, { include: 'account' }, function(err, supplier) {
         should.exists(supplier.toJSON().account);
         supplier.account(function(err, account) {
           should.exists(account);
@@ -2951,10 +2968,10 @@ describe('relations', function () {
       });
     });
 
-    it('should not find record that does not match scope', function (done) {
-      Account.updateAll({ block: true }, function (err) {
-        Supplier.findById(supplierId, function (err, supplier) {
-          supplier.account(function (err, account) {
+    it('should not find record that does not match scope', function(done) {
+      Account.updateAll({ block: true }, function(err) {
+        Supplier.findById(supplierId, function(err, supplier) {
+          supplier.account(function(err, account) {
             should.not.exists(account);
             done();
           });
@@ -2962,11 +2979,11 @@ describe('relations', function () {
       });
     });
 
-    it('should not include record that does not match scope', function (done) {
-      Account.updateAll({ block: true }, function (err) {
-        Supplier.findById(supplierId, {include: 'account'}, function (err, supplier) {
+    it('should not include record that does not match scope', function(done) {
+      Account.updateAll({ block: true }, function(err) {
+        Supplier.findById(supplierId, { include: 'account' }, function(err, supplier) {
           should.not.exists(supplier.toJSON().account);
-          supplier.account(function (err, account) {
+          supplier.account(function(err, account) {
             should.not.exists(account);
             done();
           });
@@ -2974,17 +2991,17 @@ describe('relations', function () {
       });
     });
 
-    it('can be used to query data with promises', function (done) {
-      db.automigrate(['Supplier', 'Account'], function () {
-        Supplier.create({name: 'Supplier 1'})
-        .then(function (supplier) {
+    it('can be used to query data with promises', function(done) {
+      db.automigrate(['Supplier', 'Account'], function() {
+        Supplier.create({ name: 'Supplier 1' })
+        .then(function(supplier) {
           supplierId = supplier.id;
           should.exist(supplier);
-          return supplier.account.create({accountNo: 'a01', block: false})
-          .then(function (account) {
-            return supplier.account.getAsync()
+          return supplier.account.create({ accountNo: 'a01', block: false })
+          .then(function(account) {
+            return supplier.account.getAsync();
           })
-          .then(function (act) {
+          .then(function(act) {
             accountId = act.id;
             should.exist(act);
             act.should.be.an.instanceOf(Account);
@@ -2999,15 +3016,15 @@ describe('relations', function () {
       });
     });
 
-    it('should find record that match scope with promises', function (done) {
+    it('should find record that match scope with promises', function(done) {
       Account.updateAll({ block: true })
-      .then(function () {
-        return Supplier.findById(supplierId)
+      .then(function() {
+        return Supplier.findById(supplierId);
       })
-      .then(function (supplier) {
-        return supplier.account.getAsync()
+      .then(function(supplier) {
+        return supplier.account.getAsync();
       })
-      .then(function (account) {
+      .then(function(account) {
         should.not.exist(account);
         done();
       })
@@ -3016,47 +3033,47 @@ describe('relations', function () {
 
   });
 
-  describe('hasOne with non standard id', function () {
+  describe('hasOne with non standard id', function() {
     var Supplier, Account;
     var supplierId, accountId;
 
-    before(function () {
+    before(function() {
       // db = getSchema();
       Supplier = db.define('Supplier', {
         sid: {
           type: String,
           id: true,
-          generated: true
+          generated: true,
         },
-        name: String
+        name: String,
       });
       Account = db.define('Account', {
         accid: {
           type: String,
           id: true,
-          generated: false
+          generated: false,
         },
-        supplierName: String
+        supplierName: String,
       });
     });
 
-    it('can be declared with non standard foreignKey', function () {
+    it('can be declared with non standard foreignKey', function() {
       Supplier.hasOne(Account, {
-        properties: {name: 'supplierName'},
-        foreignKey: 'sid'
+        properties: { name: 'supplierName' },
+        foreignKey: 'sid',
       });
       Object.keys((new Account()).toObject()).should.containEql('sid');
       (new Supplier()).account.should.be.an.instanceOf(Function);
     });
 
-    it('can be used to query data', function (done) {
-      db.automigrate(['Supplier', 'Account'], function () {
-        Supplier.create({name: 'Supplier 1'}, function (e, supplier) {
+    it('can be used to query data', function(done) {
+      db.automigrate(['Supplier', 'Account'], function() {
+        Supplier.create({ name: 'Supplier 1' }, function(e, supplier) {
           supplierId = supplier.sid;
           should.not.exist(e);
           should.exist(supplier);
-          supplier.account.create({accid: 'a01'}, function (err, account) {
-            supplier.account(function (e, act) {
+          supplier.account.create({ accid: 'a01' }, function(err, account) {
+            supplier.account(function(e, act) {
               accountId = act.accid;
               should.not.exist(e);
               should.exist(act);
@@ -3094,7 +3111,7 @@ describe('relations', function () {
     });
 
     it('should have deleted related item', function(done) {
-      Supplier.findById(supplierId, function (e, supplier) {
+      Supplier.findById(supplierId, function(e, supplier) {
         should.not.exist(e);
         should.exist(supplier);
         done();
@@ -3103,7 +3120,7 @@ describe('relations', function () {
 
   });
 
-  describe('hasOne with primaryKey different from model PK', function () {
+  describe('hasOne with primaryKey different from model PK', function() {
     var CompanyBoard, Boss;
     var companyBoardId, bossId;
 
@@ -3111,33 +3128,33 @@ describe('relations', function () {
       db = getSchema();
       CompanyBoard = db.define('CompanyBoard', {
         membersNumber: Number,
-        companyId: String
+        companyId: String,
       });
       Boss = db.define('Boss', {
-        id: {type: String, id: true, generated: false},
+        id: { type: String, id: true, generated: false },
         boardMembersNumber: Number,
-        companyId: String
+        companyId: String,
       });
     });
 
-    it('relation can be declared with primaryKey', function () {
+    it('relation can be declared with primaryKey', function() {
       CompanyBoard.hasOne(Boss, {
-        properties: {membersNumber: 'boardMembersNumber'},
+        properties: { membersNumber: 'boardMembersNumber' },
         primaryKey: 'companyId',
-        foreignKey: 'companyId'
+        foreignKey: 'companyId',
       });
       Object.keys((new Boss()).toObject()).should.containEql('companyId');
       (new CompanyBoard()).boss.should.be.an.instanceOf(Function);
     });
 
-    it('can be used to query data', function (done) {
-      db.automigrate(['CompanyBoard', 'Boss'],function () {
-        CompanyBoard.create({membersNumber: 7, companyId: 'Company1'}, function (e, companyBoard) {
+    it('can be used to query data', function(done) {
+      db.automigrate(['CompanyBoard', 'Boss'], function() {
+        CompanyBoard.create({ membersNumber: 7, companyId: 'Company1' }, function(e, companyBoard) {
           companyBoardId = companyBoard.id;
           should.not.exist(e);
           should.exist(companyBoard);
-          companyBoard.boss.create({id: 'a01'}, function (err, account) {
-            companyBoard.boss(function (e, boss) {
+          companyBoard.boss.create({ id: 'a01' }, function(err, account) {
+            companyBoard.boss(function(e, boss) {
               bossId = boss.id;
               should.not.exist(e);
               should.exist(boss);
@@ -3152,22 +3169,22 @@ describe('relations', function () {
       });
     });
 
-    it('should destroy the related item on scope', function (done) {
-      CompanyBoard.findById(companyBoardId, function (e, companyBoard) {
+    it('should destroy the related item on scope', function(done) {
+      CompanyBoard.findById(companyBoardId, function(e, companyBoard) {
         should.not.exist(e);
         should.exist(companyBoard);
-        companyBoard.boss.destroy(function (err) {
+        companyBoard.boss.destroy(function(err) {
           should.not.exist(e);
           done();
         });
       });
     });
 
-    it('should get the related item on scope - verify', function (done) {
-      CompanyBoard.findById(companyBoardId, function (e, companyBoard) {
+    it('should get the related item on scope - verify', function(done) {
+      CompanyBoard.findById(companyBoardId, function(e, companyBoard) {
         should.not.exist(e);
         should.exist(companyBoard);
-        companyBoard.boss(function (err, act) {
+        companyBoard.boss(function(err, act) {
           should.not.exist(e);
           should.not.exist(act);
           done();
@@ -3176,96 +3193,94 @@ describe('relations', function () {
     });
   });
 
-
-  describe('hasMany with primaryKey different from model PK', function () {
+  describe('hasMany with primaryKey different from model PK', function() {
     var Employee, Boss;
-    var COMPANY_ID = "Company1";
+    var COMPANY_ID = 'Company1';
 
-    before(function () {
+    before(function() {
       db = getSchema();
-      Employee = db.define('Employee', {name: String, companyId: String});
-      Boss = db.define('Boss', {address: String, companyId: String});
+      Employee = db.define('Employee', { name: String, companyId: String });
+      Boss = db.define('Boss', { address: String, companyId: String });
     });
 
-    it('relation can be declared with primaryKey', function () {
+    it('relation can be declared with primaryKey', function() {
       Boss.hasMany(Employee, {
         primaryKey: 'companyId',
-        foreignKey: 'companyId'
+        foreignKey: 'companyId',
       });
       (new Boss()).employees.should.be.an.instanceOf(Function);
     });
 
-    it('can be used to query employees for boss', function () {
-      return db.automigrate(['Employee', 'Boss']).then(function () {
-        return Boss.create({address: 'testAddress', companyId: COMPANY_ID})
-          .then(function (boss) {
+    it('can be used to query employees for boss', function() {
+      return db.automigrate(['Employee', 'Boss']).then(function() {
+        return Boss.create({ address: 'testAddress', companyId: COMPANY_ID })
+          .then(function(boss) {
             should.exist(boss);
             should.exist(boss.employees);
-            return boss.employees.create([{name: 'a01'}, {name: 'a02'}])
-              .then(function (employees) {
+            return boss.employees.create([{ name: 'a01' }, { name: 'a02' }])
+              .then(function(employees) {
                 should.exists(employees);
                 return boss.employees();
-              }).then(function (employees) {
+              }).then(function(employees) {
                 var employee = employees[0];
                 should.exist(employee);
                 employees.length.should.equal(2);
                 employee.should.be.an.instanceOf(Employee);
                 employee.companyId.should.be.eql(boss.companyId);
                 return employees;
-              })
+              });
           });
       });
     });
 
-    it('can be used to query employees for boss2', function () {
-      return db.automigrate(['Employee', 'Boss']).then(function () {
-        return Boss.create({address: 'testAddress', companyId: COMPANY_ID})
-          .then(function (boss) {
-            return Employee.create({name: 'a01', companyId: COMPANY_ID})
-              .then(function (employee) {
+    it('can be used to query employees for boss2', function() {
+      return db.automigrate(['Employee', 'Boss']).then(function() {
+        return Boss.create({ address: 'testAddress', companyId: COMPANY_ID })
+          .then(function(boss) {
+            return Employee.create({ name: 'a01', companyId: COMPANY_ID })
+              .then(function(employee) {
                 should.exist(employee);
                 return boss.employees.getAsync();
-              }).then(function (employees) {
+              }).then(function(employees) {
                 should.exists(employees);
                 employees.length.should.equal(1);
-              })
+              });
           });
       });
     });
   });
 
-
-  describe('belongsTo with primaryKey different from model PK', function () {
+  describe('belongsTo with primaryKey different from model PK', function() {
     var Employee, Boss;
-    var COMPANY_ID = "Company1";
+    var COMPANY_ID = 'Company1';
     var bossId;
 
-    before(function () {
+    before(function() {
       db = getSchema();
-      Employee = db.define('Employee', {name: String, companyId: String});
-      Boss = db.define('Boss', {address: String, companyId: String});
+      Employee = db.define('Employee', { name: String, companyId: String });
+      Boss = db.define('Boss', { address: String, companyId: String });
     });
 
-    it('relation can be declared with primaryKey', function () {
+    it('relation can be declared with primaryKey', function() {
       Employee.belongsTo(Boss, {
         primaryKey: 'companyId',
-        foreignKey: 'companyId'
+        foreignKey: 'companyId',
       });
       (new Employee()).boss.should.be.an.instanceOf(Function);
     });
 
-    it('can be used to query data', function () {
-      return db.automigrate(['Employee', 'Boss']).then(function () {
-        return Boss.create({address: 'testAddress', companyId: COMPANY_ID})
-          .then(function (boss) {
+    it('can be used to query data', function() {
+      return db.automigrate(['Employee', 'Boss']).then(function() {
+        return Boss.create({ address: 'testAddress', companyId: COMPANY_ID })
+          .then(function(boss) {
             bossId = boss.id;
-            return Employee.create({name: 'a', companyId: COMPANY_ID})
+            return Employee.create({ name: 'a', companyId: COMPANY_ID });
           })
-          .then(function (employee) {
+          .then(function(employee) {
             should.exists(employee);
             return employee.boss.getAsync();
           })
-          .then(function (boss) {
+          .then(function(boss) {
             should.exists(boss);
             boss.id.should.eql(bossId);
           });
@@ -3273,21 +3288,21 @@ describe('relations', function () {
     });
   });
 
-  describe('hasAndBelongsToMany', function () {
+  describe('hasAndBelongsToMany', function() {
     var Article, TagName, ArticleTag;
-    it('can be declared', function (done) {
-      Article = db.define('Article', {title: String});
-      TagName = db.define('TagName', {name: String, flag: String});
+    it('can be declared', function(done) {
+      Article = db.define('Article', { title: String });
+      TagName = db.define('TagName', { name: String, flag: String });
       Article.hasAndBelongsToMany('tagNames');
       ArticleTag = db.models.ArticleTagName;
       db.automigrate(['Article', 'TagName', 'ArticleTagName'], done);
     });
 
-    it('should allow to create instances on scope', function (done) {
-      Article.create(function (e, article) {
-        article.tagNames.create({name: 'popular'}, function (e, t) {
+    it('should allow to create instances on scope', function(done) {
+      Article.create(function(e, article) {
+        article.tagNames.create({ name: 'popular' }, function(e, t) {
           t.should.be.an.instanceOf(TagName);
-          ArticleTag.findOne(function (e, at) {
+          ArticleTag.findOne(function(e, at) {
             should.exist(at);
             at.tagNameId.toString().should.equal(t.id.toString());
             at.articleId.toString().should.equal(article.id.toString());
@@ -3297,9 +3312,9 @@ describe('relations', function () {
       });
     });
 
-    it('should allow to fetch scoped instances', function (done) {
-      Article.findOne(function (e, article) {
-        article.tagNames(function (e, tags) {
+    it('should allow to fetch scoped instances', function(done) {
+      Article.findOne(function(e, article) {
+        article.tagNames(function(e, tags) {
           should.not.exist(e);
           should.exist(tags);
 
@@ -3310,10 +3325,10 @@ describe('relations', function () {
       });
     });
 
-    it('should allow to add connection with instance', function (done) {
-      Article.findOne(function (e, article) {
-        TagName.create({name: 'awesome'}, function (e, tag) {
-          article.tagNames.add(tag, function (e, at) {
+    it('should allow to add connection with instance', function(done) {
+      Article.findOne(function(e, article) {
+        TagName.create({ name: 'awesome' }, function(e, tag) {
+          article.tagNames.add(tag, function(e, at) {
             should.not.exist(e);
             should.exist(at);
             at.should.be.an.instanceOf(ArticleTag);
@@ -3325,14 +3340,14 @@ describe('relations', function () {
       });
     });
 
-    it('should allow to remove connection with instance', function (done) {
-      Article.findOne(function (e, article) {
-        article.tagNames(function (e, tags) {
+    it('should allow to remove connection with instance', function(done) {
+      Article.findOne(function(e, article) {
+        article.tagNames(function(e, tags) {
           var len = tags.length;
           tags.should.not.be.empty;
-          article.tagNames.remove(tags[0], function (e) {
+          article.tagNames.remove(tags[0], function(e) {
             should.not.exist(e);
-            article.tagNames(true, function (e, tags) {
+            article.tagNames(true, function(e, tags) {
               tags.should.have.lengthOf(len - 1);
               done();
             });
@@ -3341,15 +3356,15 @@ describe('relations', function () {
       });
     });
 
-    it('should allow to create instances on scope with promises', function (done) {
-      db.automigrate(['Article', 'TagName', 'ArticleTagName'], function () {
+    it('should allow to create instances on scope with promises', function(done) {
+      db.automigrate(['Article', 'TagName', 'ArticleTagName'], function() {
         Article.create()
-        .then(function (article) {
-          return article.tagNames.create({name: 'popular'})
-          .then(function (t) {
+        .then(function(article) {
+          return article.tagNames.create({ name: 'popular' })
+          .then(function(t) {
             t.should.be.an.instanceOf(TagName);
             return ArticleTag.findOne()
-            .then(function (at) {
+            .then(function(at) {
               should.exist(at);
               at.tagNameId.toString().should.equal(t.id.toString());
               at.articleId.toString().should.equal(article.id.toString());
@@ -3360,11 +3375,11 @@ describe('relations', function () {
       });
     });
 
-    it('should allow to fetch scoped instances with promises', function (done) {
+    it('should allow to fetch scoped instances with promises', function(done) {
       Article.findOne()
-      .then(function (article) {
+      .then(function(article) {
         return article.tagNames.getAsync()
-        .then(function (tags) {
+        .then(function(tags) {
           should.exist(tags);
           article.tagNames().should.eql(tags);
           done();
@@ -3372,36 +3387,36 @@ describe('relations', function () {
       }).catch(done);
     });
 
-    it('should allow to add connection with instance with promises', function (done) {
+    it('should allow to add connection with instance with promises', function(done) {
       Article.findOne()
-      .then(function (article) {
-        return TagName.create({name: 'awesome'})
-        .then(function (tag) {
+      .then(function(article) {
+        return TagName.create({ name: 'awesome' })
+        .then(function(tag) {
           return article.tagNames.add(tag)
-          .then(function (at) {
+          .then(function(at) {
             should.exist(at);
             at.should.be.an.instanceOf(ArticleTag);
             at.tagNameId.should.eql(tag.id);
             at.articleId.should.eql(article.id);
             done();
           });
-        })
+        });
       })
       .catch(done);
     });
 
-    it('should allow to remove connection with instance with promises', function (done) {
+    it('should allow to remove connection with instance with promises', function(done) {
       Article.findOne()
-      .then(function (article) {
+      .then(function(article) {
         return article.tagNames.getAsync()
-        .then(function (tags) {
+        .then(function(tags) {
           var len = tags.length;
           tags.should.not.be.empty;
           return article.tagNames.remove(tags[0])
-          .then(function () {
-            return article.tagNames.getAsync()
+          .then(function() {
+            return article.tagNames.getAsync();
           })
-          .then(function (tags) {
+          .then(function(tags) {
             tags.should.have.lengthOf(len - 1);
             done();
           });
@@ -3410,19 +3425,18 @@ describe('relations', function () {
       .catch(done);
     });
 
-
     it('should set targetClass on scope property', function() {
       should.equal(Article.prototype.tagNames._targetClass, 'TagName');
     });
 
     it('should apply inclusion fields to the target model', function(done) {
-      Article.create({title: 'a1'}, function (e, article) {
+      Article.create({ title: 'a1' }, function(e, article) {
         should.not.exist(e);
-        article.tagNames.create({name: 't1', flag: '1'}, function(e, t) {
+        article.tagNames.create({ name: 't1', flag: '1' }, function(e, t) {
           should.not.exist(e);
           Article.find({
-              where: {id: article.id},
-              include: {relation: 'tagNames', scope: {fields: ['name']}}},
+            where: { id: article.id },
+            include: { relation: 'tagNames', scope: { fields: ['name'] }}},
             function(e, articles) {
               should.not.exist(e);
               articles.should.have.property('length', 1);
@@ -3441,14 +3455,14 @@ describe('relations', function () {
     });
 
     it('should apply inclusion where to the target model', function(done) {
-      Article.create({title: 'a2'}, function (e, article) {
+      Article.create({ title: 'a2' }, function(e, article) {
         should.not.exist(e);
-        article.tagNames.create({name: 't2', flag: '2'}, function(e, t2) {
+        article.tagNames.create({ name: 't2', flag: '2' }, function(e, t2) {
           should.not.exist(e);
-          article.tagNames.create({name: 't3', flag: '3'}, function(e, t3) {
+          article.tagNames.create({ name: 't3', flag: '3' }, function(e, t3) {
             Article.find({
-                where: {id: article.id},
-                include: {relation: 'tagNames', scope: {where: {flag: '2'}}}},
+              where: { id: article.id },
+              include: { relation: 'tagNames', scope: { where: { flag: '2' }}}},
               function(e, articles) {
                 should.not.exist(e);
                 articles.should.have.property('length', 1);
@@ -3468,28 +3482,28 @@ describe('relations', function () {
     });
   });
 
-  describe('embedsOne', function () {
+  describe('embedsOne', function() {
 
     var person;
     var Passport;
     var Other;
 
-    before(function () {
+    before(function() {
       tmp = getTransientDataSource();
       // db = getSchema();
-      Person = db.define('Person', {name: String});
+      Person = db.define('Person', { name: String });
       Passport = tmp.define('Passport',
-        {name:{type:'string', required: true}},
-        {idInjection: false}
+        { name: { type: 'string', required: true }},
+        { idInjection: false }
       );
       Address = tmp.define('Address', { street: String }, { idInjection: false });
-      Other = db.define('Other', {name: String});
+      Other = db.define('Other', { name: String });
     });
 
-    it('can be declared using embedsOne method', function (done) {
+    it('can be declared using embedsOne method', function(done) {
       Person.embedsOne(Passport, {
-        default: {name: 'Anonymous'}, // a bit contrived
-        methods: { check: function() { return true; } }
+        default: { name: 'Anonymous' }, // a bit contrived
+        methods: { check: function() { return true; } },
       });
       Person.embedsOne(Address); // all by default
       db.automigrate(['Person'], done);
@@ -3508,7 +3522,7 @@ describe('relations', function () {
       var rel = Person.relations['passportItem'];
       rel.defineMethod('other', function() {
         return true;
-      })
+      });
     });
 
     it('should have setup a custom method on accessor', function() {
@@ -3519,12 +3533,12 @@ describe('relations', function () {
       p.passportItem.other().should.be.true;
     });
 
-    it('should behave properly without default or being set', function (done) {
+    it('should behave properly without default or being set', function(done) {
       var p = new Person();
       should.not.exist(p.address);
       var a = p.addressItem();
       should.not.exist(a);
-      Person.create({}, function (err, p) {
+      Person.create({}, function(err, p) {
         should.not.exist(p.address);
         var a = p.addressItem();
         should.not.exist(a);
@@ -3534,7 +3548,7 @@ describe('relations', function () {
 
     it('should return an instance with default values', function() {
       var p = new Person();
-      p.passport.toObject().should.eql({name: 'Anonymous'});
+      p.passport.toObject().should.eql({ name: 'Anonymous' });
       p.passportItem().should.equal(p.passport);
       p.passportItem(function(err, passport) {
         should.not.exist(err);
@@ -3544,26 +3558,26 @@ describe('relations', function () {
 
     it('should embed a model instance', function() {
       var p = new Person();
-      p.passportItem(new Passport({name: 'Fred'}));
-      p.passport.toObject().should.eql({name: 'Fred'});
+      p.passportItem(new Passport({ name: 'Fred' }));
+      p.passport.toObject().should.eql({ name: 'Fred' });
       p.passport.should.be.an.instanceOf(Passport);
     });
 
     it('should not embed an invalid model type', function() {
       var p = new Person();
       p.passportItem(new Other());
-      p.passport.toObject().should.eql({name: 'Anonymous'});
+      p.passport.toObject().should.eql({ name: 'Anonymous' });
       p.passport.should.be.an.instanceOf(Passport);
     });
 
     var personId;
     it('should create an embedded item on scope', function(done) {
-      Person.create({name: 'Fred'}, function(err, p) {
+      Person.create({ name: 'Fred' }, function(err, p) {
         should.not.exist(err);
         personId = p.id;
-        p.passportItem.create({name: 'Fredric'}, function(err, passport) {
+        p.passportItem.create({ name: 'Fredric' }, function(err, passport) {
           should.not.exist(err);
-          p.passport.toObject().should.eql({name: 'Fredric'});
+          p.passport.toObject().should.eql({ name: 'Fredric' });
           p.passport.should.be.an.instanceOf(Passport);
           done();
         });
@@ -3574,7 +3588,7 @@ describe('relations', function () {
       Person.findById(personId, function(err, p) {
         should.not.exist(err);
         var passport = p.passportItem();
-        passport.toObject().should.eql({name: 'Fredric'});
+        passport.toObject().should.eql({ name: 'Fredric' });
         passport.should.be.an.instanceOf(Passport);
         passport.should.equal(p.passport);
         passport.should.equal(p.passportItem.value());
@@ -3583,7 +3597,7 @@ describe('relations', function () {
     });
 
     it('should validate an embedded item on scope - on creation', function(done) {
-      var p = new Person({name: 'Fred'});
+      var p = new Person({ name: 'Fred' });
       p.passportItem.create({}, function(err, passport) {
         should.exist(err);
         err.name.should.equal('ValidationError');
@@ -3608,10 +3622,10 @@ describe('relations', function () {
 
     it('should update an embedded item on scope', function(done) {
       Person.findById(personId, function(err, p) {
-        p.passportItem.update({name: 'Freddy'}, function(err, passport) {
+        p.passportItem.update({ name: 'Freddy' }, function(err, passport) {
           should.not.exist(err);
           var passport = p.passportItem();
-          passport.toObject().should.eql({name: 'Freddy'});
+          passport.toObject().should.eql({ name: 'Freddy' });
           passport.should.be.an.instanceOf(Passport);
           passport.should.equal(p.passport);
           done();
@@ -3623,7 +3637,7 @@ describe('relations', function () {
       Person.findById(personId, function(err, p) {
         should.not.exist(err);
         var passport = p.passportItem();
-        passport.toObject().should.eql({name: 'Freddy'});
+        passport.toObject().should.eql({ name: 'Freddy' });
         done();
       });
     });
@@ -3647,9 +3661,9 @@ describe('relations', function () {
     });
 
     it('should save an unsaved model', function(done) {
-      var p = new Person({name: 'Fred'});
+      var p = new Person({ name: 'Fred' });
       p.isNewRecord().should.be.true;
-      p.passportItem.create({name: 'Fredric'}, function(err, passport) {
+      p.passportItem.create({ name: 'Fredric' }, function(err, passport) {
         should.not.exist(err);
         p.passport.should.equal(passport);
         p.isNewRecord().should.be.false;
@@ -3658,12 +3672,12 @@ describe('relations', function () {
     });
 
     it('should create an embedded item on scope with promises', function(done) {
-      Person.create({name: 'Fred'})
+      Person.create({ name: 'Fred' })
       .then(function(p) {
         personId = p.id;
-        p.passportItem.create({name: 'Fredric'})
+        p.passportItem.create({ name: 'Fredric' })
         .then(function(passport) {
-          p.passport.toObject().should.eql({name: 'Fredric'});
+          p.passport.toObject().should.eql({ name: 'Fredric' });
           p.passport.should.be.an.instanceOf(Passport);
           done();
         });
@@ -3674,7 +3688,7 @@ describe('relations', function () {
       Person.findById(personId)
       .then(function(p) {
         var passport = p.passportItem();
-        passport.toObject().should.eql({name: 'Fredric'});
+        passport.toObject().should.eql({ name: 'Fredric' });
         passport.should.be.an.instanceOf(Passport);
         passport.should.equal(p.passport);
         passport.should.equal(p.passportItem.value());
@@ -3683,13 +3697,13 @@ describe('relations', function () {
     });
 
     it('should validate an embedded item on scope with promises - on creation', function(done) {
-      var p = new Person({name: 'Fred'});
+      var p = new Person({ name: 'Fred' });
       p.passportItem.create({})
       .then(function(passport) {
         should.not.exist(passport);
         done();
       })
-      .catch(function (err) {
+      .catch(function(err) {
         should.exist(err);
         err.name.should.equal('ValidationError');
         err.details.messages.name.should.eql(['can\'t be blank']);
@@ -3703,7 +3717,7 @@ describe('relations', function () {
         var passport = p.passportItem();
         passport.name = null;
         return p.save()
-        .then(function (p) {
+        .then(function(p) {
           should.not.exist(p);
           done();
         })
@@ -3719,11 +3733,11 @@ describe('relations', function () {
 
     it('should update an embedded item on scope with promises', function(done) {
       Person.findById(personId)
-      .then(function (p) {
-        return p.passportItem.update({name: 'Jason'})
+      .then(function(p) {
+        return p.passportItem.update({ name: 'Jason' })
         .then(function(passport) {
           var passport = p.passportItem();
-          passport.toObject().should.eql({name: 'Jason'});
+          passport.toObject().should.eql({ name: 'Jason' });
           passport.should.be.an.instanceOf(Passport);
           passport.should.equal(p.passport);
           done();
@@ -3735,7 +3749,7 @@ describe('relations', function () {
       Person.findById(personId)
       .then(function(p) {
         var passport = p.passportItem();
-        passport.toObject().should.eql({name: 'Jason'});
+        passport.toObject().should.eql({ name: 'Jason' });
         done();
       }).catch(done);
     });
@@ -3758,31 +3772,78 @@ describe('relations', function () {
         done();
       }).catch(done);
     });
+
+    it('should also save changes when directly saving the embedded model', function(done) {
+      // Passport should normally have an id for the direct save to work. For now override the check
+      var originalHasPK = Passport.definition.hasPK;
+      Passport.definition.hasPK = function() { return true; };
+      Person.findById(personId)
+        .then(function(p) {
+          return p.passportItem.create({ name: 'Mitsos' });
+        })
+        .then(function(passport) {
+          passport.name = 'Jim';
+          return passport.save();
+        })
+        .then(function() {
+          return Person.findById(personId);
+        })
+        .then(function(person) {
+          person.passportItem().toObject().should.eql({ name: 'Jim' });
+          // restore original hasPk
+          Passport.definition.hasPK = originalHasPK;
+          done();
+        })
+        .catch(function(err) {
+          Passport.definition.hasPK = originalHasPK;
+          done(err);
+        });
+    });
+
+    it('should delete the embedded document and also update parent', function(done) {
+      var originalHasPK = Passport.definition.hasPK;
+      Passport.definition.hasPK = function() { return true; };
+      Person.findById(personId)
+        .then(function(p) {
+          return p.passportItem().destroy();
+        })
+        .then(function() {
+          return Person.findById(personId);
+        })
+        .then(function(person) {
+          person.should.have.property('passport', null);
+          done();
+        })
+        .catch(function(err) {
+          Passport.definition.hasPK = originalHasPK;
+          done(err);
+        });
+    });
   });
 
-  describe('embedsOne - persisted model', function () {
+  describe('embedsOne - persisted model', function() {
 
     // This test spefically uses the Memory connector
     // in order to test the use of the auto-generated
     // id, in the sequence of the related model.
 
-    before(function () {
+    before(function() {
       db = getMemoryDataSource();
-      Person = db.define('Person', {name: String});
+      Person = db.define('Person', { name: String });
       Passport = db.define('Passport',
-        {name:{type:'string', required: true}}
+        { name: { type: 'string', required: true }}
       );
     });
 
-    it('can be declared using embedsOne method', function (done) {
+    it('can be declared using embedsOne method', function(done) {
       Person.embedsOne(Passport, {
-        options: {persistent: true}
+        options: { persistent: true },
       });
       db.automigrate(['Person', 'Passport'], done);
     });
 
     it('should create an item - to offset id', function(done) {
-      Passport.create({name:'Wilma'}, function(err, p) {
+      Passport.create({ name: 'Wilma' }, function(err, p) {
         should.not.exist(err);
         p.id.should.equal(1);
         p.name.should.equal('Wilma');
@@ -3791,9 +3852,9 @@ describe('relations', function () {
     });
 
     it('should create an embedded item on scope', function(done) {
-      Person.create({name: 'Fred'}, function(err, p) {
+      Person.create({ name: 'Fred' }, function(err, p) {
         should.not.exist(err);
-        p.passportItem.create({name: 'Fredric'}, function(err, passport) {
+        p.passportItem.create({ name: 'Fredric' }, function(err, passport) {
           should.not.exist(err);
           p.passport.id.should.eql(2);
           p.passport.name.should.equal('Fredric');
@@ -3803,9 +3864,9 @@ describe('relations', function () {
     });
 
     it('should create an embedded item on scope with promises', function(done) {
-      Person.create({name: 'Barney'})
+      Person.create({ name: 'Barney' })
       .then(function(p) {
-        return p.passportItem.create({name: 'Barnabus'})
+        return p.passportItem.create({ name: 'Barnabus' })
         .then(function(passport) {
           p.passport.id.should.eql(3);
           p.passport.name.should.equal('Barnabus');
@@ -3816,27 +3877,29 @@ describe('relations', function () {
 
   });
 
-  describe('embedsOne - generated id', function () {
+  describe('embedsOne - generated id', function() {
 
-    before(function () {
+    before(function() {
       tmp = getTransientDataSource();
       // db = getSchema();
-      Person = db.define('Person', {name: String});
+      Person = db.define('Person', { name: String });
       Passport = tmp.define('Passport',
-        {id: {type:'string', id: true, generated:true}},
-        {name: {type:'string', required: true}}
+        {
+          id: { type: 'string', id: true, generated: true },
+          name: { type: 'string', required: true },
+        }
       );
     });
 
-    it('can be declared using embedsOne method', function (done) {
+    it('can be declared using embedsOne method', function(done) {
       Person.embedsOne(Passport);
       db.automigrate(['Person'], done);
     });
 
     it('should create an embedded item on scope', function(done) {
-      Person.create({name: 'Fred'}, function(err, p) {
+      Person.create({ name: 'Fred' }, function(err, p) {
         should.not.exist(err);
-        p.passportItem.create({name: 'Fredric'}, function(err, passport) {
+        p.passportItem.create({ name: 'Fredric' }, function(err, passport) {
           should.not.exist(err);
           passport.id.should.match(/^[0-9a-fA-F]{24}$/);
           p.passport.name.should.equal('Fredric');
@@ -3847,21 +3910,21 @@ describe('relations', function () {
 
   });
 
-  describe('embedsMany', function () {
+  describe('embedsMany', function() {
 
     var address1, address2;
 
-    before(function (done) {
-      tmp = getTransientDataSource({defaultIdType: Number});
+    before(function(done) {
+      tmp = getTransientDataSource({ defaultIdType: Number });
       // db = getSchema();
-      Person = db.define('Person', {name: String});
-      Address = tmp.define('Address', {street: String});
+      Person = db.define('Person', { name: String });
+      Address = tmp.define('Address', { street: String });
       Address.validatesPresenceOf('street');
 
       db.automigrate(['Person'], done);
     });
 
-    it('can be declared', function (done) {
+    it('can be declared', function(done) {
       Person.embedsMany(Address);
       db.automigrate(['Person'], done);
     });
@@ -3926,7 +3989,7 @@ describe('relations', function () {
 
     it('should filter embedded items on scope', function(done) {
       Person.findOne(function(err, p) {
-        p.addressList({ where: { street: 'Street 2' } }, function(err, addresses) {
+        p.addressList({ where: { street: 'Street 2' }}, function(err, addresses) {
           should.not.exist(err);
           addresses.should.have.length(1);
           addresses[0].id.should.eql(address2.id);
@@ -4073,7 +4136,7 @@ describe('relations', function () {
     });
 
     it('should save an unsaved model', function(done) {
-      var p = new Person({name: 'Fred'});
+      var p = new Person({ name: 'Fred' });
       p.isNewRecord().should.be.true;
       p.addressList.create({ street: 'Street 4' }, function(err, address) {
         should.not.exist(err);
@@ -4085,22 +4148,22 @@ describe('relations', function () {
 
   });
 
-  describe('embedsMany - numeric ids + forceId', function () {
+  describe('embedsMany - numeric ids + forceId', function() {
 
-    before(function (done) {
+    before(function(done) {
       tmp = getTransientDataSource();
       // db = getSchema();
-      Person = db.define('Person', {name: String});
+      Person = db.define('Person', { name: String });
       Address = tmp.define('Address', {
-        id: {type: Number, id:true},
-        street: String
+        id: { type: Number, id: true },
+        street: String,
       });
 
       db.automigrate(['Person'], done);
     });
 
-    it('can be declared', function (done) {
-      Person.embedsMany(Address, {options: {forceId: true}});
+    it('can be declared', function(done) {
+      Person.embedsMany(Address, { options: { forceId: true }});
       db.automigrate(['Person'], done);
     });
 
@@ -4122,18 +4185,18 @@ describe('relations', function () {
 
   });
 
-  describe('embedsMany - explicit ids', function () {
-    before(function (done) {
+  describe('embedsMany - explicit ids', function() {
+    before(function(done) {
       tmp = getTransientDataSource();
       // db = getSchema();
-      Person = db.define('Person', {name: String});
-      Address = tmp.define('Address', {street: String});
+      Person = db.define('Person', { name: String });
+      Address = tmp.define('Address', { street: String });
       Address.validatesPresenceOf('street');
 
       db.automigrate(['Person'], done);
     });
 
-    it('can be declared', function (done) {
+    it('can be declared', function(done) {
       Person.embedsMany(Address);
       db.automigrate(['Person'], done);
     });
@@ -4210,7 +4273,7 @@ describe('relations', function () {
       Person.create({ name: 'Wilma', addresses: addresses }, function(err, p) {
         err.name.should.equal('ValidationError');
         err.details.messages.addresses.should.eql([
-          'contains invalid item: `work` (`street` can\'t be blank)'
+          'contains invalid item: `work` (`street` can\'t be blank)',
         ]);
         done();
       });
@@ -4228,7 +4291,7 @@ describe('relations', function () {
     });
 
     it('should have embedded items - verify', function(done) {
-      Person.findOne({ where: { name: 'Wilma' } }, function(err, p) {
+      Person.findOne({ where: { name: 'Wilma' }}, function(err, p) {
         p.name.should.equal('Wilma');
         p.addresses.should.have.length(2);
         p.addresses[0].id.should.equal('home');
@@ -4240,7 +4303,7 @@ describe('relations', function () {
     });
 
     it('should have accessors: at, get, set', function(done) {
-      Person.findOne({ where: { name: 'Wilma' } }, function(err, p) {
+      Person.findOne({ where: { name: 'Wilma' }}, function(err, p) {
         p.name.should.equal('Wilma');
         p.addresses.should.have.length(2);
         p.addressList.at(0).id.should.equal('home');
@@ -4255,10 +4318,10 @@ describe('relations', function () {
 
     it('should create embedded from attributes - property name', function(done) {
       var addresses = [
-        {id: 'home', street: 'Home Street'},
-        {id: 'work', street: 'Work Street'}
+        { id: 'home', street: 'Home Street' },
+        { id: 'work', street: 'Work Street' },
       ];
-      Person.create({name: 'Wilma', addresses: addresses}, function(err, p) {
+      Person.create({ name: 'Wilma', addresses: addresses }, function(err, p) {
         should.not.exist(err);
         p.addressList.at(0).id.should.equal('home');
         p.addressList.at(1).id.should.equal('work');
@@ -4268,10 +4331,10 @@ describe('relations', function () {
 
     it('should not create embedded from attributes - relation name', function(done) {
       var addresses = [
-        {id: 'home', street: 'Home Street'},
-        {id: 'work', street: 'Work Street'}
+        { id: 'home', street: 'Home Street' },
+        { id: 'work', street: 'Work Street' },
       ];
-      Person.create({name: 'Wilma', addressList: addresses}, function(err, p) {
+      Person.create({ name: 'Wilma', addressList: addresses }, function(err, p) {
         should.not.exist(err);
         p.addresses.should.have.length(0);
         done();
@@ -4291,7 +4354,7 @@ describe('relations', function () {
 
   });
 
-  describe('embedsMany - persisted model', function () {
+  describe('embedsMany - persisted model', function() {
 
     var address0, address1, address2;
     var person;
@@ -4300,21 +4363,21 @@ describe('relations', function () {
     // in order to test the use of the auto-generated
     // id, in the sequence of the related model.
 
-    before(function (done) {
+    before(function(done) {
       db = getMemoryDataSource();
-      Person = db.define('Person', {name: String});
-      Address = db.define('Address', {street: String});
+      Person = db.define('Person', { name: String });
+      Address = db.define('Address', { street: String });
       Address.validatesPresenceOf('street');
 
       db.automigrate(['Person', 'Address'], done);
     });
 
-    it('can be declared', function (done) {
+    it('can be declared', function(done) {
       // to save related model itself, set
       // persistent: true
       Person.embedsMany(Address, {
-        scope: {order: 'street'},
-        options: {persistent: true}
+        scope: { order: 'street' },
+        options: { persistent: true },
       });
       db.automigrate(['Person', 'Address'], done);
     });
@@ -4417,27 +4480,27 @@ describe('relations', function () {
 
   });
 
-  describe('embedsMany - relations, scope and properties', function () {
+  describe('embedsMany - relations, scope and properties', function() {
 
     var category, job1, job2, job3;
 
-    before(function () {
+    before(function() {
       // db = getSchema();
-      Category = db.define('Category', {name: String});
-      Job = db.define('Job', {name: String});
-      Link = db.define('Link', {name: String, notes: String});
+      Category = db.define('Category', { name: String });
+      Job = db.define('Job', { name: String });
+      Link = db.define('Link', { name: String, notes: String });
     });
 
-    it('can be declared', function (done) {
+    it('can be declared', function(done) {
       Category.embedsMany(Link, {
         as: 'items', // rename
         scope: { include: 'job' }, // always include
-        options: { belongsTo: 'job' } // optional, for add()/remove()
+        options: { belongsTo: 'job' }, // optional, for add()/remove()
       });
       Link.belongsTo(Job, {
         foreignKey: 'id', // re-use the actual job id
         properties: { id: 'id', name: 'name' }, // denormalize, transfer id
-        options: { invertProperties: true }
+        options: { invertProperties: true },
       });
       db.automigrate(['Category', 'Job', 'Link'], function() {
         Job.create({ name: 'Job 0' }, done); // offset ids for tests
@@ -4596,7 +4659,7 @@ describe('relations', function () {
       Category.findById(category.id, function(err, cat) {
         cat.name.should.equal('Category B');
         cat.links.toObject().should.eql([
-          {id: jobId, name: 'Job 1', notes: 'Some notes...'}
+          { id: jobId, name: 'Job 1', notes: 'Some notes...' },
         ]);
         cat.items.at(0).should.equal(cat.links[0]);
         cat.items(function(err, items) { // alternative access
@@ -4613,7 +4676,7 @@ describe('relations', function () {
     it('should update items on scope - and save parent', function(done) {
       Category.findById(category.id, function(err, cat) {
         var link = cat.items.at(0);
-        link.updateAttributes({notes: 'Updated notes...'}, function(err, link) {
+        link.updateAttributes({ notes: 'Updated notes...' }, function(err, link) {
           link.notes.should.equal('Updated notes...');
           done();
         });
@@ -4624,7 +4687,7 @@ describe('relations', function () {
       Category.findById(category.id, function(err, cat) {
         cat.name.should.equal('Category B');
         cat.links.toObject().should.eql([
-          {id: jobId, name: 'Job 1', notes: 'Updated notes...'}
+          { id: jobId, name: 'Job 1', notes: 'Updated notes...' },
         ]);
         done();
       });
@@ -4649,21 +4712,21 @@ describe('relations', function () {
 
   });
 
-  describe('embedsMany - polymorphic relations', function () {
+  describe('embedsMany - polymorphic relations', function() {
 
     var person1, person2;
 
-    before(function (done) {
+    before(function(done) {
       // db = getSchema();
       tmp = getTransientDataSource();
 
-      Book = db.define('Book', {name: String});
-      Author = db.define('Author', {name: String});
-      Reader = db.define('Reader', {name: String});
+      Book = db.define('Book', { name: String });
+      Author = db.define('Author', { name: String });
+      Reader = db.define('Reader', { name: String });
 
       Link = tmp.define('Link', {
-        id: {type: Number, id: true},
-        name: String, notes: String
+        id: { type: Number, id: true },
+        name: String, notes: String,
       }); // generic model
       Link.validatesPresenceOf('linkedId');
       Link.validatesPresenceOf('linkedType');
@@ -4671,17 +4734,17 @@ describe('relations', function () {
       db.automigrate(['Book', 'Author', 'Reader'], done);
     });
 
-    it('can be declared', function (done) {
+    it('can be declared', function(done) {
       var idType = db.connector.getDefaultIdType();
 
       Book.embedsMany(Link, { as: 'people',
         polymorphic: 'linked',
-        scope: { include: 'linked' }
+        scope: { include: 'linked' },
       });
       Link.belongsTo('linked', {
         polymorphic: { idType: idType },  // native type
         properties: { name: 'name' },     // denormalized
-        options: { invertProperties: true }
+        options: { invertProperties: true },
       });
       db.automigrate(['Book', 'Author', 'Reader'], done);
     });
@@ -4786,19 +4849,19 @@ describe('relations', function () {
 
   });
 
-  describe('referencesMany', function () {
+  describe('referencesMany', function() {
 
     var job1, job2, job3;
 
-    before(function (done) {
+    before(function(done) {
       // db = getSchema();
-      Category = db.define('Category', {name: String});
-      Job = db.define('Job', {name: String});
+      Category = db.define('Category', { name: String });
+      Job = db.define('Job', { name: String });
 
       db.automigrate(['Job', 'Category'], done);
     });
 
-    it('can be declared', function (done) {
+    it('can be declared', function(done) {
       var reverse = function(cb) {
         cb = cb || createPromiseCallback();
         var modelInstance = this.modelInstance;
@@ -4814,8 +4877,8 @@ describe('relations', function () {
       reverse.http = { verb: 'put', path: '/jobs/reverse' };
 
       Category.referencesMany(Job, { scopeMethods: {
-        reverse: reverse
-      } });
+        reverse: reverse,
+      }});
 
       Category.prototype['__reverse__jobs'].should.be.a.function;
       should.exist(Category.prototype['__reverse__jobs'].shared);
@@ -4824,7 +4887,7 @@ describe('relations', function () {
       db.automigrate(['Job', 'Category'], done);
     });
 
-    it('should setup test records', function (done) {
+    it('should setup test records', function(done) {
       Job.create({ name: 'Job 1' }, function(err, p) {
         job1 = p;
         Job.create({ name: 'Job 3' }, function(err, p) {
@@ -4834,7 +4897,7 @@ describe('relations', function () {
       });
     });
 
-    it('should create record on scope', function (done) {
+    it('should create record on scope', function(done) {
       Category.create({ name: 'Category A' }, function(err, cat) {
         cat.jobIds.should.be.an.array;
         cat.jobIds.should.have.length(0);
@@ -4849,7 +4912,7 @@ describe('relations', function () {
       });
     });
 
-    it('should not allow duplicate record on scope', function (done) {
+    it('should not allow duplicate record on scope', function(done) {
       Category.findOne(function(err, cat) {
         cat.jobIds = [job2.id, job2.id];
         cat.save(function(err, p) {
@@ -4861,7 +4924,7 @@ describe('relations', function () {
       });
     });
 
-    it('should find items on scope', function (done) {
+    it('should find items on scope', function(done) {
       Category.findOne(function(err, cat) {
         cat.jobIds.should.eql([job2.id]);
         cat.jobs(function(err, jobs) {
@@ -4874,7 +4937,7 @@ describe('relations', function () {
       });
     });
 
-    it('should find items on scope - findById', function (done) {
+    it('should find items on scope - findById', function(done) {
       Category.findOne(function(err, cat) {
         cat.jobIds.should.eql([job2.id]);
         cat.jobs.findById(job2.id, function(err, p) {
@@ -4887,7 +4950,7 @@ describe('relations', function () {
       });
     });
 
-    it('should check if a record exists on scope', function (done) {
+    it('should check if a record exists on scope', function(done) {
       Category.findOne(function(err, cat) {
         cat.jobs.exists(job2.id, function(err, exists) {
           should.not.exist(err);
@@ -4897,7 +4960,7 @@ describe('relations', function () {
       });
     });
 
-    it('should update a record on scope', function (done) {
+    it('should update a record on scope', function(done) {
       Category.findOne(function(err, cat) {
         var attrs = { name: 'Job 2 - edit' };
         cat.jobs.updateById(job2.id, attrs, function(err, p) {
@@ -4908,7 +4971,7 @@ describe('relations', function () {
       });
     });
 
-    it('should get a record by index - at', function (done) {
+    it('should get a record by index - at', function(done) {
       Category.findOne(function(err, cat) {
         cat.jobs.at(0, function(err, p) {
           should.not.exist(err);
@@ -4920,7 +4983,7 @@ describe('relations', function () {
       });
     });
 
-    it('should add a record to scope - object', function (done) {
+    it('should add a record to scope - object', function(done) {
       Category.findOne(function(err, cat) {
         cat.jobs.add(job1, function(err, prod) {
           should.not.exist(err);
@@ -4932,7 +4995,7 @@ describe('relations', function () {
       });
     });
 
-    it('should add a record to scope - object', function (done) {
+    it('should add a record to scope - object', function(done) {
       Category.findOne(function(err, cat) {
         cat.jobs.add(job3.id, function(err, prod) {
           should.not.exist(err);
@@ -4945,7 +5008,7 @@ describe('relations', function () {
       });
     });
 
-    it('should find items on scope - findById', function (done) {
+    it('should find items on scope - findById', function(done) {
       Category.findOne(function(err, cat) {
         cat.jobs.findById(job3.id, function(err, p) {
           should.not.exist(err);
@@ -4956,9 +5019,9 @@ describe('relations', function () {
       });
     });
 
-    it('should find items on scope - filter', function (done) {
+    it('should find items on scope - filter', function(done) {
       Category.findOne(function(err, cat) {
-        var filter = { where: { name: 'Job 1' } };
+        var filter = { where: { name: 'Job 1' }};
         cat.jobs(filter, function(err, jobs) {
           should.not.exist(err);
           jobs.should.have.length(1);
@@ -4970,7 +5033,7 @@ describe('relations', function () {
       });
     });
 
-    it('should remove items from scope', function (done) {
+    it('should remove items from scope', function(done) {
       Category.findOne(function(err, cat) {
         cat.jobs.remove(job1.id, function(err, ids) {
           should.not.exist(err);
@@ -4982,7 +5045,7 @@ describe('relations', function () {
       });
     });
 
-    it('should find items on scope - verify', function (done) {
+    it('should find items on scope - verify', function(done) {
       Category.findOne(function(err, cat) {
         var expected = [job2.id, job3.id];
         cat.jobIds.should.eql(expected);
@@ -4999,13 +5062,13 @@ describe('relations', function () {
     it('should find items on scope and ordered them by name DESC', function(done) {
       Category.find(function(err, categories) {
         categories.should.have.length(1);
-        categories[0].jobs({order: 'name DESC'}, function (err, jobs) {
+        categories[0].jobs({ order: 'name DESC' }, function(err, jobs) {
           should.not.exist(err);
           jobs.should.have.length(2);
-          jobs[0].id.should.eql(job3.id)
-          jobs[1].id.should.eql(job2.id)
+          jobs[0].id.should.eql(job3.id);
+          jobs[1].id.should.eql(job2.id);
           done();
-        })
+        });
       });
     });
 
@@ -5017,7 +5080,7 @@ describe('relations', function () {
           cat.jobIds.should.eql(expected);
           done();
         });
-      })
+      });
     });
 
     it('should include related items from scope', function(done) {
@@ -5032,7 +5095,7 @@ describe('relations', function () {
       });
     });
 
-    it('should destroy items from scope - destroyById', function (done) {
+    it('should destroy items from scope - destroyById', function(done) {
       Category.findOne(function(err, cat) {
         cat.jobs.destroy(job2.id, function(err) {
           should.not.exist(err);
@@ -5048,7 +5111,7 @@ describe('relations', function () {
       });
     });
 
-    it('should find items on scope - verify', function (done) {
+    it('should find items on scope - verify', function(done) {
       Category.findOne(function(err, cat) {
         var expected = [job3.id];
         cat.jobIds.should.eql(expected);
@@ -5061,21 +5124,21 @@ describe('relations', function () {
       });
     });
 
-    it('should setup test records with promises', function (done) {
-      db.automigrate(['Job', 'Category'], function () {
+    it('should setup test records with promises', function(done) {
+      db.automigrate(['Job', 'Category'], function() {
         return Job.create({ name: 'Job 1' })
-        .then(function (p) {
+        .then(function(p) {
           job1 = p;
-          return Job.create({ name: 'Job 3' })
+          return Job.create({ name: 'Job 3' });
         })
-        .then(function (p) {
-            job3 = p;
-            done();
+        .then(function(p) {
+          job3 = p;
+          done();
         }).catch(done);
       });
     });
 
-    it('should create record on scope with promises', function (done) {
+    it('should create record on scope with promises', function(done) {
       Category.create({ name: 'Category A' })
       .then(function(cat) {
         cat.jobIds.should.be.an.array;
@@ -5091,33 +5154,28 @@ describe('relations', function () {
       }).catch(done);
     });
 
-
-
-    it('should not allow duplicate record on scope with promises', function (done) {
+    it('should not allow duplicate record on scope with promises', function(done) {
       Category.findOne()
-      .then(function (cat) {
-        cat.jobIds = [job2.id, job2.id];
-        cat.save()
-      })
-      .then(function (p) {
-        should.not.exist(p);
-        done();
-      })
-      .catch(function (err) {
-        should.exist(err);
-        err.name.should.equal('ValidationError');
-        err.details.codes.jobs.should.eql(['uniqueness']);
-        done();
-      });
+        .then(function(cat) {
+          cat.jobIds = [job2.id, job2.id];
+          return cat.save();
+        })
+        .then(
+           function(p) { done(new Error('save() should have failed')); },
+           function(err) {
+             err.name.should.equal('ValidationError');
+             err.details.codes.jobs.should.eql(['uniqueness']);
+             done();
+           });
     });
 
-    it('should find items on scope with promises', function (done) {
+    it('should find items on scope with promises', function(done) {
       Category.findOne()
-      .then(function (cat) {
+      .then(function(cat) {
         cat.jobIds.should.eql([job2.id]);
-        return cat.jobs.getAsync()
+        return cat.jobs.getAsync();
       })
-      .then(function (jobs) {
+      .then(function(jobs) {
         var p = jobs[0];
         p.id.should.eql(job2.id);
         p.name.should.equal('Job 2');
@@ -5126,13 +5184,13 @@ describe('relations', function () {
       .catch(done);
     });
 
-    it('should find items on scope with promises - findById', function (done) {
+    it('should find items on scope with promises - findById', function(done) {
       Category.findOne()
-      .then(function (cat) {
+      .then(function(cat) {
         cat.jobIds.should.eql([job2.id]);
-        return cat.jobs.findById(job2.id)
+        return cat.jobs.findById(job2.id);
       })
-      .then(function (p) {
+      .then(function(p) {
         p.should.be.instanceof(Job);
         p.id.should.eql(job2.id);
         p.name.should.equal('Job 2');
@@ -5141,36 +5199,36 @@ describe('relations', function () {
       .catch(done);
     });
 
-    it('should check if a record exists on scope with promises', function (done) {
+    it('should check if a record exists on scope with promises', function(done) {
       Category.findOne()
-      .then(function (cat) {
+      .then(function(cat) {
         return cat.jobs.exists(job2.id)
-        .then(function (exists) {
+        .then(function(exists) {
           should.exist(exists);
           done();
         });
       }).catch(done);
     });
 
-    it('should update a record on scope with promises', function (done) {
+    it('should update a record on scope with promises', function(done) {
       Category.findOne()
-      .then(function (cat) {
+      .then(function(cat) {
         var attrs = { name: 'Job 2 - edit' };
         return cat.jobs.updateById(job2.id, attrs)
-        .then(function (p) {
+        .then(function(p) {
           p.name.should.equal(attrs.name);
           done();
-        })
+        });
       })
       .catch(done);
     });
 
-    it('should get a record by index with promises - at', function (done) {
+    it('should get a record by index with promises - at', function(done) {
       Category.findOne()
-      .then(function (cat) {
-        return cat.jobs.at(0)
+      .then(function(cat) {
+        return cat.jobs.at(0);
       })
-      .then(function (p) {
+      .then(function(p) {
         p.should.be.instanceof(Job);
         p.id.should.eql(job2.id);
         p.name.should.equal('Job 2 - edit');
@@ -5179,11 +5237,11 @@ describe('relations', function () {
       .catch(done);
     });
 
-    it('should add a record to scope with promises - object', function (done) {
+    it('should add a record to scope with promises - object', function(done) {
       Category.findOne()
-      .then(function (cat) {
+      .then(function(cat) {
         return cat.jobs.add(job1)
-        .then(function (prod) {
+        .then(function(prod) {
           cat.jobIds.should.eql([job2.id, job1.id]);
           prod.id.should.eql(job1.id);
           prod.should.have.property('name');
@@ -5193,11 +5251,11 @@ describe('relations', function () {
       .catch(done);
     });
 
-    it('should add a record to scope with promises - object', function (done) {
+    it('should add a record to scope with promises - object', function(done) {
       Category.findOne()
-      .then(function (cat) {
+      .then(function(cat) {
         return cat.jobs.add(job3.id)
-        .then(function (prod) {
+        .then(function(prod) {
           var expected = [job2.id, job1.id, job3.id];
           cat.jobIds.should.eql(expected);
           prod.id.should.eql(job3.id);
@@ -5208,12 +5266,12 @@ describe('relations', function () {
       .catch(done);
     });
 
-    it('should find items on scope with promises - findById', function (done) {
+    it('should find items on scope with promises - findById', function(done) {
       Category.findOne()
-      .then(function (cat) {
-        return cat.jobs.findById(job3.id)
+      .then(function(cat) {
+        return cat.jobs.findById(job3.id);
       })
-      .then(function (p) {
+      .then(function(p) {
         p.id.should.eql(job3.id);
         p.name.should.equal('Job 3');
         done();
@@ -5221,13 +5279,13 @@ describe('relations', function () {
       .catch(done);
     });
 
-    it('should find items on scope with promises - filter', function (done) {
+    it('should find items on scope with promises - filter', function(done) {
       Category.findOne()
-      .then(function (cat) {
-        var filter = { where: { name: 'Job 1' } };
-        return cat.jobs.getAsync(filter)
+      .then(function(cat) {
+        var filter = { where: { name: 'Job 1' }};
+        return cat.jobs.getAsync(filter);
       })
-      .then(function (jobs) {
+      .then(function(jobs) {
         jobs.should.have.length(1);
         var p = jobs[0];
         p.id.should.eql(job1.id);
@@ -5237,11 +5295,11 @@ describe('relations', function () {
       .catch(done);
     });
 
-    it('should remove items from scope with promises', function (done) {
+    it('should remove items from scope with promises', function(done) {
       Category.findOne()
-      .then(function (cat) {
+      .then(function(cat) {
         return cat.jobs.remove(job1.id)
-        .then(function (ids) {
+        .then(function(ids) {
           var expected = [job2.id, job3.id];
           cat.jobIds.should.eql(expected);
           ids.should.eql(cat.jobIds);
@@ -5251,14 +5309,14 @@ describe('relations', function () {
       .catch(done);
     });
 
-    it('should find items on scope with promises - verify', function (done) {
+    it('should find items on scope with promises - verify', function(done) {
       Category.findOne()
-      .then(function (cat) {
+      .then(function(cat) {
         var expected = [job2.id, job3.id];
         cat.jobIds.should.eql(expected);
-        return cat.jobs.getAsync()
+        return cat.jobs.getAsync();
       })
-      .then(function (jobs) {
+      .then(function(jobs) {
         jobs.should.have.length(2);
         jobs[0].id.should.eql(job2.id);
         jobs[1].id.should.eql(job3.id);
@@ -5267,13 +5325,13 @@ describe('relations', function () {
       .catch(done);
     });
 
-    it('should find items on scope and ordered them by name DESC', function (done) {
+    it('should find items on scope and ordered them by name DESC', function(done) {
       Category.find()
-      .then(function (categories) {
+      .then(function(categories) {
         categories.should.have.length(1);
-        return categories[0].jobs.getAsync({order: 'name DESC'})
+        return categories[0].jobs.getAsync({ order: 'name DESC' });
       })
-      .then(function (jobs) {
+      .then(function(jobs) {
         jobs.should.have.length(2);
         jobs[0].id.should.eql(job3.id);
         jobs[1].id.should.eql(job2.id);
@@ -5284,9 +5342,9 @@ describe('relations', function () {
 
     it('should allow custom scope methods with promises - reverse', function(done) {
       Category.findOne()
-      .then(function (cat) {
+      .then(function(cat) {
         return cat.jobs.reverse()
-        .then(function (ids) {
+        .then(function(ids) {
           var expected = [job3.id, job2.id];
           ids.should.eql(expected);
           cat.jobIds.should.eql(expected);
@@ -5298,7 +5356,7 @@ describe('relations', function () {
 
     it('should include related items from scope with promises', function(done) {
       Category.find({ include: 'jobs' })
-      .then(function (categories) {
+      .then(function(categories) {
         categories.should.have.length(1);
         var cat = categories[0].toObject();
         cat.name.should.equal('Category A');
@@ -5309,16 +5367,16 @@ describe('relations', function () {
       }).catch(done);
     });
 
-    it('should destroy items from scope with promises - destroyById', function (done) {
+    it('should destroy items from scope with promises - destroyById', function(done) {
       Category.findOne()
-      .then(function (cat) {
+      .then(function(cat) {
         return cat.jobs.destroy(job2.id)
-        .then(function () {
+        .then(function() {
           var expected = [job3.id];
           cat.jobIds.should.eql(expected);
-          return Job.exists(job2.id)
+          return Job.exists(job2.id);
         })
-        .then(function (exists) {
+        .then(function(exists) {
           should.exist(exists);
           exists.should.be.false;
           done();
@@ -5327,36 +5385,34 @@ describe('relations', function () {
       .catch(done);
     });
 
-    it('should find items on scope with promises - verify', function (done) {
+    it('should find items on scope with promises - verify', function(done) {
       Category.findOne()
-      .then(function (cat) {
+      .then(function(cat) {
         var expected = [job3.id];
         cat.jobIds.should.eql(expected);
-        return cat.jobs.getAsync()
+        return cat.jobs.getAsync();
       })
-      .then(function (jobs) {
+      .then(function(jobs) {
         jobs.should.have.length(1);
         jobs[0].id.should.eql(job3.id);
         done();
       })
       .catch(done);
     });
-
   });
 
-
-  describe('custom relation/scope methods', function () {
+  describe('custom relation/scope methods', function() {
     var categoryId;
 
-    before(function (done) {
+    before(function(done) {
       // db = getSchema();
-      Category = db.define('Category', {name: String});
-      Job = db.define('Job', {name: String});
+      Category = db.define('Category', { name: String });
+      Job = db.define('Job', { name: String });
 
       db.automigrate(['Job', 'Category'], done);
     });
 
-    it('can be declared', function (done) {
+    it('can be declared', function(done) {
       var relation = Category.hasMany(Job);
 
       var summarize = function(cb) {
@@ -5386,21 +5442,21 @@ describe('relations', function () {
       db.automigrate(['Job', 'Category'], done);
     });
 
-    it('should setup test records', function (done) {
+    it('should setup test records', function(done) {
       Category.create({ name: 'Category A' }, function(err, cat) {
         categoryId = cat.id;
         cat.jobs.create({ name: 'Job 1' }, function(err, p) {
           cat.jobs.create({ name: 'Job 2' }, function(err, p) {
             done();
           });
-        })
+        });
       });
     });
 
     it('should allow custom scope methods - summarize', function(done) {
       var expected = [
         { name: 'Job 1', categoryId: categoryId, categoryName: 'Category A' },
-        { name: 'Job 2', categoryId: categoryId, categoryName: 'Category A' }
+        { name: 'Job 2', categoryId: categoryId, categoryName: 'Category A' },
       ];
 
       Category.findOne(function(err, cat) {
@@ -5413,20 +5469,20 @@ describe('relations', function () {
           result.should.eql(expected);
           done();
         });
-      })
+      });
     });
 
     it('should allow custom scope methods with promises - summarize', function(done) {
       var expected = [
         { name: 'Job 1', categoryId: categoryId, categoryName: 'Category A' },
-        { name: 'Job 2', categoryId: categoryId, categoryName: 'Category A' }
+        { name: 'Job 2', categoryId: categoryId, categoryName: 'Category A' },
       ];
 
       Category.findOne()
-      .then(function (cat) {
-        return cat.jobs.summarize()
+      .then(function(cat) {
+        return cat.jobs.summarize();
       })
-      .then(function (summary) {
+      .then(function(summary) {
         var result = summary.map(function(item) {
           delete item.id;
           return item;

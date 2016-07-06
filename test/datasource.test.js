@@ -1,3 +1,8 @@
+// Copyright IBM Corp. 2016. All Rights Reserved.
+// Node module: loopback-datasource-juggler
+// This file is licensed under the MIT License.
+// License text available at https://opensource.org/licenses/MIT
+
 var should = require('./init.js');
 var DataSource = require('../lib/datasource.js').DataSource;
 
@@ -14,7 +19,7 @@ describe('DataSource', function() {
       // this is what LoopBack does
       return new DataSource({
         name: 'dsname',
-        connector: throwingConnector
+        connector: throwingConnector,
       });
     }).should.throw(/loopback-connector-throwing/);
   });

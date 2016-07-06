@@ -1,3 +1,8 @@
+// Copyright IBM Corp. 2013,2016. All Rights Reserved.
+// Node module: loopback-datasource-juggler
+// This file is licensed under the MIT License.
+// License text available at https://opensource.org/licenses/MIT
+
 var path = require('path'),
   fs = require('fs'),
   DataSource = require('../lib/datasource').DataSource;
@@ -17,7 +22,6 @@ function loadSchemasSync(schemaFile, dataSource) {
   var schemas = JSON.parse(fs.readFileSync(schemaFile));
 
   return dataSource.buildModels(schemas);
-
 }
 
 var models = loadSchemasSync(path.join(__dirname, 'jdb-schemas.json'));

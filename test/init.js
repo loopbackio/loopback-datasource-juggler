@@ -1,3 +1,8 @@
+// Copyright IBM Corp. 2013,2016. All Rights Reserved.
+// Node module: loopback-datasource-juggler
+// This file is licensed under the MIT License.
+// License text available at https://opensource.org/licenses/MIT
+
 module.exports = require('should');
 
 /*
@@ -16,13 +21,13 @@ var ModelBuilder = require('../').ModelBuilder;
 var Schema = require('../').Schema;
 
 if (!('getSchema' in global)) {
-  global.getSchema = function (connector, settings) {
+  global.getSchema = function(connector, settings) {
     return new Schema(connector || 'memory', settings);
   };
 }
 
 if (!('getModelBuilder' in global)) {
-  global.getModelBuilder = function () {
+  global.getModelBuilder = function() {
     return new ModelBuilder();
   };
 }

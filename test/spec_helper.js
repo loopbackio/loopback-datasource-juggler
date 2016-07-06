@@ -1,3 +1,10 @@
+// Copyright IBM Corp. 2011,2016. All Rights Reserved.
+// Node module: loopback-datasource-juggler
+// This file is licensed under the MIT License.
+// License text available at https://opensource.org/licenses/MIT
+
+/* eslint-disable camelcase */
+
 /*
  if (!process.env.TRAVIS) {
  var semicov = require('semicov');
@@ -23,12 +30,12 @@ function context(name, tests) {
   EXT_EXP[name] = {};
   group_name = name;
   tests({
-    before: function (f) {
+    before: function(f) {
       it('setUp', f);
     },
-    after: function (f) {
+    after: function(f) {
       it('tearDown', f);
-    }
+    },
   });
   group_name = false;
 }
