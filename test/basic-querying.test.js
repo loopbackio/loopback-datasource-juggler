@@ -127,22 +127,16 @@ describe('basic-querying', function() {
 
   describe('find', function() {
 
-    before(function() {
-      seed(function setupDelayingLoadedHook() {
-        User.observe('loaded', function(ctx, next) {
-          var randomTimeoutTrigger = Math.floor(Math.random() * 100);
+    before(seed);
 
-          setTimeout(function() {
-            process.nextTick(next);
-          }, randomTimeoutTrigger);
-        });
-      });
+    before(function setupDelayingLoadedHook(cb) {
+      User.observe('loaded', nextAfterDelay);
+      cb();
     });
 
-    after(function removeDelayingLoadHook() {
-      User.observe('loaded', function(ctx, next) {
-        next();
-      });
+    after(function removeDelayingLoadHook(cb) {
+      User.removeObserver('loaded', nextAfterDelay);
+      cb();
     });
 
     it('should query collection', function(done) {
@@ -237,15 +231,13 @@ describe('basic-querying', function() {
     });
 
     it('should query sorted desc by order integer field even though there' +
-       'is an async model loaded hook', function(done) {
+        'is an async model loaded hook', function(done) {
       User.find({ order: 'order DESC' }, function(err, users) {
         if (err) return done(err);
 
         should.exists(users);
-        should.not.exists(err);
-        users.pop().order.should.equal(1);
-        users.pop().order.should.equal(2);
-        users.shift().order.should.equal(6);
+        var order = users.map(function(u) { return u.order; });
+        order.should.eql([6,5,4,3,2,1]);
         done();
       });
     });
@@ -855,4 +847,9 @@ function seed(done) {
       async.each(beatles, User.create.bind(User), cb);
     },
   ], done);
+}
+
+function nextAfterDelay(ctx, next) {
+  var randomTimeoutTrigger = Math.floor(Math.random() * 100);
+  setTimeout(function() { process.nextTick(next); }, randomTimeoutTrigger);
 }
