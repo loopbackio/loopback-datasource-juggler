@@ -129,6 +129,16 @@ describe('basic-querying', function() {
 
     before(seed);
 
+    before(function setupDelayingLoadedHook(cb) {
+      User.observe('loaded', nextAfterDelay);
+      cb();
+    });
+
+    after(function removeDelayingLoadHook(cb) {
+      User.removeObserver('loaded', nextAfterDelay);
+      cb();
+    });
+
     it('should query collection', function(done) {
       User.find(function(err, users) {
         should.exists(users);
@@ -216,6 +226,18 @@ describe('basic-querying', function() {
         users.pop().name.should.equal('George Harrison');
         users.pop().name.should.equal('John Lennon');
         users.shift().name.should.equal('Stuart Sutcliffe');
+        done();
+      });
+    });
+
+    it('should query sorted desc by order integer field even though there' +
+        'is an async model loaded hook', function(done) {
+      User.find({ order: 'order DESC' }, function(err, users) {
+        if (err) return done(err);
+
+        should.exists(users);
+        var order = users.map(function(u) { return u.order; });
+        order.should.eql([6,5,4,3,2,1]);
         done();
       });
     });
@@ -825,4 +847,9 @@ function seed(done) {
       async.each(beatles, User.create.bind(User), cb);
     },
   ], done);
+}
+
+function nextAfterDelay(ctx, next) {
+  var randomTimeoutTrigger = Math.floor(Math.random() * 100);
+  setTimeout(function() { process.nextTick(next); }, randomTimeoutTrigger);
 }
