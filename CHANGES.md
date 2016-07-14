@@ -1,3 +1,17 @@
+2016-07-14, Version 2.47.0
+==========================
+
+ * Ensure stable order of items in DAO.find() (Miroslav Bajtoš)
+
+ * give options to validators #984 (RobinBiondi)
+
+ * Update datasource.js (Amir Jafarian)
+
+ * Give warning if PK is changed in hooks (Amir Jafarian)
+
+ * Persist changes on parent for embedsOne (Dimitris Halatsis)
+
+
 2016-06-03, Version 2.46.1
 ==========================
 
