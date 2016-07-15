@@ -52,6 +52,17 @@ describe('datatypes', function() {
       done();
     });
 
+  it('throws an error when property of type Date is set to an invalid value',
+    function() {
+      var myModel = db.define('myModel', {
+        date: { type: Date },
+      });
+
+      (function() {
+        myModel.create({ date: 'invalid' });
+      }).should.throw({ message: 'Invalid date: invalid' });
+    });
+
   it('should keep types when get read data from db', function(done) {
     var d = new Date, id;
 
