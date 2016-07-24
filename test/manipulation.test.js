@@ -1622,7 +1622,7 @@ describe('manipulation', function() {
       p1.should.have.property('married', undefined);
     });
 
-    it('should coerce boolean types properly', function() {
+    it('should coerce date types properly', function() {
       var p1 = new Person({ name: 'John', dob: '2/1/2015' });
       p1.dob.should.eql(new Date('2/1/2015'));
 
