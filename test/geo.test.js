@@ -6,9 +6,11 @@
 /*global describe,it*/
 /*jshint expr:true */
 
-require('should');
+var should = require('should');
 
 var GeoPoint = require('../lib/geo').GeoPoint;
+var nearFilter = require('../lib/geo').nearFilter;
+
 var DELTA = 0.0000001;
 
 describe('GeoPoint', function() {
@@ -129,5 +131,98 @@ describe('GeoPoint', function() {
       distance.should.be.a.Number;
       distance.should.be.approximately(0.0004483676593058972, DELTA);
     });
+  });
+});
+
+describe('nearFilter', function() {
+  it('should handle an empty where gracefully', function() {
+    var result = nearFilter(null);
+    result.should.be.false;
+  });
+
+  it('should handle a simple where filter with location', function() {
+    var result = nearFilter({
+      location: {
+        near: { lat: 0, lng: 0 },
+      },
+    });
+
+    should.exist(result);
+    result.near.lat.should.equal(0);
+    result.near.lng.should.equal(0);
+    should.not.exist(result.maxDistance);
+    should.not.exist(result.unit);
+    result.key.length.should.be.exactly(1);
+    result.key[0].should.be.exactly('location');
+  });
+
+  it('should handle a simple where filter with location and maxDistance', function() {
+    var result = nearFilter({
+      location: {
+        near: { lat: 0, lng: 0 },
+        maxDistance: 100,
+      },
+    });
+
+    should.exist(result);
+    result.near.lat.should.equal(0);
+    result.near.lng.should.equal(0);
+    should.exist(result.maxDistance);
+    result.maxDistance.should.equal(100);
+    should.not.exist(result.unit);
+    result.key.length.should.be.exactly(1);
+    result.key[0].should.be.exactly('location');
+  });
+
+  it('should handle logical operators with location', function() {
+    var result = nearFilter({
+      and: [
+        {
+          location: {
+            near: { lat: 0, lng: 0 },
+          },
+        },
+        {
+          title: 'test',
+        },
+      ],
+    });
+
+    should.exist(result);
+    result.near.lat.should.equal(0);
+    result.near.lng.should.equal(0);
+    should.not.exist(result.maxDistance);
+    should.not.exist(result.unit);
+    result.key.length.should.equal(3);
+    result.key[0].should.equal('and');
+    result.key[1].should.equal('0');
+    result.key[2].should.equal('location');
+  });
+
+  it('should handle logical operators with location and maxDistance', function() {
+    var result = nearFilter({
+      and: [
+        {
+          location: {
+            near: { lat: 0, lng: 0 },
+            maxDistance: 100,
+          },
+        },
+        {
+          title: 'test',
+        },
+      ],
+    });
+
+    should.exist(result);
+    result.near.lat.should.equal(0);
+    result.near.lng.should.equal(0);
+    should.exist(result.maxDistance);
+    result.maxDistance.should.equal(100);
+    should.not.exist(result.unit);
+    result.key.length.should.equal(3);
+    result.key[0].should.equal('and');
+    result.key[1].should.equal('0');
+    result.key[2].should.equal('location');
   });
 });
