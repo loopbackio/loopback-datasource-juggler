@@ -134,13 +134,18 @@ describe('GeoPoint', function() {
   });
 });
 
-describe('nearFilter', function() {
-  it('should handle an empty where gracefully', function() {
+describe('nearFilter()', function() {
+  it('handles a null where filter parameter gracefully', function() {
     var result = nearFilter(null);
     result.should.be.false;
   });
 
-  it('should handle a simple where filter with location', function() {
+  it('handles an empty where filter parameter gracefully', function() {
+    var result = nearFilter({});
+    result.should.be.false;
+  });
+
+  it('returns a parsed near object when provided a flat where filter with location', function() {
     var result = nearFilter({
       location: {
         near: { lat: 0, lng: 0 },
@@ -156,7 +161,8 @@ describe('nearFilter', function() {
     result.key[0].should.be.exactly('location');
   });
 
-  it('should handle a simple where filter with location and maxDistance', function() {
+  it('returns a parsed near object when provided a flat where filter ' +
+    'with location and maxDistance', function() {
     var result = nearFilter({
       location: {
         near: { lat: 0, lng: 0 },
@@ -174,7 +180,8 @@ describe('nearFilter', function() {
     result.key[0].should.be.exactly('location');
   });
 
-  it('should handle logical operators with location', function() {
+  it('returns a parsed near object when provided a where filter with logical ' +
+    'operators and location', function() {
     var result = nearFilter({
       and: [
         {
@@ -199,7 +206,8 @@ describe('nearFilter', function() {
     result.key[2].should.equal('location');
   });
 
-  it('should handle logical operators with location and maxDistance', function() {
+  it('returns a parsed near object when provided a where filter with logical ' +
+    'operators and location and maxDistance', function() {
     var result = nearFilter({
       and: [
         {
