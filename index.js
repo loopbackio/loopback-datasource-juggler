@@ -19,3 +19,5 @@ Object.defineProperty(exports, 'test', {
 });
 
 exports.Transaction = require('loopback-connector').Transaction;
+
+exports.KeyValueAccessObject = require('./lib/kvao');
