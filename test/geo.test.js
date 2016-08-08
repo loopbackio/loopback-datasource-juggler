@@ -233,4 +233,88 @@ describe('nearFilter()', function() {
     result.key[1].should.equal('0');
     result.key[2].should.equal('location');
   });
+
+  it('returns a parsed near object when provided a where filter with logical ' +
+    'operators and location and maxDistance regardless of the filter order', function() {
+    var result = nearFilter({
+      and: [
+        {
+          title: 'test',
+        },
+        {
+          location: {
+            near: { lat: 0, lng: 0 },
+            maxDistance: 100,
+          },
+        },
+      ],
+    });
+
+    should.exist(result);
+    result.near.lat.should.equal(0);
+    result.near.lng.should.equal(0);
+    should.exist(result.maxDistance);
+    result.maxDistance.should.equal(100);
+    should.not.exist(result.unit);
+    result.key.length.should.equal(3);
+    result.key[0].should.equal('and');
+    result.key[1].should.equal('1');
+    result.key[2].should.equal('location');
+
+    result = nearFilter({
+      and: [
+        {
+          test: 'test',
+        },
+        {
+          title: 'test',
+        },
+        {
+          location: {
+            near: { lat: 0, lng: 0 },
+            maxDistance: 100,
+          },
+        },
+      ],
+    });
+
+    should.exist(result);
+    result.near.lat.should.equal(0);
+    result.near.lng.should.equal(0);
+    should.exist(result.maxDistance);
+    result.maxDistance.should.equal(100);
+    should.not.exist(result.unit);
+    result.key.length.should.equal(3);
+    result.key[0].should.equal('and');
+    result.key[1].should.equal('2');
+    result.key[2].should.equal('location');
+
+    result = nearFilter({
+      and: [
+        {
+          test: 'test',
+        },
+        {
+          location: {
+            near: { lat: 0, lng: 0 },
+            maxDistance: 100,
+          },
+        },
+        {
+          title: 'test',
+        },
+      ],
+    });
+
+    should.exist(result);
+    result.near.lat.should.equal(0);
+    result.near.lng.should.equal(0);
+    should.exist(result.maxDistance);
+    result.maxDistance.should.equal(100);
+    should.not.exist(result.unit);
+    result.key.length.should.equal(3);
+    result.key[0].should.equal('and');
+    result.key[1].should.equal('1');
+    result.key[2].should.equal('location');
+  });
 });
