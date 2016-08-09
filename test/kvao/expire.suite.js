@@ -38,7 +38,10 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     it('returns error when key does not exist', function() {
       return CacheItem.expire('key-does-not-exist', 1).then(
         function() { throw new Error('expire() should have failed'); },
-        function(err) { err.message.should.match(/key-does-not-exist/); });
+        function(err) {
+          err.message.should.match(/key-does-not-exist/);
+          err.should.have.property('statusCode', 404);
+        });
     });
   });
 };
