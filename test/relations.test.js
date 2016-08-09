@@ -4190,7 +4190,7 @@ describe('relations', function() {
       tmp = getTransientDataSource();
       // db = getSchema();
       Person = db.define('Person', { name: String });
-      Address = tmp.define('Address', { street: String });
+      Address = tmp.define('Address', { street: String }, { forceId: false });
       Address.validatesPresenceOf('street');
 
       db.automigrate(['Person'], done);
@@ -4488,7 +4488,7 @@ describe('relations', function() {
       // db = getSchema();
       Category = db.define('Category', { name: String });
       Job = db.define('Job', { name: String });
-      Link = db.define('Link', { name: String, notes: String });
+      Link = db.define('Link', { name: String, notes: String }, { forceId: false });
     });
 
     it('can be declared', function(done) {
@@ -4509,10 +4509,13 @@ describe('relations', function() {
 
     it('should setup related items', function(done) {
       Job.create({ name: 'Job 1' }, function(err, p) {
+        if (err) return done(err);
         job1 = p;
         Job.create({ name: 'Job 2' }, function(err, p) {
+          if (err) return done(err);
           job2 = p;
           Job.create({ name: 'Job 3' }, function(err, p) {
+            if (err) return done(err);
             job3 = p;
             done();
           });
@@ -4522,11 +4525,13 @@ describe('relations', function() {
 
     it('should associate items on scope', function(done) {
       Category.create({ name: 'Category A' }, function(err, cat) {
+        if (err) return done(err);
         var link = cat.items.build();
         link.job(job1);
         var link = cat.items.build();
         link.job(job2);
         cat.save(function(err, cat) {
+          if (err) return done(err);
           var job = cat.items.at(0);
           job.should.be.instanceof(Link);
           job.should.not.have.property('jobId');
@@ -4542,6 +4547,7 @@ describe('relations', function() {
 
     it('should include related items on scope', function(done) {
       Category.findOne(function(err, cat) {
+        if (err) return done(err);
         cat.links.should.have.length(2);
 
         // denormalized properties:
@@ -4556,6 +4562,7 @@ describe('relations', function() {
         should.not.exist(cat.items.at(1).job());
 
         cat.items(function(err, items) {
+          if (err) return done(err);
           cat.items.at(0).job().should.be.instanceof(Job);
           cat.items.at(1).job().should.be.instanceof(Job);
           cat.items.at(1).job().name.should.equal('Job 2');
@@ -4566,8 +4573,10 @@ describe('relations', function() {
 
     it('should remove embedded items by id', function(done) {
       Category.findOne(function(err, cat) {
+        if (err) return done(err);
         cat.links.should.have.length(2);
         cat.items.destroy(job1.id, function(err) {
+          if (err) return done(err);
           should.not.exist(err);
           cat.links.should.have.length(1);
           done();
@@ -4577,6 +4586,7 @@ describe('relations', function() {
 
     it('should find items on scope', function(done) {
       Category.findOne(function(err, cat) {
+        if (err) return done(err);
         cat.links.should.have.length(1);
         cat.items.at(0).id.should.eql(job2.id);
         cat.items.at(0).name.should.equal(job2.name);
@@ -4585,6 +4595,7 @@ describe('relations', function() {
         should.not.exist(cat.items.at(0).job());
 
         cat.items(function(err, items) {
+          if (err) return done(err);
           cat.items.at(0).job().should.be.instanceof(Job);
           cat.items.at(0).job().name.should.equal('Job 2');
           done();
@@ -4594,8 +4605,10 @@ describe('relations', function() {
 
     it('should add related items to scope', function(done) {
       Category.findOne(function(err, cat) {
+        if (err) return done(err);
         cat.links.should.have.length(1);
         cat.items.add(job3, function(err, link) {
+          if (err) return done(err);
           link.should.be.instanceof(Link);
           link.id.should.eql(job3.id);
           link.name.should.equal('Job 3');
@@ -4608,6 +4621,7 @@ describe('relations', function() {
 
     it('should find items on scope', function(done) {
       Category.findOne(function(err, cat) {
+        if (err) return done(err);
         cat.links.should.have.length(2);
 
         cat.items.at(0).should.be.instanceof(Link);
@@ -4622,8 +4636,10 @@ describe('relations', function() {
 
     it('should remove embedded items by reference id', function(done) {
       Category.findOne(function(err, cat) {
+        if (err) return done(err);
         cat.links.should.have.length(2);
         cat.items.remove(job2.id, function(err) {
+          if (err) return done(err);
           should.not.exist(err);
           cat.links.should.have.length(1);
           done();
@@ -4633,6 +4649,7 @@ describe('relations', function() {
 
     it('should have removed embedded items by reference id', function(done) {
       Category.findOne(function(err, cat) {
+        if (err) return done(err);
         cat.links.should.have.length(1);
         done();
       });
@@ -4642,9 +4659,11 @@ describe('relations', function() {
 
     it('should create items on scope', function(done) {
       Category.create({ name: 'Category B' }, function(err, cat) {
+        if (err) return done(err);
         category = cat;
         var link = cat.items.build({ notes: 'Some notes...' });
         link.job.create({ name: 'Job 1' }, function(err, p) {
+          if (err) return done(err);
           jobId = p.id;
           cat.links[0].id.should.eql(p.id);
           cat.links[0].name.should.equal('Job 1'); // denormalized
@@ -4657,12 +4676,14 @@ describe('relations', function() {
 
     it('should find items on scope', function(done) {
       Category.findById(category.id, function(err, cat) {
+        if (err) return done(err);
         cat.name.should.equal('Category B');
         cat.links.toObject().should.eql([
           { id: jobId, name: 'Job 1', notes: 'Some notes...' },
         ]);
         cat.items.at(0).should.equal(cat.links[0]);
         cat.items(function(err, items) { // alternative access
+          if (err) return done(err);
           items.should.be.an.array;
           items.should.have.length(1);
           items[0].job(function(err, p) {
@@ -4675,8 +4696,10 @@ describe('relations', function() {
 
     it('should update items on scope - and save parent', function(done) {
       Category.findById(category.id, function(err, cat) {
+        if (err) return done(err);
         var link = cat.items.at(0);
         link.updateAttributes({ notes: 'Updated notes...' }, function(err, link) {
+          if (err) return done(err);
           link.notes.should.equal('Updated notes...');
           done();
         });
@@ -4685,6 +4708,7 @@ describe('relations', function() {
 
     it('should find items on scope - verify update', function(done) {
       Category.findById(category.id, function(err, cat) {
+        if (err) return done(err);
         cat.name.should.equal('Category B');
         cat.links.toObject().should.eql([
           { id: jobId, name: 'Job 1', notes: 'Updated notes...' },
@@ -4695,7 +4719,9 @@ describe('relations', function() {
 
     it('should remove items from scope - and save parent', function(done) {
       Category.findById(category.id, function(err, cat) {
+        if (err) return done(err);
         cat.items.at(0).destroy(function(err, link) {
+          if (err) return done(err);
           cat.links.should.eql([]);
           done();
         });
@@ -4704,6 +4730,7 @@ describe('relations', function() {
 
     it('should find items on scope - verify destroy', function(done) {
       Category.findById(category.id, function(err, cat) {
+        if (err) return done(err);
         cat.name.should.equal('Category B');
         cat.links.should.eql([]);
         done();

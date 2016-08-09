@@ -13,6 +13,7 @@ describe('crud-with-options', function() {
   before(function(done) {
     db = getSchema();
     User = db.define('User', {
+      id: { type: Number, id: true },
       seq: { type: Number, index: true },
       name: { type: String, index: true, sort: true },
       email: { type: String, index: true },

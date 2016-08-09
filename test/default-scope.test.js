@@ -94,6 +94,7 @@ describe('default scope', function() {
 
     Person = db.define('Person', { name: String }, {
       scope: { include: 'things' },
+      forceId: false,
     });
 
     // inst is only valid for instance methods

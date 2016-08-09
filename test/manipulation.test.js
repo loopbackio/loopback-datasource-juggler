@@ -61,6 +61,21 @@ describe('manipulation', function() {
       Person.destroyAll(done);
     });
 
+    describe('forceId', function() {
+      before(function(done) {
+        TestForceId = db.define('TestForceId');
+        db.automigrate('TestForceId', done);
+      });
+
+      it('it defaults to forceId:true for generated id property', function(done) {
+        TestForceId.create({ id: 1 }, function(err, t) {
+          should.exist(err);
+          err.message.should.match(/can\'t be set/);
+          done();
+        });
+      });
+    });
+
     it('should create instance', function(done) {
       Person.create({ name: 'Anatoliy' }, function(err, p) {
         p.name.should.equal('Anatoliy');
@@ -308,7 +323,7 @@ describe('manipulation', function() {
     it('should refuse to create object with duplicate id', function(done) {
       // NOTE(bajtos) We cannot reuse Person model here,
       // `settings.forceId` aborts the CREATE request at the validation step.
-      var Product = db.define('ProductTest', { name: String });
+      var Product = db.define('ProductTest', { name: String }, { forceId: false });
       db.automigrate('ProductTest', function(err) {
         if (err) return done(err);
 
@@ -825,7 +840,7 @@ describe('manipulation', function() {
           title: { type: String, length: 255, index: true },
           content: { type: String },
           comments: [String],
-        });
+        }, { forceId: false });
         ds.automigrate('Post', done);
       });
 
@@ -1046,6 +1061,8 @@ describe('manipulation', function() {
         ds.automigrate('Post', done);
       });
       beforeEach(function(done) {
+        // TODO(bajtos) add API to lib/observer - remove observers for all hooks
+        Post._observers = {};
         Post.destroyAll(function() {
           Post.create({ title: 'a', content: 'AAA' }, function(err, p) {
             if (err) return done(err);
