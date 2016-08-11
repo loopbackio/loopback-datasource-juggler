@@ -1,3 +1,57 @@
+2016-08-11, Version 3.0.0-alpha.6
+=================================
+
+ * Return error if the connector does not implement (Amir Jafarian)
+
+ * kv-memory: fix crash in regular cleanup (Miroslav Bajtoš)
+
+ * test/relation: add missing error handlers (Miroslav Bajtoš)
+
+ * forceId=true with auto-increment db (jannyHou)
+
+ * Fixup globalization (Amir Jafarian)
+
+ * kvao: return 404 when expiring unknown key (Miroslav Bajtoš)
+
+ * Implement KeyValue API and memory connector (Miroslav Bajtoš)
+
+ * Disallow bulk updateOrCreate. (Richard Pringle)
+
+ * Update globalization (Amir Jafarian)
+
+ * Use g.f instead of utils.format (Amir Jafarian)
+
+ * Optimize related model queries (Horia Radu)
+
+ * Support for globalization (Amir Jafarian)
+
+ * Update include.js (Rand McKinney)
+
+ * Fix test case typo (Supasate Choochaisri)
+
+ * Remove unused variables in model.js (Amir Jafarian)
+
+ * Declare `definition` (Amir Jafarian)
+
+ * Add test to catch invalid date property (Supasate Choochaisri)
+
+ * Update URLs in CONTRIBUTING.md (#1002) (Ryan Graham)
+
+ * Ensure stable order of items in DAO.find() (Miroslav Bajtoš)
+
+ * Add test for updateOrCreate (Amir Jafarian)
+
+ * Update validations.js (Rand McKinney)
+
+ * Remove DataSource.registerType() (gunjpan)
+
+ * give options to validators #984 (RobinBiondi)
+
+ * Throw Error for property names with dots (gunjpan)
+
+ * Update datasource.js (Ritchie Martori)
+
+
 2016-06-13, Version 3.0.0-alpha.5
 =================================
 
