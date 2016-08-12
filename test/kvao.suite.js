@@ -4,6 +4,9 @@ var debug = require('debug')('test');
 var fs = require('fs');
 var path = require('path');
 
+if (!global.Promise)
+  global.Promise = require('bluebird');
+
 module.exports = function(dataSourceFactory, connectorCapabilities) {
   describe('KeyValue API', function loadAllTestFiles() {
     var testRoot = path.resolve(__dirname, 'kvao');
