@@ -32,6 +32,7 @@
     "node >= 0.6"
   ],
   "devDependencies": {
+    "async-iterators": "^0.2.2",
     "eslint": "^2.5.3",
     "eslint-config-loopback": "^2.0.0",
     "mocha": "^2.1.0",
