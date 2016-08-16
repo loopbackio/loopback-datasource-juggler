@@ -1,3 +1,17 @@
+2016-08-16, Version 2.49.0
+==========================
+
+ * Fix error message for missing global.Promise (Miroslav Bajtoš)
+
+ * Add TTL for KeyValue related features (Simon Ho)
+
+ * test/kvao: setup global.Promise on Node v0.10 (Miroslav Bajtoš)
+
+ * kv-memory: fix crash in regular cleanup (Miroslav Bajtoš)
+
+ * Backport globalization (Amir Jafarian)
+
+
 2016-08-09, Version 2.48.0
 ==========================
 
