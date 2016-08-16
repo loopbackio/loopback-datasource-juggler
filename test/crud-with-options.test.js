@@ -517,6 +517,69 @@ describe('crud-with-options', function() {
   });
 });
 
+describe('upsertWithWhere', function() {
+  beforeEach(seed);
+  it('rejects upsertWithWhere (options,cb)', function(done) {
+    try {
+      User.upsertWithWhere({}, function(err) {
+        if (err) return done(err);
+      });
+    } catch (ex) {
+      ex.message.should.equal('The data argument must be an object');
+      done();
+    }
+  });
+
+  it('rejects upsertWithWhere (cb)', function(done) {
+    try {
+      User.upsertWithWhere(function(err) {
+        if (err) return done(err);
+      });
+    } catch (ex) {
+      ex.message.should.equal('The where argument must be an object');
+      done();
+    }
+  });
+
+  it('allows upsertWithWhere by accepting where,data and cb as arguments', function(done) {
+    User.upsertWithWhere({ name: 'John Lennon' }, { name: 'John Smith' }, function(err) {
+      if (err) return done(err);
+      User.find({ where: { name: 'John Lennon' }}, function(err, data) {
+        if (err) return done(err);
+        data.length.should.equal(0);
+        User.find({ where: { name: 'John Smith' }}, function(err, data) {
+          if (err) return done(err);
+          data.length.should.equal(1);
+          data[0].name.should.equal('John Smith');
+          data[0].email.should.equal('john@b3atl3s.co.uk');
+          data[0].role.should.equal('lead');
+          data[0].order.should.equal(2);
+          data[0].vip.should.equal(true);
+          done();
+        });
+      });
+    });
+  });
+
+  it('allows upsertWithWhere by accepting where, data, options, and cb as arguments', function(done) {
+    options = {};
+    User.upsertWithWhere({ name: 'John Lennon' }, { name: 'John Smith'  }, options, function(err) {
+      if (err) return done(err);
+      User.find({ where: { name: 'John Smith' }}, function(err, data) {
+        if (err) return done(err);
+        data.length.should.equal(1);
+        data[0].name.should.equal('John Smith');
+        data[0].seq.should.equal(0);
+        data[0].email.should.equal('john@b3atl3s.co.uk');
+        data[0].role.should.equal('lead');
+        data[0].order.should.equal(2);
+        data[0].vip.should.equal(true);
+        done();
+      });
+    });
+  });
+});
+
 function seed(done) {
   var beatles = [
     {

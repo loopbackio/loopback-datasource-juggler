@@ -2939,6 +2939,366 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       });
     });
 
+    describe('PersistedModel.upsertWithWhere', function() {
+      it('triggers hooks in the correct order on create', function(done) {
+        monitorHookExecution();
+        TestModel.upsertWithWhere({ extra: 'not-found' },
+          { id: 'not-found', name: 'not found', extra: 'not-found' },
+          function(err, record, created) {
+            if (err) return done(err);
+            hookMonitor.names.should.eql([
+              'access',
+              'before save',
+              'persist',
+              'loaded',
+              'after save',
+            ]);
+            TestModel.findById('not-found', function(err, data) {
+              if (err) return done(err);
+              data.name.should.equal('not found');
+              data.extra.should.equal('not-found');
+              done();
+            });
+          });
+      });
+
+      it('triggers hooks in the correct order on update', function(done) {
+        monitorHookExecution();
+        TestModel.upsertWithWhere({ id: existingInstance.id },
+          { name: 'new name', extra: 'new extra' },
+          function(err, record, created) {
+            if (err) return done(err);
+            hookMonitor.names.should.eql([
+              'access',
+              'before save',
+              'persist',
+              'loaded',
+              'after save',
+            ]);
+            TestModel.findById(existingInstance.id, function(err, data) {
+              if (err) return done(err);
+              data.name.should.equal('new name');
+              data.extra.should.equal('new extra');
+              done();
+            });
+          });
+      });
+
+      it('triggers `access` hook on create', function(done) {
+        TestModel.observe('access', ctxRecorder.recordAndNext());
+
+        TestModel.upsertWithWhere({ extra: 'not-found' },
+          { id: 'not-found', name: 'not found' },
+          function(err, instance) {
+            if (err) return done(err);
+            ctxRecorder.records.should.eql(aCtxForModel(TestModel, { query: {
+              where: { extra: 'not-found' },
+            }}));
+            done();
+          });
+      });
+
+      it('triggers `access` hook on update', function(done) {
+        TestModel.observe('access', ctxRecorder.recordAndNext());
+
+        TestModel.upsertWithWhere({ id: existingInstance.id },
+           { name: 'new name', extra: 'new extra' },
+           function(err, instance) {
+             if (err) return done(err);
+             ctxRecorder.records.should.eql(aCtxForModel(TestModel, { query: {
+               where: { id: existingInstance.id },
+             }}));
+             done();
+           });
+      });
+
+      it('triggers hooks only once', function(done) {
+        monitorHookExecution(['access', 'before save']);
+
+        TestModel.observe('access', function(ctx, next) {
+          ctx.query = { where: { id: { neq: existingInstance.id }}};
+          next();
+        });
+
+        TestModel.upsertWithWhere({ id: existingInstance.id },
+          { id: 'ignored', name: 'new name' },
+          function(err, instance) {
+            if (err) return done(err);
+            hookMonitor.names.should.eql(['access', 'before save']);
+            done();
+          });
+      });
+
+      it('applies updates from `access` hook when found', function(done) {
+        TestModel.observe('access', function(ctx, next) {
+          ctx.query = { where: { id: { neq: existingInstance.id }}};
+          next();
+        });
+
+        TestModel.upsertWithWhere({ id: existingInstance.id },
+          { name: 'new name' },
+          function(err, instance) {
+            if (err) return done(err);
+            findTestModels({ fields: ['id', 'name'] }, function(err, list) {
+              if (err) return done(err);
+              (list || []).map(toObject).should.eql([
+                { id: existingInstance.id, name: existingInstance.name, extra: undefined },
+                { id: instance.id, name: 'new name', extra: undefined },
+              ]);
+              done();
+            });
+          });
+      });
+
+      it('applies updates from `access` hook when not found', function(done) {
+        TestModel.observe('access', function(ctx, next) {
+          ctx.query = { where: { id: 'not-found' }};
+          next();
+        });
+
+        TestModel.upsertWithWhere({ id: existingInstance.id },
+          { name: 'new name' },
+          function(err, instance) {
+            if (err) return done(err);
+            findTestModels({ fields: ['id', 'name'] }, function(err, list) {
+              if (err) return done(err);
+              (list || []).map(toObject).should.eql([
+                { id: existingInstance.id, name: existingInstance.name, extra: undefined },
+                { id: list[1].id, name: 'second', extra: undefined },
+                { id: instance.id, name: 'new name', extra: undefined },
+              ]);
+              done();
+            });
+          });
+      });
+
+      it('triggers `before save` hook on update', function(done) {
+        TestModel.observe('before save', ctxRecorder.recordAndNext());
+
+        TestModel.upsertWithWhere({ id: existingInstance.id },
+           { id: existingInstance.id, name: 'updated name' },
+           function(err, instance) {
+             if (err) return done(err);
+             var expectedContext = aCtxForModel(TestModel, {
+               where: { id: existingInstance.id },
+               data: {
+                 id: existingInstance.id,
+                 name: 'updated name',
+               },
+             });
+             if (!dataSource.connector.upsertWithWhere) {
+               expectedContext.currentInstance = existingInstance;
+             }
+             ctxRecorder.records.should.eql(expectedContext);
+             done();
+           });
+      });
+
+      it('triggers `before save` hook on create', function(done) {
+        TestModel.observe('before save', ctxRecorder.recordAndNext());
+
+        TestModel.upsertWithWhere({ id: 'new-id' },
+          { id: 'new-id', name: 'a name' },
+          function(err, instance) {
+            if (err) return done(err);
+            var expectedContext = aCtxForModel(TestModel, {
+              where: { id: 'new-id' },
+              data: { id: 'new-id', name: 'a name' },
+            });
+            if (!dataSource.connector.upsertWithWhere) {
+              ctxRecorder.records.should.eql(expectedContext.isNewInstance = true);
+            }
+            ctxRecorder.records.should.eql(expectedContext);
+            done();
+          });
+      });
+
+      it('applies updates from `before save` hook on update', function(done) {
+        TestModel.observe('before save', function(ctx, next) {
+          ctx.data.name = 'hooked';
+          next();
+        });
+
+        TestModel.upsertWithWhere({ id: existingInstance.id },
+           { name: 'updated name' },
+           function(err, instance) {
+             if (err) return done(err);
+             instance.name.should.equal('hooked');
+             done();
+           });
+      });
+
+      it('applies updates from `before save` hook on create', function(done) {
+        TestModel.observe('before save', function(ctx, next) {
+          if (ctx.instance) {
+            ctx.instance.name = 'hooked';
+          } else {
+            ctx.data.name = 'hooked';
+          }
+          next();
+        });
+
+        TestModel.upsertWithWhere({ id: 'new-id' },
+          { id: 'new-id', name: 'new name' },
+          function(err, instance) {
+            if (err) return done(err);
+            instance.name.should.equal('hooked');
+            done();
+          });
+      });
+
+      it('validates model after `before save` hook on create', function(done) {
+        TestModel.observe('before save', invalidateTestModel());
+
+        TestModel.upsertWithWhere({ id: 'new-id' },
+          { id: 'new-id', name: 'new name' },
+          function(err, instance) {
+            (err || {}).should.be.instanceOf(ValidationError);
+            (err.details.codes || {}).should.eql({ name: ['presence'] });
+            done();
+          });
+      });
+
+      it('validates model after `before save` hook on update', function(done) {
+        TestModel.observe('before save', invalidateTestModel());
+
+        TestModel.upsertWithWhere({ id: existingInstance.id },
+          { id: existingInstance.id, name: 'updated name' },
+          function(err, instance) {
+            (err || {}).should.be.instanceOf(ValidationError);
+            (err.details.codes || {}).should.eql({ name: ['presence'] });
+            done();
+          });
+      });
+
+      it('triggers `persist` hook on create', function(done) {
+        TestModel.observe('persist', ctxRecorder.recordAndNext());
+
+        TestModel.upsertWithWhere({ id: 'new-id' },
+          { id: 'new-id', name: 'a name' },
+          function(err, instance) {
+            if (err) return done(err);
+            ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
+              where: { id: 'new-id' },
+              data: { id: 'new-id', name: 'a name' },
+              currentInstance: {
+                id: 'new-id',
+                name: 'a name',
+                extra: undefined,
+              },
+            }));
+            done();
+          });
+      });
+
+      it('triggers persist hook on update', function(done) {
+        TestModel.observe('persist', ctxRecorder.recordAndNext());
+
+        TestModel.upsertWithWhere({ id: existingInstance.id },
+          { id: existingInstance.id, name: 'updated name' },
+          function(err, instance) {
+            if (err) return done(err);
+            var expectedContext = aCtxForModel(TestModel, {
+              where: { id: existingInstance.id },
+              data: {
+                id: existingInstance.id,
+                name: 'updated name',
+              },
+              currentInstance: {
+                id: existingInstance.id,
+                name: 'updated name',
+                extra: undefined,
+              },
+            });
+            if (!dataSource.connector.upsertWithWhere) {
+              expectedContext.isNewInstance = false;
+            }
+            ctxRecorder.records.should.eql(expectedContext);
+            done();
+          });
+      });
+
+      it('triggers `loaded` hook on create', function(done) {
+        TestModel.observe('loaded', ctxRecorder.recordAndNext());
+
+        TestModel.upsertWithWhere({ id: 'new-id' },
+          { id: 'new-id', name: 'a name' },
+          function(err, instance) {
+            if (err) return done(err);
+            ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
+              data: { id: 'new-id', name: 'a name' },
+              isNewInstance: true,
+            }));
+            done();
+          });
+      });
+
+      it('triggers `loaded` hook on update', function(done) {
+        TestModel.observe('loaded', ctxRecorder.recordAndNext());
+
+        TestModel.upsertWithWhere({ id: existingInstance.id },
+          { id: existingInstance.id, name: 'updated name' },
+          function(err, instance) {
+            if (err) return done(err);
+            ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
+              data: {
+                id: existingInstance.id,
+                name: 'updated name',
+              },
+              isNewInstance: false,
+            }));
+            done();
+          });
+      });
+
+      it('emits error when `loaded` hook fails', function(done) {
+        TestModel.observe('loaded', nextWithError(expectedError));
+        TestModel.upsertWithWhere({ id: 'new-id' },
+            { id: 'new-id', name: 'a name' },
+            function(err, instance) {
+              [err].should.eql([expectedError]);
+              done();
+            });
+      });
+
+      it('triggers `after save` hook on update', function(done) {
+        TestModel.observe('after save', ctxRecorder.recordAndNext());
+
+        TestModel.upsertWithWhere({ id: existingInstance.id },
+          { id: existingInstance.id, name: 'updated name' },
+          function(err, instance) {
+            if (err) return done(err);
+            ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
+              instance: {
+                id: existingInstance.id,
+                name: 'updated name',
+                extra: undefined,
+              },
+              isNewInstance: false,
+            }));
+            done();
+          });
+      });
+
+      it('triggers `after save` hook on create', function(done) {
+        TestModel.observe('after save', ctxRecorder.recordAndNext());
+
+        TestModel.upsertWithWhere({ id: 'new-id' },
+          { id: 'new-id', name: 'a name' }, function(err, instance) {
+            if (err) return done(err);
+            ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
+              instance: {
+                id: instance.id,
+                name: 'a name',
+                extra: undefined,
+              },
+              isNewInstance: true,
+            }));
+            done();
+          });
+      });
+    });
+
     function nextWithError(err) {
       return function(context, next) {
         next(err);
