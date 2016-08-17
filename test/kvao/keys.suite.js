@@ -9,6 +9,12 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     var CacheItem;
     beforeEach(function unpackContext() {
       CacheItem = helpers.givenCacheItem(dataSourceFactory);
+      CacheItem.sortedKeys = function(filter, options) {
+        return this.keys(filter, options).then(function(keys) {
+          keys.sort();
+          return keys;
+        });
+      };
     });
 
     it('returns all keys - Callback API', function(done) {
@@ -41,10 +47,9 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
           return helpers.givenKeys(AnotherModel, ['otherKey1', 'otherKey2']);
         })
         .then(function() {
-          return CacheItem.keys();
+          return CacheItem.sortedKeys();
         })
         .then(function(keys) {
-          keys.sort();
           should(keys).eql(['key1', 'key2']);
         });
     });
@@ -53,16 +58,48 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
       var expectedKeys = [];
       for (var ix = 0; ix < 1000; ix++)
         expectedKeys.push('key-' + ix);
+      expectedKeys.sort();
 
       return helpers.givenKeys(CacheItem, expectedKeys)
         .then(function() {
-          return CacheItem.keys();
+          return CacheItem.sortedKeys();
         })
         .then(function(keys) {
-          keys.sort();
-          expectedKeys.sort();
           should(keys).eql(expectedKeys);
         });
+    });
+
+    context('with "filter.match"', function() {
+      beforeEach(function createTestData() {
+        return helpers.givenKeys(CacheItem, [
+          'hallo',
+          'hello',
+          'hxllo',
+          'hllo',
+          'heeello',
+          'foo',
+          'bar',
+        ]);
+      });
+
+      it('supports "?" operator', function() {
+        return CacheItem.sortedKeys({ match: 'h?llo' }).then(function(keys) {
+          should(keys).eql(['hallo', 'hello', 'hxllo']);
+        });
+      });
+
+      it('supports "*" operator', function() {
+        return CacheItem.sortedKeys({ match: 'h*llo' }).then(function(keys) {
+          should(keys).eql(['hallo', 'heeello', 'hello', 'hllo', 'hxllo']);
+        });
+      });
+
+      it('handles no matches found', function() {
+        return CacheItem.sortedKeys({ match: 'not-found' })
+          .then(function(keys) {
+            should(keys).eql([]);
+          });
+      });
     });
   });
 };
