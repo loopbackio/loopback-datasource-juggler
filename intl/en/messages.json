@@ -1,4 +1,6 @@
 {
+  "0bd753a8944ad0af85a939bb25273887": "Cannot expire unknown key {0}",
+  "bec226891a505828bfc76c5cfd73b336": "Cannot get TTL for unknown key {0}",
   "4c78325cedbb826db3a05bf5df0e8546": "You must provide an {{id}} when replacing!",
   "a0cf0e09c26df14283223e84e6a10f00": "Could not update attributes. {{Object}} with {{id}} {0} does not exist!",
   "e54d944c2a2c85a23caa86027ae307cf": "Cannot migrate models not attached to this datasource: {0}",
@@ -13,6 +15,7 @@
   "5ec8efeb715a2c34b440f2d76e2cf87d": "  {0}",
   "62a2d80c405b7fec5f547c448ab1b6ff": "The {{order}} {0} has invalid direction",
   "63f503acabdc4c7588aab741b8466862": "The {0} property has invalid clause {1}",
+  "67c2bf43b5281ab929617423ea8a6f3e": "The connector {0} does not support {{replaceById}} operation. This is not a bug in LoopBack. Please contact the authors of the connector, preferably via GitHub issues.",
   "6c3234937d69763fc7f6bcafccc59bbc": "{{Model::deleteById}} requires the {{id}} argument",
   "6eb6fd4fbd73394000bc25f5776fd20c": "{{Model::exists}} requires the {{id}} argument",
   "7bbbdece4eea90e42aa5c0bce295e503": "{{Model::findById}} requires the {{id}} argument",
