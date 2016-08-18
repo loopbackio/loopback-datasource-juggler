@@ -9,3 +9,4 @@ benchmark.js
 analyse.r
 docs/html
 npm-debug.log
+.travis.yml
