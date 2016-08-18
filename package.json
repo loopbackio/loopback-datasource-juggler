@@ -31,6 +31,7 @@
     "node >= 0.6"
   ],
   "devDependencies": {
+    "async-iterators": "^0.2.2",
     "bluebird": "^2.9.9",
     "eslint": "^2.5.3",
     "eslint-config-loopback": "^2.0.0",
@@ -44,6 +45,7 @@
     "eslint": "^2.9.0",
     "inflection": "^1.6.0",
     "loopback-connector": "^2.1.0",
+    "minimatch": "^3.0.3",
     "node-uuid": "^1.4.2",
     "qs": "^3.1.0",
     "strong-globalize": "^2.6.2",
