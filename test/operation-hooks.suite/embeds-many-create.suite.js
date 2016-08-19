@@ -18,7 +18,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
     beforeEach(function setupHelpers() {
       ctxRecorder = new ContextRecorder('hook not called');
-      hookMonitor = new HookMonitor({ includeModelName: true });
+      hookMonitor = new HookMonitor({includeModelName: true});
       expectedError = new Error('test error');
     });
 
@@ -28,9 +28,9 @@ module.exports = function(dataSource, should, connectorCapabilities) {
     beforeEach(function setupDatabase() {
       Embedded = dataSource.createModel('Embedded', {
         // Set id.generated to false to honor client side values
-        id: { type: String, id: true, generated: false, default: uid.next },
-        name: { type: String, required: true },
-        extra: { type: String, required: false },
+        id: {type: String, id: true, generated: false, default: uid.next},
+        name: {type: String, required: true},
+        extra: {type: String, required: false},
       });
 
       Owner = dataSource.createModel('Owner', {});
@@ -55,7 +55,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
     });
 
     function callCreate() {
-      var item = new Embedded({ name: 'created' });
+      var item = new Embedded({name: 'created'});
       return ownerInstance.embeddedList.create(item);
     }
 
@@ -111,7 +111,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         // and produces a single "invalid" error only
         // Compare this to `embedsOne.create`, which correctly reports
         // codes: { name: ['presence'] }
-        (err.details.codes || {}).should.eql({ embeddeds: ['invalid'] });
+        (err.details.codes || {}).should.eql({embeddeds: ['invalid']});
       });
     });
 

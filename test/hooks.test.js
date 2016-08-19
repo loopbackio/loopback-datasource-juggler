@@ -19,7 +19,7 @@ describe('hooks', function() {
     db = getSchema();
 
     User = db.define('User', {
-      email: { type: String, index: true },
+      email: {type: String, index: true},
       name: String,
       password: String,
       state: String,
@@ -48,7 +48,7 @@ describe('hooks', function() {
           this.name += ' Rozental';
         }
       };
-      User.create({ name: 'Nickolay' }, function(err, u) {
+      User.create({name: 'Nickolay'}, function(err, u) {
         u.id.should.be.ok;
         u.name.should.equal('Nickolay Rozental');
         done();
@@ -131,7 +131,7 @@ describe('hooks', function() {
     it('should be triggered on updateAttributes', function(done) {
       User.create(function(err, user) {
         addHooks('Save', done);
-        user.updateAttributes({ name: 'Anatoliy' });
+        user.updateAttributes({name: 'Anatoliy'});
       });
     });
 
@@ -165,7 +165,7 @@ describe('hooks', function() {
           password: '53cr3t',
         }, function() {
           User.findOne({
-            where: { email: 'james.bond@example.com' },
+            where: {email: 'james.bond@example.com'},
           }, function(err, jb) {
             jb.password.should.equal('hash');
             done();
@@ -188,7 +188,7 @@ describe('hooks', function() {
             should.exist(u);
             u.password.should.equal('hash');
             User.findOne({
-              where: { email: 'james.bond@example.com' },
+              where: {email: 'james.bond@example.com'},
             }, function(err, jb) {
               jb.password.should.equal('hash');
               done();
@@ -234,7 +234,7 @@ describe('hooks', function() {
     it('should be triggered on updateAttributes', function(done) {
       User.create(function(err, user) {
         addHooks('Update', done);
-        user.updateAttributes({ name: 'Anatoliy' });
+        user.updateAttributes({name: 'Anatoliy'});
       });
     });
 
@@ -252,7 +252,7 @@ describe('hooks', function() {
           data.should.have.keys('name', 'email');
           done();
         };
-        user.updateAttributes({ name: 1, email: 2 });
+        user.updateAttributes({name: 1, email: 2});
       });
     });
 
@@ -399,7 +399,7 @@ describe('hooks', function() {
     });
 
     it('should describe updateAttributes sequence', function(done) {
-      user.updateAttributes({ name: 'Antony' }, function() {
+      user.updateAttributes({name: 'Antony'}, function() {
         life.should.eql([
           'beforeValidate',
           'afterValidate',

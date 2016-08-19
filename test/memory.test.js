@@ -64,7 +64,7 @@ describe('Memory connector', function() {
     it('should persist create', function(done) {
       var count = 0;
       async.eachSeries(['John1', 'John2', 'John3'], function(item, cb) {
-        User.create({ name: item }, function(err, result) {
+        User.create({name: item}, function(err, result) {
           ids.push(result.id);
           count++;
           readModels(function(err, json) {
@@ -92,7 +92,7 @@ describe('Memory connector', function() {
     });
 
     it('should persist upsert', function(done) {
-      User.upsert({ id: ids[1], name: 'John' }, function(err, result) {
+      User.upsert({id: ids[1], name: 'John'}, function(err, result) {
         if (err) {
           return done(err);
         }
@@ -110,7 +110,7 @@ describe('Memory connector', function() {
     });
 
     it('should persist update', function(done) {
-      User.update({ id: ids[1] }, { name: 'John1' },
+      User.update({id: ids[1]}, {name: 'John1'},
         function(err, result) {
           if (err) {
             return done(err);
@@ -145,13 +145,13 @@ describe('Memory connector', function() {
     });
 
     var User = ds.define('User', {
-      seq: { type: Number, index: true },
-      name: { type: String, index: true, sort: true },
-      email: { type: String, index: true },
-      birthday: { type: Date, index: true },
-      role: { type: String, index: true },
-      order: { type: Number, index: true, sort: true },
-      vip: { type: Boolean },
+      seq: {type: Number, index: true},
+      name: {type: String, index: true, sort: true},
+      email: {type: String, index: true},
+      birthday: {type: Date, index: true},
+      role: {type: String, index: true},
+      order: {type: Number, index: true, sort: true},
+      vip: {type: Boolean},
       address: {
         street: String,
         city: String,
@@ -167,7 +167,7 @@ describe('Memory connector', function() {
 
     before(seed);
     it('should allow to find using like', function(done) {
-      User.find({ where: { name: { like: '%St%' }}}, function(err, posts) {
+      User.find({where: {name: {like: '%St%'}}}, function(err, posts) {
         should.not.exist(err);
         posts.should.have.property('length', 2);
         done();
@@ -175,7 +175,7 @@ describe('Memory connector', function() {
     });
 
     it('should allow to find using like with regexp', function(done) {
-      User.find({ where: { name: { like: /.*St.*/ }}}, function(err, posts) {
+      User.find({where: {name: {like: /.*St.*/}}}, function(err, posts) {
         should.not.exist(err);
         posts.should.have.property('length', 2);
         done();
@@ -183,7 +183,7 @@ describe('Memory connector', function() {
     });
 
     it('should support like for no match', function(done) {
-      User.find({ where: { name: { like: 'M%XY' }}}, function(err, posts) {
+      User.find({where: {name: {like: 'M%XY'}}}, function(err, posts) {
         should.not.exist(err);
         posts.should.have.property('length', 0);
         done();
@@ -191,7 +191,7 @@ describe('Memory connector', function() {
     });
 
     it('should allow to find using nlike', function(done) {
-      User.find({ where: { name: { nlike: '%St%' }}}, function(err, posts) {
+      User.find({where: {name: {nlike: '%St%'}}}, function(err, posts) {
         should.not.exist(err);
         posts.should.have.property('length', 4);
         done();
@@ -199,7 +199,7 @@ describe('Memory connector', function() {
     });
 
     it('should allow to find using nlike with regexp', function(done) {
-      User.find({ where: { name: { nlike: /.*St.*/ }}}, function(err, posts) {
+      User.find({where: {name: {nlike: /.*St.*/}}}, function(err, posts) {
         should.not.exist(err);
         posts.should.have.property('length', 4);
         done();
@@ -207,7 +207,7 @@ describe('Memory connector', function() {
     });
 
     it('should support nlike for no match', function(done) {
-      User.find({ where: { name: { nlike: 'M%XY' }}}, function(err, posts) {
+      User.find({where: {name: {nlike: 'M%XY'}}}, function(err, posts) {
         should.not.exist(err);
         posts.should.have.property('length', 6);
         done();
@@ -215,56 +215,56 @@ describe('Memory connector', function() {
     });
 
     it('should throw if the like value is not string or regexp', function(done) {
-      User.find({ where: { name: { like: 123 }}}, function(err, posts) {
+      User.find({where: {name: {like: 123}}}, function(err, posts) {
         should.exist(err);
         done();
       });
     });
 
     it('should throw if the nlike value is not string or regexp', function(done) {
-      User.find({ where: { name: { nlike: 123 }}}, function(err, posts) {
+      User.find({where: {name: {nlike: 123}}}, function(err, posts) {
         should.exist(err);
         done();
       });
     });
 
     it('should throw if the inq value is not an array', function(done) {
-      User.find({ where: { name: { inq: '12' }}}, function(err, posts) {
+      User.find({where: {name: {inq: '12'}}}, function(err, posts) {
         should.exist(err);
         done();
       });
     });
 
     it('should throw if the nin value is not an array', function(done) {
-      User.find({ where: { name: { nin: '12' }}}, function(err, posts) {
+      User.find({where: {name: {nin: '12'}}}, function(err, posts) {
         should.exist(err);
         done();
       });
     });
 
     it('should throw if the between value is not an array', function(done) {
-      User.find({ where: { name: { between: '12' }}}, function(err, posts) {
+      User.find({where: {name: {between: '12'}}}, function(err, posts) {
         should.exist(err);
         done();
       });
     });
 
     it('should throw if the between value is not an array of length 2', function(done) {
-      User.find({ where: { name: { between: ['12'] }}}, function(err, posts) {
+      User.find({where: {name: {between: ['12']}}}, function(err, posts) {
         should.exist(err);
         done();
       });
     });
 
     it('should successfully extract 5 users from the db', function(done) {
-      User.find({ where: { seq: { between: [1, 5] }}}, function(err, users) {
+      User.find({where: {seq: {between: [1, 5]}}}, function(err, users) {
         should(users.length).be.equal(5);
         done();
       });
     });
 
     it('should successfully extract 1 user (Lennon) from the db', function(done) {
-      User.find({ where: { birthday: { between: [new Date(1970, 0), new Date(1990, 0)] }}},
+      User.find({where: {birthday: {between: [new Date(1970, 0), new Date(1990, 0)]}}},
                 function(err, users) {
                   should(users.length).be.equal(1);
                   should(users[0].name).be.equal('John Lennon');
@@ -273,7 +273,7 @@ describe('Memory connector', function() {
     });
 
     it('should successfully extract 2 users from the db', function(done) {
-      User.find({ where: { birthday: { between: [new Date(1940, 0), new Date(1990, 0)] }}},
+      User.find({where: {birthday: {between: [new Date(1940, 0), new Date(1990, 0)]}}},
                 function(err, users) {
                   should(users.length).be.equal(2);
                   done();
@@ -281,7 +281,7 @@ describe('Memory connector', function() {
     });
 
     it('should successfully extract 2 users using implied and', function(done) {
-      User.find({ where: { role: 'lead', vip: true }}, function(err, users) {
+      User.find({where: {role: 'lead', vip: true}}, function(err, users) {
         should(users.length).be.equal(2);
         should(users[0].name).be.equal('John Lennon');
         should(users[1].name).be.equal('Paul McCartney');
@@ -290,9 +290,9 @@ describe('Memory connector', function() {
     });
 
     it('should successfully extract 2 users using implied and & and', function(done) {
-      User.find({ where: {
+      User.find({where: {
         name: 'John Lennon',
-        and: [{ role: 'lead' }, { vip: true }],
+        and: [{role: 'lead'}, {vip: true}],
       }}, function(err, users) {
         should(users.length).be.equal(1);
         should(users[0].name).be.equal('John Lennon');
@@ -301,8 +301,8 @@ describe('Memory connector', function() {
     });
 
     it('should successfully extract 2 users using date range', function(done) {
-      User.find({ where: { birthday: { between:
-          [new Date(1940, 0).toISOString(), new Date(1990, 0).toISOString()] }}},
+      User.find({where: {birthday: {between:
+          [new Date(1940, 0).toISOString(), new Date(1990, 0).toISOString()]}}},
         function(err, users) {
           should(users.length).be.equal(2);
           done();
@@ -310,7 +310,7 @@ describe('Memory connector', function() {
     });
 
     it('should successfully extract 0 user from the db', function(done) {
-      User.find({ where: { birthday: { between: [new Date(1990, 0), Date.now()] }}},
+      User.find({where: {birthday: {between: [new Date(1990, 0), Date.now()]}}},
                 function(err, users) {
                   should(users.length).be.equal(0);
                   done();
@@ -349,7 +349,7 @@ describe('Memory connector', function() {
     it('should successfully extract 5 users matching a neq filter over array values', function(done) {
       User.find({
         where: {
-          children: { neq: 'Dhani' },
+          children: {neq: 'Dhani'},
         },
       }, function(err, users) {
         should.not.exist(err);
@@ -360,7 +360,7 @@ describe('Memory connector', function() {
 
     it('should successfully extract 3 users with inq', function(done) {
       User.find({
-        where: { seq: { inq: [0, 1, 5] }},
+        where: {seq: {inq: [0, 1, 5]}},
       }, function(err, users) {
         should.not.exist(err);
         users.length.should.be.equal(3);
@@ -370,7 +370,7 @@ describe('Memory connector', function() {
 
     it('should successfully extract 4 users with nin', function(done) {
       User.find({
-        where: { seq: { nin: [2, 3] }},
+        where: {seq: {nin: [2, 3]}},
       }, function(err, users) {
         should.not.exist(err);
         users.length.should.be.equal(4);
@@ -379,7 +379,7 @@ describe('Memory connector', function() {
     });
 
     it('should count using date string', function(done) {
-      User.count({ birthday: { lt: new Date(1990, 0).toISOString() }},
+      User.count({birthday: {lt: new Date(1990, 0).toISOString()}},
         function(err, count) {
           should(count).be.equal(2);
           done();
@@ -387,7 +387,7 @@ describe('Memory connector', function() {
     });
 
     it('should support order with multiple fields', function(done) {
-      User.find({ order: 'vip ASC, seq DESC' }, function(err, posts) {
+      User.find({order: 'vip ASC, seq DESC'}, function(err, posts) {
         should.not.exist(err);
         posts[0].seq.should.be.eql(4);
         posts[1].seq.should.be.eql(3);
@@ -396,7 +396,7 @@ describe('Memory connector', function() {
     });
 
     it('should sort undefined values to the end when ordered DESC', function(done) {
-      User.find({ order: 'vip ASC, order DESC' }, function(err, posts) {
+      User.find({order: 'vip ASC, order DESC'}, function(err, posts) {
         should.not.exist(err);
 
         posts[4].seq.should.be.eql(1);
@@ -406,14 +406,14 @@ describe('Memory connector', function() {
     });
 
     it('should throw if order has wrong direction', function(done) {
-      User.find({ order: 'seq ABC' }, function(err, posts) {
+      User.find({order: 'seq ABC'}, function(err, posts) {
         should.exist(err);
         done();
       });
     });
 
     it('should support neq operator for number', function(done) {
-      User.find({ where: { seq: { neq: 4 }}}, function(err, users) {
+      User.find({where: {seq: {neq: 4}}}, function(err, users) {
         should.not.exist(err);
         users.length.should.be.equal(5);
         for (var i = 0; i < users.length; i++) {
@@ -424,7 +424,7 @@ describe('Memory connector', function() {
     });
 
     it('should support neq operator for string', function(done) {
-      User.find({ where: { role: { neq: 'lead' }}}, function(err, users) {
+      User.find({where: {role: {neq: 'lead'}}}, function(err, users) {
         should.not.exist(err);
         users.length.should.be.equal(4);
         for (var i = 0; i < users.length; i++) {
@@ -437,7 +437,7 @@ describe('Memory connector', function() {
     });
 
     it('should support neq operator for null', function(done) {
-      User.find({ where: { role: { neq: null }}}, function(err, users) {
+      User.find({where: {role: {neq: null}}}, function(err, users) {
         should.not.exist(err);
         users.length.should.be.equal(2);
         for (var i = 0; i < users.length; i++) {
@@ -449,7 +449,7 @@ describe('Memory connector', function() {
 
     it('should work when a regex is provided without the regexp operator',
         function(done) {
-          User.find({ where: { name: /John.*/i }}, function(err, users) {
+          User.find({where: {name: /John.*/i}}, function(err, users) {
             should.not.exist(err);
             users.length.should.equal(1);
             users[0].name.should.equal('John Lennon');
@@ -458,7 +458,7 @@ describe('Memory connector', function() {
         });
 
     it('should support the regexp operator with regex strings', function(done) {
-      User.find({ where: { name: { regexp: '^J' }}}, function(err, users) {
+      User.find({where: {name: {regexp: '^J'}}}, function(err, users) {
         should.not.exist(err);
         users.length.should.equal(1);
         users[0].name.should.equal('John Lennon');
@@ -467,7 +467,7 @@ describe('Memory connector', function() {
     });
 
     it('should support the regexp operator with regex literals', function(done) {
-      User.find({ where: { name: { regexp: /^J/ }}}, function(err, users) {
+      User.find({where: {name: {regexp: /^J/}}}, function(err, users) {
         should.not.exist(err);
         users.length.should.equal(1);
         users[0].name.should.equal('John Lennon');
@@ -476,7 +476,7 @@ describe('Memory connector', function() {
     });
 
     it('should support the regexp operator with regex objects', function(done) {
-      User.find({ where: { name: { regexp: new RegExp(/^J/) }}}, function(err,
+      User.find({where: {name: {regexp: new RegExp(/^J/)}}}, function(err,
           users) {
         should.not.exist(err);
         users.length.should.equal(1);
@@ -486,7 +486,7 @@ describe('Memory connector', function() {
     });
 
     it('should support nested property in query', function(done) {
-      User.find({ where: { 'address.city': 'San Jose' }}, function(err, users) {
+      User.find({where: {'address.city': 'San Jose'}}, function(err, users) {
         should.not.exist(err);
         users.length.should.be.equal(1);
         for (var i = 0; i < users.length; i++) {
@@ -497,7 +497,7 @@ describe('Memory connector', function() {
     });
 
     it('should support nested property with regex over arrays in query', function(done) {
-      User.find({ where: { 'friends.name': { regexp: /^Ringo/ }}}, function(err, users) {
+      User.find({where: {'friends.name': {regexp: /^Ringo/}}}, function(err, users) {
         should.not.exist(err);
         users.length.should.be.equal(2);
         users[0].name.should.be.equal('John Lennon');
@@ -507,7 +507,7 @@ describe('Memory connector', function() {
     });
 
     it('should support nested property with gt in query', function(done) {
-      User.find({ where: { 'address.city': { gt: 'San' }}}, function(err, users) {
+      User.find({where: {'address.city': {gt: 'San'}}}, function(err, users) {
         should.not.exist(err);
         users.length.should.be.equal(2);
         for (var i = 0; i < users.length; i++) {
@@ -518,7 +518,7 @@ describe('Memory connector', function() {
     });
 
     it('should support nested property for order in query', function(done) {
-      User.find({ where: { 'address.state': 'CA' }, order: 'address.city DESC' },
+      User.find({where: {'address.state': 'CA'}, order: 'address.city DESC'},
         function(err, users) {
           should.not.exist(err);
           users.length.should.be.equal(2);
@@ -529,8 +529,8 @@ describe('Memory connector', function() {
     });
 
     it('should deserialize values after saving in upsert', function(done) {
-      User.findOne({ where: { seq: 1 }}, function(err, paul) {
-        User.updateOrCreate({ id: paul.id, name: 'Sir Paul McCartney' },
+      User.findOne({where: {seq: 1}}, function(err, paul) {
+        User.updateOrCreate({id: paul.id, name: 'Sir Paul McCartney'},
           function(err, sirpaul) {
             should.not.exist(err);
             sirpaul.birthday.should.be.instanceOf(Date);
@@ -557,9 +557,9 @@ describe('Memory connector', function() {
             zipCode: '95131',
           },
           friends: [
-            { name: 'Paul McCartney' },
-            { name: 'George Harrison' },
-            { name: 'Ringo Starr' },
+            {name: 'Paul McCartney'},
+            {name: 'George Harrison'},
+            {name: 'Ringo Starr'},
           ],
           children: ['Sean', 'Julian'],
         },
@@ -578,16 +578,16 @@ describe('Memory connector', function() {
             zipCode: '94065',
           },
           friends: [
-            { name: 'John Lennon' },
-            { name: 'George Harrison' },
-            { name: 'Ringo Starr' },
+            {name: 'John Lennon'},
+            {name: 'George Harrison'},
+            {name: 'Ringo Starr'},
           ],
           children: ['Stella', 'Mary', 'Heather', 'Beatrice', 'James'],
         },
-        { seq: 2, name: 'George Harrison', order: 5, vip: false, children: ['Dhani'] },
-        { seq: 3, name: 'Ringo Starr', order: 6, vip: false },
-        { seq: 4, name: 'Pete Best', order: 4, children: [] },
-        { seq: 5, name: 'Stuart Sutcliffe', order: 3, vip: true },
+        {seq: 2, name: 'George Harrison', order: 5, vip: false, children: ['Dhani']},
+        {seq: 3, name: 'Ringo Starr', order: 6, vip: false},
+        {seq: 4, name: 'Pete Best', order: 4, children: []},
+        {seq: 5, name: 'Stuart Sutcliffe', order: 3, vip: true},
       ];
 
       async.series([
@@ -611,32 +611,32 @@ describe('Memory connector', function() {
 
     var Tool = ds.createModel('Tool', {
       name: String,
-    }, { memory: { collection: 'Product' }});
+    }, {memory: {collection: 'Product'}});
 
     var Widget = ds.createModel('Widget', {
       name: String,
-    }, { memory: { collection: 'Product' }});
+    }, {memory: {collection: 'Product'}});
 
     ds.connector.getCollection('Tool').should.equal('Product');
     ds.connector.getCollection('Widget').should.equal('Product');
 
     async.series([
       function(next) {
-        Tool.create({ name: 'Tool A' }, next);
+        Tool.create({name: 'Tool A'}, next);
       },
       function(next) {
-        Tool.create({ name: 'Tool B' }, next);
+        Tool.create({name: 'Tool B'}, next);
       },
       function(next) {
-        Widget.create({ name: 'Widget A' }, next);
+        Widget.create({name: 'Widget A'}, next);
       },
     ], function(err) {
       Product.find(function(err, products) {
         should.not.exist(err);
         products.should.have.length(3);
-        products[0].toObject().should.eql({ name: 'Tool A', id: 1 });
-        products[1].toObject().should.eql({ name: 'Tool B', id: 2 });
-        products[2].toObject().should.eql({ name: 'Widget A', id: 3 });
+        products[0].toObject().should.eql({name: 'Tool A', id: 1});
+        products[1].toObject().should.eql({name: 'Tool B', id: 2});
+        products[2].toObject().should.eql({name: 'Widget A', id: 3});
         done();
       });
     });
@@ -725,7 +725,7 @@ describe('Memory connector', function() {
   describe('findOrCreate', function() {
     var ds, Cars;
     before(function() {
-      ds = new DataSource({ connector: 'memory' });
+      ds = new DataSource({connector: 'memory'});
       Cars = ds.define('Cars', {
         color: String,
       });
@@ -734,8 +734,8 @@ describe('Memory connector', function() {
     it('should create a specific object once and in the subsequent calls it should find it', function(done) {
       var creationNum = 0;
       async.times(100, function(n, next) {
-        var initialData = { color: 'white' };
-        var query = { 'where': initialData };
+        var initialData = {color: 'white'};
+        var query = {'where': initialData};
         Cars.findOrCreate(query, initialData, function(err, car, created) {
           if (created) creationNum++;
           next(err, car);
@@ -868,7 +868,7 @@ describe('Memory connector', function() {
 });
 
 describe('Optimized connector', function() {
-  var ds = new DataSource({ connector: Memory });
+  var ds = new DataSource({connector: Memory});
 
   // optimized methods
   ds.connector.findOrCreate = function(model, query, data, callback) {
@@ -880,23 +880,23 @@ describe('Optimized connector', function() {
     }.bind(this));
   };
 
-  require('./persistence-hooks.suite')(ds, should, { replaceOrCreateReportsNewInstance: true });
+  require('./persistence-hooks.suite')(ds, should, {replaceOrCreateReportsNewInstance: true});
 });
 
 describe('Unoptimized connector', function() {
-  var ds = new DataSource({ connector: Memory });
+  var ds = new DataSource({connector: Memory});
   // disable optimized methods
   ds.connector.updateOrCreate = false;
   ds.connector.findOrCreate = false;
 
-  require('./persistence-hooks.suite')(ds, should, { replaceOrCreateReportsNewInstance: true });
+  require('./persistence-hooks.suite')(ds, should, {replaceOrCreateReportsNewInstance: true});
 });
 
 describe('Memory connector with options', function() {
   var ds, savedOptions = {}, Post;
 
   before(function() {
-    ds = new DataSource({ connector: 'memory' });
+    ds = new DataSource({connector: 'memory'});
     ds.connector.create = function(model, data, options, cb) {
       savedOptions.create = options;
       process.nextTick(function() {
@@ -907,14 +907,14 @@ describe('Memory connector with options', function() {
     ds.connector.update = function(model, where, data, options, cb) {
       savedOptions.update = options;
       process.nextTick(function() {
-        cb(null, { count: 1 });
+        cb(null, {count: 1});
       });
     };
 
     ds.connector.all = function(model, filter, options, cb) {
       savedOptions.find = options;
       process.nextTick(function() {
-        cb(null, [{ title: 't1', content: 'c1' }]);
+        cb(null, [{title: 't1', content: 'c1'}]);
       });
     };
 
@@ -925,15 +925,15 @@ describe('Memory connector with options', function() {
   });
 
   it('should receive options from the find method', function(done) {
-    var opts = { transaction: 'tx1' };
-    Post.find({ where: { title: 't1' }}, opts, function(err, p) {
+    var opts = {transaction: 'tx1'};
+    Post.find({where: {title: 't1'}}, opts, function(err, p) {
       savedOptions.find.should.be.eql(opts);
       done(err);
     });
   });
 
   it('should receive options from the find method', function(done) {
-    var opts = { transaction: 'tx2' };
+    var opts = {transaction: 'tx2'};
     Post.find({}, opts, function(err, p) {
       savedOptions.find.should.be.eql(opts);
       done(err);
@@ -941,7 +941,7 @@ describe('Memory connector with options', function() {
   });
 
   it('should treat first object arg as filter for find', function(done) {
-    var filter = { title: 't1' };
+    var filter = {title: 't1'};
     Post.find(filter, function(err, p) {
       savedOptions.find.should.be.eql({});
       done(err);
@@ -949,16 +949,16 @@ describe('Memory connector with options', function() {
   });
 
   it('should receive options from the create method', function(done) {
-    var opts = { transaction: 'tx3' };
-    Post.create({ title: 't1', content: 'c1' }, opts, function(err, p) {
+    var opts = {transaction: 'tx3'};
+    Post.create({title: 't1', content: 'c1'}, opts, function(err, p) {
       savedOptions.create.should.be.eql(opts);
       done(err);
     });
   });
 
   it('should receive options from the update method', function(done) {
-    var opts = { transaction: 'tx4' };
-    Post.update({ title: 't1' }, { content: 'c1 --> c2' },
+    var opts = {transaction: 'tx4'};
+    Post.update({title: 't1'}, {content: 'c1 --> c2'},
       opts, function(err, p) {
         savedOptions.update.should.be.eql(opts);
         done(err);
@@ -981,7 +981,7 @@ describe('Memory connector with observers', function() {
     var events = [];
     ds.connector.execute = function(command, params, options, cb) {
       var self = this;
-      var context = { command: command, params: params, options: options };
+      var context = {command: command, params: params, options: options};
       self.notifyObserversOf('before execute', context, function(err) {
         process.nextTick(function() {
           if (err) return cb(err);
@@ -1003,7 +1003,7 @@ describe('Memory connector with observers', function() {
       next();
     });
 
-    ds.connector.execute('test', [1, 2], { x: 2 }, function(err) {
+    ds.connector.execute('test', [1, 2], {x: 2}, function(err) {
       if (err) return done(err);
       events.should.eql(['before execute', 'execute', 'after execute']);
       done();

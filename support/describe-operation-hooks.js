@@ -35,55 +35,55 @@ Promise.onPossiblyUnhandledRejection(function(err) {
 /* eslint-disable camelcase */
 var operations = [
   function find(ds) {
-    return ds.TestModel.find({ where: { id: '1' }});
+    return ds.TestModel.find({where: {id: '1'}});
   },
 
   function count(ds) {
-    return ds.TestModel.count({ id: ds.existingInstance.id });
+    return ds.TestModel.count({id: ds.existingInstance.id});
   },
 
   function create(ds) {
-    return ds.TestModel.create({ name: 'created' });
+    return ds.TestModel.create({name: 'created'});
   },
 
   function findOrCreate_found(ds) {
     return ds.TestModel.findOrCreate(
-      { where: { name: ds.existingInstance.name }},
-      { name: ds.existingInstance.name });
+      {where: {name: ds.existingInstance.name}},
+      {name: ds.existingInstance.name});
   },
 
   function findOrCreate_create(ds) {
     return ds.TestModel.findOrCreate(
-      { where: { name: 'new-record' }},
-      { name: 'new-record' });
+      {where: {name: 'new-record'}},
+      {name: 'new-record'});
   },
 
   function updateOrCreate_create(ds) {
-    return ds.TestModel.updateOrCreate({ id: 'not-found', name: 'not found' });
+    return ds.TestModel.updateOrCreate({id: 'not-found', name: 'not found'});
   },
 
   function updateOrCreate_update(ds) {
     return ds.TestModel.updateOrCreate(
-      { id: ds.existingInstance.id, name: 'new name' });
+      {id: ds.existingInstance.id, name: 'new name'});
   },
 
   function replaceOrCreate_create(ds) {
-    return ds.TestModel.replaceOrCreate({ id: 'not-found', name: 'not found' });
+    return ds.TestModel.replaceOrCreate({id: 'not-found', name: 'not found'});
   },
 
   function replaceOrCreate_update(ds) {
     return ds.TestModel.replaceOrCreate(
-      { id: ds.existingInstance.id, name: 'new name' });
+      {id: ds.existingInstance.id, name: 'new name'});
   },
 
   function replaceById(ds) {
     return ds.TestModel.replaceById(
       ds.existingInstance.id,
-      { name: 'new name' });
+      {name: 'new name'});
   },
 
   function updateAll(ds) {
-    return ds.TestModel.updateAll({ name: 'searched' }, { name: 'updated' });
+    return ds.TestModel.updateAll({name: 'searched'}, {name: 'updated'});
   },
 
   function prototypeSave(ds) {
@@ -92,7 +92,7 @@ var operations = [
   },
 
   function prototypeUpdateAttributes(ds) {
-    return ds.existingInstance.updateAttributes({ name: 'changed' });
+    return ds.existingInstance.updateAttributes({name: 'changed'});
   },
 
   function prototypeDelete(ds) {
@@ -100,7 +100,7 @@ var operations = [
   },
 
   function deleteAll(ds) {
-    return ds.TestModel.deleteAll({ name: ds.existingInstance.name });
+    return ds.TestModel.deleteAll({name: ds.existingInstance.name});
   },
 ];
 /* eslint-enable camelcase */
@@ -113,13 +113,13 @@ operations.forEach(function(op) {
 p.then(report, function(err) { console.error(err.stack); });
 
 function createOptimizedDataSource() {
-  var ds = new DataSource({ connector: Memory });
+  var ds = new DataSource({connector: Memory});
   ds.name = 'Optimized';
   return ds;
 }
 
 function createUnoptimizedDataSource() {
-  var ds = new DataSource({ connector: Memory });
+  var ds = new DataSource({connector: Memory});
   ds.name = 'Unoptimized';
 
   // disable optimized methods
@@ -133,9 +133,9 @@ function createUnoptimizedDataSource() {
 function setupTestModels() {
   dataSources.forEach(function setupOnDataSource(ds) {
     var TestModel = ds.TestModel = ds.createModel('TestModel', {
-      id: { type: String, id: true, default: uid },
-      name: { type: String, required: true },
-      extra: { type: String, required: false },
+      id: {type: String, id: true, default: uid},
+      name: {type: String, required: true},
+      extra: {type: String, required: false},
     });
   });
   return Promise.resolve();
@@ -172,7 +172,7 @@ function resetStorage(ds) {
   });
   return TestModel.deleteAll()
     .then(function() {
-      return TestModel.create({ name: 'first' });
+      return TestModel.create({name: 'first'});
     })
     .then(function(instance) {
       // Look it up from DB so that default values are retrieved
@@ -180,7 +180,7 @@ function resetStorage(ds) {
     })
     .then(function(instance) {
       ds.existingInstance = instance;
-      return TestModel.create({ name: 'second' });
+      return TestModel.create({name: 'second'});
     })
     .then(function() {
       HOOK_NAMES.forEach(function(hook) {

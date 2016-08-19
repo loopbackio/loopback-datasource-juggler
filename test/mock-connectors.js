@@ -19,7 +19,7 @@ module.exports = {
               required: false,
 
               // custom properties listed under a key matching the connector name
-              custom: { storage: 'quantum' },
+              custom: {storage: 'quantum'},
             },
           ]);
         },

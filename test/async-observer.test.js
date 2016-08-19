@@ -11,7 +11,7 @@ describe('async observer', function() {
   var TestModel;
   beforeEach(function defineTestModel() {
     var modelBuilder = new ModelBuilder();
-    TestModel = modelBuilder.define('TestModel', { name: String });
+    TestModel = modelBuilder.define('TestModel', {name: String});
   });
 
   it('calls registered async observers', function(done) {
@@ -303,7 +303,7 @@ describe('async observer', function() {
   });
 
   it('returns a promise when no callback is provided', function() {
-    var context = { value: 'a-test-context' };
+    var context = {value: 'a-test-context'};
     var p = TestModel.notifyObserversOf('event', context);
     (p !== undefined).should.be.true;
     return p.then(function(result) {
