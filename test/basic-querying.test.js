@@ -545,31 +545,31 @@ describe('basic-querying', function() {
 
     it('should find first record (default sort by id)', function(done) {
       User.all({ order: 'id' }, function(err, users) {
-        User.findOne(function(e, u) {
-          should.not.exist(e);
-          should.exist(u);
-          u.id.toString().should.equal(users[0].id.toString());
+        User.findOne(function(err, user) {
+          should.not.exist(err);
+          should.exist(user);
+          user.id.toString().should.equal(users[0].id.toString());
           done();
         });
       });
     });
 
     it('should find first record', function(done) {
-      User.findOne({ order: 'order' }, function(e, u) {
-        should.not.exist(e);
-        should.exist(u);
-        u.order.should.equal(1);
-        u.name.should.equal('Paul McCartney');
+      User.findOne({ order: 'order' }, function(err, user) {
+        should.not.exist(err);
+        should.exist(user);
+        user.order.should.equal(1);
+        user.name.should.equal('Paul McCartney');
         done();
       });
     });
 
     it('should find last record', function(done) {
-      User.findOne({ order: 'order DESC' }, function(e, u) {
-        should.not.exist(e);
-        should.exist(u);
-        u.order.should.equal(6);
-        u.name.should.equal('Ringo Starr');
+      User.findOne({ order: 'order DESC' }, function(err, user) {
+        should.not.exist(err);
+        should.exist(user);
+        user.order.should.equal(6);
+        user.name.should.equal('Ringo Starr');
         done();
       });
     });
@@ -594,6 +594,21 @@ describe('basic-querying', function() {
           should.exist(user);
           done();
         });
+      });
+    });
+
+    it('should query by using database operator', function(done) {
+      User.findOne({
+        where: {
+          role: {
+            '$exists': false,
+          },
+        },
+        order: 'order DESC',
+      }, function(err, user) {
+        should.not.exist(err);
+        should.not.exist(user);
+        done();
       });
     });
 
