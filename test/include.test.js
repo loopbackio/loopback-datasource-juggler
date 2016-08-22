@@ -3,6 +3,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+'use strict';
+
 var should = require('./init.js');
 var async = require('async');
 var assert = require('assert');
@@ -427,7 +429,7 @@ describe('include', function() {
           user.name.should.equal('User A');
           user.age.should.equal(21);
           user.id.should.equal(1);
-          profile = user.profile();
+          var profile = user.profile();
           profile.profileName.should.equal('Profile A');
           profile.userId.should.equal(1);
           profile.id.should.equal(1);
@@ -450,9 +452,9 @@ describe('include', function() {
       });
 
       it('works when hasManyThrough is called', function(done) {
-        Physician = db.define('Physician', {name: String});
-        Patient = db.define('Patient', {name: String});
-        Appointment = db.define('Appointment', {
+        var Physician = db.define('Physician', {name: String});
+        var Patient = db.define('Patient', {name: String});
+        var Appointment = db.define('Appointment', {
           date: {
             type: Date,
             default: function() {
@@ -460,7 +462,7 @@ describe('include', function() {
             },
           },
         });
-        Address = db.define('Address', {name: String});
+        var Address = db.define('Address', {name: String});
 
         Physician.hasMany(Patient, {through: Appointment});
         Patient.hasMany(Physician, {through: Appointment});
@@ -502,7 +504,7 @@ describe('include', function() {
           profile.profileName.should.equal('Profile A');
           profile.userId.should.equal(1);
           profile.id.should.equal(1);
-          user = profile.user();
+          var user = profile.user();
           user.name.should.equal('User A');
           user.age.should.equal(21);
           user.id.should.equal(1);

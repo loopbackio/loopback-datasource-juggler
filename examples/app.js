@@ -3,6 +3,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+'use strict';
+
 var ModelBuilder = require('../../loopback-datasource-juggler').ModelBuilder;
 var modelBuilder = new ModelBuilder();
 // define models

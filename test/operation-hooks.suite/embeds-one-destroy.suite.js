@@ -3,6 +3,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+'use strict';
+
 var ValidationError = require('../..').ValidationError;
 
 var contextTestHelpers = require('../helpers/context-test-helpers');
@@ -45,7 +47,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       }
     });
 
-    var ownerInstance, existingInstance;
+    var ownerInstance, existingInstance, existingItem;
     beforeEach(function setupData() {
       return Owner.create({})
         .then(function(inst) {

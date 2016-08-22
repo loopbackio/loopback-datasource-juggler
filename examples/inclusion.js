@@ -3,6 +3,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+'use strict';
+
 var jdb = require('../index');
 
 var User, Post, Passport, City, Street, Building;

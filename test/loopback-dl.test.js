@@ -4,6 +4,7 @@
 // License text available at https://opensource.org/licenses/MIT
 
 // This test written in mocha+should.js
+'use strict';
 var should = require('./init.js');
 var assert = require('assert');
 var async = require('async');
@@ -581,6 +582,7 @@ describe('DataSource define model', function() {
 
   it('should update the instance with unknown properties', function(done) {
     var ds = new DataSource('memory');// define models
+    var Post;
     Post = ds.define('Post', {
       title: {type: String, length: 255, index: true},
       content: {type: String},
@@ -1317,7 +1319,7 @@ describe('Model with scopes', function() {
 });
 
 describe('DataAccessObject', function() {
-  var ds, model, where, error;
+  var ds, model, where, error, filter;
 
   before(function() {
     ds = new DataSource('memory');

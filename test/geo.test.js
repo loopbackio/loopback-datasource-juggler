@@ -6,6 +6,8 @@
 /*global describe,it*/
 /*jshint expr:true */
 
+'use strict';
+
 require('should');
 
 var GeoPoint = require('../lib/geo').GeoPoint;

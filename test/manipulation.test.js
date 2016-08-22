@@ -4,6 +4,7 @@
 // License text available at https://opensource.org/licenses/MIT
 
 // This test written in mocha+should.js
+'use strict';
 var async = require('async');
 var should = require('./init.js');
 
@@ -34,6 +35,8 @@ describe('manipulation', function() {
   // to reproduce problems related to properties with dynamic setters
   // For the purpose of the tests, we use a counter instead of a hash fn.
   var StubUser;
+  var stubPasswordCounter;
+
   before(function setupStubUserModel(done) {
     StubUser = db.createModel('StubUser', {password: String}, {forceId: true});
     StubUser.setter.password = function(plain) {
@@ -62,6 +65,7 @@ describe('manipulation', function() {
     });
 
     describe('forceId', function() {
+      var TestForceId;
       before(function(done) {
         TestForceId = db.define('TestForceId');
         db.automigrate('TestForceId', done);
@@ -1253,7 +1257,7 @@ describe('manipulation', function() {
     });
 
     it('fails the upsertWithWhere operation when data object is empty', function(done) {
-      options = {};
+      var options = {};
       Person.upsertWithWhere({name: 'John Lennon'}, {}, options,
         function(err) {
           err.message.should.equal('data object cannot be empty!');

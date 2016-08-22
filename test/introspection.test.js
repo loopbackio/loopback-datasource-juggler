@@ -3,6 +3,7 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+'use strict';
 var assert = require('assert');
 var ModelBuilder = require('..').ModelBuilder;
 var DataSource = require('../').DataSource;

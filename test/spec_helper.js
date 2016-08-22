@@ -13,6 +13,8 @@
  }
  */
 
+'use strict';
+
 var group_name = false, EXT_EXP;
 function it(should, test_case) {
   check_external_exports();

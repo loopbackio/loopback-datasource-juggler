@@ -4,6 +4,8 @@
 // License text available at https://opensource.org/licenses/MIT
 
 // This test written in mocha+should.js
+'use strict';
+
 var should = require('./init.js');
 
 var db, Model;
@@ -12,7 +14,7 @@ describe('datatypes', function() {
 
   before(function(done) {
     db = getSchema();
-    Nested = db.define('Nested', {});
+    var Nested = db.define('Nested', {});
 
     Model = db.define('Model', {
       str: String,

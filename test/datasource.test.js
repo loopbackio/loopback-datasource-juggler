@@ -3,6 +3,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+'use strict';
+
 var should = require('./init.js');
 var DataSource = require('../lib/datasource.js').DataSource;
 
