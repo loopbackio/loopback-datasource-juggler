@@ -86,6 +86,45 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           });
       });
 
+      it('should not trigger hooks, if notify is false', function(done) {
+        monitorHookExecution();
+        TestModel.find(
+          { where: { id: '1' }},
+          { notify: false },
+          function(err, list) {
+            if (err) return done(err);
+            hookMonitor.names.should.be.empty();
+            done();
+          });
+      });
+
+      it('should not trigger hooks for geo queries, if notify is false',
+      function(done) {
+        monitorHookExecution();
+
+        TestModel.find(
+          { where: { geo: [{ near: '10,20' }] }},
+          { notify: false },
+          function(err, list) {
+            if (err) return done(err);
+            hookMonitor.names.should.be.empty();
+            done();
+          });
+      });
+
+      it('should apply updates from `access` hook', function(done) {
+        TestModel.observe('access', function(ctx, next) {
+          ctx.query = { where: { name: 'second' }};
+          next();
+        });
+
+        TestModel.find({ name: 'first' }, function(err, list) {
+          if (err) return done(err);
+          list.map(get('name')).should.eql(['second']);
+          done();
+        });
+      });
+
       it('triggers `access` hook', function(done) {
         TestModel.observe('access', ctxRecorder.recordAndNext());
 
@@ -123,10 +162,10 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers `access` hook for geo queries', function(done) {
         TestModel.observe('access', ctxRecorder.recordAndNext());
 
-        TestModel.find({ where: { geo: { near: '10,20' }}}, function(err, list) {
+        TestModel.find({ where: { geo: [{ near: '10,20' }] }}, function(err, list) {
           if (err) return done(err);
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-            query: { where: { geo: { near: '10,20' }}},
+            query: { where: { geo: [{ near: '10,20' }] }},
           }));
           done();
         });
@@ -1664,24 +1703,13 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           { id: existingInstance.id, name: 'new name' },
           function(err, record, created) {
             if (err) return done(err);
-            if (dataSource.connector.updateOrCreate) {
-              hookMonitor.names.should.eql([
-                'access',
-                'before save',
-                'persist',
-                'loaded',
-                'after save',
-              ]);
-            } else {
-              hookMonitor.names.should.eql([
-                'access',
-                'loaded',
-                'before save',
-                'persist',
-                'loaded',
-                'after save',
-              ]);
-            }
+            hookMonitor.names.should.eql([
+              'access',
+              'before save',
+              'persist',
+              'loaded',
+              'after save',
+            ]);
             done();
           });
       });
@@ -2015,26 +2043,14 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 },
               }));
             } else {
-              // For Unoptimized connector, the callback function `contextRecorder.recordAndNext`
-              // is called twice. As a result, contextRecorder.records
-              // returns an array and NOT a single instance.
-              ctxRecorder.records.should.eql([
-                aCtxForModel(TestModel, {
-                  instance: {
-                    id: existingInstance.id,
-                    name: 'first',
-                    extra: null,
-                  },
-                  isNewInstance: false,
-                  options: { notify: false },
-                }),
+              ctxRecorder.records.should.eql(
                 aCtxForModel(TestModel, {
                   data: {
                     id: existingInstance.id,
                     name: 'updated name',
                   },
-                }),
-              ]);
+                })
+              );
             }
             done();
           });
@@ -2118,33 +2134,13 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             { id: existingInstance.id, name: 'new name' },
             function(err, record, created) {
               if (err) return done(err);
-              if (dataSource.connector.replaceOrCreate) {
-                hookMonitor.names.should.eql([
-                  'access',
-                  'before save',
-                  'persist',
-                  'loaded',
-                  'after save',
-                ]);
-              } else {
-                // TODO: Please see loopback-datasource-juggler/issues#836
-                //
-                // loaded hook is triggered twice in non-atomic version:
-                // 1) It gets triggered once by "find()" in this chain:
-                //    "replaceORCreate()->findOne()->find()",
-                //    which is a bug; Please see this ticket:
-                //    loopback-datasource-juggler/issues#836.
-                // 2) It, also, gets triggered in "replaceAttributes()"
-                //    in this chain replaceORCreate()->replaceAttributes()
-                hookMonitor.names.should.eql([
-                  'access',
-                  'loaded',
-                  'before save',
-                  'persist',
-                  'loaded',
-                  'after save',
-                ]);
-              };
+              hookMonitor.names.should.eql([
+                'access',
+                'before save',
+                'persist',
+                'loaded',
+                'after save',
+              ]);
               done();
             });
         });
@@ -2451,37 +2447,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               expected.isNewInstance =
                 connectorCapabilities.replaceOrCreateReportsNewInstance ?
                 false : undefined;
-
-              if (dataSource.connector.replaceOrCreate) {
-                ctxRecorder.records.should.eql(aCtxForModel(TestModel, expected));
-              } else {
-                // TODO: Please see loopback-datasource-juggler/issues#836
-                //
-                // loaded hook is triggered twice in non-atomic version:
-                // 1) It gets triggered once by "find()" in this chain:
-                //    "replaceORCreate()->findOne()->find()",
-                //    which is a bug; Please see this ticket:
-                //    loopback-datasource-juggler/issues#836.
-                // 2) It, also, gets triggered in "replaceAttributes()"
-                //    in this chain replaceORCreate()->replaceAttributes()
-                ctxRecorder.records.should.eql([
-                  aCtxForModel(TestModel, {
-                    data: {
-                      id: existingInstance.id,
-                      name: 'first',
-                    },
-                    isNewInstance: false,
-                    options: { notify: false },
-                  }),
-                  aCtxForModel(TestModel, {
-                    data: {
-                      id: existingInstance.id,
-                      name: 'replaced name',
-                    },
-                    isNewInstance: false,
-                  }),
-                ]);
-              }
+              ctxRecorder.records.should.eql(aCtxForModel(TestModel, expected));
               done();
             });
         });
