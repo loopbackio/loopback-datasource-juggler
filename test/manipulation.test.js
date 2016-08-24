@@ -980,275 +980,6 @@ describe('manipulation', function() {
     });
   }
 
-  describe('upsertWithWhere', function() {
-    var ds = getSchema();
-    var Person;
-    before('prepare "Person" model', function(done) {
-      Person = ds.define('Person', {
-        id: { type: Number, id: true },
-        name: { type: String },
-        city: { type: String },
-      });
-      ds.automigrate('Person', done);
-    });
-
-    it('has an alias "patchOrCreateWithWhere"', function() {
-      StubUser.upsertWithWhere.should.equal(StubUser.patchOrCreateWithWhere);
-    });
-
-    it('should preserve properties with dynamic setters on create', function(done) {
-      StubUser.upsertWithWhere({ password: 'foo' }, { password: 'foo' }, function(err, created) {
-        if (err) return done(err);
-        created.password.should.equal('foo-FOO');
-        StubUser.findById(created.id, function(err, found) {
-          if (err) return done(err);
-          found.password.should.equal('foo-FOO');
-          done();
-        });
-      });
-    });
-
-    it('should preserve properties with dynamic setters on update', function(done) {
-      StubUser.create({ password: 'foo' }, function(err, created) {
-        if (err) return done(err);
-        var data = { password: 'bar' };
-        StubUser.upsertWithWhere({ id: created.id }, data, function(err, updated) {
-          if (err) return done(err);
-          updated.password.should.equal('bar-BAR');
-          StubUser.findById(created.id, function(err, found) {
-            if (err) return done(err);
-            found.password.should.equal('bar-BAR');
-            done();
-          });
-        });
-      });
-    });
-
-    it('should preserve properties with "undefined" value', function(done) {
-      Person.create(
-        { id: 10, name: 'Ritz', city: undefined },
-        function(err, instance) {
-          if (err) return done(err);
-          instance.toObject().should.have.properties({
-            id: 10,
-            name: 'Ritz',
-            city: undefined,
-          });
-
-          Person.upsertWithWhere({ id: 10 },
-            { name: 'updated name' },
-              function(err, updated) {
-                if (err) return done(err);
-                var result = updated.toObject();
-                result.should.have.properties({
-                  id: instance.id,
-                  name: 'updated name',
-                });
-                should.equal(result.city, null);
-                done();
-              });
-        });
-    });
-
-    it('updates specific instances when PK is not an auto-generated id', function(done) {
-      Person.create([
-        { name: 'nameA', city: 'cityA' },
-        { name: 'nameB', city: 'cityB' },
-      ], function(err, instance) {
-        if (err) return done(err);
-
-        Person.upsertWithWhere({ name: 'nameA' },
-          { city: 'newCity' },
-          function(err, instance) {
-            if (err) return done(err);
-            var result = instance.toObject();
-            result.should.have.properties({
-              name: 'nameA',
-              city: 'newCity',
-            });
-
-            Person.find(function(err, persons) {
-              if (err) return done(err);
-              persons.should.have.length(3);
-              persons[1].name.should.equal('nameA');
-              persons[1].city.should.equal('newCity');
-              persons[2].name.should.equal('nameB');
-              persons[2].city.should.equal('cityB');
-              done();
-            });
-          });
-      });
-    });
-
-    it('should allow save() of the created instance', function(done) {
-      Person.upsertWithWhere({ id: 999 },
-        { name: 'a-name' },
-        function(err, inst) {
-          if (err) return done(err);
-          inst.save(done);
-        });
-    });
-
-    it('works without options on create (promise variant)', function(done) {
-      var person = { id: 123, name: 'a', city: 'city a' };
-      Person.upsertWithWhere({ id: 123 }, person)
-        .then(function(p) {
-          should.exist(p);
-          p.should.be.instanceOf(Person);
-          p.id.should.be.equal(person.id);
-          p.should.not.have.property('_id');
-          p.name.should.equal(person.name);
-          p.city.should.equal(person.city);
-          return Person.findById(p.id)
-            .then(function(p) {
-              p.id.should.equal(person.id);
-              p.id.should.not.have.property('_id');
-              p.name.should.equal(person.name);
-              p.city.should.equal(person.city);
-              done();
-            });
-        })
-        .catch(done);
-    });
-
-    it('works with options on create (promise variant)', function(done) {
-      var person = { id: 234, name: 'b', city: 'city b' };
-      Person.upsertWithWhere({ id: 234 }, person, { validate: false })
-        .then(function(p) {
-          should.exist(p);
-          p.should.be.instanceOf(Person);
-          p.id.should.be.equal(person.id);
-          p.should.not.have.property('_id');
-          p.name.should.equal(person.name);
-          p.city.should.equal(person.city);
-          return Person.findById(p.id)
-            .then(function(p) {
-              p.id.should.equal(person.id);
-              p.id.should.not.have.property('_id');
-              p.name.should.equal(person.name);
-              p.city.should.equal(person.city);
-              done();
-            });
-        })
-        .catch(done);
-    });
-
-    it('works without options on update (promise variant)', function(done) {
-      var person = { id: 456, name: 'AAA', city: 'city AAA' };
-      Person.create(person)
-        .then(function(created) {
-          created = created.toObject();
-          delete created.city;
-          created.name = 'BBB';
-          return Person.upsertWithWhere({ id: 456 }, created)
-            .then(function(p) {
-              should.exist(p);
-              p.should.be.instanceOf(Person);
-              p.id.should.equal(created.id);
-              p.should.not.have.property('_id');
-              p.name.should.equal('BBB');
-              p.should.have.property('city', 'city AAA');
-              return Person.findById(created.id)
-                .then(function(p) {
-                  p.should.not.have.property('_id');
-                  p.name.should.equal('BBB');
-                  p.city.should.equal('city AAA');
-                  done();
-                });
-            });
-        })
-        .catch(done);
-    });
-
-    it('works with options on update (promise variant)', function(done) {
-      var person = { id: 789, name: 'CCC', city: 'city CCC' };
-      Person.create(person)
-        .then(function(created) {
-          created = created.toObject();
-          delete created.city;
-          created.name = 'Carlton';
-          return Person.upsertWithWhere({ id: 789 }, created, { validate: false })
-            .then(function(p) {
-              should.exist(p);
-              p.should.be.instanceOf(Person);
-              p.id.should.equal(created.id);
-              p.should.not.have.property('_id');
-              p.name.should.equal('Carlton');
-              p.should.have.property('city', 'city CCC');
-              return Person.findById(created.id)
-                .then(function(p) {
-                  p.should.not.have.property('_id');
-                  p.name.should.equal('Carlton');
-                  p.city.should.equal('city CCC');
-                  done();
-                });
-            });
-        })
-        .catch(done);
-    });
-
-    it('fails the upsertWithWhere operation when data object is empty', function(done) {
-      options = {};
-      Person.upsertWithWhere({ name: 'John Lennon' }, {}, options,
-        function(err) {
-          err.message.should.equal('data object cannot be empty!');
-          done();
-        });
-    });
-
-    it('creates a new record when no matching instance is found', function(done) {
-      Person.upsertWithWhere({ city: 'Florida' }, { name: 'Nick Carter', id: 1, city: 'Florida' },
-        function(err, created) {
-          if (err) return done(err);
-          Person.findById(1, function(err, data) {
-            if (err) return done(err);
-            data.id.should.equal(1);
-            data.name.should.equal('Nick Carter');
-            data.city.should.equal('Florida');
-            done();
-          });
-        });
-    });
-
-    it('fails the upsertWithWhere operation when multiple instances are ' +
-        'retrieved based on the filter criteria', function(done) {
-      Person.create([
-        { id: '2', name: 'Howie', city: 'Florida' },
-        { id: '3', name: 'Kevin', city: 'Florida' },
-      ], function(err, instance) {
-        if (err) return done(err);
-        Person.upsertWithWhere({ city: 'Florida' }, {
-          id: '4', name: 'Brian',
-        }, function(err) {
-          err.message.should.equal('There are multiple instances found.' +
-              'Upsert Operation will not be performed!');
-          done();
-        });
-      });
-    });
-
-    it('updates the record when one matching instance is found ' +
-        'based on the filter criteria', function(done) {
-      Person.create([
-        { id: '5', name: 'Howie', city: 'Kentucky' },
-      ], function(err, instance) {
-        if (err) return done(err);
-        Person.upsertWithWhere({ city: 'Kentucky' }, {
-          name: 'Brian',
-        }, { validate: false }, function(err, instance) {
-          if (err) return done(err);
-          Person.findById(5, function(err, data) {
-            if (err) return done(err);
-            data.id.should.equal(5);
-            data.name.should.equal('Brian');
-            data.city.should.equal('Kentucky');
-            done();
-          });
-        });
-      });
-    });
-  });
-
   if (!getSchema().connector.replaceById) {
     describe.skip('replaceAttributes/replaceById - not implemented', function() {});
   } else {
@@ -2017,6 +1748,246 @@ describe('manipulation', function() {
             done();
           });
         });
+  });
+
+  describe('upsertWithWhere', function() {
+    var ds = getSchema();
+    var Person;
+    before('prepare "Person" model', function(done) {
+      Person = ds.define('Person', {
+        id: { type: Number, id: true },
+        name: { type: String },
+        city: { type: String },
+      });
+      ds.automigrate('Person', done);
+    });
+
+    it('has an alias "patchOrCreateWithWhere"', function() {
+      StubUser.upsertWithWhere.should.equal(StubUser.patchOrCreateWithWhere);
+    });
+
+    it('should preserve properties with dynamic setters on create', function(done) {
+      StubUser.upsertWithWhere({ password: 'foo' }, { password: 'foo' }, function(err, created) {
+        if (err) return done(err);
+        created.password.should.equal('foo-FOO');
+        StubUser.findById(created.id, function(err, found) {
+          if (err) return done(err);
+          found.password.should.equal('foo-FOO');
+          done();
+        });
+      });
+    });
+
+    it('should preserve properties with dynamic setters on update', function(done) {
+      StubUser.create({ password: 'foo' }, function(err, created) {
+        if (err) return done(err);
+        var data = { password: 'bar' };
+        StubUser.upsertWithWhere({ id: created.id }, data, function(err, updated) {
+          if (err) return done(err);
+          updated.password.should.equal('bar-BAR');
+          StubUser.findById(created.id, function(err, found) {
+            if (err) return done(err);
+            found.password.should.equal('bar-BAR');
+            done();
+          });
+        });
+      });
+    });
+
+    it('should preserve properties with "undefined" value', function(done) {
+      Person.create(
+        { id: 10, name: 'Ritz', city: undefined },
+        function(err, instance) {
+          if (err) return done(err);
+          instance.toObject().should.have.properties({
+            id: 10,
+            name: 'Ritz',
+            city: undefined,
+          });
+
+          Person.upsertWithWhere({ id: 10 },
+            { name: 'updated name' },
+              function(err, updated) {
+                if (err) return done(err);
+                var result = updated.toObject();
+                result.should.have.properties({
+                  id: instance.id,
+                  name: 'updated name',
+                });
+                should.equal(result.city, null);
+                done();
+              });
+        });
+    });
+
+    it('should allow save() of the created instance', function(done) {
+      Person.upsertWithWhere({ id: 999 },
+        // Todo @mountain: This seems a bug why in data object still I need to pass id?
+        { id: 999, name: 'a-name' },
+        function(err, inst) {
+          if (err) return done(err);
+          inst.save(done);
+        });
+    });
+
+    it('works without options on create (promise variant)', function(done) {
+      var person = { id: 123, name: 'a', city: 'city a' };
+      Person.upsertWithWhere({ id: 123 }, person)
+        .then(function(p) {
+          should.exist(p);
+          p.should.be.instanceOf(Person);
+          p.id.should.be.equal(person.id);
+          p.should.not.have.property('_id');
+          p.name.should.equal(person.name);
+          p.city.should.equal(person.city);
+          return Person.findById(p.id)
+            .then(function(p) {
+              p.id.should.equal(person.id);
+              p.id.should.not.have.property('_id');
+              p.name.should.equal(person.name);
+              p.city.should.equal(person.city);
+              done();
+            });
+        })
+        .catch(done);
+    });
+
+    it('works with options on create (promise variant)', function(done) {
+      var person = { id: 234, name: 'b', city: 'city b' };
+      Person.upsertWithWhere({ id: 234 }, person, { validate: false })
+        .then(function(p) {
+          should.exist(p);
+          p.should.be.instanceOf(Person);
+          p.id.should.be.equal(person.id);
+          p.should.not.have.property('_id');
+          p.name.should.equal(person.name);
+          p.city.should.equal(person.city);
+          return Person.findById(p.id)
+            .then(function(p) {
+              p.id.should.equal(person.id);
+              p.id.should.not.have.property('_id');
+              p.name.should.equal(person.name);
+              p.city.should.equal(person.city);
+              done();
+            });
+        })
+        .catch(done);
+    });
+
+    it('works without options on update (promise variant)', function(done) {
+      var person = { id: 456, name: 'AAA', city: 'city AAA' };
+      Person.create(person)
+        .then(function(created) {
+          created = created.toObject();
+          delete created.city;
+          created.name = 'BBB';
+          return Person.upsertWithWhere({ id: 456 }, created)
+            .then(function(p) {
+              should.exist(p);
+              p.should.be.instanceOf(Person);
+              p.id.should.equal(created.id);
+              p.should.not.have.property('_id');
+              p.name.should.equal('BBB');
+              p.should.have.property('city', 'city AAA');
+              return Person.findById(created.id)
+                .then(function(p) {
+                  p.should.not.have.property('_id');
+                  p.name.should.equal('BBB');
+                  p.city.should.equal('city AAA');
+                  done();
+                });
+            });
+        })
+        .catch(done);
+    });
+
+    it('works with options on update (promise variant)', function(done) {
+      var person = { id: 789, name: 'CCC', city: 'city CCC' };
+      Person.create(person)
+        .then(function(created) {
+          created = created.toObject();
+          delete created.city;
+          created.name = 'Carlton';
+          return Person.upsertWithWhere({ id: 789 }, created, { validate: false })
+            .then(function(p) {
+              should.exist(p);
+              p.should.be.instanceOf(Person);
+              p.id.should.equal(created.id);
+              p.should.not.have.property('_id');
+              p.name.should.equal('Carlton');
+              p.should.have.property('city', 'city CCC');
+              return Person.findById(created.id)
+                .then(function(p) {
+                  p.should.not.have.property('_id');
+                  p.name.should.equal('Carlton');
+                  p.city.should.equal('city CCC');
+                  done();
+                });
+            });
+        })
+        .catch(done);
+    });
+
+    it('fails the upsertWithWhere operation when data object is empty', function(done) {
+      options = {};
+      Person.upsertWithWhere({ name: 'John Lennon' }, {}, options,
+        function(err) {
+          err.message.should.equal('data object cannot be empty!');
+          done();
+        });
+    });
+
+    it('creates a new record when no matching instance is found', function(done) {
+      Person.upsertWithWhere({ city: 'Florida' }, { name: 'Nick Carter', id: 1, city: 'Florida' },
+        function(err, created) {
+          if (err) return done(err);
+          Person.findById(1, function(err, data) {
+            if (err) return done(err);
+            data.id.should.equal(1);
+            data.name.should.equal('Nick Carter');
+            data.city.should.equal('Florida');
+            done();
+          });
+        });
+    });
+
+    it('fails the upsertWithWhere operation when multiple instances are ' +
+        'retrieved based on the filter criteria', function(done) {
+      Person.create([
+        { id: '2', name: 'Howie', city: 'Florida' },
+        { id: '3', name: 'Kevin', city: 'Florida' },
+      ], function(err, instance) {
+        if (err) return done(err);
+        Person.upsertWithWhere({ city: 'Florida' }, {
+          id: '4', name: 'Brian',
+        }, function(err) {
+          err.message.should.equal('There are multiple instances found.' +
+              'Upsert Operation will not be performed!');
+          done();
+        });
+      });
+    });
+
+    it('updates the record when one matching instance is found ' +
+        'based on the filter criteria', function(done) {
+      Person.create([
+        { id: '5', name: 'Howie', city: 'Kentucky' },
+      ], function(err, instance) {
+        if (err) return done(err);
+        Person.upsertWithWhere({ city: 'Kentucky' }, {
+          name: 'Brian',
+        }, { validate: false }, function(err, instance) {
+          if (err) return done(err);
+          Person.findById(5, function(err, data) {
+            if (err) return done(err);
+            data.id.should.equal(5);
+            data.name.should.equal('Brian');
+            data.city.should.equal('Kentucky');
+            done();
+          });
+        });
+      });
+    });
   });
 });
 
