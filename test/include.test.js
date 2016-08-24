@@ -3,6 +3,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+'use strict';
+
 var should = require('./init.js');
 var async = require('async');
 var assert = require('assert');
@@ -16,7 +18,7 @@ describe('include', function() {
   before(setup);
 
   it('should fetch belongsTo relation', function(done) {
-    Passport.find({ include: 'owner' }, function(err, passports) {
+    Passport.find({include: 'owner'}, function(err, passports) {
       passports.length.should.be.ok;
       passports.forEach(function(p) {
         p.__cachedRelations.should.have.property('owner');
@@ -39,7 +41,7 @@ describe('include', function() {
   });
 
   it('should fetch hasMany relation', function(done) {
-    User.find({ include: 'posts' }, function(err, users) {
+    User.find({include: 'posts'}, function(err, users) {
       should.not.exist(err);
       should.exist(users);
       users.length.should.be.ok;
@@ -59,7 +61,7 @@ describe('include', function() {
   });
 
   it('should fetch Passport - Owner - Posts', function(done) {
-    Passport.find({ include: { owner: 'posts' }}, function(err, passports) {
+    Passport.find({include: {owner: 'posts'}}, function(err, passports) {
 
       should.not.exist(err);
       should.exist(passports);
@@ -91,7 +93,7 @@ describe('include', function() {
   });
 
   it('should fetch Passport - Owner - empty Posts', function(done) {
-    Passport.findOne({ where: { number: '4' }, include: { owner: 'posts' }}, function(err, passport) {
+    Passport.findOne({where: {number: '4'}, include: {owner: 'posts'}}, function(err, passport) {
       should.not.exist(err);
       should.exist(passport);
       passport.__cachedRelations.should.have.property('owner');
@@ -113,7 +115,7 @@ describe('include', function() {
   });
 
   it('should fetch Passport - Owner - Posts - alternate syntax', function(done) {
-    Passport.find({ include: { owner: { relation: 'posts' }}}, function(err, passports) {
+    Passport.find({include: {owner: {relation: 'posts'}}}, function(err, passports) {
       should.not.exist(err);
       should.exist(passports);
       passports.length.should.be.ok;
@@ -125,7 +127,7 @@ describe('include', function() {
 
   it('should fetch Passports - User - Posts - User', function(done) {
     Passport.find({
-      include: { owner: { posts: 'author' }},
+      include: {owner: {posts: 'author'}},
     }, function(err, passports) {
       should.not.exist(err);
       should.exist(passports);
@@ -155,7 +157,7 @@ describe('include', function() {
 
   it('should fetch Passports with include scope on Posts', function(done) {
     Passport.find({
-      include: { owner: { relation: 'posts', scope: {
+      include: {owner: {relation: 'posts', scope: {
         fields: ['title'], include: ['author'],
         order: 'title DESC',
       }}},
@@ -282,9 +284,9 @@ describe('include', function() {
             scope: {
               where: {
                 and: [
-                  { id: 1 },
-                  { userId: 1 },
-                  { title: 'Post A' },
+                  {id: 1},
+                  {userId: 1},
+                  {title: 'Post A'},
                 ],
               },
             },
@@ -361,7 +363,7 @@ describe('include', function() {
 
       it('works when using `where` without `limit`, `skip` or `offset`',
       function(done) {
-        User.findOne({ include: { relation: 'posts' }}, function(err, user) {
+        User.findOne({include: {relation: 'posts'}}, function(err, user) {
           if (err) return done(err);
 
           var posts = user.posts();
@@ -383,7 +385,7 @@ describe('include', function() {
         // --superkhau
         Post.dataSource.settings.inqLimit = 2;
 
-        User.find({ include: { relation: 'posts' }}, function(err, users) {
+        User.find({include: {relation: 'posts'}}, function(err, users) {
           if (err) return done(err);
 
           users.length.should.equal(5);
@@ -397,7 +399,7 @@ describe('include', function() {
       it('works when page size is set to 0', function(done) {
         Post.dataSource.settings.inqLimit = 0;
 
-        User.find({ include: { relation: 'posts' }}, function(err, users) {
+        User.find({include: {relation: 'posts'}}, function(err, users) {
           if (err) return done(err);
 
           users.length.should.equal(5);
@@ -421,13 +423,13 @@ describe('include', function() {
       // --superkhau
 
       it('works when hasOne is called', function(done) {
-        User.findOne({ include: { relation: 'profile' }}, function(err, user) {
+        User.findOne({include: {relation: 'profile'}}, function(err, user) {
           if (err) return done(err);
 
           user.name.should.equal('User A');
           user.age.should.equal(21);
           user.id.should.equal(1);
-          profile = user.profile();
+          var profile = user.profile();
           profile.profileName.should.equal('Profile A');
           profile.userId.should.equal(1);
           profile.id.should.equal(1);
@@ -437,7 +439,7 @@ describe('include', function() {
       });
 
       it('works when hasMany is called', function(done) {
-        User.findOne({ include: { relation: 'posts' }}, function(err, user) {
+        User.findOne({include: {relation: 'posts'}}, function(err, user) {
           if (err) return done();
 
           user.name.should.equal('User A');
@@ -450,9 +452,9 @@ describe('include', function() {
       });
 
       it('works when hasManyThrough is called', function(done) {
-        Physician = db.define('Physician', { name: String });
-        Patient = db.define('Patient', { name: String });
-        Appointment = db.define('Appointment', {
+        var Physician = db.define('Physician', {name: String});
+        var Patient = db.define('Patient', {name: String});
+        var Appointment = db.define('Appointment', {
           date: {
             type: Date,
             default: function() {
@@ -460,10 +462,10 @@ describe('include', function() {
             },
           },
         });
-        Address = db.define('Address', { name: String });
+        var Address = db.define('Address', {name: String});
 
-        Physician.hasMany(Patient, { through: Appointment });
-        Patient.hasMany(Physician, { through: Appointment });
+        Physician.hasMany(Patient, {through: Appointment});
+        Patient.hasMany(Physician, {through: Appointment});
         Patient.belongsTo(Address);
         Appointment.belongsTo(Patient);
         Appointment.belongsTo(Physician);
@@ -471,11 +473,11 @@ describe('include', function() {
         db.automigrate(['Physician', 'Patient', 'Appointment', 'Address'],
           function() {
             Physician.create(function(err, physician) {
-              physician.patients.create({ name: 'a' }, function(err, patient) {
-                Address.create({ name: 'z' }, function(err, address) {
+              physician.patients.create({name: 'a'}, function(err, patient) {
+                Address.create({name: 'z'}, function(err, address) {
                   patient.address(address);
                   patient.save(function() {
-                    physician.patients({ include: 'address' },
+                    physician.patients({include: 'address'},
                       function(err, posts) {
                         if (err) return done(err);
 
@@ -496,13 +498,13 @@ describe('include', function() {
       });
 
       it('works when belongsTo is called', function(done) {
-        Profile.findOne({ include: 'user' }, function(err, profile) {
+        Profile.findOne({include: 'user'}, function(err, profile) {
           if (err) return done(err);
 
           profile.profileName.should.equal('Profile A');
           profile.userId.should.equal(1);
           profile.id.should.equal(1);
-          user = profile.user();
+          var user = profile.user();
           user.name.should.equal('User A');
           user.age.should.equal(21);
           user.id.should.equal(1);
@@ -515,7 +517,7 @@ describe('include', function() {
 
   it('should fetch Users with include scope on Posts - belongsTo',
     function(done) {
-      Post.find({ include: { relation: 'author', scope: { fields: ['name'] }}},
+      Post.find({include: {relation: 'author', scope: {fields: ['name']}}},
         function(err, posts) {
           should.not.exist(err);
           should.exist(posts);
@@ -532,7 +534,7 @@ describe('include', function() {
 
   it('should fetch Users with include scope on Posts - hasMany', function(done) {
     User.find({
-      include: { relation: 'posts', scope: {
+      include: {relation: 'posts', scope: {
         order: 'title DESC',
       }},
     }, function(err, users) {
@@ -562,8 +564,8 @@ describe('include', function() {
 
   it('should fetch Users with include scope on Passports - hasMany', function(done) {
     User.find({
-      include: { relation: 'passports', scope: {
-        where: { number: '2' },
+      include: {relation: 'passports', scope: {
+        where: {number: '2'},
       }},
     }, function(err, users) {
       should.not.exist(err);
@@ -582,7 +584,7 @@ describe('include', function() {
   });
 
   it('should fetch User - Posts AND Passports', function(done) {
-    User.find({ include: ['posts', 'passports'] }, function(err, users) {
+    User.find({include: ['posts', 'passports']}, function(err, users) {
       should.not.exist(err);
       should.exist(users);
       users.length.should.be.ok;
@@ -615,12 +617,12 @@ describe('include', function() {
 
   it('should fetch User - Posts AND Passports in relation syntax',
     function(done) {
-      User.find({ include: [
-        { relation: 'posts', scope: {
-          where: { title: 'Post A' },
+      User.find({include: [
+        {relation: 'posts', scope: {
+          where: {title: 'Post A'},
         }},
         'passports',
-      ] }, function(err, users) {
+      ]}, function(err, users) {
         should.not.exist(err);
         should.exist(users);
         users.length.should.be.ok;
@@ -653,7 +655,7 @@ describe('include', function() {
     });
 
   it('should not fetch User - AccessTokens', function(done) {
-    User.find({ include: ['accesstokens'] }, function(err, users) {
+    User.find({include: ['accesstokens']}, function(err, users) {
       should.not.exist(err);
       should.exist(users);
       users.length.should.be.ok;
@@ -666,8 +668,8 @@ describe('include', function() {
   });
 
   it('should support hasAndBelongsToMany', function(done) {
-    Assembly.create({ name: 'car' }, function(err, assembly) {
-      Part.create({ partNumber: 'engine' }, function(err, part) {
+    Assembly.create({name: 'car'}, function(err, assembly) {
+      Part.create({partNumber: 'engine'}, function(err, part) {
         assembly.parts.add(part, function(err, data) {
           assembly.parts(function(err, parts) {
             should.not.exist(err);
@@ -676,9 +678,9 @@ describe('include', function() {
             parts[0].partNumber.should.equal('engine');
 
             // Create a part
-            assembly.parts.create({ partNumber: 'door' }, function(err, part4) {
+            assembly.parts.create({partNumber: 'door'}, function(err, part4) {
 
-              Assembly.find({ include: 'parts' }, function(err, assemblies) {
+              Assembly.find({include: 'parts'}, function(err, assemblies) {
                 assemblies.length.should.equal(1);
                 assemblies[0].parts().length.should.equal(2);
                 done();
@@ -692,7 +694,7 @@ describe('include', function() {
   });
 
   it('should fetch User - Profile (HasOne)', function(done) {
-    User.find({ include: ['profile'] }, function(err, users) {
+    User.find({include: ['profile']}, function(err, users) {
       should.not.exist(err);
       should.exist(users);
       users.length.should.be.ok;
@@ -724,8 +726,8 @@ describe('include', function() {
   // Not implemented correctly, see: loopback-datasource-juggler/issues/166
   // fixed by DB optimization
   it('should support include scope on hasAndBelongsToMany', function(done) {
-    Assembly.find({ include: { relation: 'parts', scope: {
-      where: { partNumber: 'engine' },
+    Assembly.find({include: {relation: 'parts', scope: {
+      where: {partNumber: 'engine'},
     }}}, function(err, assemblies) {
       assemblies.length.should.equal(1);
       var parts = assemblies[0].parts();
@@ -773,7 +775,7 @@ describe('include', function() {
     });
     it('including belongsTo should make only 2 db calls', function(done) {
       var self = this;
-      Passport.find({ include: 'owner' }, function(err, passports) {
+      Passport.find({include: 'owner'}, function(err, passports) {
         passports.length.should.be.ok;
         passports.forEach(function(p) {
           p.__cachedRelations.should.have.property('owner');
@@ -796,11 +798,11 @@ describe('include', function() {
 
     it('including hasManyThrough should make only 3 db calls', function(done) {
       var self = this;
-      Assembly.create([{ name: 'sedan' }, { name: 'hatchback' },
-          { name: 'SUV' }],
+      Assembly.create([{name: 'sedan'}, {name: 'hatchback'},
+          {name: 'SUV'}],
         function(err, assemblies) {
-          Part.create([{ partNumber: 'engine' }, { partNumber: 'bootspace' },
-              { partNumber: 'silencer' }],
+          Part.create([{partNumber: 'engine'}, {partNumber: 'bootspace'},
+              {partNumber: 'silencer'}],
             function(err, parts) {
               async.each(parts, function(part, next) {
                 async.each(assemblies, function(assembly, next) {
@@ -849,7 +851,7 @@ describe('include', function() {
 
     it('including hasMany should make only 2 db calls', function(done) {
       var self = this;
-      User.find({ include: ['posts', 'passports'] }, function(err, users) {
+      User.find({include: ['posts', 'passports']}, function(err, users) {
         should.not.exist(err);
         should.exist(users);
         users.length.should.be.ok;
@@ -884,9 +886,9 @@ describe('include', function() {
     it('should not make n+1 db calls in relation syntax',
       function(done) {
         var self = this;
-        User.find({ include: [{ relation: 'posts', scope: {
-          where: { title: 'Post A' },
-        }}, 'passports'] }, function(err, users) {
+        User.find({include: [{relation: 'posts', scope: {
+          where: {title: 'Post A'},
+        }}, 'passports']}, function(err, users) {
           should.not.exist(err);
           should.exist(users);
           users.length.should.be.ok;
@@ -921,22 +923,22 @@ describe('include', function() {
   });
 
   it('should support disableInclude for hasAndBelongsToMany', function() {
-    var Patient = db.define('Patient', { name: String });
-    var Doctor = db.define('Doctor', { name: String });
+    var Patient = db.define('Patient', {name: String});
+    var Doctor = db.define('Doctor', {name: String});
     var DoctorPatient = db.define('DoctorPatient');
     Doctor.hasAndBelongsToMany('patients', {
       model: 'Patient',
-      options: { disableInclude: true },
+      options: {disableInclude: true},
     });
 
     var doctor;
     return db.automigrate(['Patient', 'Doctor', 'DoctorPatient']).then(function() {
-      return Doctor.create({ name: 'Who' });
+      return Doctor.create({name: 'Who'});
     }).then(function(inst) {
       doctor = inst;
-      return doctor.patients.create({ name: 'Lazarus' });
+      return doctor.patients.create({name: 'Lazarus'});
     }).then(function() {
-      return Doctor.find({ include: ['patients'] });
+      return Doctor.find({include: ['patients']});
     }).then(function(list) {
       list.should.have.length(1);
       list[0].toJSON().should.not.have.property('patients');
@@ -966,16 +968,16 @@ function setup(done) {
     title: String,
   });
 
-  Passport.belongsTo('owner', { model: User });
-  User.hasMany('passports', { foreignKey: 'ownerId' });
-  User.hasMany('posts', { foreignKey: 'userId' });
+  Passport.belongsTo('owner', {model: User});
+  User.hasMany('passports', {foreignKey: 'ownerId'});
+  User.hasMany('posts', {foreignKey: 'userId'});
   User.hasMany('accesstokens', {
     foreignKey: 'userId',
-    options: { disableInclude: true },
+    options: {disableInclude: true},
   });
-  Profile.belongsTo('user', { model: User });
-  User.hasOne('profile', { foreignKey: 'userId' });
-  Post.belongsTo('author', { model: User, foreignKey: 'userId' });
+  Profile.belongsTo('user', {model: User});
+  User.hasOne('profile', {foreignKey: 'userId'});
+  Post.belongsTo('author', {model: User, foreignKey: 'userId'});
 
   Assembly = db.define('Assembly', {
     name: String,
@@ -998,11 +1000,11 @@ function setup(done) {
       clearAndCreate(
         User,
         [
-          { name: 'User A', age: 21 },
-          { name: 'User B', age: 22 },
-          { name: 'User C', age: 23 },
-          { name: 'User D', age: 24 },
-          { name: 'User E', age: 25 },
+          {name: 'User A', age: 21},
+          {name: 'User B', age: 22},
+          {name: 'User C', age: 23},
+          {name: 'User D', age: 24},
+          {name: 'User E', age: 25},
         ],
         function(items) {
           createdUsers = items;
@@ -1016,8 +1018,8 @@ function setup(done) {
       clearAndCreate(
         AccessToken,
         [
-          { token: '1', userId: createdUsers[0].id },
-          { token: '2', userId: createdUsers[1].id },
+          {token: '1', userId: createdUsers[0].id},
+          {token: '2', userId: createdUsers[1].id},
         ],
         function(items) {}
       );
@@ -1027,10 +1029,10 @@ function setup(done) {
       clearAndCreate(
         Passport,
         [
-          { number: '1', ownerId: createdUsers[0].id },
-          { number: '2', ownerId: createdUsers[1].id },
-          { number: '3' },
-          { number: '4', ownerId: createdUsers[2].id },
+          {number: '1', ownerId: createdUsers[0].id},
+          {number: '2', ownerId: createdUsers[1].id},
+          {number: '3'},
+          {number: '4', ownerId: createdUsers[2].id},
         ],
         function(items) {
           createdPassports = items;
@@ -1043,9 +1045,9 @@ function setup(done) {
       clearAndCreate(
         Profile,
         [
-          { profileName: 'Profile A', userId: createdUsers[0].id },
-          { profileName: 'Profile B', userId: createdUsers[1].id },
-          { profileName: 'Profile Z' },
+          {profileName: 'Profile A', userId: createdUsers[0].id},
+          {profileName: 'Profile B', userId: createdUsers[1].id},
+          {profileName: 'Profile Z'},
         ],
         function(items) {
           createdProfiles = items;
@@ -1058,11 +1060,11 @@ function setup(done) {
       clearAndCreate(
         Post,
         [
-          { title: 'Post A', userId: createdUsers[0].id },
-          { title: 'Post B', userId: createdUsers[0].id },
-          { title: 'Post C', userId: createdUsers[0].id },
-          { title: 'Post D', userId: createdUsers[1].id },
-          { title: 'Post E' },
+          {title: 'Post A', userId: createdUsers[0].id},
+          {title: 'Post B', userId: createdUsers[0].id},
+          {title: 'Post C', userId: createdUsers[0].id},
+          {title: 'Post D', userId: createdUsers[1].id},
+          {title: 'Post E'},
         ],
         function(items) {
           createdPosts = items;
@@ -1099,7 +1101,7 @@ describe('Model instance with included relation .toJSON()', function() {
   var db, ChallengerModel, GameParticipationModel, ResultModel;
 
   before(function(done) {
-    db = new DataSource({ connector: 'memory' });
+    db = new DataSource({connector: 'memory'});
     ChallengerModel = db.createModel('Challenger',
       {
         name: String,
@@ -1156,25 +1158,25 @@ describe('Model instance with included relation .toJSON()', function() {
   });
 
   function createChallengers(callback) {
-    ChallengerModel.create([{ name: 'challenger1' }, { name: 'challenger2' }], callback);
+    ChallengerModel.create([{name: 'challenger1'}, {name: 'challenger2'}], callback);
   }
 
   function createGameParticipations(challengers, callback) {
     GameParticipationModel.create([
-      { challengerId: challengers[0].id, date: Date.now() },
-      { challengerId: challengers[0].id, date: Date.now() },
+      {challengerId: challengers[0].id, date: Date.now()},
+      {challengerId: challengers[0].id, date: Date.now()},
     ], callback);
   }
 
   function createResults(gameParticipations, callback) {
     ResultModel.create([
-      { gameParticipationId: gameParticipations[0].id, points: 10 },
-      { gameParticipationId: gameParticipations[0].id, points: 20 },
+      {gameParticipationId: gameParticipations[0].id, points: 10},
+      {gameParticipationId: gameParticipations[0].id, points: 20},
     ], callback);
   }
 
   it('should recursively serialize objects', function(done) {
-    var filter = { include: { gameParticipations: 'results' }};
+    var filter = {include: {gameParticipations: 'results'}};
     ChallengerModel.find(filter, function(err, challengers) {
 
       var levelOneInclusion = challengers[0].toJSON().gameParticipations[0];

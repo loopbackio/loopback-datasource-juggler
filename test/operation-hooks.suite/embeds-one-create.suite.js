@@ -3,6 +3,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+'use strict';
+
 var ValidationError = require('../..').ValidationError;
 
 var contextTestHelpers = require('../helpers/context-test-helpers');
@@ -18,7 +20,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
     beforeEach(function setupHelpers() {
       ctxRecorder = new ContextRecorder('hook not called');
-      hookMonitor = new HookMonitor({ includeModelName: true });
+      hookMonitor = new HookMonitor({includeModelName: true});
       expectedError = new Error('test error');
     });
 
@@ -28,9 +30,9 @@ module.exports = function(dataSource, should, connectorCapabilities) {
     beforeEach(function setupDatabase() {
       Embedded = dataSource.createModel('Embedded', {
         // Set id.generated to false to honor client side values
-        id: { type: String, id: true, generated: false, default: uid.next },
-        name: { type: String, required: true },
-        extra: { type: String, required: false },
+        id: {type: String, id: true, generated: false, default: uid.next},
+        name: {type: String, required: true},
+        extra: {type: String, required: false},
       });
 
       Owner = dataSource.createModel('Owner', {});
@@ -55,7 +57,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
     });
 
     function callCreate() {
-      var item = new Embedded({ name: 'created' });
+      var item = new Embedded({name: 'created'});
       return ownerInstance.embeddedItem.create(item);
     }
 
@@ -106,7 +108,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       Embedded.observe('before save', invalidateEmbeddedModel);
       return callCreate().then(throwShouldHaveFailed, function(err) {
         err.should.be.instanceOf(ValidationError);
-        (err.details.codes || {}).should.eql({ name: ['presence'] });
+        (err.details.codes || {}).should.eql({name: ['presence']});
       });
     });
 

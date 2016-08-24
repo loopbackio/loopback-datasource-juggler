@@ -3,6 +3,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+'use strict';
+
 var jdb = require('../');
 var DataSource = jdb.DataSource;
 var should = require('./init.js');
@@ -11,11 +13,11 @@ describe('Memory connector with mocked discovery', function() {
   var ds;
 
   before(function() {
-    ds = new DataSource({ connector: 'memory' });
+    ds = new DataSource({connector: 'memory'});
 
-    var models = [{ type: 'table', name: 'CUSTOMER', owner: 'STRONGLOOP' },
-      { type: 'table', name: 'INVENTORY', owner: 'STRONGLOOP' },
-      { type: 'table', name: 'LOCATION', owner: 'STRONGLOOP' }];
+    var models = [{type: 'table', name: 'CUSTOMER', owner: 'STRONGLOOP'},
+      {type: 'table', name: 'INVENTORY', owner: 'STRONGLOOP'},
+      {type: 'table', name: 'LOCATION', owner: 'STRONGLOOP'}];
 
     ds.discoverModelDefinitions = function(options, cb) {
       process.nextTick(function() {
@@ -102,7 +104,7 @@ describe('Memory connector with mocked discovery', function() {
 
   it('should not convert table/column names with null custom mapper',
     function(done) {
-      ds.discoverSchemas('INVENTORY', { nameMapper: null }, function(err, schemas) {
+      ds.discoverSchemas('INVENTORY', {nameMapper: null}, function(err, schemas) {
         if (err) return done(err);
         schemas.should.have.property('STRONGLOOP.INVENTORY');
         var s = schemas['STRONGLOOP.INVENTORY'];
@@ -117,8 +119,8 @@ describe('Memory connector with mocked discovery', function() {
     function(done) {
       var models = {
         inventory: {
-          product: { type: 'string' },
-          location: { type: 'string' },
+          product: {type: 'string'},
+          location: {type: 'string'},
         },
       };
       ds.connector.discoverSchemas = function(modelName, options, cb) {
@@ -126,7 +128,7 @@ describe('Memory connector with mocked discovery', function() {
           cb(null, models);
         });
       };
-      ds.discoverSchemas('INVENTORY', { nameMapper: null }, function(err, schemas) {
+      ds.discoverSchemas('INVENTORY', {nameMapper: null}, function(err, schemas) {
         if (err) return done(err);
         schemas.should.be.eql(models);
         done();
@@ -137,8 +139,8 @@ describe('Memory connector with mocked discovery', function() {
     function(done) {
       var models = {
         inventory: {
-          product: { type: 'string' },
-          location: { type: 'string' },
+          product: {type: 'string'},
+          location: {type: 'string'},
         },
       };
       ds.connector.discoverSchemas = function(modelName, options, cb) {
@@ -184,7 +186,7 @@ describe('Memory connector with mocked discovery', function() {
         name: 'Inventory',
         options: {
           idInjection: false,
-          memory: { schema: 'STRONGLOOP', table: 'INVENTORY' },
+          memory: {schema: 'STRONGLOOP', table: 'INVENTORY'},
         },
         properties: {
           available: {
@@ -285,11 +287,11 @@ describe('Memory connector with mocked discovery', function() {
 describe('discoverModelDefinitions', function() {
   var ds;
   before(function() {
-    ds = new DataSource({ connector: 'memory' });
+    ds = new DataSource({connector: 'memory'});
 
-    var models = [{ type: 'table', name: 'CUSTOMER', owner: 'STRONGLOOP' },
-      { type: 'table', name: 'INVENTORY', owner: 'STRONGLOOP' },
-      { type: 'table', name: 'LOCATION', owner: 'STRONGLOOP' }];
+    var models = [{type: 'table', name: 'CUSTOMER', owner: 'STRONGLOOP'},
+      {type: 'table', name: 'INVENTORY', owner: 'STRONGLOOP'},
+      {type: 'table', name: 'LOCATION', owner: 'STRONGLOOP'}];
 
     ds.connector.discoverModelDefinitions = function(options, cb) {
       process.nextTick(function() {
@@ -352,7 +354,7 @@ describe('discoverModelProperties', function() {
   var ds;
   var modelProperties;
   before(function() {
-    ds = new DataSource({ connector: 'memory' });
+    ds = new DataSource({connector: 'memory'});
 
     modelProperties = [{
       owner: 'STRONGLOOP',
@@ -436,9 +438,9 @@ describe('discoverModelProperties', function() {
 
 describe('discoverPrimaryKeys', function() {
   var ds;
-  var modelProperties;
+  var modelProperties, primaryKeys;
   before(function() {
-    ds = new DataSource({ connector: 'memory' });
+    ds = new DataSource({connector: 'memory'});
 
     primaryKeys = [
       {
@@ -496,9 +498,9 @@ describe('discoverPrimaryKeys', function() {
 
 describe('discoverForeignKeys', function() {
   var ds;
-  var modelProperties;
+  var modelProperties, foreignKeys;
   before(function() {
-    ds = new DataSource({ connector: 'memory' });
+    ds = new DataSource({connector: 'memory'});
 
     foreignKeys = [{
       fkOwner: 'STRONGLOOP',
@@ -553,9 +555,9 @@ describe('discoverForeignKeys', function() {
 
 describe('discoverExportedForeignKeys', function() {
   var ds;
-  var modelProperties;
+  var modelProperties, exportedForeignKeys;
   before(function() {
-    ds = new DataSource({ connector: 'memory' });
+    ds = new DataSource({connector: 'memory'});
 
     exportedForeignKeys = [{
       fkName: 'PRODUCT_FK',
@@ -610,9 +612,9 @@ describe('discoverExportedForeignKeys', function() {
 });
 
 describe('Mock connector', function() {
-  mockConnectors = require('./mock-connectors');
+  var mockConnectors = require('./mock-connectors');
   describe('customFieldSettings', function() {
-    ds = new DataSource(mockConnectors.customFieldSettings);
+    var ds = new DataSource(mockConnectors.customFieldSettings);
 
     it('should be present in discoverSchemas', function(done) {
       ds.discoverSchemas('person', function(err, schemas) {
@@ -630,7 +632,7 @@ describe('Default memory connector', function() {
   var ds, nonExistantError = 'Table \'NONEXISTENT\' does not exist.';
 
   before(function() {
-    ds = new DataSource({ connector: 'memory' });
+    ds = new DataSource({connector: 'memory'});
   });
 
   it('discoverSchema should return an error when table does not exist', function(done) {

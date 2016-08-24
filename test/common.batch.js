@@ -3,6 +3,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+'use strict';
+
 require('./datatype.test.js');
 require('./basic-querying.test.js');
 require('./manipulation.test.js');

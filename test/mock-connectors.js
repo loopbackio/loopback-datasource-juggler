@@ -3,6 +3,7 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+'use strict';
 module.exports = {
 
   // connector which uses custom field settings
@@ -19,7 +20,7 @@ module.exports = {
               required: false,
 
               // custom properties listed under a key matching the connector name
-              custom: { storage: 'quantum' },
+              custom: {storage: 'quantum'},
             },
           ]);
         },

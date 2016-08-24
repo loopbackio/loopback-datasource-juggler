@@ -4,6 +4,7 @@
 // License text available at https://opensource.org/licenses/MIT
 
 // This test written in mocha+should.js
+'use strict';
 var async = require('async');
 var should = require('./init.js');
 
@@ -21,10 +22,10 @@ describe('manipulation', function() {
       name: String,
       gender: String,
       married: Boolean,
-      age: { type: Number, index: true },
+      age: {type: Number, index: true},
       dob: Date,
-      createdAt: { type: Date, default: Date },
-    }, { forceId: true, strict: true });
+      createdAt: {type: Date, default: Date},
+    }, {forceId: true, strict: true});
 
     db.automigrate(['Person'], done);
 
@@ -34,8 +35,10 @@ describe('manipulation', function() {
   // to reproduce problems related to properties with dynamic setters
   // For the purpose of the tests, we use a counter instead of a hash fn.
   var StubUser;
+  var stubPasswordCounter;
+
   before(function setupStubUserModel(done) {
-    StubUser = db.createModel('StubUser', { password: String }, { forceId: true });
+    StubUser = db.createModel('StubUser', {password: String}, {forceId: true});
     StubUser.setter.password = function(plain) {
       var hashed = false;
       if (!plain) return;
@@ -62,13 +65,14 @@ describe('manipulation', function() {
     });
 
     describe('forceId', function() {
+      var TestForceId;
       before(function(done) {
         TestForceId = db.define('TestForceId');
         db.automigrate('TestForceId', done);
       });
 
       it('it defaults to forceId:true for generated id property', function(done) {
-        TestForceId.create({ id: 1 }, function(err, t) {
+        TestForceId.create({id: 1}, function(err, t) {
           should.exist(err);
           err.message.should.match(/can\'t be set/);
           done();
@@ -77,7 +81,7 @@ describe('manipulation', function() {
     });
 
     it('should create instance', function(done) {
-      Person.create({ name: 'Anatoliy' }, function(err, p) {
+      Person.create({name: 'Anatoliy'}, function(err, p) {
         p.name.should.equal('Anatoliy');
         should.not.exist(err);
         should.exist(p);
@@ -90,7 +94,7 @@ describe('manipulation', function() {
     });
 
     it('should create instance (promise variant)', function(done) {
-      Person.create({ name: 'Anatoliy' })
+      Person.create({name: 'Anatoliy'})
         .then (function(p) {
           p.name.should.equal('Anatoliy');
           should.exist(p);
@@ -105,7 +109,7 @@ describe('manipulation', function() {
     });
 
     it('should instantiate an object', function(done) {
-      var p = new Person({ name: 'Anatoliy' });
+      var p = new Person({name: 'Anatoliy'});
       p.name.should.equal('Anatoliy');
       p.isNewRecord().should.be.true;
       p.save(function(err, inst) {
@@ -117,7 +121,7 @@ describe('manipulation', function() {
     });
 
     it('should instantiate an object (promise variant)', function(done) {
-      var p = new Person({ name: 'Anatoliy' });
+      var p = new Person({name: 'Anatoliy'});
       p.name.should.equal('Anatoliy');
       p.isNewRecord().should.be.true;
       p.save()
@@ -139,7 +143,7 @@ describe('manipulation', function() {
     });
 
     it('should not allow user-defined value for the id of object - create', function(done) {
-      Person.create({ id: 123456 }, function(err, p) {
+      Person.create({id: 123456}, function(err, p) {
         err.should.be.instanceof(ValidationError);
         err.statusCode.should.equal(422);
         err.details.messages.id.should.eql(['can\'t be set']);
@@ -151,7 +155,7 @@ describe('manipulation', function() {
     });
 
     it('should not allow user-defined value for the id of object - create (promise variant)', function(done) {
-      Person.create({ id: 123456 })
+      Person.create({id: 123456})
         .then (function(p) {
           done(new Error('Person.create should have failed.'));
         }, function(err) {
@@ -164,7 +168,7 @@ describe('manipulation', function() {
     });
 
     it('should not allow user-defined value for the id of object - save', function(done) {
-      var p = new Person({ id: 123456 });
+      var p = new Person({id: 123456});
       p.isNewRecord().should.be.true;
       p.save(function(err, inst) {
         err.should.be.instanceof(ValidationError);
@@ -177,7 +181,7 @@ describe('manipulation', function() {
     });
 
     it('should not allow user-defined value for the id of object - save (promise variant)', function(done) {
-      var p = new Person({ id: 123456 });
+      var p = new Person({id: 123456});
       p.isNewRecord().should.be.true;
       p.save()
         .then (function(inst) {
@@ -200,7 +204,7 @@ describe('manipulation', function() {
         next();
         setTimeout(done, 10);
       };
-      Person.create({ name: 'Nickolay' });
+      Person.create({name: 'Nickolay'});
     });
 
     it('should create instance with blank data', function(done) {
@@ -244,8 +248,8 @@ describe('manipulation', function() {
 
     it('should create batch of objects', function(done) {
       var batch = [
-        { name: 'Shaltay' },
-        { name: 'Boltay' },
+        {name: 'Shaltay'},
+        {name: 'Boltay'},
         {},
       ];
       var res = Person.create(batch, function(e, ps) {
@@ -275,14 +279,14 @@ describe('manipulation', function() {
     it('should create batch of objects with beforeCreate', function(done) {
       Person.beforeCreate = function(next, data) {
         if (data && data.name === 'A') {
-          return next(null, { id: 'a', name: 'A' });
+          return next(null, {id: 'a', name: 'A'});
         } else {
           return next();
         }
       };
       var batch = [
-        { name: 'A' },
-        { name: 'B' },
+        {name: 'A'},
+        {name: 'B'},
         undefined,
       ];
       Person.create(batch, function(e, ps) {
@@ -290,14 +294,14 @@ describe('manipulation', function() {
         should.exist(ps);
         ps.should.be.instanceOf(Array);
         ps.should.have.lengthOf(batch.length);
-        ps[0].should.be.eql({ id: 'a', name: 'A' });
+        ps[0].should.be.eql({id: 'a', name: 'A'});
         done();
       });
     });
 
     it('should preserve properties with "undefined" value', function(done) {
       Person.create(
-        { name: 'a-name', gender: undefined },
+        {name: 'a-name', gender: undefined},
         function(err, created) {
           if (err) return done(err);
           created.toObject().should.have.properties({
@@ -323,13 +327,13 @@ describe('manipulation', function() {
     it('should refuse to create object with duplicate id', function(done) {
       // NOTE(bajtos) We cannot reuse Person model here,
       // `settings.forceId` aborts the CREATE request at the validation step.
-      var Product = db.define('ProductTest', { name: String }, { forceId: false });
+      var Product = db.define('ProductTest', {name: String}, {forceId: false});
       db.automigrate('ProductTest', function(err) {
         if (err) return done(err);
 
-        Product.create({ name: 'a-name' }, function(err, p) {
+        Product.create({name: 'a-name'}, function(err, p) {
           if (err) return done(err);
-          Product.create({ id: p.id, name: 'duplicate' }, function(err) {
+          Product.create({id: p.id, name: 'duplicate'}, function(err) {
             if (!err) {
               return done(new Error('Create should have rejected duplicate id.'));
             }
@@ -404,7 +408,7 @@ describe('manipulation', function() {
         p.name = 'Nana';
         p.save(function(err) {
           should.exist(err);
-          p.save({ validate: false }, function(err) {
+          p.save({validate: false}, function(err) {
             should.not.exist(err);
             done();
           });
@@ -425,7 +429,7 @@ describe('manipulation', function() {
               done(new Error('save should have failed.'));
             }, function(err) {
               should.exist(err);
-              p.save({ validate: false })
+              p.save({validate: false})
                 .then(function(d) {
                   should.exist(d);
                   done();
@@ -453,7 +457,7 @@ describe('manipulation', function() {
     it('should preserve properties with dynamic setters', function(done) {
       // This test reproduces a problem discovered by LoopBack unit-test
       // "User.hasPassword() should match a password after it is changed"
-      StubUser.create({ password: 'foo' }, function(err, created) {
+      StubUser.create({password: 'foo'}, function(err, created) {
         if (err) return done(err);
         created.password = 'bar';
         created.save(function(err, saved) {
@@ -474,7 +478,7 @@ describe('manipulation', function() {
 
     before(function(done) {
       Person.destroyAll(function() {
-        Person.create({ name: 'Mary', age: 15 }, function(err, p) {
+        Person.create({name: 'Mary', age: 15}, function(err, p) {
           if (err) return done(err);
           person = p;
           done();
@@ -489,7 +493,7 @@ describe('manipulation', function() {
 
     it('should have updated password hashed with updateAttribute',
     function(done) {
-      StubUser.create({ password: 'foo' }, function(err, created) {
+      StubUser.create({password: 'foo'}, function(err, created) {
         if (err) return done(err);
         created.updateAttribute('password', 'test', function(err, created) {
           if (err) return done(err);
@@ -528,7 +532,7 @@ describe('manipulation', function() {
     });
 
     it('should ignore undefined values on updateAttributes', function(done) {
-      person.updateAttributes({ 'name': 'John', age: undefined },
+      person.updateAttributes({'name': 'John', age: undefined},
         function(err, p) {
           if (err) return done(err);
           Person.findById(p.id, function(e, p) {
@@ -544,7 +548,7 @@ describe('manipulation', function() {
       // Using {foo: 'bar'} only causes dependent test failures due to the
       // stripping of object properties when in strict mode (ie. {foo: 'bar'}
       // changes to '{}' and breaks other tests
-      person.updateAttributes({ name: 'John', foo: 'bar' },
+      person.updateAttributes({name: 'John', foo: 'bar'},
         function(err, p) {
           if (err) return done(err);
           should.not.exist(p.foo);
@@ -559,7 +563,7 @@ describe('manipulation', function() {
     it('should throw error on unknown attributes when strict: throw', function(done) {
       Person.definition.settings.strict = 'throw';
       Person.findById(person.id, function(err, p) {
-        p.updateAttributes({ foo: 'bar' },
+        p.updateAttributes({foo: 'bar'},
           function(err, p) {
             should.exist(err);
             err.name.should.equal('Error');
@@ -577,7 +581,7 @@ describe('manipulation', function() {
     it('should throw error on unknown attributes when strict: throw', function(done) {
       Person.definition.settings.strict = 'validate';
       Person.findById(person.id, function(err, p) {
-        p.updateAttributes({ foo: 'bar' },
+        p.updateAttributes({foo: 'bar'},
           function(err, p) {
             should.exist(err);
             err.name.should.equal('ValidationError');
@@ -592,7 +596,7 @@ describe('manipulation', function() {
     });
 
     it('should allow same id value on updateAttributes', function(done) {
-      person.updateAttributes({ id: person.id, name: 'John' },
+      person.updateAttributes({id: person.id, name: 'John'},
         function(err, p) {
           if (err) return done(err);
           Person.findById(p.id, function(e, p) {
@@ -611,7 +615,7 @@ describe('manipulation', function() {
           // For example MongoDB ObjectId
           pid = person.id.toString();
         }
-        person.updateAttributes({ id: pid, name: 'John' },
+        person.updateAttributes({id: pid, name: 'John'},
           function(err, p) {
             if (err) return done(err);
             Person.findById(p.id, function(e, p) {
@@ -625,7 +629,7 @@ describe('manipulation', function() {
 
     it('should fail if an id value is to be changed on updateAttributes',
       function(done) {
-        person.updateAttributes({ id: person.id + 1, name: 'John' },
+        person.updateAttributes({id: person.id + 1, name: 'John'},
         function(err, p) {
           should.exist(err);
           done();
@@ -633,7 +637,7 @@ describe('manipulation', function() {
       });
 
     it('should allow model instance on updateAttributes', function(done) {
-      person.updateAttributes(new Person({ 'name': 'John', age: undefined }),
+      person.updateAttributes(new Person({'name': 'John', age: undefined}),
         function(err, p) {
           if (err) return done(err);
           Person.findById(p.id, function(e, p) {
@@ -646,7 +650,7 @@ describe('manipulation', function() {
     });
 
     it('should allow model instance on updateAttributes (promise variant)', function(done) {
-      person.updateAttributes(new Person({ 'name': 'Jane', age: undefined }))
+      person.updateAttributes(new Person({'name': 'Jane', age: undefined}))
         .then(function(p) {
           return Person.findById(p.id)
             .then(function(p) {
@@ -665,7 +669,7 @@ describe('manipulation', function() {
         },
       };
       person.getConnector = function() { return fakeConnector; };
-      person.updateAttributes({ name: 'John' }, function(err, p) {
+      person.updateAttributes({name: 'John'}, function(err, p) {
         should.exist(err);
         done();
       });
@@ -677,8 +681,8 @@ describe('manipulation', function() {
 
     before('prepare "Post" and "Todo" models', function(done) {
       Post = db.define('Post', {
-        title: { type: String, id: true },
-        content: { type: String },
+        title: {type: String, id: true},
+        content: {type: String},
       });
       Todo = db.define('Todo', {
         content: String,
@@ -695,7 +699,7 @@ describe('manipulation', function() {
     });
 
     it('creates a model when one does not exist', function(done) {
-      Todo.updateOrCreate({ content: 'a' }, function(err, data) {
+      Todo.updateOrCreate({content: 'a'}, function(err, data) {
         if (err) return done(err);
 
         Todo.findById(data.id, function(err, todo) {
@@ -709,8 +713,8 @@ describe('manipulation', function() {
     });
 
     it('updates a model if it exists', function(done) {
-      Todo.create({ content: 'a' }, function(err, todo) {
-        Todo.updateOrCreate({ id: todo.id, content: 'b' }, function(err, data) {
+      Todo.create({content: 'a'}, function(err, todo) {
+        Todo.updateOrCreate({id: todo.id, content: 'b'}, function(err, data) {
           if (err) return done(err);
 
           should.exist(data);
@@ -725,7 +729,7 @@ describe('manipulation', function() {
     });
 
     it('throws error for queries with array input', function(done) {
-      Todo.updateOrCreate([{ content: 'a' }], function(err, data) {
+      Todo.updateOrCreate([{content: 'a'}], function(err, data) {
         should.exist(err);
         err.message.should.containEql('bulk');
         should.not.exist(data);
@@ -735,7 +739,7 @@ describe('manipulation', function() {
     });
 
     it('should preserve properties with dynamic setters on create', function(done) {
-      StubUser.updateOrCreate({ password: 'foo' }, function(err, created) {
+      StubUser.updateOrCreate({password: 'foo'}, function(err, created) {
         if (err) return done(err);
         created.password.should.equal('foo-FOO');
         StubUser.findById(created.id, function(err, found) {
@@ -747,9 +751,9 @@ describe('manipulation', function() {
     });
 
     it('should preserve properties with dynamic setters on update', function(done) {
-      StubUser.create({ password: 'foo' }, function(err, created) {
+      StubUser.create({password: 'foo'}, function(err, created) {
         if (err) return done(err);
-        var data = { id: created.id, password: 'bar' };
+        var data = {id: created.id, password: 'bar'};
         StubUser.updateOrCreate(data, function(err, updated) {
           if (err) return done(err);
           updated.password.should.equal('bar-BAR');
@@ -764,7 +768,7 @@ describe('manipulation', function() {
 
     it('should preserve properties with "undefined" value', function(done) {
       Person.create(
-        { name: 'a-name', gender: undefined },
+        {name: 'a-name', gender: undefined},
         function(err, instance) {
           if (err) return done(err);
           instance.toObject().should.have.properties({
@@ -774,7 +778,7 @@ describe('manipulation', function() {
           });
 
           Person.updateOrCreate(
-            { id: instance.id, name: 'updated name' },
+            {id: instance.id, name: 'updated name'},
             function(err, updated) {
               if (err) return done(err);
               var result = updated.toObject();
@@ -790,8 +794,8 @@ describe('manipulation', function() {
 
     it('updates specific instances when PK is not an auto-generated id', function(done) {
       Post.create([
-        { title: 'postA', content: 'contentA' },
-        { title: 'postB', content: 'contentB' },
+        {title: 'postA', content: 'contentA'},
+        {title: 'postB', content: 'contentB'},
       ], function(err, instance) {
         if (err) return done(err);
 
@@ -821,7 +825,7 @@ describe('manipulation', function() {
 
     it('should allow save() of the created instance', function(done) {
       Person.updateOrCreate(
-        { id: 999 /* a new id */, name: 'a-name' },
+        {id: 999 /* a new id */, name: 'a-name'},
         function(err, inst) {
           if (err) return done(err);
           inst.save(done);
@@ -837,15 +841,15 @@ describe('manipulation', function() {
       var ds = getSchema();
       before(function(done) {
         Post = ds.define('Post', {
-          title: { type: String, length: 255, index: true },
-          content: { type: String },
+          title: {type: String, length: 255, index: true},
+          content: {type: String},
           comments: [String],
-        }, { forceId: false });
+        }, {forceId: false});
         ds.automigrate('Post', done);
       });
 
       it('works without options on create (promise variant)', function(done) {
-        var post = { id: 123, title: 'a', content: 'AAA' };
+        var post = {id: 123, title: 'a', content: 'AAA'};
         Post.replaceOrCreate(post)
         .then(function(p) {
           should.exist(p);
@@ -867,8 +871,8 @@ describe('manipulation', function() {
       });
 
       it('works with options on create (promise variant)', function(done) {
-        var post = { id: 123, title: 'a', content: 'AAA' };
-        Post.replaceOrCreate(post, { validate: false })
+        var post = {id: 123, title: 'a', content: 'AAA'};
+        Post.replaceOrCreate(post, {validate: false})
         .then(function(p) {
           should.exist(p);
           p.should.be.instanceOf(Post);
@@ -889,7 +893,7 @@ describe('manipulation', function() {
       });
 
       it('works without options on update (promise variant)', function(done) {
-        var post = { title: 'a', content: 'AAA', comments: ['Comment1'] };
+        var post = {title: 'a', content: 'AAA', comments: ['Comment1']};
         Post.create(post)
           .then(function(created) {
             created = created.toObject();
@@ -919,14 +923,14 @@ describe('manipulation', function() {
       });
 
       it('works with options on update (promise variant)', function(done) {
-        var post = { title: 'a', content: 'AAA', comments: ['Comment1'] };
+        var post = {title: 'a', content: 'AAA', comments: ['Comment1']};
         Post.create(post)
           .then(function(created) {
             created = created.toObject();
             delete created.comments;
             delete created.content;
             created.title = 'b';
-            return Post.replaceOrCreate(created, { validate: false })
+            return Post.replaceOrCreate(created, {validate: false})
             .then(function(p) {
               should.exist(p);
               p.should.be.instanceOf(Post);
@@ -949,7 +953,7 @@ describe('manipulation', function() {
       });
 
       it('works without options on update (callback variant)', function(done) {
-        Post.create({ title: 'a', content: 'AAA', comments: ['Comment1'] },
+        Post.create({title: 'a', content: 'AAA', comments: ['Comment1']},
           function(err, post) {
             if (err) return done(err);
             post = post.toObject();
@@ -977,8 +981,8 @@ describe('manipulation', function() {
       });
 
       it('works with options on update (callback variant)', function(done) {
-        Post.create({ title: 'a', content: 'AAA', comments: ['Comment1'] },
-          { validate: false },
+        Post.create({title: 'a', content: 'AAA', comments: ['Comment1']},
+          {validate: false},
           function(err, post) {
             if (err) return done(err);
             post = post.toObject();
@@ -1006,7 +1010,7 @@ describe('manipulation', function() {
       });
 
       it('works without options on create (callback variant)', function(done) {
-        var post = { id: 123, title: 'a', content: 'AAA' };
+        var post = {id: 123, title: 'a', content: 'AAA'};
         Post.replaceOrCreate(post, function(err, p) {
           if (err) return done(err);
           p.id.should.equal(post.id);
@@ -1025,8 +1029,8 @@ describe('manipulation', function() {
       });
 
       it('works with options on create (callback variant)', function(done) {
-        var post = { id: 123, title: 'a', content: 'AAA' };
-        Post.replaceOrCreate(post, { validate: false }, function(err, p) {
+        var post = {id: 123, title: 'a', content: 'AAA'};
+        Post.replaceOrCreate(post, {validate: false}, function(err, p) {
           if (err) return done(err);
           p.id.should.equal(post.id);
           p.should.not.have.property('_id');
@@ -1050,9 +1054,9 @@ describe('manipulation', function() {
     var Person;
     before('prepare "Person" model', function(done) {
       Person = ds.define('Person', {
-        id: { type: Number, id: true },
-        name: { type: String },
-        city: { type: String },
+        id: {type: Number, id: true},
+        name: {type: String},
+        city: {type: String},
       });
       ds.automigrate('Person', done);
     });
@@ -1062,7 +1066,7 @@ describe('manipulation', function() {
     });
 
     it('should preserve properties with dynamic setters on create', function(done) {
-      StubUser.upsertWithWhere({ password: 'foo' }, { password: 'foo' }, function(err, created) {
+      StubUser.upsertWithWhere({password: 'foo'}, {password: 'foo'}, function(err, created) {
         if (err) return done(err);
         created.password.should.equal('foo-FOO');
         StubUser.findById(created.id, function(err, found) {
@@ -1074,10 +1078,10 @@ describe('manipulation', function() {
     });
 
     it('should preserve properties with dynamic setters on update', function(done) {
-      StubUser.create({ password: 'foo' }, function(err, created) {
+      StubUser.create({password: 'foo'}, function(err, created) {
         if (err) return done(err);
-        var data = { password: 'bar' };
-        StubUser.upsertWithWhere({ id: created.id }, data, function(err, updated) {
+        var data = {password: 'bar'};
+        StubUser.upsertWithWhere({id: created.id}, data, function(err, updated) {
           if (err) return done(err);
           updated.password.should.equal('bar-BAR');
           StubUser.findById(created.id, function(err, found) {
@@ -1091,7 +1095,7 @@ describe('manipulation', function() {
 
     it('should preserve properties with "undefined" value', function(done) {
       Person.create(
-        { id: 10, name: 'Ritz', city: undefined },
+        {id: 10, name: 'Ritz', city: undefined},
         function(err, instance) {
           if (err) return done(err);
           instance.toObject().should.have.properties({
@@ -1100,8 +1104,8 @@ describe('manipulation', function() {
             city: undefined,
           });
 
-          Person.upsertWithWhere({ id: 10 },
-            { name: 'updated name' },
+          Person.upsertWithWhere({id: 10},
+            {name: 'updated name'},
               function(err, updated) {
                 if (err) return done(err);
                 var result = updated.toObject();
@@ -1117,13 +1121,13 @@ describe('manipulation', function() {
 
     it('updates specific instances when PK is not an auto-generated id', function(done) {
       Person.create([
-        { name: 'nameA', city: 'cityA' },
-        { name: 'nameB', city: 'cityB' },
+        {name: 'nameA', city: 'cityA'},
+        {name: 'nameB', city: 'cityB'},
       ], function(err, instance) {
         if (err) return done(err);
 
-        Person.upsertWithWhere({ name: 'nameA' },
-          { city: 'newCity' },
+        Person.upsertWithWhere({name: 'nameA'},
+          {city: 'newCity'},
           function(err, instance) {
             if (err) return done(err);
             var result = instance.toObject();
@@ -1146,8 +1150,8 @@ describe('manipulation', function() {
     });
 
     it('should allow save() of the created instance', function(done) {
-      Person.upsertWithWhere({ id: 999 },
-        { name: 'a-name' },
+      Person.upsertWithWhere({id: 999},
+        {name: 'a-name'},
         function(err, inst) {
           if (err) return done(err);
           inst.save(done);
@@ -1155,8 +1159,8 @@ describe('manipulation', function() {
     });
 
     it('works without options on create (promise variant)', function(done) {
-      var person = { id: 123, name: 'a', city: 'city a' };
-      Person.upsertWithWhere({ id: 123 }, person)
+      var person = {id: 123, name: 'a', city: 'city a'};
+      Person.upsertWithWhere({id: 123}, person)
         .then(function(p) {
           should.exist(p);
           p.should.be.instanceOf(Person);
@@ -1177,8 +1181,8 @@ describe('manipulation', function() {
     });
 
     it('works with options on create (promise variant)', function(done) {
-      var person = { id: 234, name: 'b', city: 'city b' };
-      Person.upsertWithWhere({ id: 234 }, person, { validate: false })
+      var person = {id: 234, name: 'b', city: 'city b'};
+      Person.upsertWithWhere({id: 234}, person, {validate: false})
         .then(function(p) {
           should.exist(p);
           p.should.be.instanceOf(Person);
@@ -1199,13 +1203,13 @@ describe('manipulation', function() {
     });
 
     it('works without options on update (promise variant)', function(done) {
-      var person = { id: 456, name: 'AAA', city: 'city AAA' };
+      var person = {id: 456, name: 'AAA', city: 'city AAA'};
       Person.create(person)
         .then(function(created) {
           created = created.toObject();
           delete created.city;
           created.name = 'BBB';
-          return Person.upsertWithWhere({ id: 456 }, created)
+          return Person.upsertWithWhere({id: 456}, created)
             .then(function(p) {
               should.exist(p);
               p.should.be.instanceOf(Person);
@@ -1226,13 +1230,13 @@ describe('manipulation', function() {
     });
 
     it('works with options on update (promise variant)', function(done) {
-      var person = { id: 789, name: 'CCC', city: 'city CCC' };
+      var person = {id: 789, name: 'CCC', city: 'city CCC'};
       Person.create(person)
         .then(function(created) {
           created = created.toObject();
           delete created.city;
           created.name = 'Carlton';
-          return Person.upsertWithWhere({ id: 789 }, created, { validate: false })
+          return Person.upsertWithWhere({id: 789}, created, {validate: false})
             .then(function(p) {
               should.exist(p);
               p.should.be.instanceOf(Person);
@@ -1253,8 +1257,8 @@ describe('manipulation', function() {
     });
 
     it('fails the upsertWithWhere operation when data object is empty', function(done) {
-      options = {};
-      Person.upsertWithWhere({ name: 'John Lennon' }, {}, options,
+      var options = {};
+      Person.upsertWithWhere({name: 'John Lennon'}, {}, options,
         function(err) {
           err.message.should.equal('data object cannot be empty!');
           done();
@@ -1262,7 +1266,7 @@ describe('manipulation', function() {
     });
 
     it('creates a new record when no matching instance is found', function(done) {
-      Person.upsertWithWhere({ city: 'Florida' }, { name: 'Nick Carter', id: 1, city: 'Florida' },
+      Person.upsertWithWhere({city: 'Florida'}, {name: 'Nick Carter', id: 1, city: 'Florida'},
         function(err, created) {
           if (err) return done(err);
           Person.findById(1, function(err, data) {
@@ -1278,11 +1282,11 @@ describe('manipulation', function() {
     it('fails the upsertWithWhere operation when multiple instances are ' +
         'retrieved based on the filter criteria', function(done) {
       Person.create([
-        { id: '2', name: 'Howie', city: 'Florida' },
-        { id: '3', name: 'Kevin', city: 'Florida' },
+        {id: '2', name: 'Howie', city: 'Florida'},
+        {id: '3', name: 'Kevin', city: 'Florida'},
       ], function(err, instance) {
         if (err) return done(err);
-        Person.upsertWithWhere({ city: 'Florida' }, {
+        Person.upsertWithWhere({city: 'Florida'}, {
           id: '4', name: 'Brian',
         }, function(err) {
           err.message.should.equal('There are multiple instances found.' +
@@ -1295,12 +1299,12 @@ describe('manipulation', function() {
     it('updates the record when one matching instance is found ' +
         'based on the filter criteria', function(done) {
       Person.create([
-        { id: '5', name: 'Howie', city: 'Kentucky' },
+        {id: '5', name: 'Howie', city: 'Kentucky'},
       ], function(err, instance) {
         if (err) return done(err);
-        Person.upsertWithWhere({ city: 'Kentucky' }, {
+        Person.upsertWithWhere({city: 'Kentucky'}, {
           name: 'Brian',
-        }, { validate: false }, function(err, instance) {
+        }, {validate: false}, function(err, instance) {
           if (err) return done(err);
           Person.findById(5, function(err, data) {
             if (err) return done(err);
@@ -1323,8 +1327,8 @@ describe('manipulation', function() {
       var ds = getSchema();
       before(function(done) {
         Post = ds.define('Post', {
-          title: { type: String, length: 255, index: true },
-          content: { type: String },
+          title: {type: String, length: 255, index: true},
+          content: {type: String},
           comments: [String],
         });
         ds.automigrate('Post', done);
@@ -1333,7 +1337,7 @@ describe('manipulation', function() {
         // TODO(bajtos) add API to lib/observer - remove observers for all hooks
         Post._observers = {};
         Post.destroyAll(function() {
-          Post.create({ title: 'a', content: 'AAA' }, function(err, p) {
+          Post.create({title: 'a', content: 'AAA'}, function(err, p) {
             if (err) return done(err);
             postInstance = p;
             done();
@@ -1343,9 +1347,9 @@ describe('manipulation', function() {
 
       it('should have updated password hashed with replaceAttributes',
       function(done) {
-        StubUser.create({ password: 'foo' }, function(err, created) {
+        StubUser.create({password: 'foo'}, function(err, created) {
           if (err) return done(err);
-          created.replaceAttributes({ password: 'test' },
+          created.replaceAttributes({password: 'test'},
           function(err, created) {
             if (err) return done(err);
             created.password.should.equal('test-TEST');
@@ -1363,7 +1367,7 @@ describe('manipulation', function() {
         Post.findById(postInstance.id, function(err, p) {
           if (err) return done(err);
           changePostIdInHook('before save');
-          p.replaceAttributes({ title: 'b' }, function(err, data) {
+          p.replaceAttributes({title: 'b'}, function(err, data) {
             data.id.should.eql(postInstance.id);
             if (err) return done(err);
             Post.find(function(err, p) {
@@ -1381,7 +1385,7 @@ describe('manipulation', function() {
         Post.findById(postInstance.id, function(err, p) {
           if (err) return done(err);
           changePostIdInHook('before save');
-          p.replaceAttributes({ title: 'b' }, function(err, data) {
+          p.replaceAttributes({title: 'b'}, function(err, data) {
             if (err) return done(err);
             Post._warned.cannotOverwritePKInBeforeSaveHook.should.equal(true);
             data.id.should.equal(postInstance.id);
@@ -1395,7 +1399,7 @@ describe('manipulation', function() {
         Post.findById(postInstance.id, function(err, p) {
           if (err) return done(err);
           changePostIdInHook('loaded');
-          p.replaceAttributes({ title: 'b' }, function(err, data) {
+          p.replaceAttributes({title: 'b'}, function(err, data) {
             data.id.should.eql(postInstance.id);
             if (err) return done(err);
             // clear observers to make sure `loaded`
@@ -1416,7 +1420,7 @@ describe('manipulation', function() {
         Post.findById(postInstance.id, function(err, p) {
           if (err) return done(err);
           changePostIdInHook('loaded');
-          p.replaceAttributes({ title: 'b' }, function(err, data) {
+          p.replaceAttributes({title: 'b'}, function(err, data) {
             if (err) return done(err);
             Post._warned.cannotOverwritePKInLoadedHook.should.equal(true);
             data.id.should.equal(postInstance.id);
@@ -1428,7 +1432,7 @@ describe('manipulation', function() {
       it('works without options(promise variant)', function(done) {
         Post.findById(postInstance.id)
       .then(function(p) {
-        p.replaceAttributes({ title: 'b' })
+        p.replaceAttributes({title: 'b'})
         .then(function(p) {
           should.exist(p);
           p.should.be.instanceOf(Post);
@@ -1448,7 +1452,7 @@ describe('manipulation', function() {
       it('works with options(promise variant)', function(done) {
         Post.findById(postInstance.id)
       .then(function(p) {
-        p.replaceAttributes({ title: 'b' }, { validate: false })
+        p.replaceAttributes({title: 'b'}, {validate: false})
         .then(function(p) {
           should.exist(p);
           p.should.be.instanceOf(Post);
@@ -1468,7 +1472,7 @@ describe('manipulation', function() {
       it('should fail when changing id', function(done) {
         Post.findById(postInstance.id, function(err, p) {
           if (err) return done(err);
-          p.replaceAttributes({ title: 'b', id: 999 }, function(err, p) {
+          p.replaceAttributes({title: 'b', id: 999}, function(err, p) {
             should.exist(err);
             var expectedErrMsg = 'id property (id) cannot be updated from ' + postInstance.id + ' to 999';
             err.message.should.equal(expectedErrMsg);
@@ -1480,7 +1484,7 @@ describe('manipulation', function() {
       it('works without options(callback variant)', function(done) {
         Post.findById(postInstance.id, function(err, p) {
           if (err) return done(err);
-          p.replaceAttributes({ title: 'b' }, function(err, p) {
+          p.replaceAttributes({title: 'b'}, function(err, p) {
             if (err) return done(err);
             p.should.have.property('content', undefined);
             p.title.should.equal('b');
@@ -1492,7 +1496,7 @@ describe('manipulation', function() {
       it('works with options(callback variant)', function(done) {
         Post.findById(postInstance.id, function(err, p) {
           if (err) return done(err);
-          p.replaceAttributes({ title: 'b' }, { validate: false }, function(err, p) {
+          p.replaceAttributes({title: 'b'}, {validate: false}, function(err, p) {
             if (err) return done(err);
             p.should.have.property('content', undefined);
             p.title.should.equal('b');
@@ -1512,7 +1516,7 @@ describe('manipulation', function() {
 
   describe('findOrCreate', function() {
     it('should create a record with if new', function(done) {
-      Person.findOrCreate({ name: 'Zed', gender: 'male' },
+      Person.findOrCreate({name: 'Zed', gender: 'male'},
         function(err, p, created) {
           if (err) return done(err);
           should.exist(p);
@@ -1526,8 +1530,8 @@ describe('manipulation', function() {
 
     it('should find a record if exists', function(done) {
       Person.findOrCreate(
-        { where: { name: 'Zed' }},
-        { name: 'Zed', gender: 'male' },
+        {where: {name: 'Zed'}},
+        {name: 'Zed', gender: 'male'},
         function(err, p, created) {
           if (err) return done(err);
           should.exist(p);
@@ -1540,7 +1544,7 @@ describe('manipulation', function() {
     });
 
     it('should create a record with if new (promise variant)', function(done) {
-      Person.findOrCreate({ name: 'Jed', gender: 'male' })
+      Person.findOrCreate({name: 'Jed', gender: 'male'})
         .then(function(res) {
           should.exist(res);
           res.should.be.instanceOf(Array);
@@ -1558,8 +1562,8 @@ describe('manipulation', function() {
 
     it('should find a record if exists (promise variant)', function(done) {
       Person.findOrCreate(
-        { where: { name: 'Jed' }},
-        { name: 'Jed', gender: 'male' })
+        {where: {name: 'Jed'}},
+        {name: 'Jed', gender: 'male'})
       .then(function(res) {
         res.should.be.instanceOf(Array);
         res.should.have.lengthOf(2);
@@ -1661,13 +1665,13 @@ describe('manipulation', function() {
 
     it('should only delete instances that satisfy the where condition',
         function(done) {
-          Person.deleteAll({ name: 'John' }, function(err, info) {
+          Person.deleteAll({name: 'John'}, function(err, info) {
             if (err) return done(err);
             info.should.have.property('count', 1);
-            Person.find({ where: { name: 'John' }}, function(err, data) {
+            Person.find({where: {name: 'John'}}, function(err, data) {
               if (err) return done(err);
               data.should.have.length(0);
-              Person.find({ where: { name: 'Jane' }}, function(err, data) {
+              Person.find({where: {name: 'Jane'}}, function(err, data) {
                 if (err) return done(err);
                 data.should.have.length(1);
                 done();
@@ -1678,7 +1682,7 @@ describe('manipulation', function() {
 
     it('should report zero deleted instances when no matches are found',
         function(done) {
-          Person.deleteAll({ name: 'does-not-match' }, function(err, info) {
+          Person.deleteAll({name: 'does-not-match'}, function(err, info) {
             if (err) return done(err);
             info.should.have.property('count', 0);
             Person.count(function(err, count) {
@@ -1793,7 +1797,7 @@ describe('manipulation', function() {
     it('should initialize object properly', function() {
       var hw = 'Hello word',
         now = Date.now(),
-        person = new Person({ name: hw });
+        person = new Person({name: hw});
 
       person.name.should.equal(hw);
       person.name = 'Goodbye, Lenin';
@@ -1806,7 +1810,7 @@ describe('manipulation', function() {
 
       before(function(done) {
         CustomModel = db.define('CustomModel1', {
-          createdAt: { type: Date, default: '$now' },
+          createdAt: {type: Date, default: '$now'},
         });
         db.automigrate('CustomModel1', done);
       });
@@ -1830,7 +1834,7 @@ describe('manipulation', function() {
 
       before(function(done) {
         CustomModel = db.define('CustomModel2', {
-          now: { type: String, default: '$now' },
+          now: {type: String, default: '$now'},
         });
         db.automigrate('CustomModel2', done);
       });
@@ -1852,7 +1856,7 @@ describe('manipulation', function() {
 
       before(function(done) {
         CustomModel = db.define('CustomModel3', {
-          now: { type: Date, defaultFn: 'now' },
+          now: {type: Date, defaultFn: 'now'},
         });
         db.automigrate('CustomModel3', done);
       });
@@ -1874,7 +1878,7 @@ describe('manipulation', function() {
 
       before(function(done) {
         CustomModel = db.define('CustomModel4', {
-          guid: { type: String, defaultFn: 'guid' },
+          guid: {type: String, defaultFn: 'guid'},
         });
         db.automigrate('CustomModel4', done);
       });
@@ -1893,7 +1897,7 @@ describe('manipulation', function() {
 
       before(function(done) {
         CustomModel = db.define('CustomModel5', {
-          guid: { type: String, defaultFn: 'uuid' },
+          guid: {type: String, defaultFn: 'uuid'},
         });
         db.automigrate('CustomModel5', done);
       });
@@ -1912,7 +1916,7 @@ describe('manipulation', function() {
 
       before(function(done) {
         CustomModel = db.define('CustomModel5', {
-          guid: { type: String, defaultFn: 'uuidv4' },
+          guid: {type: String, defaultFn: 'uuidv4'},
         });
         db.automigrate('CustomModel5', done);
       });
@@ -1935,68 +1939,68 @@ describe('manipulation', function() {
 
   describe('property value coercion', function() {
     it('should coerce boolean types properly', function() {
-      var p1 = new Person({ name: 'John', married: 'false' });
+      var p1 = new Person({name: 'John', married: 'false'});
       p1.married.should.equal(false);
 
-      p1 = new Person({ name: 'John', married: 'true' });
+      p1 = new Person({name: 'John', married: 'true'});
       p1.married.should.equal(true);
 
-      p1 = new Person({ name: 'John', married: '1' });
+      p1 = new Person({name: 'John', married: '1'});
       p1.married.should.equal(true);
 
-      p1 = new Person({ name: 'John', married: '0' });
+      p1 = new Person({name: 'John', married: '0'});
       p1.married.should.equal(false);
 
-      p1 = new Person({ name: 'John', married: true });
+      p1 = new Person({name: 'John', married: true});
       p1.married.should.equal(true);
 
-      p1 = new Person({ name: 'John', married: false });
+      p1 = new Person({name: 'John', married: false});
       p1.married.should.equal(false);
 
-      p1 = new Person({ name: 'John', married: 'null' });
+      p1 = new Person({name: 'John', married: 'null'});
       p1.married.should.equal(true);
 
-      p1 = new Person({ name: 'John', married: '' });
+      p1 = new Person({name: 'John', married: ''});
       p1.married.should.equal(false);
 
-      p1 = new Person({ name: 'John', married: 'X' });
+      p1 = new Person({name: 'John', married: 'X'});
       p1.married.should.equal(true);
 
-      p1 = new Person({ name: 'John', married: 0 });
+      p1 = new Person({name: 'John', married: 0});
       p1.married.should.equal(false);
 
-      p1 = new Person({ name: 'John', married: 1 });
+      p1 = new Person({name: 'John', married: 1});
       p1.married.should.equal(true);
 
-      p1 = new Person({ name: 'John', married: null });
+      p1 = new Person({name: 'John', married: null});
       p1.should.have.property('married', null);
 
-      p1 = new Person({ name: 'John', married: undefined });
+      p1 = new Person({name: 'John', married: undefined});
       p1.should.have.property('married', undefined);
 
     });
 
     it('should coerce date types properly', function() {
-      var p1 = new Person({ name: 'John', dob: '2/1/2015' });
+      var p1 = new Person({name: 'John', dob: '2/1/2015'});
       p1.dob.should.eql(new Date('2/1/2015'));
 
-      p1 = new Person({ name: 'John', dob: '2/1/2015' });
+      p1 = new Person({name: 'John', dob: '2/1/2015'});
       p1.dob.should.eql(new Date('2/1/2015'));
 
-      p1 = new Person({ name: 'John', dob: '12' });
+      p1 = new Person({name: 'John', dob: '12'});
       p1.dob.should.eql(new Date('12'));
 
-      p1 = new Person({ name: 'John', dob: 12 });
+      p1 = new Person({name: 'John', dob: 12});
       p1.dob.should.eql(new Date(12));
 
-      p1 = new Person({ name: 'John', dob: null });
+      p1 = new Person({name: 'John', dob: null});
       p1.should.have.property('dob', null);
 
-      p1 = new Person({ name: 'John', dob: undefined });
+      p1 = new Person({name: 'John', dob: undefined});
       p1.should.have.property('dob', undefined);
 
       try {
-        p1 = new Person({ name: 'John', dob: 'X' });
+        p1 = new Person({name: 'John', dob: 'X'});
         throw new Error('new Person() should have thrown');
       } catch (e) {
         e.should.be.eql(new Error('Invalid date: X'));
@@ -2035,11 +2039,11 @@ describe('manipulation', function() {
 
     it('should not update instances that do not satisfy the where condition',
         function(done) {
-          Person.update({ name: 'Harry Hoe' }, { name: 'Marta Moe' }, function(err,
+          Person.update({name: 'Harry Hoe'}, {name: 'Marta Moe'}, function(err,
           info) {
             if (err) return done(err);
             info.should.have.property('count', 0);
-            Person.find({ where: { name: 'Harry Hoe' }}, function(err, people) {
+            Person.find({where: {name: 'Harry Hoe'}}, function(err, people) {
               if (err) return done(err);
               people.should.be.empty;
               done();
@@ -2049,11 +2053,11 @@ describe('manipulation', function() {
 
     it('should only update instances that satisfy the where condition',
         function(done) {
-          Person.update({ name: 'Brett Boe' }, { name: 'Harry Hoe' }, function(err,
+          Person.update({name: 'Brett Boe'}, {name: 'Harry Hoe'}, function(err,
           info) {
             if (err) return done(err);
             info.should.have.property('count', 1);
-            Person.find({ where: { age: 19 }}, function(err, people) {
+            Person.find({where: {age: 19}}, function(err, people) {
               if (err) return done(err);
               people.should.have.length(1);
               people[0].name.should.equal('Harry Hoe');
@@ -2064,13 +2068,13 @@ describe('manipulation', function() {
 
     it('should update all instances when the where condition is not provided',
         function(done) {
-          Person.update({ name: 'Harry Hoe' }, function(err, info) {
+          Person.update({name: 'Harry Hoe'}, function(err, info) {
             if (err) return done(err);
             info.should.have.property('count', 5);
-            Person.find({ where: { name: 'Brett Boe' }}, function(err, people) {
+            Person.find({where: {name: 'Brett Boe'}}, function(err, people) {
               if (err) return done(err);
               people.should.be.empty;
-              Person.find({ where: { name: 'Harry Hoe' }}, function(err, people) {
+              Person.find({where: {name: 'Harry Hoe'}}, function(err, people) {
                 if (err) return done(err);
                 people.should.have.length(5);
                 done();
@@ -2081,11 +2085,11 @@ describe('manipulation', function() {
 
     it('should ignore where conditions with undefined values',
         function(done) {
-          Person.update({ name: 'Brett Boe' }, { name: undefined, gender: 'male' },
+          Person.update({name: 'Brett Boe'}, {name: undefined, gender: 'male'},
           function(err, info) {
             if (err) return done(err);
             info.should.have.property('count', 1);
-            Person.find({ where: { name: 'Brett Boe' }}, function(err, people) {
+            Person.find({where: {name: 'Brett Boe'}}, function(err, people) {
               if (err) return done(err);
               people.should.have.length(1);
               people[0].name.should.equal('Brett Boe');
@@ -2096,7 +2100,7 @@ describe('manipulation', function() {
 
     it('should not coerce invalid values provided in where conditions',
         function(done) {
-          Person.update({ name: 'Brett Boe' }, { dob: 'Carla Coe' }, function(err) {
+          Person.update({name: 'Brett Boe'}, {dob: 'Carla Coe'}, function(err) {
             should.exist(err);
             err.message.should.equal('Invalid date: Carla Coe');
             done();
@@ -2107,12 +2111,12 @@ describe('manipulation', function() {
 
 function givenSomePeople(done) {
   var beatles = [
-    { name: 'John Lennon', gender: 'male' },
-    { name: 'Paul McCartney', gender: 'male' },
-    { name: 'George Harrison', gender: 'male' },
-    { name: 'Ringo Starr', gender: 'male' },
-    { name: 'Pete Best', gender: 'male' },
-    { name: 'Stuart Sutcliffe', gender: 'male' },
+    {name: 'John Lennon', gender: 'male'},
+    {name: 'Paul McCartney', gender: 'male'},
+    {name: 'George Harrison', gender: 'male'},
+    {name: 'Ringo Starr', gender: 'male'},
+    {name: 'Pete Best', gender: 'male'},
+    {name: 'Stuart Sutcliffe', gender: 'male'},
   ];
 
   async.series([

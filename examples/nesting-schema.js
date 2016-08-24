@@ -3,6 +3,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+'use strict';
+
 var ModelBuilder = require('../../loopback-datasource-juggler').ModelBuilder;
 var modelBuilder = new ModelBuilder();
 
@@ -32,9 +34,9 @@ var User = modelBuilder.define('User', {
 var user = new User({
   name: 'Joe',
   age: 20,
-  address: { street: '123 Main St', 'city': 'San Jose', state: 'CA' },
+  address: {street: '123 Main St', 'city': 'San Jose', state: 'CA'},
   emails: [
-    { label: 'work', email: 'xyz@sample.com' },
+    {label: 'work', email: 'xyz@sample.com'},
   ],
   friends: ['John', 'Mary'],
 });

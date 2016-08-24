@@ -4,6 +4,7 @@
 // License text available at https://opensource.org/licenses/MIT
 
 // This test written in mocha+should.js
+'use strict';
 var should = require('./init.js');
 
 var Schema = require('../').Schema;
@@ -14,7 +15,7 @@ describe('JSON property', function() {
 
   it('should be defined', function() {
     dataSource = getSchema();
-    Model = dataSource.define('Model', { propertyName: ModelBuilder.JSON });
+    Model = dataSource.define('Model', {propertyName: ModelBuilder.JSON});
     var m = new Model;
     (new Boolean('propertyName' in m)).should.eql(true);
     should.not.exist(m.propertyName);
@@ -30,7 +31,7 @@ describe('JSON property', function() {
 
   it('should accept object in setter and return object', function() {
     var m = new Model;
-    m.propertyName = { 'foo': 'bar' };
+    m.propertyName = {'foo': 'bar'};
     m.propertyName.should.be.an.Object;
     m.propertyName.foo.should.equal('bar');
   });

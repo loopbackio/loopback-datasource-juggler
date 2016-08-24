@@ -4,6 +4,7 @@
 // License text available at https://opensource.org/licenses/MIT
 
 // This test written in mocha+should.js
+'use strict';
 var should = require('./init.js');
 var assert = require('assert');
 
@@ -17,7 +18,7 @@ var ModelDefinition = require('../lib/model-definition');
 describe('ModelDefinition class', function() {
   var memory;
   beforeEach(function() {
-    memory = new DataSource({ connector: Memory });
+    memory = new DataSource({connector: Memory});
   });
 
   it('should be able to define plain models', function(done) {
@@ -67,7 +68,7 @@ describe('ModelDefinition class', function() {
 
     var json = User.toJSON();
 
-    User.defineProperty('id', { type: 'number', id: true });
+    User.defineProperty('id', {type: 'number', id: true});
     assert.equal(User.properties.name.type, String);
     assert.equal(User.properties.bio.type, ModelBuilder.Text);
     assert.equal(User.properties.approved.type, Boolean);
@@ -77,7 +78,7 @@ describe('ModelDefinition class', function() {
     assert.equal(User.properties.id.type, Number);
 
     json = User.toJSON();
-    assert.deepEqual(json.properties.id, { type: 'Number', id: true });
+    assert.deepEqual(json.properties.id, {type: 'Number', id: true});
 
     done();
 
@@ -116,10 +117,10 @@ describe('ModelDefinition class', function() {
     assert.equal(json.properties.joinedAt.type, 'Date');
     assert.equal(json.properties.age.type, 'Number');
 
-    assert.deepEqual(json.properties.address.type, { street: { type: 'String' },
-      city: { type: 'String' },
-      zipCode: { type: 'String' },
-      state: { type: 'String' }});
+    assert.deepEqual(json.properties.address.type, {street: {type: 'String'},
+      city: {type: 'String'},
+      zipCode: {type: 'String'},
+      state: {type: 'String'}});
 
     done();
 
@@ -211,7 +212,7 @@ describe('ModelDefinition class', function() {
     var modelBuilder = new ModelBuilder();
 
     var User = new ModelDefinition(modelBuilder, 'User', {
-      userId: { type: String, id: true },
+      userId: {type: String, id: true},
       name: 'string',
       bio: ModelBuilder.Text,
       approved: Boolean,
@@ -228,8 +229,8 @@ describe('ModelDefinition class', function() {
     var modelBuilder = new ModelBuilder();
 
     var User = new ModelDefinition(modelBuilder, 'User', {
-      userId: { type: String, id: 2 },
-      userType: { type: String, id: 1 },
+      userId: {type: String, id: 2},
+      userType: {type: String, id: 1},
       name: 'string',
       bio: ModelBuilder.Text,
       approved: Boolean,
@@ -250,9 +251,9 @@ describe('ModelDefinition class', function() {
     var modelBuilder = new ModelBuilder();
 
     var User = new ModelDefinition(modelBuilder, 'User', {
-      userId: { type: String, id: true, oracle: { column: 'ID' }},
+      userId: {type: String, id: true, oracle: {column: 'ID'}},
       name: 'string',
-    }, { oracle: { table: 'USER' }});
+    }, {oracle: {table: 'USER'}});
 
     assert.equal(User.tableName('oracle'), 'USER');
     assert.equal(User.tableName('mysql'), 'User');
@@ -283,7 +284,7 @@ describe('ModelDefinition class', function() {
   it('should ignore inherited options.base', function() {
     var modelBuilder = memory.modelBuilder;
     var base = modelBuilder.define('base');
-    var child = base.extend('child', {}, { base: 'base' });
+    var child = base.extend('child', {}, {base: 'base'});
     var grandChild = child.extend('grand-child');
     assert.equal('child', grandChild.base.modelName);
     assert(grandChild.prototype instanceof child);
@@ -292,7 +293,7 @@ describe('ModelDefinition class', function() {
   it('should ignore inherited options.super', function() {
     var modelBuilder = memory.modelBuilder;
     var base = modelBuilder.define('base');
-    var child = base.extend('child', {}, { super: 'base' });
+    var child = base.extend('child', {}, {super: 'base'});
     var grandChild = child.extend('grand-child');
     assert.equal('child', grandChild.base.modelName);
     assert(grandChild.prototype instanceof child);
@@ -315,7 +316,7 @@ describe('ModelDefinition class', function() {
   it('should not serialize protected properties of nested models into JSON', function(done) {
     var modelBuilder = memory.modelBuilder;
     var Parent = memory.createModel('parent');
-    var Child = memory.createModel('child', {}, { protected: ['protectedProperty'] });
+    var Child = memory.createModel('child', {}, {protected: ['protectedProperty']});
     Parent.hasMany(Child);
     Parent.create({
       name: 'parent',
@@ -324,7 +325,7 @@ describe('ModelDefinition class', function() {
         name: 'child',
         protectedProperty: 'protectedValue',
       }, function(err, child) {
-        Parent.find({ include: 'children' }, function(err, parents) {
+        Parent.find({include: 'children'}, function(err, parents) {
           var serialized = parents[0].toJSON();
           var child = serialized.children[0];
           assert.equal(child.name, 'child');
@@ -355,7 +356,7 @@ describe('ModelDefinition class', function() {
   it('should not serialize hidden properties of nested models into JSON', function(done) {
     var modelBuilder = memory.modelBuilder;
     var Parent = memory.createModel('parent');
-    var Child = memory.createModel('child', {}, { hidden: ['secret'] });
+    var Child = memory.createModel('child', {}, {hidden: ['secret']});
     Parent.hasMany(Child);
     Parent.create({
       name: 'parent',
@@ -364,7 +365,7 @@ describe('ModelDefinition class', function() {
         name: 'child',
         secret: 'secret',
       }, function(err, child) {
-        Parent.find({ include: 'children' }, function(err, parents) {
+        Parent.find({include: 'children'}, function(err, parents) {
           var serialized = parents[0].toJSON();
           var child = serialized.children[0];
           assert.equal(child.name, 'child');
@@ -376,7 +377,7 @@ describe('ModelDefinition class', function() {
   });
 
   it('should throw error for property names containing dot', function() {
-    (function() { memory.createModel('Dotted', { 'dot.name': String }); })
+    (function() { memory.createModel('Dotted', {'dot.name': String}); })
       .should
       .throw(/dot\(s\).*Dotted.*dot\.name/);
   });
@@ -385,7 +386,7 @@ describe('ModelDefinition class', function() {
     var message = 'deprecation not reported';
     process.once('deprecation', function(err) { message = err.message; });
 
-    memory.createModel('Ctor', { 'constructor': String });
+    memory.createModel('Ctor', {'constructor': String});
 
     message.should.match(/Property name should not be "constructor" in Model: Ctor/);
   });
@@ -393,7 +394,7 @@ describe('ModelDefinition class', function() {
   it('should throw error for dynamic property names containing dot',
     function(done) {
       var Model = memory.createModel('DynamicDotted');
-      Model.create({ 'dot.name': 'dot.value' }, function(err) {
+      Model.create({'dot.name': 'dot.value'}, function(err) {
         err.should.be.instanceOf(Error);
         err.message.should.match(/dot\(s\).*DynamicDotted.*dot\.name/);
         done();
@@ -402,7 +403,7 @@ describe('ModelDefinition class', function() {
 
   it('should throw error for dynamic property named constructor', function(done) {
     var Model = memory.createModel('DynamicCtor');
-    Model.create({ 'constructor': 'myCtor' }, function(err) {
+    Model.create({'constructor': 'myCtor'}, function(err) {
       assert.equal(err.message, 'Property name "constructor" is not allowed in DynamicCtor data');
       done();
     });

@@ -3,6 +3,7 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+'use strict';
 var ValidationError = require('../').ValidationError;
 
 var contextTestHelpers = require('./helpers/context-test-helpers');
@@ -30,14 +31,14 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
     beforeEach(function setupDatabase(done) {
       ctxRecorder = new ContextRecorder('hook not called');
-      hookMonitor = new HookMonitor({ includeModelName: false });
+      hookMonitor = new HookMonitor({includeModelName: false});
       expectedError = new Error('test error');
 
       TestModel = dataSource.createModel('TestModel', {
         // Set id.generated to false to honor client side values
-        id: { type: String, id: true, generated: false, default: uid.next },
-        name: { type: String, required: true },
-        extra: { type: String, required: false },
+        id: {type: String, id: true, generated: false, default: uid.next},
+        name: {type: String, required: true},
+        extra: {type: String, required: false},
       });
 
       uid.reset();
@@ -53,7 +54,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
     });
 
     beforeEach(function createTestData(done) {
-      TestModel.create({ name: 'first' }, function(err, instance) {
+      TestModel.create({name: 'first'}, function(err, instance) {
         if (err) return done(err);
 
         // Look it up from DB so that default values are retrieved
@@ -61,7 +62,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           existingInstance = instance;
           undefinedValue = existingInstance.extra;
 
-          TestModel.create({ name: 'second' }, function(err) {
+          TestModel.create({name: 'second'}, function(err) {
             if (err) return done(err);
             done();
           });
@@ -74,7 +75,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         monitorHookExecution();
 
         TestModel.find(
-          { where: { id: '1' }},
+          {where: {id: '1'}},
           function(err, list) {
             if (err) return done(err);
 
@@ -89,8 +90,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('should not trigger hooks, if notify is false', function(done) {
         monitorHookExecution();
         TestModel.find(
-          { where: { id: '1' }},
-          { notify: false },
+          {where: {id: '1'}},
+          {notify: false},
           function(err, list) {
             if (err) return done(err);
             hookMonitor.names.should.be.empty();
@@ -103,8 +104,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         monitorHookExecution();
 
         TestModel.find(
-          { where: { geo: { near: '10,20' }}},
-          { notify: false },
+          {where: {geo: {near: '10,20'}}},
+          {notify: false},
           function(err, list) {
             if (err) return done(err);
             hookMonitor.names.should.be.empty();
@@ -114,11 +115,11 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('should apply updates from `access` hook', function(done) {
         TestModel.observe('access', function(ctx, next) {
-          ctx.query = { where: { name: 'second' }};
+          ctx.query = {where: {name: 'second'}};
           next();
         });
 
-        TestModel.find({ name: 'first' }, function(err, list) {
+        TestModel.find({name: 'first'}, function(err, list) {
           if (err) return done(err);
           list.map(get('name')).should.eql(['second']);
           done();
@@ -128,10 +129,10 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers `access` hook', function(done) {
         TestModel.observe('access', ctxRecorder.recordAndNext());
 
-        TestModel.find({ where: { id: '1' }}, function(err, list) {
+        TestModel.find({where: {id: '1'}}, function(err, list) {
           if (err) return done(err);
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-            query: { where: { id: '1' }},
+            query: {where: {id: '1'}},
           }));
           done();
         });
@@ -148,7 +149,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `access` hook', function(done) {
         TestModel.observe('access', function(ctx, next) {
-          ctx.query = { where: { id: existingInstance.id }};
+          ctx.query = {where: {id: existingInstance.id}};
           next();
         });
 
@@ -162,10 +163,10 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers `access` hook for geo queries', function(done) {
         TestModel.observe('access', ctxRecorder.recordAndNext());
 
-        TestModel.find({ where: { geo: { near: '10,20' }}}, function(err, list) {
+        TestModel.find({where: {geo: {near: '10,20'}}}, function(err, list) {
           if (err) return done(err);
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-            query: { where: { geo: { near: '10,20' }}},
+            query: {where: {geo: {near: '10,20'}}},
           }));
           done();
         });
@@ -173,11 +174,11 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `access` hook for geo queries', function(done) {
         TestModel.observe('access', function(ctx, next) {
-          ctx.query = { where: { id: existingInstance.id }};
+          ctx.query = {where: {id: existingInstance.id}};
           next();
         });
 
-        TestModel.find({ where: { geo: { near: '10,20' }}}, function(err, list) {
+        TestModel.find({where: {geo: {near: '10,20'}}}, function(err, list) {
           if (err) return done(err);
           list.map(get('name')).should.eql([existingInstance.name]);
           done();
@@ -190,7 +191,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         }));
 
         TestModel.find(
-          { where: { id: 1 }},
+          {where: {id: 1}},
           function(err, list) {
             if (err) return done(err);
 
@@ -212,7 +213,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('emits error when `loaded` hook fails', function(done) {
         TestModel.observe('loaded', nextWithError(expectedError));
         TestModel.find(
-          { where: { id: 1 }},
+          {where: {id: 1}},
           function(err, list) {
             [err].should.eql([expectedError]);
             done();
@@ -225,7 +226,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         monitorHookExecution();
 
         TestModel.create(
-          { name: 'created' },
+          {name: 'created'},
           function(err, record, created) {
             if (err) return done(err);
 
@@ -242,7 +243,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers `before save` hook', function(done) {
         TestModel.observe('before save', ctxRecorder.recordAndNext());
 
-        TestModel.create({ name: 'created' }, function(err, instance) {
+        TestModel.create({name: 'created'}, function(err, instance) {
           if (err) return done(err);
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
             instance: {
@@ -259,7 +260,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('aborts when `before save` hook fails', function(done) {
         TestModel.observe('before save', nextWithError(expectedError));
 
-        TestModel.create({ name: 'created' }, function(err, instance) {
+        TestModel.create({name: 'created'}, function(err, instance) {
           [err].should.eql([expectedError]);
           done();
         });
@@ -272,7 +273,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           next();
         });
 
-        TestModel.create({ id: uid.next(), name: 'a-name' }, function(err, instance) {
+        TestModel.create({id: uid.next(), name: 'a-name'}, function(err, instance) {
           if (err) return done(err);
           instance.should.have.property('extra', 'hook data');
           done();
@@ -283,7 +284,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('before save', ctxRecorder.recordAndNext());
 
         TestModel.create(
-          [{ name: '1' }, { name: '2' }],
+          [{name: '1'}, {name: '2'}],
           function(err, list) {
             if (err) return done(err);
             // Creation of multiple instances is executed in parallel
@@ -292,11 +293,11 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             });
             ctxRecorder.records.should.eql([
               aCtxForModel(TestModel, {
-                instance: { id: list[0].id, name: '1', extra: undefined },
+                instance: {id: list[0].id, name: '1', extra: undefined},
                 isNewInstance: true,
               }),
               aCtxForModel(TestModel, {
-                instance: { id: list[1].id, name: '2', extra: undefined  },
+                instance: {id: list[1].id, name: '2', extra: undefined},
                 isNewInstance: true,
               }),
             ]);
@@ -307,9 +308,9 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('validates model after `before save` hook', function(done) {
         TestModel.observe('before save', invalidateTestModel());
 
-        TestModel.create({ name: 'created' }, function(err) {
+        TestModel.create({name: 'created'}, function(err) {
           (err || {}).should.be.instanceOf(ValidationError);
-          (err.details.codes || {}).should.eql({ name: ['presence'] });
+          (err.details.codes || {}).should.eql({name: ['presence']});
           done();
         });
       });
@@ -318,14 +319,14 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('persist', ctxRecorder.recordAndNext());
 
         TestModel.create(
-          { id: 'new-id', name: 'a name' },
+          {id: 'new-id', name: 'a name'},
           function(err, instance) {
             if (err) return done(err);
 
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-              data: { id: 'new-id', name: 'a name' },
+              data: {id: 'new-id', name: 'a name'},
               isNewInstance: true,
-              currentInstance: { extra: null, id: 'new-id', name: 'a name' },
+              currentInstance: {extra: null, id: 'new-id', name: 'a name'},
             }));
 
             done();
@@ -343,7 +344,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         // which if set, will apply these changes to the model instance too.
         TestModel.settings.updateOnLoad = true;
         TestModel.create(
-          { id: 'new-id', name: 'a name' },
+          {id: 'new-id', name: 'a name'},
           function(err, instance) {
             if (err) return done(err);
 
@@ -374,12 +375,12 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         // which if set, will apply these changes to the model instance too.
         TestModel.settings.updateOnLoad = true;
         TestModel.create(
-          { id: 'new-id', name: 'a name' },
+          {id: 'new-id', name: 'a name'},
           function(err, instance) {
             if (err) return done(err);
 
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-              data: { id: 'new-id', name: 'a name' },
+              data: {id: 'new-id', name: 'a name'},
               isNewInstance: true,
             }));
 
@@ -390,7 +391,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('emits error when `loaded` hook fails', function(done) {
         TestModel.observe('loaded', nextWithError(expectedError));
         TestModel.create(
-          { id: 'new-id', name: 'a name' },
+          {id: 'new-id', name: 'a name'},
           function(err, instance) {
             [err].should.eql([expectedError]);
             done();
@@ -408,7 +409,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         // which if set, will apply these changes to the model instance too.
         TestModel.settings.updateOnLoad = true;
         TestModel.create(
-          { id: 'new-id', name: 'a name' },
+          {id: 'new-id', name: 'a name'},
           function(err, instance) {
             if (err) return done(err);
 
@@ -420,7 +421,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers `after save` hook', function(done) {
         TestModel.observe('after save', ctxRecorder.recordAndNext());
 
-        TestModel.create({ name: 'created' }, function(err, instance) {
+        TestModel.create({name: 'created'}, function(err, instance) {
           if (err) return done(err);
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
             instance: {
@@ -437,7 +438,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('aborts when `after save` hook fails', function(done) {
         TestModel.observe('after save', nextWithError(expectedError));
 
-        TestModel.create({ name: 'created' }, function(err, instance) {
+        TestModel.create({name: 'created'}, function(err, instance) {
           [err].should.eql([expectedError]);
           done();
         });
@@ -450,7 +451,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           next();
         });
 
-        TestModel.create({ name: 'a-name' }, function(err, instance) {
+        TestModel.create({name: 'a-name'}, function(err, instance) {
           if (err) return done(err);
           instance.should.have.property('extra', 'hook data');
           done();
@@ -461,7 +462,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('after save', ctxRecorder.recordAndNext());
 
         TestModel.create(
-          [{ name: '1' }, { name: '2' }],
+          [{name: '1'}, {name: '2'}],
           function(err, list) {
             if (err) return done(err);
             // Creation of multiple instances is executed in parallel
@@ -470,11 +471,11 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             });
             ctxRecorder.records.should.eql([
               aCtxForModel(TestModel, {
-                instance: { id: list[0].id, name: '1', extra: undefined },
+                instance: {id: list[0].id, name: '1', extra: undefined},
                 isNewInstance: true,
               }),
               aCtxForModel(TestModel, {
-                instance: { id: list[1].id, name: '2', extra: undefined },
+                instance: {id: list[1].id, name: '2', extra: undefined},
                 isNewInstance: true,
               }),
             ]);
@@ -493,7 +494,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('after save', ctxRecorder.recordAndNext());
 
         TestModel.create(
-          [{ name: 'ok' }, { name: 'fail' }],
+          [{name: 'ok'}, {name: 'fail'}],
           function(err, list) {
             (err || []).should.have.length(2);
             err[1].should.eql(expectedError);
@@ -504,7 +505,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             list.map(get('name')).should.eql(['ok', 'fail']);
 
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-              instance: { id: list[0].id, name: 'ok', extra: undefined },
+              instance: {id: list[0].id, name: 'ok', extra: undefined},
               isNewInstance: true,
             }));
             done();
@@ -517,12 +518,12 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('access', ctxRecorder.recordAndNext());
 
         TestModel.findOrCreate(
-          { where: { name: 'new-record' }},
-          { name: 'new-record' },
+          {where: {name: 'new-record'}},
+          {name: 'new-record'},
           function(err, record, created) {
             if (err) return done(err);
-            ctxRecorder.records.should.eql(aCtxForModel(TestModel, { query: {
-              where: { name: 'new-record' },
+            ctxRecorder.records.should.eql(aCtxForModel(TestModel, {query: {
+              where: {name: 'new-record'},
               limit: 1,
               offset: 0,
               skip: 0,
@@ -536,8 +537,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           TestModel.observe('before save', ctxRecorder.recordAndNext());
 
           TestModel.findOrCreate(
-            { where: { name: existingInstance.name }},
-            { name: existingInstance.name },
+            {where: {name: existingInstance.name}},
+            {name: existingInstance.name},
             function(err, record, created) {
               if (err) return done(err);
               record.id.should.eql(existingInstance.id);
@@ -558,8 +559,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('before save', ctxRecorder.recordAndNext());
 
         TestModel.findOrCreate(
-          { where: { name: 'new-record' }},
-          { name: 'new-record' },
+          {where: {name: 'new-record'}},
+          {name: 'new-record'},
           function(err, record, created) {
             if (err) return done(err);
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
@@ -578,11 +579,11 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('before save', invalidateTestModel());
 
         TestModel.findOrCreate(
-          { where: { name: 'new-record' }},
-          { name: 'new-record' },
+          {where: {name: 'new-record'}},
+          {name: 'new-record'},
           function(err) {
             (err || {}).should.be.instanceOf(ValidationError);
-            (err.details.codes || {}).should.eql({ name: ['presence'] });
+            (err.details.codes || {}).should.eql({name: ['presence']});
             done();
           });
       });
@@ -591,8 +592,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         monitorHookExecution();
 
         TestModel.findOrCreate(
-          { where: { name: 'new-record' }},
-          { name: 'new-record' },
+          {where: {name: 'new-record'}},
+          {name: 'new-record'},
           function(err, record, created) {
             if (err) return done(err);
             hookMonitor.names.should.eql([
@@ -610,8 +611,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         monitorHookExecution();
 
         TestModel.findOrCreate(
-          { where: { name: existingInstance.name }},
-          { name: existingInstance.name },
+          {where: {name: existingInstance.name}},
+          {name: existingInstance.name},
           function(err, record, created) {
             if (err) return done(err);
 
@@ -636,8 +637,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('access', nextWithError(expectedError));
 
         TestModel.findOrCreate(
-          { where: { id: 'does-not-exist' }},
-          { name: 'does-not-exist' },
+          {where: {id: 'does-not-exist'}},
+          {name: 'does-not-exist'},
           function(err, instance) {
             [err].should.eql([expectedError]);
             done();
@@ -648,8 +649,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('before save', nextWithError(expectedError));
 
         TestModel.findOrCreate(
-          { where: { id: 'does-not-exist' }},
-          { name: 'does-not-exist' },
+          {where: {id: 'does-not-exist'}},
+          {name: 'does-not-exist'},
           function(err, instance) {
             [err].should.eql([expectedError]);
             done();
@@ -661,8 +662,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           TestModel.observe('persist', ctxRecorder.recordAndNext());
 
           TestModel.findOrCreate(
-            { where: { name: existingInstance.name }},
-            { name: existingInstance.name },
+            {where: {name: existingInstance.name}},
+            {name: existingInstance.name},
             function(err, record, created) {
               if (err) return done(err);
 
@@ -685,7 +686,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                   name: record.name,
                   extra: null,
                 },
-                where: { name: existingInstance.name },
+                where: {name: existingInstance.name},
               }));
 
               done();
@@ -697,8 +698,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('persist', ctxRecorder.recordAndNext());
 
         TestModel.findOrCreate(
-          { where: { name: 'new-record' }},
-          { name: 'new-record' },
+          {where: {name: 'new-record'}},
+          {name: 'new-record'},
           function(err, record, created) {
             if (err) return done(err);
 
@@ -716,7 +717,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                   name: record.name,
                   extra: null,
                 },
-                where: { name: 'new-record' },
+                where: {name: 'new-record'},
               }));
             } else {
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
@@ -725,7 +726,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                   name: 'new-record',
                 },
                 isNewInstance: true,
-                currentInstance: { id: record.id, name: record.name, extra: null },
+                currentInstance: {id: record.id, name: record.name, extra: null},
               }));
             }
             done();
@@ -739,8 +740,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           }));
 
           TestModel.findOrCreate(
-            { where: { name: existingInstance.name }},
-            { name: existingInstance.name },
+            {where: {name: existingInstance.name}},
+            {name: existingInstance.name},
             function(err, instance) {
               if (err) return done(err);
 
@@ -772,8 +773,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         }));
 
         TestModel.findOrCreate(
-          { where: { name: 'new-record' }},
-          { name: 'new-record' },
+          {where: {name: 'new-record'}},
+          {name: 'new-record'},
           function(err, instance) {
             if (err) return done(err);
 
@@ -808,8 +809,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           TestModel.observe('loaded', ctxRecorder.recordAndNext());
 
           TestModel.findOrCreate(
-            { where: { name: existingInstance.name }},
-            { name: existingInstance.name },
+            {where: {name: existingInstance.name}},
+            {name: existingInstance.name},
             function(err, record, created) {
               if (err) return done(err);
 
@@ -835,8 +836,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('loaded', ctxRecorder.recordAndNext());
 
         TestModel.findOrCreate(
-          { where: { name: 'new-record' }},
-          { name: 'new-record' },
+          {where: {name: 'new-record'}},
+          {name: 'new-record'},
           function(err, record, created) {
             if (err) return done(err);
 
@@ -855,8 +856,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('emits error when `loaded` hook fails', function(done) {
         TestModel.observe('loaded', nextWithError(expectedError));
         TestModel.findOrCreate(
-          { where: { name: 'new-record' }},
-          { name: 'new-record' },
+          {where: {name: 'new-record'}},
+          {name: 'new-record'},
           function(err, instance) {
             [err].should.eql([expectedError]);
             done();
@@ -870,8 +871,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           }));
 
           TestModel.findOrCreate(
-            { where: { name: existingInstance.name }},
-            { name: existingInstance.name },
+            {where: {name: existingInstance.name}},
+            {name: existingInstance.name},
             function(err, instance) {
               if (err) return done(err);
 
@@ -896,8 +897,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         // unoptimized connector.
         TestModel.settings.updateOnLoad = true;
         TestModel.findOrCreate(
-          { where: { name: 'new-record' }},
-          { name: 'new-record' },
+          {where: {name: 'new-record'}},
+          {name: 'new-record'},
           function(err, instance) {
             if (err) return done(err);
 
@@ -910,8 +911,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('after save', ctxRecorder.recordAndNext());
 
         TestModel.findOrCreate(
-          { where: { name: 'new name' }},
-          { name: 'new name' },
+          {where: {name: 'new name'}},
+          {name: 'new name'},
           function(err, instance) {
             if (err) return done(err);
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
@@ -930,8 +931,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('after save', ctxRecorder.recordAndNext());
 
         TestModel.findOrCreate(
-          { where: { id: existingInstance.id }},
-          { name: existingInstance.name },
+          {where: {id: existingInstance.id}},
+          {name: existingInstance.name},
           function(err, instance) {
             if (err) return done(err);
             ctxRecorder.records.should.eql('hook not called');
@@ -944,10 +945,10 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers `access` hook', function(done) {
         TestModel.observe('access', ctxRecorder.recordAndNext());
 
-        TestModel.count({ id: existingInstance.id }, function(err, count) {
+        TestModel.count({id: existingInstance.id}, function(err, count) {
           if (err) return done(err);
-          ctxRecorder.records.should.eql(aCtxForModel(TestModel, { query: {
-            where: { id: existingInstance.id },
+          ctxRecorder.records.should.eql(aCtxForModel(TestModel, {query: {
+            where: {id: existingInstance.id},
           }}));
           done();
         });
@@ -955,7 +956,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `access` hook', function(done) {
         TestModel.observe('access', function(ctx, next) {
-          ctx.query.where = { id: existingInstance.id };
+          ctx.query.where = {id: existingInstance.id};
           next();
         });
 
@@ -990,11 +991,11 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         existingInstance.name = 'changed';
         existingInstance.save(function(err, instance) {
           if (err) return done(err);
-          ctxRecorder.records.should.eql(aCtxForModel(TestModel, { instance: {
+          ctxRecorder.records.should.eql(aCtxForModel(TestModel, {instance: {
             id: existingInstance.id,
             name: 'changed',
             extra: undefined,
-          }, options: { throws: false, validate: true }}));
+          }, options: {throws: false, validate: true}}));
           done();
         });
       });
@@ -1027,7 +1028,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
         existingInstance.save(function(err) {
           (err || {}).should.be.instanceOf(ValidationError);
-          (err.details.codes || {}).should.eql({ name: ['presence'] });
+          (err.details.codes || {}).should.eql({name: ['presence']});
           done();
         });
       });
@@ -1051,8 +1052,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               id: existingInstance.id,
               name: 'changed',
             },
-            where: { id: existingInstance.id },
-            options: { throws: false, validate: true },
+            where: {id: existingInstance.id},
+            options: {throws: false, validate: true},
           }));
 
           done();
@@ -1085,7 +1086,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               extra: 'changed',
             },
             isNewInstance: false,
-            options: { throws: false, validate: true },
+            options: {throws: false, validate: true},
           }));
 
           done();
@@ -1126,7 +1127,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               extra: undefined,
             },
             isNewInstance: false,
-            options: { throws: false, validate: true },
+            options: {throws: false, validate: true},
           }));
           done();
         });
@@ -1139,8 +1140,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         // made by DAO to determine whether the instance should be saved via
         // PersistedModel.create and force it to call connector.save()
         var instance = new TestModel(
-          { id: 'new-id', name: 'created' },
-          { persisted: true });
+          {id: 'new-id', name: 'created'},
+          {persisted: true});
 
         instance.save(function(err, instance) {
           if (err) return done(err);
@@ -1151,7 +1152,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               extra: undefined,
             },
             isNewInstance: true,
-            options: { throws: false, validate: true },
+            options: {throws: false, validate: true},
           }));
           done();
         });
@@ -1186,7 +1187,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         monitorHookExecution();
 
         existingInstance.updateAttributes(
-          { name: 'changed' },
+          {name: 'changed'},
           function(err, record, created) {
             if (err) return done(err);
             hookMonitor.names.should.eql([
@@ -1204,12 +1205,12 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
         var currentInstance = deepCloneToObject(existingInstance);
 
-        existingInstance.updateAttributes({ name: 'changed' }, function(err) {
+        existingInstance.updateAttributes({name: 'changed'}, function(err) {
           if (err) return done(err);
           existingInstance.name.should.equal('changed');
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-            where: { id: existingInstance.id },
-            data: { name: 'changed' },
+            where: {id: existingInstance.id},
+            data: {name: 'changed'},
             currentInstance: currentInstance,
           }));
           done();
@@ -1219,7 +1220,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('aborts when `before save` hook fails', function(done) {
         TestModel.observe('before save', nextWithError(expectedError));
 
-        existingInstance.updateAttributes({ name: 'updated' }, function(err) {
+        existingInstance.updateAttributes({name: 'updated'}, function(err) {
           [err].should.eql([expectedError]);
           done();
         });
@@ -1232,7 +1233,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           next();
         });
 
-        existingInstance.updateAttributes({ name: 'updated' }, function(err) {
+        existingInstance.updateAttributes({name: 'updated'}, function(err) {
           if (err) return done(err);
           // We must query the database here because `updateAttributes`
           // returns effectively `this`, not the data from the datasource
@@ -1252,21 +1253,21 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('validates model after `before save` hook', function(done) {
         TestModel.observe('before save', invalidateTestModel());
 
-        existingInstance.updateAttributes({ name: 'updated' }, function(err) {
+        existingInstance.updateAttributes({name: 'updated'}, function(err) {
           (err || {}).should.be.instanceOf(ValidationError);
-          (err.details.codes || {}).should.eql({ name: ['presence'] });
+          (err.details.codes || {}).should.eql({name: ['presence']});
           done();
         });
       });
 
       it('triggers `persist` hook', function(done) {
         TestModel.observe('persist', ctxRecorder.recordAndNext());
-        existingInstance.updateAttributes({ name: 'changed' }, function(err) {
+        existingInstance.updateAttributes({name: 'changed'}, function(err) {
           if (err) return done(err);
 
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-            where: { id: existingInstance.id },
-            data: { name: 'changed' },
+            where: {id: existingInstance.id},
+            data: {name: 'changed'},
             currentInstance: {
               id: existingInstance.id,
               name: 'changed',
@@ -1289,7 +1290,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         // backwards compatibility, we introduced a new setting updateOnLoad,
         // which if set, will apply these changes to the model instance too.
         TestModel.settings.updateOnLoad = true;
-        existingInstance.updateAttributes({ name: 'changed' }, function(err, instance) {
+        existingInstance.updateAttributes({name: 'changed'}, function(err, instance) {
           if (err) return done(err);
           instance.should.have.property('extra', 'hook data');
           done();
@@ -1298,21 +1299,21 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `persist` hook - for nested model instance', function(done) {
         var Address = dataSource.createModel('NestedAddress', {
-          id: { type: String, id: true, default: 1 },
-          city: { type: String, required: true },
-          country: { type: String, required: true },
+          id: {type: String, id: true, default: 1},
+          city: {type: String, required: true},
+          country: {type: String, required: true},
         });
 
         var User = dataSource.createModel('UserWithAddress', {
-          id: { type: String, id: true, default: uid.next },
-          name: { type: String, required: true },
-          address: { type: Address, required: false },
-          extra: { type: String },
+          id: {type: String, id: true, default: uid.next},
+          name: {type: String, required: true},
+          address: {type: Address, required: false},
+          extra: {type: String},
         });
 
         dataSource.automigrate(['UserWithAddress', 'NestedAddress'], function(err) {
           if (err) return done(err);
-          User.create({ name: 'Joe' }, function(err, instance) {
+          User.create({name: 'Joe'}, function(err, instance) {
             if (err) return done(err);
 
             var existingUser = instance;
@@ -1331,7 +1332,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             // which if set, will apply these changes to the model instance too.
             User.settings.updateOnLoad = true;
             existingUser.updateAttributes(
-              { address: new Address({ city: 'Springfield', country: 'USA' }) },
+              {address: new Address({city: 'Springfield', country: 'USA'})},
               function(err, inst) {
                 if (err) return done(err);
 
@@ -1342,7 +1343,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                   dbInstance.toObject(true).should.eql({
                     id: existingUser.id,
                     name: existingUser.name,
-                    address: { id: '1', city: 'Springfield', country: 'USA' },
+                    address: {id: '1', city: 'Springfield', country: 'USA'},
                     extra: 'hook data',
                   });
                   done();
@@ -1354,11 +1355,11 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('triggers `loaded` hook', function(done) {
         TestModel.observe('loaded', ctxRecorder.recordAndNext());
-        existingInstance.updateAttributes({ name: 'changed' }, function(err) {
+        existingInstance.updateAttributes({name: 'changed'}, function(err) {
           if (err) return done(err);
 
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-            data: { name: 'changed' },
+            data: {name: 'changed'},
           }));
 
           done();
@@ -1368,7 +1369,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('emits error when `loaded` hook fails', function(done) {
         TestModel.observe('loaded', nextWithError(expectedError));
         existingInstance.updateAttributes(
-          { name: 'changed' },
+          {name: 'changed'},
           function(err, instance) {
             [err].should.eql([expectedError]);
             done();
@@ -1385,7 +1386,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         // backwards compatibility, we introduced a new setting updateOnLoad,
         // which if set, will apply these changes to the model instance too.
         TestModel.settings.updateOnLoad = true;
-        existingInstance.updateAttributes({ name: 'changed' }, function(err, instance) {
+        existingInstance.updateAttributes({name: 'changed'}, function(err, instance) {
           if (err) return done(err);
           instance.should.have.property('extra', 'hook data');
           done();
@@ -1396,7 +1397,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('after save', ctxRecorder.recordAndNext());
 
         existingInstance.name = 'changed';
-        existingInstance.updateAttributes({ name: 'changed' }, function(err) {
+        existingInstance.updateAttributes({name: 'changed'}, function(err) {
           if (err) return done(err);
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
             instance: {
@@ -1413,7 +1414,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('aborts when `after save` hook fails', function(done) {
         TestModel.observe('after save', nextWithError(expectedError));
 
-        existingInstance.updateAttributes({ name: 'updated' }, function(err) {
+        existingInstance.updateAttributes({name: 'updated'}, function(err) {
           [err].should.eql([expectedError]);
           done();
         });
@@ -1426,7 +1427,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           next();
         });
 
-        existingInstance.updateAttributes({ name: 'updated' }, function(err, instance) {
+        existingInstance.updateAttributes({name: 'updated'}, function(err, instance) {
           if (err) return done(err);
           instance.should.have.property('extra', 'hook data');
           done();
@@ -1442,7 +1443,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           monitorHookExecution();
 
           existingInstance.replaceAttributes(
-            { name: 'replaced' },
+            {name: 'replaced'},
             function(err, record, created) {
               if (err) return done(err);
               hookMonitor.names.should.eql([
@@ -1458,7 +1459,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         it('triggers `before save` hook', function(done) {
           TestModel.observe('before save', ctxRecorder.recordAndNext());
 
-          existingInstance.replaceAttributes({ name: 'changed' }, function(err) {
+          existingInstance.replaceAttributes({name: 'changed'}, function(err) {
             if (err) return done(err);
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
               instance: {
@@ -1475,7 +1476,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         it('aborts when `before save` hook fails', function(done) {
           TestModel.observe('before save', nextWithError(expectedError));
 
-          existingInstance.replaceAttributes({ name: 'replaced' }, function(err) {
+          existingInstance.replaceAttributes({name: 'replaced'}, function(err) {
             [err].should.eql([expectedError]);
             done();
           });
@@ -1488,7 +1489,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             next();
           });
 
-          existingInstance.replaceAttributes({ name: 'updated' }, function(err) {
+          existingInstance.replaceAttributes({name: 'updated'}, function(err) {
             if (err) return done(err);
             TestModel.findById(existingInstance.id, function(err, instance) {
               if (err) return done(err);
@@ -1506,20 +1507,20 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         it('validates model after `before save` hook', function(done) {
           TestModel.observe('before save', invalidateTestModel());
 
-          existingInstance.replaceAttributes({ name: 'updated' }, function(err) {
+          existingInstance.replaceAttributes({name: 'updated'}, function(err) {
             (err || {}).should.be.instanceOf(ValidationError);
-            (err.details.codes || {}).should.eql({ name: ['presence'] });
+            (err.details.codes || {}).should.eql({name: ['presence']});
             done();
           });
         });
 
         it('triggers `persist` hook', function(done) {
           TestModel.observe('persist', ctxRecorder.recordAndNext());
-          existingInstance.replaceAttributes({ name: 'replacedName' }, function(err) {
+          existingInstance.replaceAttributes({name: 'replacedName'}, function(err) {
             if (err) return done(err);
 
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-              where: { id: existingInstance.id },
+              where: {id: existingInstance.id},
               data: {
                 name: 'replacedName',
                 id: existingInstance.id,
@@ -1541,7 +1542,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             delete ctx.data.extra;
           }));
 
-          existingInstance.replaceAttributes({ name: 'changed' }, function(err, instance) {
+          existingInstance.replaceAttributes({name: 'changed'}, function(err, instance) {
             if (err) return done(err);
             instance.should.not.have.property('extra', 'hook data');
             done();
@@ -1550,21 +1551,21 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
         it('applies updates from `persist` hook - for nested model instance', function(done) {
           var Address = dataSource.createModel('NestedAddress', {
-            id: { type: String, id: true, default: 1 },
-            city: { type: String, required: true },
-            country: { type: String, required: true },
+            id: {type: String, id: true, default: 1},
+            city: {type: String, required: true},
+            country: {type: String, required: true},
           });
 
           var User = dataSource.createModel('UserWithAddress', {
-            id: { type: String, id: true, default: uid.next },
-            name: { type: String, required: true },
-            address: { type: Address, required: false },
-            extra: { type: String },
+            id: {type: String, id: true, default: uid.next},
+            name: {type: String, required: true},
+            address: {type: Address, required: false},
+            extra: {type: String},
           });
 
           dataSource.automigrate(['UserWithAddress', 'NestedAddress'], function(err) {
             if (err) return done(err);
-            User.create({ name: 'Joe' }, function(err, instance) {
+            User.create({name: 'Joe'}, function(err, instance) {
               if (err) return done(err);
 
               var existingUser = instance;
@@ -1578,7 +1579,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               }));
 
               existingUser.replaceAttributes(
-                { name: 'John', address: new Address({ city: 'Springfield', country: 'USA' }) },
+                {name: 'John', address: new Address({city: 'Springfield', country: 'USA'})},
                 function(err, inst) {
                   if (err) return done(err);
 
@@ -1589,7 +1590,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                     dbInstance.toObject(true).should.eql({
                       id: existingUser.id,
                       name: 'John',
-                      address: { id: '1', city: 'Springfield', country: 'USA' },
+                      address: {id: '1', city: 'Springfield', country: 'USA'},
                       extra: 'hook data',
                     });
                     done();
@@ -1601,7 +1602,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
         it('triggers `loaded` hook', function(done) {
           TestModel.observe('loaded', ctxRecorder.recordAndNext());
-          existingInstance.replaceAttributes({ name: 'changed' }, function(err, data) {
+          existingInstance.replaceAttributes({name: 'changed'}, function(err, data) {
             if (err) return done(err);
 
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
@@ -1618,7 +1619,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         it('emits error when `loaded` hook fails', function(done) {
           TestModel.observe('loaded', nextWithError(expectedError));
           existingInstance.replaceAttributes(
-            { name: 'replaced' },
+            {name: 'replaced'},
             function(err, instance) {
               [err].should.eql([expectedError]);
               done();
@@ -1630,7 +1631,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             ctx.data.name = 'changed in hook';
           }));
 
-          existingInstance.replaceAttributes({ name: 'changed' }, function(err, instance) {
+          existingInstance.replaceAttributes({name: 'changed'}, function(err, instance) {
             if (err) return done(err);
             instance.should.have.property('name', 'changed in hook');
             done();
@@ -1641,7 +1642,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           TestModel.observe('after save', ctxRecorder.recordAndNext());
 
           existingInstance.name = 'replaced';
-          existingInstance.replaceAttributes({ name: 'replaced' }, function(err) {
+          existingInstance.replaceAttributes({name: 'replaced'}, function(err) {
             if (err) return done(err);
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
               instance: {
@@ -1658,7 +1659,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         it('aborts when `after save` hook fails', function(done) {
           TestModel.observe('after save', nextWithError(expectedError));
 
-          existingInstance.replaceAttributes({ name: 'replaced' }, function(err) {
+          existingInstance.replaceAttributes({name: 'replaced'}, function(err) {
             [err].should.eql([expectedError]);
             done();
           });
@@ -1671,7 +1672,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             next();
           });
 
-          existingInstance.replaceAttributes({ name: 'updated' }, function(err, instance) {
+          existingInstance.replaceAttributes({name: 'updated'}, function(err, instance) {
             if (err) return done(err);
             instance.should.have.property('extra', 'hook data');
             done();
@@ -1685,7 +1686,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         monitorHookExecution();
 
         TestModel.updateOrCreate(
-          { id: 'not-found', name: 'not found' },
+          {id: 'not-found', name: 'not found'},
           function(err, record, created) {
             if (err) return done(err);
             hookMonitor.names.should.eql([
@@ -1703,7 +1704,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         monitorHookExecution();
 
         TestModel.updateOrCreate(
-          { id: existingInstance.id, name: 'new name' },
+          {id: existingInstance.id, name: 'new name'},
           function(err, record, created) {
             if (err) return done(err);
             hookMonitor.names.should.eql([
@@ -1721,11 +1722,11 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('access', ctxRecorder.recordAndNext());
 
         TestModel.updateOrCreate(
-          { id: 'not-found', name: 'not found' },
+          {id: 'not-found', name: 'not found'},
           function(err, instance) {
             if (err) return done(err);
-            ctxRecorder.records.should.eql(aCtxForModel(TestModel, { query: {
-              where: { id: 'not-found' },
+            ctxRecorder.records.should.eql(aCtxForModel(TestModel, {query: {
+              where: {id: 'not-found'},
             }}));
             done();
           });
@@ -1735,11 +1736,11 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('access', ctxRecorder.recordAndNext());
 
         TestModel.updateOrCreate(
-          { id: existingInstance.id, name: 'new name' },
+          {id: existingInstance.id, name: 'new name'},
           function(err, instance) {
             if (err) return done(err);
-            ctxRecorder.records.should.eql(aCtxForModel(TestModel, { query: {
-              where: { id: existingInstance.id },
+            ctxRecorder.records.should.eql(aCtxForModel(TestModel, {query: {
+              where: {id: existingInstance.id},
             }}));
             done();
           });
@@ -1749,7 +1750,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('access', ctxRecorder.recordAndNext());
 
         TestModel.updateOrCreate(
-          { name: 'new name' },
+          {name: 'new name'},
           function(err, instance) {
             if (err) return done(err);
             ctxRecorder.records.should.equal('hook not called');
@@ -1759,19 +1760,19 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `access` hook when found', function(done) {
         TestModel.observe('access', function(ctx, next) {
-          ctx.query = { where: { id: { neq: existingInstance.id }}};
+          ctx.query = {where: {id: {neq: existingInstance.id}}};
           next();
         });
 
         TestModel.updateOrCreate(
-          { id: existingInstance.id, name: 'new name' },
+          {id: existingInstance.id, name: 'new name'},
           function(err, instance) {
             if (err) return done(err);
-            findTestModels({ fields: ['id', 'name'] }, function(err, list) {
+            findTestModels({fields: ['id', 'name']}, function(err, list) {
               if (err) return done(err);
               (list || []).map(toObject).should.eql([
-                { id: existingInstance.id, name: existingInstance.name, extra: undefined },
-                { id: instance.id, name: 'new name', extra: undefined },
+                {id: existingInstance.id, name: existingInstance.name, extra: undefined},
+                {id: instance.id, name: 'new name', extra: undefined},
               ]);
               done();
             });
@@ -1780,20 +1781,20 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `access` hook when not found', function(done) {
         TestModel.observe('access', function(ctx, next) {
-          ctx.query = { where: { id: 'not-found' }};
+          ctx.query = {where: {id: 'not-found'}};
           next();
         });
 
         TestModel.updateOrCreate(
-          { id: existingInstance.id, name: 'new name' },
+          {id: existingInstance.id, name: 'new name'},
           function(err, instance) {
             if (err) return done(err);
-            findTestModels({ fields: ['id', 'name'] }, function(err, list) {
+            findTestModels({fields: ['id', 'name']}, function(err, list) {
               if (err) return done(err);
               (list || []).map(toObject).should.eql([
-                { id: existingInstance.id, name: existingInstance.name, extra: undefined },
-                { id: list[1].id, name: 'second', extra: undefined },
-                { id: instance.id, name: 'new name', extra: undefined },
+                {id: existingInstance.id, name: existingInstance.name, extra: undefined},
+                {id: list[1].id, name: 'second', extra: undefined},
+                {id: instance.id, name: 'new name', extra: undefined},
               ]);
               done();
             });
@@ -1804,12 +1805,12 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         monitorHookExecution(['access', 'before save']);
 
         TestModel.observe('access', function(ctx, next) {
-          ctx.query = { where: { id: { neq: existingInstance.id }}};
+          ctx.query = {where: {id: {neq: existingInstance.id}}};
           next();
         });
 
         TestModel.updateOrCreate(
-          { id: 'ignored', name: 'new name' },
+          {id: 'ignored', name: 'new name'},
           function(err, instance) {
             if (err) return done(err);
             hookMonitor.names.should.eql(['access', 'before save']);
@@ -1821,7 +1822,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('before save', ctxRecorder.recordAndNext());
 
         TestModel.updateOrCreate(
-          { id: existingInstance.id, name: 'updated name' },
+          {id: existingInstance.id, name: 'updated name'},
           function(err, instance) {
             if (err) return done(err);
             if (dataSource.connector.updateOrCreate) {
@@ -1829,16 +1830,16 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               // provide full instance as that depends on whether
               // UPDATE or CREATE will be triggered
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-                where: { id: existingInstance.id },
-                data: { id: existingInstance.id, name: 'updated name' },
+                where: {id: existingInstance.id},
+                data: {id: existingInstance.id, name: 'updated name'},
               }));
             } else {
               // currentInstance is set, because a non-atomic `updateOrCreate`
               // will use `prototype.updateAttributes` internally, which
               // exposes this to the context
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-                where: { id: existingInstance.id },
-                data: { id: existingInstance.id, name: 'updated name' },
+                where: {id: existingInstance.id},
+                data: {id: existingInstance.id, name: 'updated name'},
                 currentInstance: existingInstance,
               }));
             }
@@ -1850,7 +1851,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('before save', ctxRecorder.recordAndNext());
 
         TestModel.updateOrCreate(
-          { id: 'new-id', name: 'a name' },
+          {id: 'new-id', name: 'a name'},
           function(err, instance) {
             if (err) return done(err);
 
@@ -1859,14 +1860,14 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               // provide full instance as that depends on whether
               // UPDATE or CREATE will be triggered
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-                where: { id: 'new-id' },
-                data: { id: 'new-id', name: 'a name' },
+                where: {id: 'new-id'},
+                data: {id: 'new-id', name: 'a name'},
               }));
             } else {
               // The default unoptimized implementation runs
               // `instance.save` and thus a full instance is availalbe
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-                instance: { id: 'new-id', name: 'a name', extra: undefined },
+                instance: {id: 'new-id', name: 'a name', extra: undefined},
                 isNewInstance: true,
               }));
             }
@@ -1882,7 +1883,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         });
 
         TestModel.updateOrCreate(
-          { id: existingInstance.id, name: 'updated name' },
+          {id: existingInstance.id, name: 'updated name'},
           function(err, instance) {
             if (err) return done(err);
             instance.name.should.equal('hooked');
@@ -1901,7 +1902,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         });
 
         TestModel.updateOrCreate(
-          { id: 'new-id', name: 'new name' },
+          {id: 'new-id', name: 'new name'},
           function(err, instance) {
             if (err) return done(err);
             instance.name.should.equal('hooked');
@@ -1915,10 +1916,10 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('before save', invalidateTestModel());
 
         TestModel.updateOrCreate(
-          { id: existingInstance.id, name: 'updated name' },
+          {id: existingInstance.id, name: 'updated name'},
           function(err, instance) {
             (err || {}).should.be.instanceOf(ValidationError);
-            (err.details.codes || {}).should.eql({ name: ['presence'] });
+            (err.details.codes || {}).should.eql({name: ['presence']});
             done();
           });
       });
@@ -1929,10 +1930,10 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('before save', invalidateTestModel());
 
         TestModel.updateOrCreate(
-          { id: 'new-id', name: 'new name' },
+          {id: 'new-id', name: 'new name'},
           function(err, instance) {
             (err || {}).should.be.instanceOf(ValidationError);
-            (err.details.codes || {}).should.eql({ name: ['presence'] });
+            (err.details.codes || {}).should.eql({name: ['presence']});
             done();
           });
       });
@@ -1941,14 +1942,14 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('persist', ctxRecorder.recordAndNext());
 
         TestModel.updateOrCreate(
-          { id: 'new-id', name: 'a name' },
+          {id: 'new-id', name: 'a name'},
           function(err, instance) {
             if (err) return done(err);
 
             if (dataSource.connector.updateOrCreate) {
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-                where: { id: 'new-id' },
-                data: { id: 'new-id', name: 'a name' },
+                where: {id: 'new-id'},
+                data: {id: 'new-id', name: 'a name'},
                 currentInstance: {
                   id: 'new-id',
                   name: 'a name',
@@ -1977,12 +1978,12 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('persist', ctxRecorder.recordAndNext());
 
         TestModel.updateOrCreate(
-          { id: existingInstance.id, name: 'updated name' },
+          {id: existingInstance.id, name: 'updated name'},
           function(err, instance) {
             if (err) return done(err);
 
             var expectedContext = aCtxForModel(TestModel, {
-              where: { id: existingInstance.id },
+              where: {id: existingInstance.id},
               data: {
                 id: existingInstance.id,
                 name: 'updated name',
@@ -2009,13 +2010,13 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('loaded', ctxRecorder.recordAndNext());
 
         TestModel.updateOrCreate(
-          { id: 'new-id', name: 'a name' },
+          {id: 'new-id', name: 'a name'},
           function(err, instance) {
             if (err) return done(err);
 
             if (dataSource.connector.updateOrCreate) {
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-                data: { id: 'new-id', name: 'a name' },
+                data: {id: 'new-id', name: 'a name'},
                 isNewInstance: true,
               }));
             } else {
@@ -2035,7 +2036,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('loaded', ctxRecorder.recordAndNext());
 
         TestModel.updateOrCreate(
-          { id: existingInstance.id, name: 'updated name' },
+          {id: existingInstance.id, name: 'updated name'},
           function(err, instance) {
             if (err) return done(err);
 
@@ -2064,7 +2065,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('emits error when `loaded` hook fails', function(done) {
         TestModel.observe('loaded', nextWithError(expectedError));
         TestModel.updateOrCreate(
-          { id: 'new-id', name: 'a name' },
+          {id: 'new-id', name: 'a name'},
           function(err, instance) {
             [err].should.eql([expectedError]);
             done();
@@ -2075,7 +2076,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('after save', ctxRecorder.recordAndNext());
 
         TestModel.updateOrCreate(
-          { id: existingInstance.id, name: 'updated name' },
+          {id: existingInstance.id, name: 'updated name'},
           function(err, instance) {
             if (err) return done(err);
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
@@ -2094,7 +2095,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('after save', ctxRecorder.recordAndNext());
 
         TestModel.updateOrCreate(
-          { id: 'new-id', name: 'a name' },
+          {id: 'new-id', name: 'a name'},
           function(err, instance) {
             if (err) return done(err);
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
@@ -2118,7 +2119,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           monitorHookExecution();
 
           TestModel.replaceOrCreate(
-            { id: 'not-found', name: 'not found' },
+            {id: 'not-found', name: 'not found'},
             function(err, record, created) {
               if (err) return done(err);
               hookMonitor.names.should.eql([
@@ -2136,7 +2137,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           monitorHookExecution();
 
           TestModel.replaceOrCreate(
-            { id: existingInstance.id, name: 'new name' },
+            {id: existingInstance.id, name: 'new name'},
             function(err, record, created) {
               if (err) return done(err);
               hookMonitor.names.should.eql([
@@ -2154,11 +2155,11 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           TestModel.observe('access', ctxRecorder.recordAndNext());
 
           TestModel.replaceOrCreate(
-            { id: 'not-found', name: 'not found' },
+            {id: 'not-found', name: 'not found'},
             function(err, instance) {
               if (err) return done(err);
-              ctxRecorder.records.should.eql(aCtxForModel(TestModel, { query: {
-                where: { id: 'not-found' },
+              ctxRecorder.records.should.eql(aCtxForModel(TestModel, {query: {
+                where: {id: 'not-found'},
               }}));
               done();
             });
@@ -2168,11 +2169,11 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           TestModel.observe('access', ctxRecorder.recordAndNext());
 
           TestModel.replaceOrCreate(
-            { id: existingInstance.id, name: 'new name' },
+            {id: existingInstance.id, name: 'new name'},
             function(err, instance) {
               if (err) return done(err);
-              ctxRecorder.records.should.eql(aCtxForModel(TestModel, { query: {
-                where: { id: existingInstance.id },
+              ctxRecorder.records.should.eql(aCtxForModel(TestModel, {query: {
+                where: {id: existingInstance.id},
               }}));
               done();
             });
@@ -2182,7 +2183,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           TestModel.observe('access', ctxRecorder.recordAndNext());
 
           TestModel.replaceOrCreate(
-            { name: 'new name' },
+            {name: 'new name'},
             function(err, instance) {
               if (err) return done(err);
               ctxRecorder.records.should.equal('hook not called');
@@ -2192,19 +2193,19 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
         it('applies updates from `access` hook when found', function(done) {
           TestModel.observe('access', function(ctx, next) {
-            ctx.query = { where: { id: { neq: existingInstance.id }}};
+            ctx.query = {where: {id: {neq: existingInstance.id}}};
             next();
           });
 
           TestModel.replaceOrCreate(
-            { id: existingInstance.id, name: 'new name' },
+            {id: existingInstance.id, name: 'new name'},
             function(err, instance) {
               if (err) return done(err);
-              findTestModels({ fields: ['id', 'name'] }, function(err, list) {
+              findTestModels({fields: ['id', 'name']}, function(err, list) {
                 if (err) return done(err);
                 (list || []).map(toObject).should.eql([
-                  { id: existingInstance.id, name: existingInstance.name, extra: undefined },
-                  { id: instance.id, name: 'new name', extra: undefined },
+                  {id: existingInstance.id, name: existingInstance.name, extra: undefined},
+                  {id: instance.id, name: 'new name', extra: undefined},
                 ]);
                 done();
               });
@@ -2213,20 +2214,20 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
         it('applies updates from `access` hook when not found', function(done) {
           TestModel.observe('access', function(ctx, next) {
-            ctx.query = { where: { id: 'not-found' }};
+            ctx.query = {where: {id: 'not-found'}};
             next();
           });
 
           TestModel.replaceOrCreate(
-            { id: existingInstance.id, name: 'new name' },
+            {id: existingInstance.id, name: 'new name'},
             function(err, instance) {
               if (err) return done(err);
-              findTestModels({ fields: ['id', 'name'] }, function(err, list) {
+              findTestModels({fields: ['id', 'name']}, function(err, list) {
                 if (err) return done(err);
                 (list || []).map(toObject).should.eql([
-                  { id: existingInstance.id, name: existingInstance.name, extra: undefined },
-                  { id: list[1].id, name: 'second', extra: undefined },
-                  { id: instance.id, name: 'new name', extra: undefined },
+                  {id: existingInstance.id, name: existingInstance.name, extra: undefined},
+                  {id: list[1].id, name: 'second', extra: undefined},
+                  {id: instance.id, name: 'new name', extra: undefined},
                 ]);
                 done();
               });
@@ -2237,12 +2238,12 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           monitorHookExecution(['access', 'before save']);
 
           TestModel.observe('access', function(ctx, next) {
-            ctx.query = { where: { id: { neq: existingInstance.id }}};
+            ctx.query = {where: {id: {neq: existingInstance.id}}};
             next();
           });
 
           TestModel.replaceOrCreate(
-            { id: 'ignored', name: 'new name' },
+            {id: 'ignored', name: 'new name'},
             function(err, instance) {
               if (err) return done(err);
               hookMonitor.names.should.eql(['access', 'before save']);
@@ -2252,7 +2253,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
         it('triggers `before save` hookon create', function(done) {
           TestModel.observe('before save', ctxRecorder.recordAndNext());
-          TestModel.replaceOrCreate({ id: existingInstance.id, name: 'new name' },
+          TestModel.replaceOrCreate({id: existingInstance.id, name: 'new name'},
           function(err, instance) {
             if (err)
               return done(err);
@@ -2271,7 +2272,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         it('triggers `before save` hook on replace', function(done) {
           TestModel.observe('before save', ctxRecorder.recordAndNext());
           TestModel.replaceOrCreate(
-            { id: existingInstance.id, name: 'replaced name' },
+            {id: existingInstance.id, name: 'replaced name'},
             function(err, instance) {
               if (err) return done(err);
 
@@ -2296,7 +2297,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           TestModel.observe('before save', ctxRecorder.recordAndNext());
 
           TestModel.replaceOrCreate(
-            { id: 'new-id', name: 'a name' },
+            {id: 'new-id', name: 'a name'},
             function(err, instance) {
               if (err) return done(err);
 
@@ -2324,7 +2325,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           });
 
           TestModel.replaceOrCreate(
-            { id: 'new-id', name: 'new name' },
+            {id: 'new-id', name: 'new name'},
             function(err, instance) {
               if (err) return done(err);
               instance.name.should.equal('hooked');
@@ -2336,10 +2337,10 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           TestModel.observe('before save', invalidateTestModel());
 
           TestModel.replaceOrCreate(
-            { id: 'new-id', name: 'new name' },
+            {id: 'new-id', name: 'new name'},
             function(err, instance) {
               (err || {}).should.be.instanceOf(ValidationError);
-              (err.details.codes || {}).should.eql({ name: ['presence'] });
+              (err.details.codes || {}).should.eql({name: ['presence']});
               done();
             });
         });
@@ -2348,7 +2349,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           TestModel.observe('persist', ctxRecorder.recordAndNext());
 
           TestModel.replaceOrCreate(
-            { id: 'new-id', name: 'a name' },
+            {id: 'new-id', name: 'a name'},
             function(err, instance) {
               if (err) return done(err);
 
@@ -2365,7 +2366,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               });
 
               if (dataSource.connector.replaceOrCreate) {
-                expectedContext.where = { id: 'new-id' };
+                expectedContext.where = {id: 'new-id'};
               } else {
                 // non-atomic implementation does not provide ctx.where
                 // because a new instance is being created, so there
@@ -2381,12 +2382,12 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           TestModel.observe('persist', ctxRecorder.recordAndNext());
 
           TestModel.replaceOrCreate(
-            { id: existingInstance.id, name: 'replaced name' },
+            {id: existingInstance.id, name: 'replaced name'},
             function(err, instance) {
               if (err) return done(err);
 
               var expected = {
-                where: { id: existingInstance.id },
+                where: {id: existingInstance.id},
                 data: {
                   id: existingInstance.id,
                   name: 'replaced name',
@@ -2414,7 +2415,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           TestModel.observe('loaded', ctxRecorder.recordAndNext());
 
           TestModel.replaceOrCreate(
-            { id: 'new-id', name: 'a name' },
+            {id: 'new-id', name: 'a name'},
             function(err, instance) {
               if (err) return done(err);
 
@@ -2438,7 +2439,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           TestModel.observe('loaded', ctxRecorder.recordAndNext());
 
           TestModel.replaceOrCreate(
-            { id: existingInstance.id, name: 'replaced name' },
+            {id: existingInstance.id, name: 'replaced name'},
             function(err, instance) {
               if (err) return done(err);
 
@@ -2461,7 +2462,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         it('emits error when `loaded` hook fails', function(done) {
           TestModel.observe('loaded', nextWithError(expectedError));
           TestModel.replaceOrCreate(
-            { id: 'new-id', name: 'a name' },
+            {id: 'new-id', name: 'a name'},
             function(err, instance) {
               [err].should.eql([expectedError]);
               done();
@@ -2472,7 +2473,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           TestModel.observe('after save', ctxRecorder.recordAndNext());
 
           TestModel.replaceOrCreate(
-            { id: existingInstance.id, name: 'replaced name' },
+            {id: existingInstance.id, name: 'replaced name'},
             function(err, instance) {
               if (err) return done(err);
 
@@ -2497,7 +2498,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           TestModel.observe('after save', ctxRecorder.recordAndNext());
 
           TestModel.replaceOrCreate(
-            { id: 'new-id', name: 'a name' },
+            {id: 'new-id', name: 'a name'},
             function(err, instance) {
               if (err) return done(err);
 
@@ -2523,10 +2524,10 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers `access` hook with query', function(done) {
         TestModel.observe('access', ctxRecorder.recordAndNext());
 
-        TestModel.deleteAll({ name: existingInstance.name }, function(err) {
+        TestModel.deleteAll({name: existingInstance.name}, function(err) {
           if (err) return done(err);
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-            query: { where: { name: existingInstance.name }},
+            query: {where: {name: existingInstance.name}},
           }));
           done();
         });
@@ -2537,14 +2538,14 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
         TestModel.deleteAll(function(err) {
           if (err) return done(err);
-          ctxRecorder.records.should.eql(aCtxForModel(TestModel, { query: { where: {}}}));
+          ctxRecorder.records.should.eql(aCtxForModel(TestModel, {query: {where: {}}}));
           done();
         });
       });
 
       it('applies updates from `access` hook', function(done) {
         TestModel.observe('access', function(ctx, next) {
-          ctx.query = { where: { id: { neq: existingInstance.id }}};
+          ctx.query = {where: {id: {neq: existingInstance.id}}};
           next();
         });
 
@@ -2561,10 +2562,10 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers `before delete` hook with query', function(done) {
         TestModel.observe('before delete', ctxRecorder.recordAndNext());
 
-        TestModel.deleteAll({ name: existingInstance.name }, function(err) {
+        TestModel.deleteAll({name: existingInstance.name}, function(err) {
           if (err) return done(err);
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-            where: { name: existingInstance.name },
+            where: {name: existingInstance.name},
           }));
           done();
         });
@@ -2575,14 +2576,14 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
         TestModel.deleteAll(function(err) {
           if (err) return done(err);
-          ctxRecorder.records.should.eql(aCtxForModel(TestModel, { where: {}}));
+          ctxRecorder.records.should.eql(aCtxForModel(TestModel, {where: {}}));
           done();
         });
       });
 
       it('applies updates from `before delete` hook', function(done) {
         TestModel.observe('before delete', function(ctx, next) {
-          ctx.where = { id: { neq: existingInstance.id }};
+          ctx.where = {id: {neq: existingInstance.id}};
           next();
         });
 
@@ -2615,7 +2616,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
         TestModel.deleteAll(function(err) {
           if (err) return done(err);
-          ctxRecorder.records.should.eql(aCtxForModel(TestModel, { where: {}}));
+          ctxRecorder.records.should.eql(aCtxForModel(TestModel, {where: {}}));
           done();
         });
       });
@@ -2623,10 +2624,10 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers `after delete` hook without query', function(done) {
         TestModel.observe('after delete', ctxRecorder.recordAndNext());
 
-        TestModel.deleteAll({ name: existingInstance.name }, function(err) {
+        TestModel.deleteAll({name: existingInstance.name}, function(err) {
           if (err) return done(err);
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-            where: { name: existingInstance.name },
+            where: {name: existingInstance.name},
           }));
           done();
         });
@@ -2649,7 +2650,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         existingInstance.delete(function(err) {
           if (err) return done(err);
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-            query: { where: { id: existingInstance.id }},
+            query: {where: {id: existingInstance.id}},
           }));
           done();
         });
@@ -2657,7 +2658,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updated from `access` hook', function(done) {
         TestModel.observe('access', function(ctx, next) {
-          ctx.query = { where: { id: { neq: existingInstance.id }}};
+          ctx.query = {where: {id: {neq: existingInstance.id}}};
           next();
         });
 
@@ -2677,7 +2678,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         existingInstance.delete(function(err) {
           if (err) return done(err);
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-            where: { id: existingInstance.id },
+            where: {id: existingInstance.id},
             instance: existingInstance,
           }));
           done();
@@ -2686,7 +2687,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updated from `before delete` hook', function(done) {
         TestModel.observe('before delete', function(ctx, next) {
-          ctx.where = { id: { neq: existingInstance.id }};
+          ctx.where = {id: {neq: existingInstance.id}};
           next();
         });
 
@@ -2720,7 +2721,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         existingInstance.delete(function(err) {
           if (err) return done(err);
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-            where: { id: existingInstance.id },
+            where: {id: existingInstance.id},
             instance: existingInstance,
           }));
           done();
@@ -2730,10 +2731,10 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers `after delete` hook without query', function(done) {
         TestModel.observe('after delete', ctxRecorder.recordAndNext());
 
-        TestModel.deleteAll({ name: existingInstance.name }, function(err) {
+        TestModel.deleteAll({name: existingInstance.name}, function(err) {
           if (err) return done(err);
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-            where: { name: existingInstance.name },
+            where: {name: existingInstance.name},
           }));
           done();
         });
@@ -2761,13 +2762,13 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           if (err) return done(err);
           ctxRecorder.records.should.eql([
             aCtxForModel(TestModel, {
-              hookState: { foo: 'bar' },
-              where: { id: '1' },
+              hookState: {foo: 'bar'},
+              where: {id: '1'},
               instance: existingInstance,
             }),
             aCtxForModel(TestModel, {
-              hookState: { foo: 'BAR' },
-              where: { id: '1' },
+              hookState: {foo: 'BAR'},
+              where: {id: '1'},
               instance: existingInstance,
             }),
           ]);
@@ -2778,7 +2779,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers hooks only once', function(done) {
         monitorHookExecution();
         TestModel.observe('access', function(ctx, next) {
-          ctx.query = { where: { id: { neq: existingInstance.id }}};
+          ctx.query = {where: {id: {neq: existingInstance.id}}};
           next();
         });
 
@@ -2795,12 +2796,12 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('access', ctxRecorder.recordAndNext());
 
         TestModel.updateAll(
-          { name: 'searched' },
-          { name: 'updated' },
+          {name: 'searched'},
+          {name: 'updated'},
           function(err, instance) {
             if (err) return done(err);
-            ctxRecorder.records.should.eql(aCtxForModel(TestModel, { query: {
-              where: { name: 'searched' },
+            ctxRecorder.records.should.eql(aCtxForModel(TestModel, {query: {
+              where: {name: 'searched'},
             }}));
             done();
           });
@@ -2808,20 +2809,20 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `access` hook', function(done) {
         TestModel.observe('access', function(ctx, next) {
-          ctx.query = { where: { id: { neq: existingInstance.id }}};
+          ctx.query = {where: {id: {neq: existingInstance.id}}};
           next();
         });
 
         TestModel.updateAll(
-          { id: existingInstance.id },
-          { name: 'new name' },
+          {id: existingInstance.id},
+          {name: 'new name'},
           function(err) {
             if (err) return done(err);
-            findTestModels({ fields: ['id', 'name'] }, function(err, list) {
+            findTestModels({fields: ['id', 'name']}, function(err, list) {
               if (err) return done(err);
               (list || []).map(toObject).should.eql([
-                { id: existingInstance.id, name: existingInstance.name, extra: undefined },
-                { id: '2', name: 'new name', extra: undefined },
+                {id: existingInstance.id, name: existingInstance.name, extra: undefined},
+                {id: '2', name: 'new name', extra: undefined},
               ]);
               done();
             });
@@ -2832,13 +2833,13 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('before save', ctxRecorder.recordAndNext());
 
         TestModel.updateAll(
-          { name: 'searched' },
-          { name: 'updated' },
+          {name: 'searched'},
+          {name: 'updated'},
           function(err, instance) {
             if (err) return done(err);
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-              where: { name: 'searched' },
-              data: { name: 'updated' },
+              where: {name: 'searched'},
+              data: {name: 'updated'},
             }));
             done();
           });
@@ -2846,13 +2847,13 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `before save` hook', function(done) {
         TestModel.observe('before save', function(ctx, next) {
-          ctx.data = { name: 'hooked', extra: 'added' };
+          ctx.data = {name: 'hooked', extra: 'added'};
           next();
         });
 
         TestModel.updateAll(
-          { id: existingInstance.id },
-          { name: 'updated name' },
+          {id: existingInstance.id},
+          {name: 'updated name'},
           function(err) {
             if (err) return done(err);
             loadTestModel(existingInstance.id, function(err, instance) {
@@ -2868,14 +2869,14 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('persist', ctxRecorder.recordAndNext());
 
         TestModel.updateAll(
-          { name: existingInstance.name },
-          { name: 'changed' },
+          {name: existingInstance.name},
+          {name: 'changed'},
           function(err, instance) {
             if (err) return done(err);
 
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-              data: { name: 'changed' },
-              where: { name: existingInstance.name },
+              data: {name: 'changed'},
+              where: {name: existingInstance.name},
             }));
 
             done();
@@ -2888,8 +2889,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         }));
 
         TestModel.updateAll(
-          { id: existingInstance.id },
-          { name: 'changed' },
+          {id: existingInstance.id},
+          {name: 'changed'},
           function(err) {
             if (err) return done(err);
             loadTestModel(existingInstance.id, function(err, instance) {
@@ -2903,8 +2904,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('loaded', ctxRecorder.recordAndNext());
 
         TestModel.updateAll(
-          { id: existingInstance.id },
-          { name: 'changed' },
+          {id: existingInstance.id},
+          {name: 'changed'},
           function(err, instance) {
             if (err) return done(err);
             ctxRecorder.records.should.eql('hook not called');
@@ -2916,13 +2917,13 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('after save', ctxRecorder.recordAndNext());
 
         TestModel.updateAll(
-          { id: existingInstance.id },
-          { name: 'updated name' },
+          {id: existingInstance.id},
+          {name: 'updated name'},
           function(err) {
             if (err) return done(err);
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-              where: { id: existingInstance.id },
-              data: { name: 'updated name' },
+              where: {id: existingInstance.id},
+              data: {name: 'updated name'},
             }));
             done();
           });
@@ -2932,9 +2933,9 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('after save', ctxRecorder.recordAndNext());
 
         TestModel.updateAll(
-          { id: existingInstance.id },
-          { name: 'updated name' },
-          { foo: 'bar' },
+          {id: existingInstance.id},
+          {name: 'updated name'},
+          {foo: 'bar'},
           function(err) {
             if (err) return done(err);
             ctxRecorder.records.options.should.eql({
@@ -2949,8 +2950,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
     describe('PersistedModel.upsertWithWhere', function() {
       it('triggers hooks in the correct order on create', function(done) {
         monitorHookExecution();
-        TestModel.upsertWithWhere({ extra: 'not-found' },
-          { id: 'not-found', name: 'not found', extra: 'not-found' },
+        TestModel.upsertWithWhere({extra: 'not-found'},
+          {id: 'not-found', name: 'not found', extra: 'not-found'},
           function(err, record, created) {
             if (err) return done(err);
             hookMonitor.names.should.eql([
@@ -2971,8 +2972,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('triggers hooks in the correct order on update', function(done) {
         monitorHookExecution();
-        TestModel.upsertWithWhere({ id: existingInstance.id },
-          { name: 'new name', extra: 'new extra' },
+        TestModel.upsertWithWhere({id: existingInstance.id},
+          {name: 'new name', extra: 'new extra'},
           function(err, record, created) {
             if (err) return done(err);
             hookMonitor.names.should.eql([
@@ -2994,12 +2995,12 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers `access` hook on create', function(done) {
         TestModel.observe('access', ctxRecorder.recordAndNext());
 
-        TestModel.upsertWithWhere({ extra: 'not-found' },
-          { id: 'not-found', name: 'not found' },
+        TestModel.upsertWithWhere({extra: 'not-found'},
+          {id: 'not-found', name: 'not found'},
           function(err, instance) {
             if (err) return done(err);
-            ctxRecorder.records.should.eql(aCtxForModel(TestModel, { query: {
-              where: { extra: 'not-found' },
+            ctxRecorder.records.should.eql(aCtxForModel(TestModel, {query: {
+              where: {extra: 'not-found'},
             }}));
             done();
           });
@@ -3008,12 +3009,12 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers `access` hook on update', function(done) {
         TestModel.observe('access', ctxRecorder.recordAndNext());
 
-        TestModel.upsertWithWhere({ id: existingInstance.id },
-           { name: 'new name', extra: 'new extra' },
+        TestModel.upsertWithWhere({id: existingInstance.id},
+           {name: 'new name', extra: 'new extra'},
            function(err, instance) {
              if (err) return done(err);
-             ctxRecorder.records.should.eql(aCtxForModel(TestModel, { query: {
-               where: { id: existingInstance.id },
+             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {query: {
+               where: {id: existingInstance.id},
              }}));
              done();
            });
@@ -3023,12 +3024,12 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         monitorHookExecution(['access', 'before save']);
 
         TestModel.observe('access', function(ctx, next) {
-          ctx.query = { where: { id: { neq: existingInstance.id }}};
+          ctx.query = {where: {id: {neq: existingInstance.id}}};
           next();
         });
 
-        TestModel.upsertWithWhere({ id: existingInstance.id },
-          { id: 'ignored', name: 'new name' },
+        TestModel.upsertWithWhere({id: existingInstance.id},
+          {id: 'ignored', name: 'new name'},
           function(err, instance) {
             if (err) return done(err);
             hookMonitor.names.should.eql(['access', 'before save']);
@@ -3038,19 +3039,19 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `access` hook when found', function(done) {
         TestModel.observe('access', function(ctx, next) {
-          ctx.query = { where: { id: { neq: existingInstance.id }}};
+          ctx.query = {where: {id: {neq: existingInstance.id}}};
           next();
         });
 
-        TestModel.upsertWithWhere({ id: existingInstance.id },
-          { name: 'new name' },
+        TestModel.upsertWithWhere({id: existingInstance.id},
+          {name: 'new name'},
           function(err, instance) {
             if (err) return done(err);
-            findTestModels({ fields: ['id', 'name'] }, function(err, list) {
+            findTestModels({fields: ['id', 'name']}, function(err, list) {
               if (err) return done(err);
               (list || []).map(toObject).should.eql([
-                { id: existingInstance.id, name: existingInstance.name, extra: undefined },
-                { id: instance.id, name: 'new name', extra: undefined },
+                {id: existingInstance.id, name: existingInstance.name, extra: undefined},
+                {id: instance.id, name: 'new name', extra: undefined},
               ]);
               done();
             });
@@ -3059,20 +3060,20 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `access` hook when not found', function(done) {
         TestModel.observe('access', function(ctx, next) {
-          ctx.query = { where: { id: 'not-found' }};
+          ctx.query = {where: {id: 'not-found'}};
           next();
         });
 
-        TestModel.upsertWithWhere({ id: existingInstance.id },
-          { name: 'new name' },
+        TestModel.upsertWithWhere({id: existingInstance.id},
+          {name: 'new name'},
           function(err, instance) {
             if (err) return done(err);
-            findTestModels({ fields: ['id', 'name'] }, function(err, list) {
+            findTestModels({fields: ['id', 'name']}, function(err, list) {
               if (err) return done(err);
               (list || []).map(toObject).should.eql([
-                { id: existingInstance.id, name: existingInstance.name, extra: undefined },
-                { id: list[1].id, name: 'second', extra: undefined },
-                { id: instance.id, name: 'new name', extra: undefined },
+                {id: existingInstance.id, name: existingInstance.name, extra: undefined},
+                {id: list[1].id, name: 'second', extra: undefined},
+                {id: instance.id, name: 'new name', extra: undefined},
               ]);
               done();
             });
@@ -3082,12 +3083,12 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers `before save` hook on update', function(done) {
         TestModel.observe('before save', ctxRecorder.recordAndNext());
 
-        TestModel.upsertWithWhere({ id: existingInstance.id },
-           { id: existingInstance.id, name: 'updated name' },
+        TestModel.upsertWithWhere({id: existingInstance.id},
+           {id: existingInstance.id, name: 'updated name'},
            function(err, instance) {
              if (err) return done(err);
              var expectedContext = aCtxForModel(TestModel, {
-               where: { id: existingInstance.id },
+               where: {id: existingInstance.id},
                data: {
                  id: existingInstance.id,
                  name: 'updated name',
@@ -3104,13 +3105,13 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers `before save` hook on create', function(done) {
         TestModel.observe('before save', ctxRecorder.recordAndNext());
 
-        TestModel.upsertWithWhere({ id: 'new-id' },
-          { id: 'new-id', name: 'a name' },
+        TestModel.upsertWithWhere({id: 'new-id'},
+          {id: 'new-id', name: 'a name'},
           function(err, instance) {
             if (err) return done(err);
             var expectedContext = aCtxForModel(TestModel, {
-              where: { id: 'new-id' },
-              data: { id: 'new-id', name: 'a name' },
+              where: {id: 'new-id'},
+              data: {id: 'new-id', name: 'a name'},
             });
             if (!dataSource.connector.upsertWithWhere) {
               ctxRecorder.records.should.eql(expectedContext.isNewInstance = true);
@@ -3126,8 +3127,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           next();
         });
 
-        TestModel.upsertWithWhere({ id: existingInstance.id },
-           { name: 'updated name' },
+        TestModel.upsertWithWhere({id: existingInstance.id},
+           {name: 'updated name'},
            function(err, instance) {
              if (err) return done(err);
              instance.name.should.equal('hooked');
@@ -3145,8 +3146,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           next();
         });
 
-        TestModel.upsertWithWhere({ id: 'new-id' },
-          { id: 'new-id', name: 'new name' },
+        TestModel.upsertWithWhere({id: 'new-id'},
+          {id: 'new-id', name: 'new name'},
           function(err, instance) {
             if (err) return done(err);
             instance.name.should.equal('hooked');
@@ -3157,11 +3158,11 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('validates model after `before save` hook on create', function(done) {
         TestModel.observe('before save', invalidateTestModel());
 
-        TestModel.upsertWithWhere({ id: 'new-id' },
-          { id: 'new-id', name: 'new name' },
+        TestModel.upsertWithWhere({id: 'new-id'},
+          {id: 'new-id', name: 'new name'},
           function(err, instance) {
             (err || {}).should.be.instanceOf(ValidationError);
-            (err.details.codes || {}).should.eql({ name: ['presence'] });
+            (err.details.codes || {}).should.eql({name: ['presence']});
             done();
           });
       });
@@ -3169,11 +3170,11 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('validates model after `before save` hook on update', function(done) {
         TestModel.observe('before save', invalidateTestModel());
 
-        TestModel.upsertWithWhere({ id: existingInstance.id },
-          { id: existingInstance.id, name: 'updated name' },
+        TestModel.upsertWithWhere({id: existingInstance.id},
+          {id: existingInstance.id, name: 'updated name'},
           function(err, instance) {
             (err || {}).should.be.instanceOf(ValidationError);
-            (err.details.codes || {}).should.eql({ name: ['presence'] });
+            (err.details.codes || {}).should.eql({name: ['presence']});
             done();
           });
       });
@@ -3181,13 +3182,13 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers `persist` hook on create', function(done) {
         TestModel.observe('persist', ctxRecorder.recordAndNext());
 
-        TestModel.upsertWithWhere({ id: 'new-id' },
-          { id: 'new-id', name: 'a name' },
+        TestModel.upsertWithWhere({id: 'new-id'},
+          {id: 'new-id', name: 'a name'},
           function(err, instance) {
             if (err) return done(err);
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-              where: { id: 'new-id' },
-              data: { id: 'new-id', name: 'a name' },
+              where: {id: 'new-id'},
+              data: {id: 'new-id', name: 'a name'},
               currentInstance: {
                 id: 'new-id',
                 name: 'a name',
@@ -3201,12 +3202,12 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers persist hook on update', function(done) {
         TestModel.observe('persist', ctxRecorder.recordAndNext());
 
-        TestModel.upsertWithWhere({ id: existingInstance.id },
-          { id: existingInstance.id, name: 'updated name' },
+        TestModel.upsertWithWhere({id: existingInstance.id},
+          {id: existingInstance.id, name: 'updated name'},
           function(err, instance) {
             if (err) return done(err);
             var expectedContext = aCtxForModel(TestModel, {
-              where: { id: existingInstance.id },
+              where: {id: existingInstance.id},
               data: {
                 id: existingInstance.id,
                 name: 'updated name',
@@ -3228,12 +3229,12 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers `loaded` hook on create', function(done) {
         TestModel.observe('loaded', ctxRecorder.recordAndNext());
 
-        TestModel.upsertWithWhere({ id: 'new-id' },
-          { id: 'new-id', name: 'a name' },
+        TestModel.upsertWithWhere({id: 'new-id'},
+          {id: 'new-id', name: 'a name'},
           function(err, instance) {
             if (err) return done(err);
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-              data: { id: 'new-id', name: 'a name' },
+              data: {id: 'new-id', name: 'a name'},
               isNewInstance: true,
             }));
             done();
@@ -3243,8 +3244,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers `loaded` hook on update', function(done) {
         TestModel.observe('loaded', ctxRecorder.recordAndNext());
 
-        TestModel.upsertWithWhere({ id: existingInstance.id },
-          { id: existingInstance.id, name: 'updated name' },
+        TestModel.upsertWithWhere({id: existingInstance.id},
+          {id: existingInstance.id, name: 'updated name'},
           function(err, instance) {
             if (err) return done(err);
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
@@ -3260,8 +3261,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('emits error when `loaded` hook fails', function(done) {
         TestModel.observe('loaded', nextWithError(expectedError));
-        TestModel.upsertWithWhere({ id: 'new-id' },
-            { id: 'new-id', name: 'a name' },
+        TestModel.upsertWithWhere({id: 'new-id'},
+            {id: 'new-id', name: 'a name'},
             function(err, instance) {
               [err].should.eql([expectedError]);
               done();
@@ -3271,8 +3272,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers `after save` hook on update', function(done) {
         TestModel.observe('after save', ctxRecorder.recordAndNext());
 
-        TestModel.upsertWithWhere({ id: existingInstance.id },
-          { id: existingInstance.id, name: 'updated name' },
+        TestModel.upsertWithWhere({id: existingInstance.id},
+          {id: existingInstance.id, name: 'updated name'},
           function(err, instance) {
             if (err) return done(err);
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
@@ -3290,8 +3291,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers `after save` hook on create', function(done) {
         TestModel.observe('after save', ctxRecorder.recordAndNext());
 
-        TestModel.upsertWithWhere({ id: 'new-id' },
-          { id: 'new-id', name: 'a name' }, function(err, instance) {
+        TestModel.upsertWithWhere({id: 'new-id'},
+          {id: 'new-id', name: 'a name'}, function(err, instance) {
             if (err) return done(err);
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
               instance: {
@@ -3329,11 +3330,11 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         query = null;
       }
 
-      TestModel.find(query, { notify: false }, cb);
+      TestModel.find(query, {notify: false}, cb);
     }
 
     function loadTestModel(id, cb) {
-      TestModel.findOne({ where: { id: id }}, { notify: false }, cb);
+      TestModel.findOne({where: {id: id}}, {notify: false}, cb);
     }
 
     function monitorHookExecution(hookNames) {

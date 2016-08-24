@@ -29,9 +29,9 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     });
 
     it('works for Object values', function() {
-      return CacheItem.set('a-key', { a: 1, b: 2 })
+      return CacheItem.set('a-key', {a: 1, b: 2})
         .then(function() { return CacheItem.get('a-key'); })
-        .then(function(value) { value.should.eql({ a: 1, b: 2 }); });
+        .then(function(value) { value.should.eql({a: 1, b: 2}); });
     });
 
     it('works for Buffer values', function() {
@@ -68,7 +68,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     });
 
     it('honours options.ttl', function() {
-      return CacheItem.set('a-key', 'a-value', { ttl: 10 })
+      return CacheItem.set('a-key', 'a-value', {ttl: 10})
       .delay(20)
       .then(function() { return CacheItem.get('a-key'); })
       .then(function(value) { should.equal(value, null); });
@@ -90,7 +90,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
 
     describe('set', function() {
       it('resets TTL timer', function() {
-        return CacheItem.set('a-key', 'a-value', { ttl: 10 })
+        return CacheItem.set('a-key', 'a-value', {ttl: 10})
           .then(function() {
             return CacheItem.set('a-key', 'another-value'); // no TTL
           })

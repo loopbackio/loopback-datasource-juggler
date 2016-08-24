@@ -3,6 +3,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+'use strict';
+
 var ValidationError = require('../..').ValidationError;
 
 var contextTestHelpers = require('../helpers/context-test-helpers');
@@ -17,7 +19,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
     var ctxRecorder, hookMonitor, expectedError;
     beforeEach(function setupHelpers() {
       ctxRecorder = new ContextRecorder('hook not called');
-      hookMonitor = new HookMonitor({ includeModelName: true });
+      hookMonitor = new HookMonitor({includeModelName: true});
       expectedError = new Error('test error');
     });
 
@@ -26,9 +28,9 @@ module.exports = function(dataSource, should, connectorCapabilities) {
     beforeEach(function setupDatabase() {
       Embedded = dataSource.createModel('Embedded', {
         // Set id.generated to false to honor client side values
-        id: { type: String, id: true, generated: false, default: uid.next },
-        name: { type: String, required: true },
-        extra: { type: String, required: false },
+        id: {type: String, id: true, generated: false, default: uid.next},
+        name: {type: String, required: true},
+        extra: {type: String, required: false},
       });
 
       Owner = dataSource.createModel('Owner', {});
@@ -52,7 +54,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           ownerInstance = inst;
         })
         .then(function() {
-          var item = new Embedded({ name: 'created' });
+          var item = new Embedded({name: 'created'});
           return ownerInstance.embeddedItem.create(item).then(function(it) {
             existingItem = it;
           });
@@ -63,7 +65,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
     });
 
     function callUpdate() {
-      return ownerInstance.embeddedItem.update({ name: 'updated' });
+      return ownerInstance.embeddedItem.update({name: 'updated'});
     }
 
     it('triggers hooks in the correct order', function() {
@@ -115,7 +117,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       Embedded.observe('before save', invalidateEmbeddedModel);
       return callUpdate().then(throwShouldHaveFailed, function(err) {
         err.should.be.instanceOf(ValidationError);
-        (err.details.codes || {}).should.eql({ name: ['presence'] });
+        (err.details.codes || {}).should.eql({name: ['presence']});
       });
     });
 

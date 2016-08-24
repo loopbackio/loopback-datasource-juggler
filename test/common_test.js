@@ -3,6 +3,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
+'use strict';
+
 var Schema = require('../index').Schema;
 var Text = Schema.Text;
 
@@ -98,45 +100,45 @@ function testOrm(dataSource) {
   it('should define class', function(test) {
 
     User = dataSource.define('User', {
-      name: { type: String, index: true },
-      email: { type: String, index: true },
+      name: {type: String, index: true},
+      email: {type: String, index: true},
       bio: Text,
       approved: Boolean,
       joinedAt: Date,
       age: Number,
-      passwd: { type: String, index: true },
+      passwd: {type: String, index: true},
     });
 
     Dog = dataSource.define('Dog', {
-      name: { type: String, limit: 64, allowNull: false },
+      name: {type: String, limit: 64, allowNull: false},
     });
 
     Log = dataSource.define('Log', {
-      ownerId: { type: Number, allowNull: true },
-      name: { type: String, limit: 64, allowNull: false },
+      ownerId: {type: Number, allowNull: true},
+      name: {type: String, limit: 64, allowNull: false},
     });
 
-    Log.belongsTo(Dog, { as: 'owner', foreignKey: 'ownerId' });
+    Log.belongsTo(Dog, {as: 'owner', foreignKey: 'ownerId'});
 
     dataSource.extendModel('User', {
-      settings: { type: Schema.JSON },
+      settings: {type: Schema.JSON},
       extra: Object,
     });
 
-    var newuser = new User({ settings: { hey: 'you' }});
+    var newuser = new User({settings: {hey: 'you'}});
     test.ok(newuser.settings);
 
     Post = dataSource.define('Post', {
-      title: { type: String, length: 255, index: true },
-      subject: { type: String },
-      content: { type: Text },
-      date: { type: Date, default: function() {
+      title: {type: String, length: 255, index: true},
+      subject: {type: String},
+      content: {type: Text},
+      date: {type: Date, default: function() {
         return new Date;
-      }, index: true },
-      published: { type: Boolean, default: false, index: true },
+      }, index: true},
+      published: {type: Boolean, default: false, index: true},
       likes: [],
       related: [RelatedPost],
-    }, { table: 'posts' });
+    }, {table: 'posts'});
 
     function RelatedPost() {
     }
@@ -149,7 +151,7 @@ function testOrm(dataSource) {
       process.nextTick(done);
     });
 
-    User.hasMany(Post, { as: 'posts', foreignKey: 'userId' });
+    User.hasMany(Post, {as: 'posts', foreignKey: 'userId'});
     // creates instance methods:
     // user.posts(conds)
     // user.posts.build(data) // like new Post({userId: user.id});
@@ -164,7 +166,7 @@ function testOrm(dataSource) {
     // user.latestPost.build(data)
     // user.latestPost.create(data)
 
-    Post.belongsTo(User, { as: 'author', foreignKey: 'userId' });
+    Post.belongsTo(User, {as: 'author', foreignKey: 'userId'});
     // creates instance methods:
     // post.author(callback) -- getter when called with function
     // post.author() -- sync getter when called without params
@@ -174,8 +176,8 @@ function testOrm(dataSource) {
       number: String,
     });
 
-    Passport.belongsTo(User, { as: 'owner', foreignKey: 'ownerId' });
-    User.hasMany(Passport, { as: 'passports', foreignKey: 'ownerId' });
+    Passport.belongsTo(User, {as: 'owner', foreignKey: 'ownerId'});
+    User.hasMany(Passport, {as: 'passports', foreignKey: 'ownerId'});
 
     var user = new User;
 
@@ -202,8 +204,8 @@ function testOrm(dataSource) {
   it('should initialize object properly', function(test) {
     var hw = 'Hello word',
       now = Date.now(),
-      post = new Post({ title: hw }),
-      anotherPost = Post({ title: 'Resig style constructor' });
+      post = new Post({title: hw}),
+      anotherPost = Post({title: 'Resig style constructor'});
 
     test.equal(post.title, hw);
     test.ok(!post.propertyChanged('title'), 'property changed: title');
@@ -235,7 +237,7 @@ function testOrm(dataSource) {
         test.equal(obj.title, title2);
         test.ok(!obj.propertyChanged('title'));
 
-        var p = new Post({ title: 1 });
+        var p = new Post({title: 1});
         p.title = 2;
         p.save(function(err, obj) {
           test.ok(!p.propertyChanged('title'));
@@ -272,7 +274,7 @@ function testOrm(dataSource) {
   });
 
   it('should save only dataSource-defined field in database', function(test) {
-    Post.create({ title: '1602', nonSchemaField: 'some value' }, function(err, post) {
+    Post.create({title: '1602', nonSchemaField: 'some value'}, function(err, post) {
       test.ok(!post.nonSchemaField);
       post.a = 1;
       post.save(function() {
@@ -303,7 +305,7 @@ function testOrm(dataSource) {
 
   it('should not re-instantiate object on saving', function(test) {
     var title = 'Initial title';
-    var post = new Post({ title: title });
+    var post = new Post({title: title});
     post.save(function(err, savedPost) {
       test.strictEqual(post, savedPost);
       test.done();
@@ -363,7 +365,7 @@ function testOrm(dataSource) {
   // });
 
   it('should update single attribute', function(test) {
-    Post.create({ title: 'title', content: 'content', published: true }, function(err, post) {
+    Post.create({title: 'title', content: 'content', published: true}, function(err, post) {
       post.content = 'New content';
       post.updateAttribute('title', 'New title', function() {
         test.equal(post.title, 'New title');
@@ -396,8 +398,8 @@ function testOrm(dataSource) {
 
   it('should find records filtered with multiple attributes', function(test) {
     var d = new Date;
-    Post.create({ title: 'title', content: 'content', published: true, date: d }, function(err, post) {
-      Post.all({ where: { title: 'title', date: d, published: true }}, function(err, res) {
+    Post.create({title: 'title', content: 'content', published: true, date: d}, function(err, post) {
+      Post.all({where: {title: 'title', date: d, published: true}}, function(err, res) {
         test.equals(res.length, 1, 'Filtering Posts returns one post');
         test.done();
       });
@@ -445,9 +447,9 @@ function testOrm(dataSource) {
 
   it('should navigate variations of belongsTo regardless of column name', function(test) {
 
-    Dog.create({ name: 'theDog' }, function(err, obj) {
+    Dog.create({name: 'theDog'}, function(err, obj) {
       test.ok(obj instanceof Dog);
-      Log.create({ name: 'theLog', ownerId: obj.id }, function(err, obj) {
+      Log.create({name: 'theLog', ownerId: obj.id}, function(err, obj) {
         test.ok(obj instanceof Log);
         obj.owner(function(err, obj) {
           test.ok(!err, 'Should not have an error.'); // Before cba174b this would be 'Error: Permission denied'
@@ -472,7 +474,7 @@ function testOrm(dataSource) {
 
     User.create(function(e, u) {
       u.posts.create({}, function(e, p) {
-        u.posts({ where: { id: p.id }}, function(e, posts) {
+        u.posts({where: {id: p.id}}, function(e, posts) {
           test.equal(posts.length, 1, 'There should be only 1 post.');
           test.done();
         });
@@ -495,7 +497,7 @@ function testOrm(dataSource) {
           // We could get the user with belongs to relationship but it is better if there is no interactions.
           User.findById(post.userId, function(err, user) {
             User.create(function(err, voidUser) {
-              Post.create({ userId: user.id }, function() {
+              Post.create({userId: user.id}, function() {
 
                 // There can't be any concurrency because we are counting requests
                 // We are first testing cases when user has posts
@@ -509,7 +511,7 @@ function testOrm(dataSource) {
                     if (dataSource.name === 'mongodb') { // for the moment mongodb doesn\'t support additional conditions on hasMany relations (see above)
                       test.done();
                     } else {
-                      user.posts({ where: { id: data[0].id }}, function(err, data) {
+                      user.posts({where: {id: data[0].id}}, function(err, data) {
                         test.equal(data.length, 1, 'There should be only one post.');
                         requestsAreCounted && test.equal(nbInitialRequests + 1, nbSchemaRequests, 'There should be one additional request since we added conditions.');
 
@@ -561,7 +563,7 @@ function testOrm(dataSource) {
     var wait = 2;
 
     test.ok(Post.scope, 'Scope supported');
-    Post.scope('published', { where: { published: true }});
+    Post.scope('published', {where: {published: true}});
     test.ok(typeof Post.published === 'function');
     test.ok(Post.published._scope.where.published === true);
     var post = Post.published.build();
@@ -599,12 +601,12 @@ function testOrm(dataSource) {
 
   it('should handle ORDER clause', function(test) {
     var titles = [
-      { title: 'Title A', subject: 'B' },
-      { title: 'Title Z', subject: 'A' },
-      { title: 'Title M', subject: 'C' },
-      { title: 'Title A', subject: 'A' },
-      { title: 'Title B', subject: 'A' },
-      { title: 'Title C', subject: 'D' },
+      {title: 'Title A', subject: 'B'},
+      {title: 'Title Z', subject: 'A'},
+      {title: 'Title M', subject: 'C'},
+      {title: 'Title A', subject: 'A'},
+      {title: 'Title B', subject: 'A'},
+      {title: 'Title C', subject: 'D'},
     ];
     var isRedis = Post.dataSource.name === 'redis';
     var dates = isRedis ? [5, 9, 0, 17, 10, 9] : [
@@ -616,7 +618,7 @@ function testOrm(dataSource) {
       new Date(1000 * 9),
     ];
     titles.forEach(function(t, i) {
-      Post.create({ title: t.title, subject: t.subject, date: dates[i] }, done);
+      Post.create({title: t.title, subject: t.subject, date: dates[i]}, done);
     });
 
     var i = 0, tests = 0;
@@ -645,7 +647,7 @@ function testOrm(dataSource) {
 
     function doStringTest() {
       tests += 1;
-      Post.all({ order: 'title' }, function(err, posts) {
+      Post.all({order: 'title'}, function(err, posts) {
         if (err) console.log(err);
         test.equal(posts.length, 6);
         titles.sort(compare).forEach(function(t, i) {
@@ -657,7 +659,7 @@ function testOrm(dataSource) {
 
     function doNumberTest() {
       tests += 1;
-      Post.all({ order: 'date' }, function(err, posts) {
+      Post.all({order: 'date'}, function(err, posts) {
         if (err) console.log(err);
         test.equal(posts.length, 6);
         dates.sort(numerically).forEach(function(d, i) {
@@ -670,7 +672,7 @@ function testOrm(dataSource) {
 
     function doFilterAndSortTest() {
       tests += 1;
-      Post.all({ where: { date: new Date(1000 * 9) }, order: 'title', limit: 3 }, function(err, posts) {
+      Post.all({where: {date: new Date(1000 * 9)}, order: 'title', limit: 3}, function(err, posts) {
         if (err) console.log(err);
         console.log(posts.length);
         test.equal(posts.length, 2, 'Exactly 2 posts returned by query');
@@ -685,7 +687,7 @@ function testOrm(dataSource) {
 
     function doFilterAndSortReverseTest() {
       tests += 1;
-      Post.all({ where: { date: new Date(1000 * 9) }, order: 'title DESC', limit: 3 }, function(err, posts) {
+      Post.all({where: {date: new Date(1000 * 9)}, order: 'title DESC', limit: 3}, function(err, posts) {
         if (err) console.log(err);
         test.equal(posts.length, 2, 'Exactly 2 posts returned by query');
         ['Title Z', 'Title C'].forEach(function(t, i) {
@@ -699,7 +701,7 @@ function testOrm(dataSource) {
 
     function doMultipleSortTest() {
       tests += 1;
-      Post.all({ order: 'title ASC, subject ASC' }, function(err, posts) {
+      Post.all({order: 'title ASC, subject ASC'}, function(err, posts) {
         if (err) console.log(err);
         test.equal(posts.length, 6);
         test.equal(posts[0].title, 'Title A');
@@ -713,7 +715,7 @@ function testOrm(dataSource) {
 
     function doMultipleReverseSortTest() {
       tests += 1;
-      Post.all({ order: 'title ASC, subject DESC' }, function(err, posts) {
+      Post.all({order: 'title ASC, subject DESC'}, function(err, posts) {
         if (err) console.log(err);
         test.equal(posts.length, 6);
         test.equal(posts[0].title, 'Title A');
@@ -893,7 +895,7 @@ function testOrm(dataSource) {
     User.destroyAll(function() {
       emails.forEach(function(email) {
         wait += 1;
-        User.create({ email: email, name: 'Nick' }, done);
+        User.create({email: email, name: 'Nick'}, done);
       });
     });
     var tests = 2;
@@ -908,7 +910,7 @@ function testOrm(dataSource) {
     }
 
     function doSortTest() {
-      User.all({ order: 'email ASC', where: { name: 'Nick' }}, function(err, users) {
+      User.all({order: 'email ASC', where: {name: 'Nick'}}, function(err, users) {
         var _emails = emails.sort();
         users.forEach(function(user, i) {
           test.equal(_emails[i], user.email, 'ASC sorting');
@@ -918,7 +920,7 @@ function testOrm(dataSource) {
     }
 
     function doReverseSortTest() {
-      User.all({ order: 'email DESC', where: { name: 'Nick' }}, function(err, users) {
+      User.all({order: 'email DESC', where: {name: 'Nick'}}, function(err, users) {
         var _emails = emails.sort().reverse();
         users.forEach(function(user, i) {
           test.equal(_emails[i], user.email, 'DESC sorting');
@@ -936,7 +938,7 @@ function testOrm(dataSource) {
     Post.create(function(err, post) {
       var id = post.id;
       test.ok(post.published === false);
-      post.updateAttributes({ title: 'hey', published: true }, function() {
+      post.updateAttributes({title: 'hey', published: true}, function() {
         Post.find(id, function(err, post) {
           test.ok(!!post.published, 'Update boolean field');
           test.ok(post.id);
@@ -947,7 +949,7 @@ function testOrm(dataSource) {
   });
 
   it('should handle belongsTo correctly', function(test) {
-    var passport = new Passport({ ownerId: 16 });
+    var passport = new Passport({ownerId: 16});
     // sync getter
     test.equal(passport.owner(), 16);
     // sync setter
@@ -960,14 +962,14 @@ function testOrm(dataSource) {
     test.expect(4);
     Post.findOne(function(err, post) {
       test.ok(post && post.id);
-      Post.findOne({ where: { title: 'hey' }}, function(err, post) {
+      Post.findOne({where: {title: 'hey'}}, function(err, post) {
         if (err) {
           console.log(err);
           return test.done();
         }
         test.equal(post && post.constructor.modelName, 'Post');
         test.equal(post && post.title, 'hey');
-        Post.findOne({ where: { title: 'not exists' }}, function(err, post) {
+        Post.findOne({where: {title: 'not exists'}}, function(err, post) {
           test.ok(post === null);
           test.done();
         });
@@ -1050,7 +1052,7 @@ function testOrm(dataSource) {
           }
           test.equal(newData.title, post.toObject().title);
           test.equal(newData.content, post.toObject().content);
-          Post.updateOrCreate({ id: 100001, title: 'hey' }, function(err, post) {
+          Post.updateOrCreate({id: 100001, title: 'hey'}, function(err, post) {
             if (dataSource.name !== 'mongodb') test.equal(post.id, 100001);
             test.equal(post.title, 'hey');
             Post.findById(post.id, function(err, post) {
@@ -1067,18 +1069,18 @@ function testOrm(dataSource) {
     User.setter.passwd = function(pass) {
       this._passwd = pass + 'salt';
     };
-    var u = new User({ passwd: 'qwerty' });
+    var u = new User({passwd: 'qwerty'});
     test.equal(u.passwd, 'qwertysalt');
     u.save(function(err, user) {
       User.findById(user.id, function(err, user) {
         test.ok(user !== u);
         test.equal(user.passwd, 'qwertysalt');
-        User.all({ where: { passwd: 'qwertysalt' }}, function(err, users) {
+        User.all({where: {passwd: 'qwertysalt'}}, function(err, users) {
           test.ok(users[0] !== user);
           test.equal(users[0].passwd, 'qwertysalt');
-          User.create({ passwd: 'asalat' }, function(err, usr) {
+          User.create({passwd: 'asalat'}, function(err, usr) {
             test.equal(usr.passwd, 'asalatsalt');
-            User.upsert({ passwd: 'heyman' }, function(err, us) {
+            User.upsert({passwd: 'heyman'}, function(err, us) {
               test.equal(us.passwd, 'heymansalt');
               User.findById(us.id, function(err, user) {
                 test.equal(user.passwd, 'heymansalt');
@@ -1093,14 +1095,14 @@ function testOrm(dataSource) {
 
   it('should work with typed and untyped nested collections', function(test) {
     var post = new Post;
-    var like = post.likes.push({ foo: 'bar' });
+    var like = post.likes.push({foo: 'bar'});
     test.equal(like.constructor.name, 'ListItem');
-    var related = post.related.push({ hello: 'world' });
+    var related = post.related.push({hello: 'world'});
     test.ok(related.someMethod);
     post.save(function(err, p) {
       test.equal(p.likes.nextid, 2);
-      p.likes.push({ second: 2 });
-      p.likes.push({ third: 3 });
+      p.likes.push({second: 2});
+      p.likes.push({third: 3});
       p.save(function(err) {
         Post.findById(p.id, function(err, pp) {
           test.equal(pp.likes.length, 3);
@@ -1129,11 +1131,11 @@ function testOrm(dataSource) {
 
   it('should find or create', function(test) {
     var email = 'some email ' + Math.random();
-    User.findOrCreate({ where: { email: email }}, function(err, u, created) {
+    User.findOrCreate({where: {email: email}}, function(err, u, created) {
       test.ok(u);
       test.ok(!u.age);
       test.ok(created);
-      User.findOrCreate({ where: { email: email }}, { age: 21 }, function(err, u2, created) {
+      User.findOrCreate({where: {email: email}}, {age: 21}, function(err, u2, created) {
         test.equals(u.id.toString(), u2.id.toString(), 'Same user ids');
         test.ok(!u2.age);
         test.ok(!created);
