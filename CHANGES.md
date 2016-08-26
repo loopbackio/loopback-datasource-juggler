@@ -1,3 +1,19 @@
+2016-08-26, Version 2.50.0
+==========================
+
+ * test/memory: remove dummy findOrCreate impl (Miroslav Bajtoš)
+
+ * Implement `notify` for find method (Amir Jafarian)
+
+ * kvao: implement key filter (Miroslav Bajtoš)
+
+ * kvao: add iterateKeys() and keys() (Miroslav Bajtoš)
+
+ * Globalize KeyValue Memory connector (Simon Ho)
+
+ * test: Rename KVAO get test suite (Simon Ho)
+
+
 2016-08-16, Version 2.49.0
 ==========================
 
