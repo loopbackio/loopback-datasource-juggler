@@ -1,3 +1,31 @@
+2016-08-26, Version 3.0.0-alpha.7
+=================================
+
+ * test/memory: remove dummy findOrCreate impl (Miroslav Bajtoš)
+
+ * Fix CI introduced by `use strict` (Amir Jafarian)
+
+ * Fix manually (Amir Jafarian)
+
+ * Auto-update by eslint --fix (Amir Jafarian)
+
+ * Update eslint (Amir Jafarian)
+
+ * kvao: implement key filter (Miroslav Bajtoš)
+
+ * kvao: add iterateKeys() and keys() (Miroslav Bajtoš)
+
+ * Globalize KeyValue Memory connector (Simon Ho)
+
+ * upsertWithWhere feature support in juggler DAO (Sonali Samantaray)
+
+ * Fix typo (Amir Jafarian)
+
+ * Rename get test suite to match other test suites (Simon Ho)
+
+ * Add TTL for KeyValue related features (Simon Ho)
+
+
 2016-08-11, Version 3.0.0-alpha.6
 =================================
 
