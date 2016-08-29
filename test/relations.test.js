@@ -3666,7 +3666,7 @@ describe('relations', function() {
       p.isNewRecord().should.be.true;
       p.passportItem.create({name: 'Fredric'}, function(err, passport) {
         should.not.exist(err);
-        p.passport.should.equal(passport);
+        p.passport.toObject().should.eql({name: 'Fredric'});
         p.isNewRecord().should.be.false;
         done();
       });
@@ -3790,7 +3790,7 @@ describe('relations', function() {
           return Person.findById(personId);
         })
         .then(function(person) {
-          person.passportItem().toObject().should.eql({name: 'Jim'});
+          person.passportItem().toObject().should.eql({name: 'Mitsos'});
           // restore original hasPk
           Passport.definition.hasPK = originalHasPK;
           done();
