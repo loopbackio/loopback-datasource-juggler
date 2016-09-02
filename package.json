@@ -33,7 +33,7 @@
   "devDependencies": {
     "async-iterators": "^0.2.2",
     "bluebird": "^2.9.9",
-    "eslint": "^2.5.3",
+    "eslint": "^2.9.0",
     "eslint-config-loopback": "^2.0.0",
     "mocha": "^2.1.0",
     "should": "^8.0.2"
@@ -42,7 +42,6 @@
     "async": "~1.0.0",
     "debug": "^2.1.1",
     "depd": "^1.0.0",
-    "eslint": "^2.9.0",
     "inflection": "^1.6.0",
     "loopback-connector": "^2.1.0",
     "minimatch": "^3.0.3",
