@@ -36,7 +36,8 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     });
 
     it('returns error when expiring a key that has expired', function() {
-      return CacheItem.set('expired-key', 'a-value', 1).delay(20)
+      return Promise.resolve(CacheItem.set('expired-key', 'a-value', 1))
+        .delay(20)
         .then(function() { return CacheItem.expire('expired-key', 1000); })
         .then(
           function() { throw new Error('expire() should have failed'); },
