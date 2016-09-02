@@ -3029,7 +3029,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         });
 
         TestModel.upsertWithWhere({id: existingInstance.id},
-          {id: 'ignored', name: 'new name'},
+          {name: 'new name'},
           function(err, instance) {
             if (err) return done(err);
             hookMonitor.names.should.eql(['access', 'before save']);
@@ -3095,7 +3095,12 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                },
              });
              if (!dataSource.connector.upsertWithWhere) {
-               expectedContext.currentInstance = existingInstance;
+               // the difference between `existingInstance` and the following
+               // plain-data object is `currentInstance` the missing fields are
+               // null in `currentInstance`, wehere as in `existingInstance` they
+               // are undefined; please see other tests for example see:
+               // test for "PersistedModel.create triggers `persist` hook"
+               expectedContext.currentInstance = {id: existingInstance.id, name: 'first', extra: null};
              }
              ctxRecorder.records.should.eql(expectedContext);
              done();
@@ -3109,12 +3114,14 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           {id: 'new-id', name: 'a name'},
           function(err, instance) {
             if (err) return done(err);
-            var expectedContext = aCtxForModel(TestModel, {
-              where: {id: 'new-id'},
-              data: {id: 'new-id', name: 'a name'},
-            });
-            if (!dataSource.connector.upsertWithWhere) {
-              ctxRecorder.records.should.eql(expectedContext.isNewInstance = true);
+            var expectedContext = aCtxForModel(TestModel, {});
+
+            if (dataSource.connector.upsertWithWhere) {
+              expectedContext.data = {id: 'new-id', name: 'a name'};
+              expectedContext.where = {id: 'new-id'};
+            } else {
+              expectedContext.instance = {id: 'new-id', name: 'a name', extra: null};
+              expectedContext.isNewInstance = true;
             }
             ctxRecorder.records.should.eql(expectedContext);
             done();
@@ -3186,15 +3193,22 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           {id: 'new-id', name: 'a name'},
           function(err, instance) {
             if (err) return done(err);
-            ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-              where: {id: 'new-id'},
+
+            var expectedContext = aCtxForModel(TestModel, {
               data: {id: 'new-id', name: 'a name'},
               currentInstance: {
                 id: 'new-id',
                 name: 'a name',
                 extra: undefined,
               },
-            }));
+            });
+            if (dataSource.connector.upsertWithWhere) {
+              expectedContext.where = {id: 'new-id'};
+            } else {
+              expectedContext.isNewInstance = true;
+            }
+
+            ctxRecorder.records.should.eql(expectedContext);
             done();
           });
       });
@@ -3248,13 +3262,19 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           {id: existingInstance.id, name: 'updated name'},
           function(err, instance) {
             if (err) return done(err);
-            ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
+            var expectedContext = aCtxForModel(TestModel, {
               data: {
                 id: existingInstance.id,
                 name: 'updated name',
               },
-              isNewInstance: false,
-            }));
+            });
+            // For non-atomic implementation of upsertWithWhere on update, it calls
+            // updateAttributes. loaded hook of updateAttributes does not provide
+            // isNewInstance.
+            if (dataSource.connector.upsertWithWhere) {
+              expectedContext.isNewInstance = false;
+            }
+            ctxRecorder.records.should.eql(aCtxForModel(TestModel, expectedContext));
             done();
           });
       });
