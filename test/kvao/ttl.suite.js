@@ -11,55 +11,54 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
       CacheItem = helpers.givenCacheItem(dataSourceFactory);
     });
 
-    it('returns an error when key does not exist', function() {
+    it('gets TTL when key with unexpired TTL exists - Promise API',
+    function() {
+      return Promise.resolve(
+          CacheItem.set('a-key', 'a-value', {ttl: 1000}))
+        .delay(1)
+        .then(function() { return CacheItem.ttl('a-key'); })
+        .then(function(ttl) { ttl.should.be.within(1, 1000); });
+    });
+
+    it('gets TTL when key with unexpired TTL exists - Callback API',
+    function() {
+      CacheItem.set('a-key', 'a-value', {ttl: 1000}, function(err) {
+        if (err) return done(err);
+        CacheItem.ttl('a-key', function(err, ttl) {
+          if (err) return done(err);
+          ttl.should.be.within(1, 1000);
+          done();
+        });
+      });
+    });
+
+    it('succeeds when key without TTL exists', function() {
+      return CacheItem.set('a-key', 'a-value')
+        .then(function() { return CacheItem.ttl('a-key'); })
+        .then(function(ttl) { should.not.exist(ttl); });
+    });
+
+    it('fails when getting TTL for a key with expired TTL', function() {
+      return Promise.resolve(
+          CacheItem.set('expired-key', 'a-value', {ttl: 10})).delay(20)
+        .then(function() {
+          return CacheItem.ttl('expired-key');
+        })
+        .then(
+          function() { throw new Error('ttl() should have failed'); },
+          function(err) {
+            err.message.should.match(/expired-key/);
+            err.should.have.property('statusCode', 404);
+          });
+    });
+
+    it('fails when key does not exist', function() {
       return CacheItem.ttl('key-does-not-exist').then(
         function() { throw new Error('ttl() should have failed'); },
         function(err) {
           err.message.should.match(/key-does-not-exist/);
           err.should.have.property('statusCode', 404);
         });
-    });
-
-    it('returns `undefined` when key does not expire', function() {
-      return CacheItem.set('a-key', 'a-value')
-        .then(function() { return CacheItem.ttl('a-key'); })
-        .then(function(ttl) { should.not.exist(ttl); });
-    });
-
-    context('existing key with expire before expiration time', function() {
-      it('returns ttl - Callback API', function(done) {
-        CacheItem.set('a-key', 'a-value', 10, function(err) {
-          if (err) return done(err);
-          CacheItem.ttl('a-key', function(err, ttl) {
-            if (err) return done(err);
-            ttl.should.be.within(0, 10);
-            done();
-          });
-        });
-      });
-
-      it('returns ttl - Promise API', function() {
-        return CacheItem.set('a-key', 'a-value', 10)
-          .delay(1)
-          .then(function() { return CacheItem.ttl('a-key'); })
-          .then(function(ttl) { ttl.should.be.within(0, 10); });
-      });
-    });
-
-    context('existing key with expire after expiration time', function(done) {
-      it('returns an error', function() {
-        return CacheItem.set('key-does-not-exist', 'a-value', 10)
-          .delay(20)
-          .then(function() {
-            return CacheItem.ttl('key-does-not-exist');
-          })
-          .then(
-            function() { throw new Error('ttl() should have failed'); },
-            function(err) {
-              err.message.should.match(/key-does-not-exist/);
-              err.should.have.property('statusCode', 404);
-            });
-      });
     });
   });
 };
