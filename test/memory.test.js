@@ -528,7 +528,7 @@ describe('Memory connector', function() {
       });
     });
 
-    it('should support multi level nested array property in query', function(done) {
+    it('should support multi-level nested array property in query', function(done) {
       User.find({ where: { 'address.tags.tag': 'business' }}, function(err, users) {
         should.not.exist(err);
         users.length.should.be.equal(1);
