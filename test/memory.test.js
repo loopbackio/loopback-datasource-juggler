@@ -869,26 +869,21 @@ describe('Memory connector', function() {
 describe('Optimized connector', function() {
   var ds = new DataSource({ connector: Memory });
 
-  // optimized methods
-  ds.connector.findOrCreate = function(model, query, data, callback) {
-    this.all(model, query, {}, function(err, list) {
-      if (err || (list && list[0])) return callback(err, list && list[0], false);
-      this.create(model, data, {}, function(err) {
-        callback(err, data, true);
-      });
-    }.bind(this));
-  };
-
-  require('./persistence-hooks.suite')(ds, should, { replaceOrCreateReportsNewInstance: true });
+  require('./persistence-hooks.suite')(ds, should, {
+    replaceOrCreateReportsNewInstance: true,
+  });
 });
 
 describe('Unoptimized connector', function() {
   var ds = new DataSource({ connector: Memory });
+
   // disable optimized methods
   ds.connector.updateOrCreate = false;
   ds.connector.findOrCreate = false;
 
-  require('./persistence-hooks.suite')(ds, should, { replaceOrCreateReportsNewInstance: true });
+  require('./persistence-hooks.suite')(ds, should, {
+    replaceOrCreateReportsNewInstance: true,
+  });
 });
 
 describe('Memory connector with options', function() {

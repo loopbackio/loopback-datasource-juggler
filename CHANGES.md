@@ -1,3 +1,55 @@
+2016-08-26, Version 2.50.0
+==========================
+
+ * test/memory: remove dummy findOrCreate impl (Miroslav Bajtoš)
+
+ * Implement `notify` for find method (Amir Jafarian)
+
+ * kvao: implement key filter (Miroslav Bajtoš)
+
+ * kvao: add iterateKeys() and keys() (Miroslav Bajtoš)
+
+ * Globalize KeyValue Memory connector (Simon Ho)
+
+ * test: Rename KVAO get test suite (Simon Ho)
+
+
+2016-08-16, Version 2.49.0
+==========================
+
+ * Fix error message for missing global.Promise (Miroslav Bajtoš)
+
+ * Add TTL for KeyValue related features (Simon Ho)
+
+ * test/kvao: setup global.Promise on Node v0.10 (Miroslav Bajtoš)
+
+ * kv-memory: fix crash in regular cleanup (Miroslav Bajtoš)
+
+ * Backport globalization (Amir Jafarian)
+
+
+2016-08-09, Version 2.48.0
+==========================
+
+ * Return error if connector does not implement (Amir Jafarian)
+
+ * kvao: return 404 when expiring unknown key (Miroslav Bajtoš)
+
+ * Update doc for `validatesFormatOf` (Amir Jafarian)
+
+ * Implement KeyValue API and memory connector (Miroslav Bajtoš)
+
+ * Fix test case typo (Amir Jafarian)
+
+ * Remove unused variables in model.js (Amir Jafarian)
+
+ * Add test for updateOrCreate (Amir Jafarian)
+
+ * Declare `definition` (Amir Jafarian)
+
+ * Add test to catch invalid date property (Supasate Choochaisri)
+
+
 2016-07-14, Version 2.47.0
 ==========================
 

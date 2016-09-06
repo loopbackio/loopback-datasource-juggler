@@ -12,3 +12,6 @@ docs/man
 npm-debug.log
 .project
 test/memory.json
+intl/*
+!intl/en/
+
