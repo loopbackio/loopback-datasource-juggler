@@ -544,41 +544,83 @@ describe('manipulation', function() {
         });
     });
 
-    it('should ignore unknown attributes when strict: true', function(done) {
-      // Using {foo: 'bar'} only causes dependent test failures due to the
-      // stripping of object properties when in strict mode (ie. {foo: 'bar'}
-      // changes to '{}' and breaks other tests
-      person.updateAttributes({name: 'John', foo: 'bar'},
-        function(err, p) {
-          if (err) return done(err);
-          should.not.exist(p.foo);
-          Person.findById(p.id, function(e, p) {
-            if (e) return done(e);
-            should.not.exist(p.foo);
-            done();
-          });
+    it('should discard undefined values before strict validation',
+      function(done) {
+        Person.definition.settings.strict = true;
+        Person.findById(person.id, function(err, p) {
+          p.updateAttributes({name: 'John', unknownVar: undefined},
+            function(err, p) {
+              // if uknownVar was defined, it would return validationError
+              if (err) return done(err);
+              Person.findById(p.id, function(e, p) {
+                if (e) return done(e);
+                p.name.should.equal('John');
+                p.should.not.have.property('unknownVar');
+                done();
+              });
+            });
         });
-    });
+      });
 
-    it('should throw error on unknown attributes when strict: throw', function(done) {
+    it('should allow unknown attributes when strict: false',
+      function(done) {
+        Person.definition.settings.strict = false;
+        Person.findById(person.id, function(err, p) {
+          p.updateAttributes({name: 'John', foo: 'bar'},
+            function(err, p) {
+              if (err) return done(err);
+              p.should.have.property('foo');
+              done();
+            });
+        });
+      });
+
+    // Prior to version 3.0 `strict: true` used to silently remove unknown properties,
+    // now return validationError upon unknown properties
+    it('should return error on unknown attributes when strict: true',
+      function(done) {
+        // Using {foo: 'bar'} only causes dependent test failures due to the
+        // stripping of object properties when in strict mode (ie. {foo: 'bar'}
+        // changes to '{}' and breaks other tests
+        Person.definition.settings.strict = true;
+        Person.findById(person.id, function(err, p) {
+          p.updateAttributes({name: 'John', foo: 'bar'},
+            function(err, p) {
+              should.exist(err);
+              err.name.should.equal('ValidationError');
+              err.message.should.containEql('`foo` is not defined in the model');
+              p.should.not.have.property('foo');
+              Person.findById(p.id, function(e, p) {
+                if (e) return done(e);
+                p.should.not.have.property('foo');
+                done();
+              });
+            });
+        });
+      });
+
+    // strict: throw is deprecated, use strict: true instead
+    // which returns Validation Error for unknown properties
+    it('should fallback to strict:true when using strict: throw', function(done) {
       Person.definition.settings.strict = 'throw';
       Person.findById(person.id, function(err, p) {
         p.updateAttributes({foo: 'bar'},
           function(err, p) {
             should.exist(err);
-            err.name.should.equal('Error');
-            err.message.should.equal('Unknown property: foo');
-            should.not.exist(p);
+            err.name.should.equal('ValidationError');
+            err.message.should.containEql('`foo` is not defined in the model');
             Person.findById(person.id, function(e, p) {
               if (e) return done(e);
-              should.not.exist(p.foo);
+              p.should.not.have.property('foo');
               done();
             });
           });
       });
     });
 
-    it('should throw error on unknown attributes when strict: throw', function(done) {
+    // strict: validate is deprecated, use strict: true instead
+    // behavior remains the same as before, because validate is now default behavior
+    it('should fallback to strict:true when using strict:validate', function(done) {
       Person.definition.settings.strict = 'validate';
       Person.findById(person.id, function(err, p) {
         p.updateAttributes({foo: 'bar'},
@@ -588,7 +630,7 @@ describe('manipulation', function() {
             err.message.should.containEql('`foo` is not defined in the model');
             Person.findById(person.id, function(e, p) {
               if (e) return done(e);
-              should.not.exist(p.foo);
+              p.should.not.have.property('foo');
               done();
             });
           });

@@ -192,6 +192,7 @@ describe('datatypes', function() {
       TestModel = db.define(
         'TestModel',
         {
+          name: {type: String, required: false},
           desc: {type: String, required: false},
           stars: {type: Number, required: false},
         },
@@ -220,12 +221,12 @@ describe('datatypes', function() {
 
     it('should convert property value undefined to null', function(done) {
       var EXPECTED = {desc: null, extra: null};
+      var data = {desc: undefined, extra: undefined};
       if (isStrict) {
         // SQL-based connectors don't support dynamic properties
         delete EXPECTED.extra;
+        delete data.extra;
       }
-
-      var data = {desc: undefined, extra: undefined};
       TestModel.create(data, function(err, created) {
         if (err) return done(err);
 
