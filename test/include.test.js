@@ -269,9 +269,10 @@ describe('include', function() {
           if (err) return done(err);
 
           var passport = user.passports()[0];
-          passport.id.should.equal(1);
-          passport.ownerId.should.equal(1);
-          passport.number.should.equal('1');
+          // eql instead of equal because mongo uses object id type
+          passport.id.should.eql(createdPassports[0].id);
+          passport.ownerId.should.eql(createdPassports[0].ownerId);
+          passport.number.should.eql(createdPassports[0].number);
 
           done();
         });
@@ -284,8 +285,8 @@ describe('include', function() {
             scope: {
               where: {
                 and: [
-                  {id: 1},
-                  {userId: 1},
+                  {id: createdPosts[0].id},
+                  {userId: createdPosts[0].userId},
                   {title: 'Post A'},
                 ],
               },
@@ -296,13 +297,14 @@ describe('include', function() {
 
           user.name.should.equal('User A');
           user.age.should.equal(21);
-          user.id.should.equal(1);
+          user.id.should.eql(createdUsers[0].id);
           var posts = user.posts();
           posts.length.should.equal(1);
           var post = posts[0];
           post.title.should.equal('Post A');
-          post.userId.should.equal(1);
-          post.id.should.equal(1);
+          // eql instead of equal because mongo uses object id type
+          post.userId.should.eql(createdPosts[0].userId);
+          post.id.should.eql(createdPosts[0].id);
 
           done();
         });
@@ -337,7 +339,7 @@ describe('include', function() {
           if (err) return done(err);
 
           var ids = user.posts().map(function(p) { return p.id; });
-          ids.should.eql([2, 3]);
+          ids.should.eql([createdPosts[1].id, createdPosts[2].id]);
 
           done();
         });
@@ -355,7 +357,7 @@ describe('include', function() {
           if (err) return done(err);
 
           var ids = user.posts().map(function(p) { return p.id; });
-          ids.should.eql([2, 3]);
+          ids.should.eql([createdPosts[1].id, createdPosts[2].id]);
 
           done();
         });
@@ -368,7 +370,11 @@ describe('include', function() {
 
           var posts = user.posts();
           var ids = posts.map(function(p) { return p.id; });
-          ids.should.eql([1, 2, 3]);
+          ids.should.eql([
+            createdPosts[0].id,
+            createdPosts[1].id,
+            createdPosts[2].id,
+          ]);
 
           done();
         });
@@ -428,11 +434,13 @@ describe('include', function() {
 
           user.name.should.equal('User A');
           user.age.should.equal(21);
-          user.id.should.equal(1);
+          // eql instead of equal because mongo uses object id type
+          user.id.should.eql(createdUsers[0].id);
           var profile = user.profile();
           profile.profileName.should.equal('Profile A');
-          profile.userId.should.equal(1);
-          profile.id.should.equal(1);
+          // eql instead of equal because mongo uses object id type
+          profile.userId.should.eql(createdProfiles[0].userId);
+          profile.id.should.eql(createdProfiles[0].id);
 
           done();
         });
@@ -444,7 +452,8 @@ describe('include', function() {
 
           user.name.should.equal('User A');
           user.age.should.equal(21);
-          user.id.should.equal(1);
+          // eql instead of equal because mongo uses object id type
+          user.id.should.eql(createdUsers[0].id);
           user.posts().length.should.equal(3);
 
           done();
@@ -478,18 +487,18 @@ describe('include', function() {
                   patient.address(address);
                   patient.save(function() {
                     physician.patients({include: 'address'},
-                      function(err, posts) {
-                        if (err) return done(err);
+                        function(err, patients) {
+                          if (err) return done(err);
 
-                        posts.should.be.an.instanceOf(Array).and.have.length(1);
-                        var p = posts[0];
-                        p.name.should.equal('a');
-                        p.addressId.should.equal(1);
-                        p.address().id.should.equal(1);
-                        p.address().name.should.equal('z');
+                          patients.should.have.length(1);
+                          var p = patients[0];
+                          p.name.should.equal('a');
+                          p.addressId.should.eql(patient.addressId);
+                          p.address().id.should.eql(address.id);
+                          p.address().name.should.equal('z');
 
-                        done();
-                      });
+                          done();
+                        });
                   });
                 });
               });
@@ -502,12 +511,12 @@ describe('include', function() {
           if (err) return done(err);
 
           profile.profileName.should.equal('Profile A');
-          profile.userId.should.equal(1);
-          profile.id.should.equal(1);
+          profile.userId.should.eql(createdProfiles[0].userId);
+          profile.id.should.eql(createdProfiles[0].id);
           var user = profile.user();
           user.name.should.equal('User A');
           user.age.should.equal(21);
-          user.id.should.equal(1);
+          user.id.should.eql(createdUsers[0].id);
 
           done();
         });
@@ -946,6 +955,10 @@ describe('include', function() {
   });
 });
 
+var createdUsers = [];
+var createdPassports = [];
+var createdProfiles = [];
+var createdPosts = [];
 function setup(done) {
   db = getSchema();
   City = db.define('City');
@@ -991,10 +1004,6 @@ function setup(done) {
   Part.hasAndBelongsToMany(Assembly);
 
   db.automigrate(function() {
-    var createdUsers = [];
-    var createdPassports = [];
-    var createdProfiles = [];
-    var createdPosts = [];
     createUsers();
     function createUsers() {
       clearAndCreate(
