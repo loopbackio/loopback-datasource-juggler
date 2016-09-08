@@ -21,7 +21,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     });
 
     it('gets TTL when key with unexpired TTL exists - Callback API',
-    function() {
+    function(done) {
       CacheItem.set('a-key', 'a-value', { ttl: 1000 }, function(err) {
         if (err) return done(err);
         CacheItem.ttl('a-key', function(err, ttl) {
