@@ -1119,7 +1119,7 @@ describe('manipulation', function() {
           p.replaceAttributes({title: 'b'}, function(err, data) {
             if (err) return done(err);
             Post._warned.cannotOverwritePKInBeforeSaveHook.should.equal(true);
-            data.id.should.equal(postInstance.id);
+            data.id.should.eql(postInstance.id);
             done();
           });
         });
@@ -1154,7 +1154,7 @@ describe('manipulation', function() {
           p.replaceAttributes({title: 'b'}, function(err, data) {
             if (err) return done(err);
             Post._warned.cannotOverwritePKInLoadedHook.should.equal(true);
-            data.id.should.equal(postInstance.id);
+            data.id.should.eql(postInstance.id);
             done();
           });
         });
