@@ -1,3 +1,21 @@
+2016-09-08, Version 3.0.0-alpha.8
+=================================
+
+ * Add missing "done" arg in test/kvao/ttl.suite (Miroslav Bajtoš)
+
+ * Support nested queries for arrays (pponugo)
+
+ * Refactor TTL tests for KV memory connector (Simon Ho)
+
+ * Fix test case for expire (Simon Ho)
+
+ * Fix failures of upsertWithWhere (Amir Jafarian)
+
+ * Remove expired item before executing expire (Simon Ho)
+
+ * Disable `strict` for a few files (Amir Jafarian)
+
+
 2016-08-26, Version 3.0.0-alpha.7
 =================================
 
