@@ -723,7 +723,7 @@ describe('manipulation', function() {
         });
     });
 
-    it('updates specific instances when PK is not an auto-generated id', function(done) {
+    it.skip('updates specific instances when PK is not an auto-generated id', function(done) {
       Post.create([
         { title: 'postA', content: 'contentA' },
         { title: 'postB', content: 'contentB' },
