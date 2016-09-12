@@ -1,3 +1,21 @@
+2016-09-12, Version 2.51.0
+==========================
+
+ * Add missing "done" arg in test/kvao/ttl.suite (Miroslav Bajtoš)
+
+ * Support nested queries for arrays (pponugo)
+
+ * Remove expired item before executing expire (Simon Ho)
+
+ * Fix failures for connectors (Amir Jafarian)
+
+ * upsertWithWhere feature support in juggler DAO (Sonali Samantaray)
+
+ * Remove ESLint from dependencies (Simon Ho)
+
+ * Refactor TTL test suite (Simon Ho)
+
+
 2016-08-26, Version 2.50.0
 ==========================
 
