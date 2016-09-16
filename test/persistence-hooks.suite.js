@@ -777,29 +777,16 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           {name: 'new-record'},
           function(err, instance) {
             if (err) return done(err);
-
-            if (dataSource.connector.findOrCreate) {
-              instance.should.have.property('extra', 'hook data');
-            } else {
-              // Unoptimized connector gives a call to `create. And during
-              // create the updates applied through persist hook are
-              // reflected into the database, but the same updates are
-              // NOT reflected in the instance object obtained in callback
-              // of create.
-              // So, this test asserts unoptimized connector to
-              // NOT have `extra` property. And then verifes that the
-              // property `extra` is actually updated in DB
-              instance.should.not.have.property('extra', 'hook data');
-              TestModel.findById(instance.id, function(err, dbInstance) {
-                if (err) return done(err);
-                should.exists(dbInstance);
-                dbInstance.toObject(true).should.eql({
-                  id: instance.id,
-                  name: instance.name,
-                  extra: 'hook data',
-                });
+            instance.should.have.property('extra', 'hook data');
+            TestModel.findById(instance.id, function(err, dbInstance) {
+              if (err) return done(err);
+              should.exists(dbInstance);
+              dbInstance.toObject(true).should.eql({
+                id: instance.id,
+                name: instance.name,
+                extra: 'hook data',
               });
-            }
+            });
             done();
           });
       });
