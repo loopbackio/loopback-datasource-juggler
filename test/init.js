@@ -32,3 +32,7 @@ if (!('getModelBuilder' in global)) {
     return new ModelBuilder();
   };
 }
+
+if (!('connectorCapabilities' in global)) {
+  global.connectorCapabilities = {};
+}
