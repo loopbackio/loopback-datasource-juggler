@@ -35,3 +35,7 @@ if (!('getModelBuilder' in global)) {
 if (!('Promise' in global)) {
   global.Promise = require('bluebird');
 }
+
+if (!('connectorCapabilities' in global)) {
+  global.connectorCapabilities = {};
+}
