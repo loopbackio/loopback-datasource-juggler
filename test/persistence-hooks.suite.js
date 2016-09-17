@@ -1360,6 +1360,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
             data: {name: 'changed'},
+            isNewInstance: false,
           }));
 
           done();
@@ -2039,25 +2040,13 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           {id: existingInstance.id, name: 'updated name'},
           function(err, instance) {
             if (err) return done(err);
-
-            if (dataSource.connector.updateOrCreate) {
-              ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-                data: {
-                  id: existingInstance.id,
-                  name: 'updated name',
-                },
-                isNewInstance: false,
-              }));
-            } else {
-              ctxRecorder.records.should.eql(
-                aCtxForModel(TestModel, {
-                  data: {
-                    id: existingInstance.id,
-                    name: 'updated name',
-                  },
-                })
-              );
-            }
+            ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
+              data: {
+                id: existingInstance.id,
+                name: 'updated name',
+              },
+              isNewInstance: false,
+            }));
             done();
           });
       });
@@ -3267,13 +3256,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 id: existingInstance.id,
                 name: 'updated name',
               },
+              isNewInstance: false,
             });
-            // For non-atomic implementation of upsertWithWhere on update, it calls
-            // updateAttributes. loaded hook of updateAttributes does not provide
-            // isNewInstance.
-            if (dataSource.connector.upsertWithWhere) {
-              expectedContext.isNewInstance = false;
-            }
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, expectedContext));
             done();
           });
