@@ -880,6 +880,7 @@ describe('Unoptimized connector', function() {
   // disable optimized methods
   ds.connector.updateOrCreate = false;
   ds.connector.findOrCreate = false;
+  ds.connector.upsertWithWhere = false;
 
   require('./persistence-hooks.suite')(ds, should, {
     replaceOrCreateReportsNewInstance: true,
