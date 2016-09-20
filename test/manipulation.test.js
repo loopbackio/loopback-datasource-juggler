@@ -12,6 +12,7 @@ var db, Person;
 var ValidationError = require('..').ValidationError;
 
 var UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+var SHORTID_REGEXP = /^[0-9a-z_\-]{7,14}$/i;
 
 describe('manipulation', function() {
 
@@ -1675,7 +1676,7 @@ describe('manipulation', function() {
         db.automigrate('CustomModel5', done);
       });
 
-      it('should generate a new id when "defaultfn" is "uuid"', function(done) {
+      it('should generate a new id when "defaultFn" is "uuid"', function(done) {
         var inst = CustomModel.create(function(err, m) {
           should.not.exists(err);
           m.guid.should.match(UUID_REGEXP);
@@ -1694,10 +1695,29 @@ describe('manipulation', function() {
         db.automigrate('CustomModel5', done);
       });
 
-      it('should generate a new id when "defaultfn" is "uuidv4"', function(done) {
+      it('should generate a new id when "defaultFn" is "uuidv4"', function(done) {
         var inst = CustomModel.create(function(err, m) {
           should.not.exists(err);
           m.guid.should.match(UUID_REGEXP);
+          done();
+        });
+      });
+    });
+
+    describe('shortid defaultFn', function() {
+      var CustomModel;
+
+      before(function(done) {
+        CustomModel = db.define('CustomModel6', {
+          shortid: {type: String, defaultFn: 'shortid'},
+        });
+        db.automigrate('CustomModel6', done);
+      });
+
+      it('should generate a new id when "defaultFn" is "shortid"', function(done) {
+        var inst = CustomModel.create(function(err, m) {
+          should.not.exists(err);
+          m.shortid.should.match(SHORTID_REGEXP);
           done();
         });
       });
