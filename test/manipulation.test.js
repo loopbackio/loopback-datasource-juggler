@@ -12,7 +12,6 @@ var db, Person;
 var ValidationError = require('..').ValidationError;
 
 var UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-var SHORTID_REGEXP = /^[0-9a-z_\-]{7,14}$/i;
 
 describe('manipulation', function() {
 
@@ -1715,9 +1714,11 @@ describe('manipulation', function() {
       });
 
       it('should generate a new id when "defaultFn" is "shortid"', function(done) {
-        var inst = CustomModel.create(function(err, m) {
-          should.not.exists(err);
-          m.shortid.should.match(SHORTID_REGEXP);
+        var SHORTID_REGEXP = /^[0-9a-z_\-]{7,14}$/i;
+
+        CustomModel.create(function(err, customModel) {
+          if (err) return done(err);
+          customModel.shortid.should.match(SHORTID_REGEXP);
           done();
         });
       });
