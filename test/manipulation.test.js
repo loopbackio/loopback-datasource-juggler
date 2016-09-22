@@ -1675,7 +1675,7 @@ describe('manipulation', function() {
         db.automigrate('CustomModel5', done);
       });
 
-      it('should generate a new id when "defaultFn" is "uuid"', function(done) {
+      it('should generate a new id when "defaultfn" is "uuid"', function(done) {
         var inst = CustomModel.create(function(err, m) {
           should.not.exists(err);
           m.guid.should.match(UUID_REGEXP);
@@ -1694,7 +1694,7 @@ describe('manipulation', function() {
         db.automigrate('CustomModel5', done);
       });
 
-      it('should generate a new id when "defaultFn" is "uuidv4"', function(done) {
+      it('should generate a new id when "defaultfn" is "uuidv4"', function(done) {
         var inst = CustomModel.create(function(err, m) {
           should.not.exists(err);
           m.guid.should.match(UUID_REGEXP);
@@ -1704,24 +1704,24 @@ describe('manipulation', function() {
     });
 
     describe('shortid defaultFn', function() {
-      var ModelWithShortid;
-
-      before(function(done) {
-        ModelWithShortid = db.define('ModelWithShortid', {
-          shortid: {type: String, defaultFn: 'shortid'},
-        });
-        db.automigrate('ModelWithShortid', done);
-      });
+      var ModelWithShortId;
+      before(createModelWithShortId);
 
       it('should generate a new id when "defaultFn" is "shortid"', function(done) {
         var SHORTID_REGEXP = /^[0-9a-z_\-]{7,14}$/i;
-
-        ModelWithShortid.create(function(err, modelWithShortid) {
+        ModelWithShortId.create(function(err, modelWithShortId) {
           if (err) return done(err);
-          modelWithShortid.shortid.should.match(SHORTID_REGEXP);
+          modelWithShortId.shortid.should.match(SHORTID_REGEXP);
           done();
         });
       });
+
+      function createModelWithShortId(cb) {
+        ModelWithShortId = db.define('ModelWithShortId', {
+          shortid: {type: String, defaultFn: 'shortid'},
+        });
+        db.automigrate('ModelWithShortId', cb);
+      }
     });
 
     // it('should work when constructor called as function', function() {
