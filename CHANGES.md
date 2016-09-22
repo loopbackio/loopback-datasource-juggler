@@ -1,3 +1,21 @@
+2016-09-22, Version 3.0.0
+=========================
+
+ * Describe the change of forceId (jannyHou)
+
+ * Add translation files (Amir Jafarian)
+
+ * Add 'isNewInstance' for updateAttributes (Amir Jafarian)
+
+ * Strict mode now always return validationError (David Cheung)
+
+ * Add docs for KVAO (Simon Ho)
+
+ * Skip test temporarily (Loay)
+
+ * Fix BSON Object ID errors for CI (Simon Ho)
+
+
 2016-09-08, Version 3.0.0-alpha.8
 =================================
 
