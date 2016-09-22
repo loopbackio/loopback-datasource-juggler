@@ -1704,21 +1704,21 @@ describe('manipulation', function() {
     });
 
     describe('shortid defaultFn', function() {
-      var CustomModel;
+      var ModelWithShortid;
 
       before(function(done) {
-        CustomModel = db.define('CustomModel6', {
+        ModelWithShortid = db.define('ModelWithShortid', {
           shortid: {type: String, defaultFn: 'shortid'},
         });
-        db.automigrate('CustomModel6', done);
+        db.automigrate('ModelWithShortid', done);
       });
 
       it('should generate a new id when "defaultFn" is "shortid"', function(done) {
         var SHORTID_REGEXP = /^[0-9a-z_\-]{7,14}$/i;
 
-        CustomModel.create(function(err, customModel) {
+        ModelWithShortid.create(function(err, modelWithShortid) {
           if (err) return done(err);
-          customModel.shortid.should.match(SHORTID_REGEXP);
+          modelWithShortid.shortid.should.match(SHORTID_REGEXP);
           done();
         });
       });
