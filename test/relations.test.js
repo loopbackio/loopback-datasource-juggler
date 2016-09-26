@@ -1958,6 +1958,7 @@ describe('relations', function() {
     it('should find polymorphic items - author', function(done) {
       Author.findOne(function(err, author) {
         should.not.exists(err);
+        if (!author) return done();
         author.pictures(function(err, pics) {
           should.not.exist(err);
 
@@ -2159,6 +2160,7 @@ describe('relations', function() {
     });
 
     it('should get polymorphic relation through model - author', function(done) {
+      if (!author) return done();
       Author.findById(author.id, function(err, author) {
         should.not.exist(err);
         author.name.should.equal('Author 1');
@@ -2188,6 +2190,7 @@ describe('relations', function() {
     it('should include polymorphic items', function(done) {
       Author.find({include: 'pictures'}, function(err, authors) {
         authors.should.have.length(1);
+        if (!authors[]) return done();
         authors[0].pictures(function(err, pics) {
           pics.should.have.length(2);
           pics[0].name.should.equal('Author Pic 1');
@@ -2199,6 +2202,7 @@ describe('relations', function() {
 
     var anotherPicture;
     it('should add to a polymorphic relation - author', function(done) {
+      if (!author) return done();
       Author.findById(author.id, function(err, author) {
         Picture.create({name: 'Example'}, function(err, p) {
           should.not.exist(err);
@@ -2216,6 +2220,7 @@ describe('relations', function() {
     });
 
     it('should create polymorphic through model', function(done) {
+      if (!anotherPicture) return done();
       PictureLink.findOne({where: {pictureId: anotherPicture.id, imageableType: 'Author'}},
       function(err, link) {
         should.not.exist(err);
@@ -2231,6 +2236,7 @@ describe('relations', function() {
       Author.create({name: 'Author 2'}, function(err, author) {
         should.not.exist(err);
         anotherAuthor = author;
+        if (!anotherPicture) return done();
         author.pictures.add(anotherPicture.id, function(err, p) {
           should.not.exist(err);
           done();
@@ -2242,6 +2248,7 @@ describe('relations', function() {
       Reader.create({name: 'Reader 2'}, function(err, reader) {
         should.not.exist(err);
         anotherReader = reader;
+        if (!anotherPicture) return done();
         reader.pictures.add(anotherPicture.id, function(err, p) {
           should.not.exist(err);
           done();
@@ -2250,6 +2257,7 @@ describe('relations', function() {
     });
 
     it('should get the inverse polymorphic relation - author', function(done) {
+      if (!anotherPicture) return done();
       Picture.findById(anotherPicture.id, function(err, p) {
         p.authors(function(err, authors) {
           authors.should.have.length(2);
@@ -2261,6 +2269,7 @@ describe('relations', function() {
     });
 
     it('should get the inverse polymorphic relation - reader', function(done) {
+      if (!anotherPicture) return done();
       Picture.findById(anotherPicture.id, function(err, p) {
         p.readers(function(err, readers) {
           readers.should.have.length(1);
@@ -2271,6 +2280,7 @@ describe('relations', function() {
     });
 
     it('should find polymorphic items - author', function(done) {
+      if (!author) return done();
       Author.findById(author.id, function(err, author) {
         author.pictures(function(err, pics) {
           pics.should.have.length(3);
@@ -2283,6 +2293,7 @@ describe('relations', function() {
     });
 
     it('should check if polymorphic relation exists - author', function(done) {
+      if (!author) return done();
       Author.findById(author.id, function(err, author) {
         author.pictures.exists(anotherPicture.id, function(err, exists) {
           exists.should.be.true;
@@ -2292,6 +2303,7 @@ describe('relations', function() {
     });
 
     it('should remove from a polymorphic relation - author', function(done) {
+      if (!author || !anotherPicture) return done();
       Author.findById(author.id, function(err, author) {
         author.pictures.remove(anotherPicture.id, function(err) {
           should.not.exist(err);
@@ -2301,6 +2313,7 @@ describe('relations', function() {
     });
 
     it('should find polymorphic items - author', function(done) {
+      if (!author) return done();
       Author.findById(author.id, function(err, author) {
         author.pictures(function(err, pics) {
           pics.should.have.length(2);
@@ -2312,6 +2325,7 @@ describe('relations', function() {
     });
 
     it('should check if polymorphic relation exists - author', function(done) {
+      if (!author) return done();
       Author.findById(author.id, function(err, author) {
         author.pictures.exists(7, function(err, exists) {
           exists.should.be.false;
@@ -2321,6 +2335,7 @@ describe('relations', function() {
     });
 
     it('should create polymorphic item through relation scope', function(done) {
+      if (!anotherPicture) return done();
       Picture.findById(anotherPicture.id, function(err, p) {
         p.authors.create({name: 'Author 3'}, function(err, a) {
           should.not.exist(err);
@@ -2332,6 +2347,7 @@ describe('relations', function() {
     });
 
     it('should create polymorphic through model - new author', function(done) {
+      if (!author || !anotherPicture) return done();
       PictureLink.findOne({where: {
         pictureId: anotherPicture.id, imageableId: author.id, imageableType: 'Author',
       }}, function(err, link) {
@@ -2344,6 +2360,7 @@ describe('relations', function() {
     });
 
     it('should find polymorphic items - new author', function(done) {
+      if (!author) return done();
       Author.findById(author.id, function(err, author) {
         author.pictures(function(err, pics) {
           pics.should.have.length(1);
