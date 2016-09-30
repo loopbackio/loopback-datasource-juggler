@@ -35,6 +35,15 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
         .then(function(value) { should.equal(value, null); });
     });
 
+    it('sets key ttl when an object with ttl property is provided as the ' +
+    'second argument', function() {
+      return CacheItem.set('a-key', 'a-value')
+        .then(function() { return CacheItem.expire('a-key', {ttl: 1}); })
+        .delay(20)
+        .then(function() { return CacheItem.get('a-key'); })
+        .then(function(value) { should.equal(value, null); });
+    });
+
     it('returns error when expiring a key that has expired', function() {
       return Promise.resolve(CacheItem.set('expired-key', 'a-value', 1))
         .delay(20)
