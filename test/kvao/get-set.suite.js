@@ -5,6 +5,8 @@ var helpers = require('./_helpers');
 var Promise = require('bluebird');
 
 module.exports = function(dataSourceFactory, connectorCapabilities) {
+  var TTL_PRECISION = connectorCapabilities.ttlPrecision;
+
   describe('get/set', function() {
     var CacheItem;
     beforeEach(function unpackContext() {
@@ -68,8 +70,8 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     });
 
     it('honours options.ttl', function() {
-      return CacheItem.set('a-key', 'a-value', {ttl: 10})
-      .delay(20)
+      return CacheItem.set('a-key', 'a-value', {ttl: TTL_PRECISION})
+      .delay(2 * TTL_PRECISION)
       .then(function() { return CacheItem.get('a-key'); })
       .then(function(value) { should.equal(value, null); });
     });
@@ -79,22 +81,22 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
         return CacheItem.get('key-does-not-exist')
           .then(function(value) { should.equal(value, null); });
       });
-
-      it('converts numeric options arg to options.ttl', function() {
-        return CacheItem.set('a-key', 'a-value', 10)
-          .delay(20)
-          .then(function() { return CacheItem.get('a-key'); })
-          .then(function(value) { should.equal(value, null); });
-      });
     });
 
     describe('set', function() {
+      it('converts numeric options arg to options.ttl', function() {
+        return CacheItem.set('a-key', 'a-value', TTL_PRECISION)
+          .delay(2 * TTL_PRECISION)
+          .then(function() { return CacheItem.get('a-key'); })
+          .then(function(value) { should.equal(value, null); });
+      });
+
       it('resets TTL timer', function() {
-        return CacheItem.set('a-key', 'a-value', {ttl: 10})
+        return CacheItem.set('a-key', 'a-value', {ttl: TTL_PRECISION})
           .then(function() {
             return CacheItem.set('a-key', 'another-value'); // no TTL
           })
-          .delay(20)
+          .delay(2 * TTL_PRECISION)
           .then(function() { return CacheItem.get('a-key'); })
           .then(function(value) { should.equal(value, 'another-value'); });
       });

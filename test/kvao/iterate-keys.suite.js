@@ -1,13 +1,16 @@
 'use strict';
 
 var asyncIterators = require('async-iterators');
+var bdd = require('../helpers/bdd-if');
 var helpers = require('./_helpers');
 var Promise = require('bluebird');
 var should = require('should');
 var toArray = Promise.promisify(asyncIterators.toArray);
 
 module.exports = function(dataSourceFactory, connectorCapabilities) {
-  describe('iterateKeys', function() {
+  var canIterateKeys = connectorCapabilities.canIterateKeys !== false;
+
+  bdd.describeIf(canIterateKeys, 'iterateKeys', function() {
     var CacheItem;
     beforeEach(function unpackContext() {
       CacheItem = helpers.givenCacheItem(dataSourceFactory);
