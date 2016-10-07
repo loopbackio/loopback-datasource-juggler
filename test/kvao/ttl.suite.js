@@ -1,11 +1,25 @@
 'use strict';
 
+var bdd = require('../helpers/bdd-if');
 var should = require('should');
 var helpers = require('./_helpers');
 var Promise = require('bluebird');
 
 module.exports = function(dataSourceFactory, connectorCapabilities) {
-  describe('ttl', function() {
+  var TTL_PRECISION = connectorCapabilities.ttlPrecision;
+
+  // Use ~1s for stores with precision of 1 ms,
+  // about 3s for stores with precision of 1s.
+  var INITIAL_TTL = Math.max(TTL_PRECISION + 1000, TTL_PRECISION * 3);
+
+  // A small delay to allow the backend to process the request, run any
+  // TTL/expire checks, etc. Use 1ms for backends supporting sub-10ms
+  // resolution to ensure the delay is not too short..
+  var SMALL_DELAY = Math.max(1, Math.floor(TTL_PRECISION / 10));
+
+  var canQueryTtl = connectorCapabilities.canQueryTtl !== false;
+
+  bdd.describeIf(canQueryTtl, 'ttl', function() {
     var CacheItem;
     beforeEach(function unpackContext() {
       CacheItem = helpers.givenCacheItem(dataSourceFactory);
@@ -14,19 +28,19 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     it('gets TTL when key with unexpired TTL exists - Promise API',
     function() {
       return Promise.resolve(
-          CacheItem.set('a-key', 'a-value', { ttl: 1000 }))
-        .delay(1)
+          CacheItem.set('a-key', 'a-value', { ttl: INITIAL_TTL }))
+        .delay(SMALL_DELAY)
         .then(function() { return CacheItem.ttl('a-key'); })
-        .then(function(ttl) { ttl.should.be.within(1, 1000); });
+        .then(function(ttl) { ttl.should.be.within(1, INITIAL_TTL); });
     });
 
     it('gets TTL when key with unexpired TTL exists - Callback API',
     function(done) {
-      CacheItem.set('a-key', 'a-value', { ttl: 1000 }, function(err) {
+      CacheItem.set('a-key', 'a-value', { ttl: INITIAL_TTL }, function(err) {
         if (err) return done(err);
         CacheItem.ttl('a-key', function(err, ttl) {
           if (err) return done(err);
-          ttl.should.be.within(1, 1000);
+          ttl.should.be.within(1, INITIAL_TTL);
           done();
         });
       });
@@ -40,7 +54,8 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
 
     it('fails when getting TTL for a key with expired TTL', function() {
       return Promise.resolve(
-          CacheItem.set('expired-key', 'a-value', { ttl: 10 })).delay(20)
+          CacheItem.set('expired-key', 'a-value', { ttl: TTL_PRECISION }))
+        .delay(2 * TTL_PRECISION)
         .then(function() {
           return CacheItem.ttl('expired-key');
         })
