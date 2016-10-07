@@ -5,7 +5,10 @@ var Promise = require('bluebird');
 var should = require('should');
 
 module.exports = function(dataSourceFactory, connectorCapabilities) {
-  describe('keys', function() {
+  var desc = connectorCapabilities.canIterateKeys === false ?
+    describe.skip.bind(describe) : describe;
+
+  desc('keys', function() {
     var CacheItem;
     beforeEach(function unpackContext() {
       CacheItem = helpers.givenCacheItem(dataSourceFactory);
