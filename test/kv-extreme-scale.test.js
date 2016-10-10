@@ -15,12 +15,23 @@ function createDataSource() {
 
 describe('ExtremeScale connector', function() {
   this.timeout(10000);
+
+  beforeEach(clearDatabase);
+
   describe('Juggler API', function() {
     require('./kvao.suite')(createDataSource, {
-      canIterateKeys: false,
       canExpire: false,
       canQueryTtl: false,
       ttlPrecision: 1000,
     });
   });
+
+  function clearDatabase(cb) {
+    var ds = createDataSource();
+    var requestOptions = {
+      method: 'DELETE',
+      uri: '',
+    };
+    ds.connector.request(requestOptions, cb);
+  };
 });
