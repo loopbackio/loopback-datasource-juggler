@@ -17,6 +17,7 @@ describe('ExtremeScale connector', function() {
   this.timeout(10000);
   describe('Juggler API', function() {
     require('./kvao.suite')(createDataSource, {
+      canIterateKeys: false,
       canExpire: false,
       canQueryTtl: false,
       ttlPrecision: 1000,
