@@ -1,3 +1,25 @@
+2016-10-13, Version 2.52.0
+==========================
+
+ * Support {defaultFn: 'shortid'} (#1110) (Simon Ho)
+
+ * Add ilike and nilike operators (#1136) (Simon Ho)
+
+ * Fix JSdoc (Amir Jafarian)
+
+ * Update ja translation file (Candy)
+
+ * Update translation files - round#2 (Candy)
+
+ * Add 'isNewInstance' for updateAttributes (Amir Jafarian)
+
+ * Add globalization strings (Amir Jafarian)
+
+ * Add docs for KVAO (Simon Ho)
+
+ * Skip test temporarily (Loay)
+
+
 2016-09-12, Version 2.51.0
 ==========================
 
