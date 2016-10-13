@@ -1,3 +1,9 @@
+2016-10-13, Version 2.53.0
+==========================
+
+ * Fix bug when near filter is used (Amir Jafarian)
+
+
 2016-10-13, Version 2.52.0
 ==========================
 
