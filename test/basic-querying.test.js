@@ -461,6 +461,62 @@ describe('basic-querying', function() {
       });
     });
 
+    var itWhenIlikeSupported = connectorCapabilities.ilike ? it : it.skip.bind(it);
+
+    itWhenIlikeSupported('should support "like" that is satisfied', function(done) {
+      User.find({ where: { name: { like: 'John' }}}, function(err, users) {
+        if (err) return done(err);
+        users.length.should.equal(1);
+        users[0].name.should.equal('John Lennon');
+        done();
+      });
+    });
+
+    itWhenIlikeSupported('should support "like" that is not satisfied', function(done) {
+      User.find({ where: { name: { like: 'Bob' }}}, function(err, users) {
+        if (err) return done(err);
+        users.length.should.equal(0);
+        done();
+      });
+    });
+
+    var itWhenNilikeSupported = connectorCapabilities.nilike ? it : it.skip.bind(it);
+
+    itWhenNilikeSupported('should support "nlike" that is satisfied', function(done) {
+      User.find({ where: { name: { nlike: 'John' }}}, function(err, users) {
+        if (err) return done(err);
+        users.length.should.equal(5);
+        users[0].name.should.equal('Paul McCartney');
+        done();
+      });
+    });
+
+    itWhenIlikeSupported('should support "ilike" that is satisfied', function(done) {
+      User.find({ where: { name: { ilike: 'john' }}}, function(err, users) {
+        if (err) return done(err);
+        users.length.should.equal(1);
+        users[0].name.should.equal('John Lennon');
+        done();
+      });
+    });
+
+    itWhenIlikeSupported('should support "ilike" that is not satisfied', function(done) {
+      User.find({ where: { name: { ilike: 'bob' }}}, function(err, users) {
+        if (err) return done(err);
+        users.length.should.equal(0);
+        done();
+      });
+    });
+
+    itWhenNilikeSupported('should support "nilike" that is satisfied', function(done) {
+      User.find({ where: { name: { nilike: 'john' }}}, function(err, users) {
+        if (err) return done(err);
+        users.length.should.equal(5);
+        users[0].name.should.equal('Paul McCartney');
+        done();
+      });
+    });
+
     it('should only include fields as specified', function(done) {
       var remaining = 0;
 
