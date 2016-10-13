@@ -1573,6 +1573,27 @@ describe('manipulation', function() {
       });
     });
 
+    describe('shortid defaultFn', function() {
+      var ModelWithShortId;
+      before(createModelWithShortId);
+
+      it('should generate a new id when "defaultFn" is "shortid"', function(done) {
+        var SHORTID_REGEXP = /^[0-9a-z_\-]{7,14}$/i;
+        ModelWithShortId.create(function(err, modelWithShortId) {
+          if (err) return done(err);
+          modelWithShortId.shortid.should.match(SHORTID_REGEXP);
+          done();
+        });
+      });
+
+      function createModelWithShortId(cb) {
+        ModelWithShortId = db.define('ModelWithShortId', {
+          shortid: { type: String, defaultFn: 'shortid' },
+        });
+        db.automigrate('ModelWithShortId', cb);
+      }
+    });
+
     // it('should work when constructor called as function', function() {
     //     var p = Person({name: 'John Resig'});
     //     p.should.be.an.instanceOf(Person);
