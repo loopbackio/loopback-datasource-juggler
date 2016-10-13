@@ -86,6 +86,19 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           });
       });
 
+      it('triggers correct hooks when near filter is used', function(done) {
+        monitorHookExecution();
+        var query = { where:
+          { location: { near: '10,20', maxDistance: '10', unit: 'meters' }},
+        };
+
+        TestModel.find(query, function(err, list) {
+          if (err) return done(err);
+          hookMonitor.names.should.eql(['access']);
+          done();
+        });
+      });
+
       it('should not trigger hooks, if notify is false', function(done) {
         monitorHookExecution();
         TestModel.find(
