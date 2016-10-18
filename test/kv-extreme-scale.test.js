@@ -14,7 +14,7 @@ function createDataSource() {
 };
 
 describe('ExtremeScale connector', function() {
-  this.timeout(10000);
+  this.timeout(20000);
 
   beforeEach(clearDatabase);
 
@@ -23,6 +23,7 @@ describe('ExtremeScale connector', function() {
       canExpire: false,
       canQueryTtl: false,
       ttlPrecision: 1000,
+      canIterateLargeKeySets: false,
     });
   });
 
