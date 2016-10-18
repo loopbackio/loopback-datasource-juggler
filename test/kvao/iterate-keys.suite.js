@@ -7,7 +7,10 @@ var should = require('should');
 var toArray = Promise.promisify(asyncIterators.toArray);
 
 module.exports = function(dataSourceFactory, connectorCapabilities) {
-  describe('iterateKeys', function() {
+  var desc = connectorCapabilities.canIterateKeys === false ?
+    describe.skip.bind(describe) : describe;
+
+  desc('iterateKeys', function() {
     var CacheItem;
     beforeEach(function unpackContext() {
       CacheItem = helpers.givenCacheItem(dataSourceFactory);
