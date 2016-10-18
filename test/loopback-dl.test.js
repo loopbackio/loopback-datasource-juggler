@@ -1445,6 +1445,16 @@ describe('DataAccessObject', function() {
     assert.deepEqual(where, {or: [{age: 10}, {vip: true}]});
   });
 
+  it('continues to coerce properties after a logical operator', function() {
+    var clause = {and: [{age: '10'}], vip: 'true'};
+
+    // Key order is predictable but not guaranteed. We prefer false negatives (failure) to false positives.
+    assert(Object.keys(clause)[0] === 'and', 'Unexpected key order.');
+
+    where = model._coerce(clause);
+    assert.deepEqual(where, {and: [{age: 10}], vip: true});
+  });
+
   it('should throw if the where property is not an object', function() {
     try {
       // The where clause has to be an object
@@ -1491,6 +1501,20 @@ describe('DataAccessObject', function() {
     try {
       // The or operator only takes an array of objects
       model._coerce({or: ['x']});
+    } catch (err) {
+      error = err;
+    }
+    assert(error, 'An error should have been thrown');
+  });
+
+  it('throws an error when malformed logical operators follow valid logical clauses', function() {
+    var invalid = {and: [{x: 1}], or: 'bogus'};
+
+    // Key order is predictable but not guaranteed. We prefer false negatives (failure) to false positives.
+    assert(Object.keys(invalid)[0] !== 'or', 'Unexpected key order.');
+
+    try {
+      model._coerce(invalid);
     } catch (err) {
       error = err;
     }
