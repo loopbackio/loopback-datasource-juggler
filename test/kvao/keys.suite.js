@@ -58,7 +58,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     });
 
     var largeKeySets = connectorCapabilities.canIterateLargeKeySets !== false;
-    bdd.itIf(canIterateKeys, 'handles large key set', function() {
+    bdd.itIf(largeKeySets, 'handles large key set', function() {
       var expectedKeys = [];
       for (var ix = 0; ix < 1000; ix++)
         expectedKeys.push('key-' + ix);
