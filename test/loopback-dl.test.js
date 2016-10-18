@@ -1476,6 +1476,56 @@ describe('DataAccessObject', function() {
     assert.deepEqual(where, {and: [{age: 10}], vip: true});
   });
 
+  var COERCIONS = [
+    {
+      in: {scores: {0: '10', 1: '20'}},
+      out: {scores: [10, 20]},
+    },
+    {
+      in: {and: {0: {age: '10'}, 1: {vip: 'true'}}},
+      out: {and: [{age: 10}, {vip: true}]},
+    },
+    {
+      in: {or: {0: {age: '10'}, 1: {vip: 'true'}}},
+      out: {or: [{age: 10}, {vip: true}]},
+    },
+    {
+      in: {id: {inq: {0: 'aaa', 1: 'bbb'}}},
+      out: {id: {inq: ['aaa', 'bbb']}},
+    },
+    {
+      in: {id: {nin: {0: 'aaa', 1: 'bbb'}}},
+      out: {id: {nin: ['aaa', 'bbb']}},
+    },
+    {
+      in: {scores: {between: {0: '0', 1: '42'}}},
+      out: {scores: {between: [0, 42]}},
+    },
+  ];
+
+  COERCIONS.forEach(function(coercion) {
+    var inStr = JSON.stringify(coercion.in);
+    it('coerces where clause with array-like objects ' + inStr, function() {
+      assert.deepEqual(model._coerce(coercion.in), coercion.out);
+    });
+  });
+
+  var INVALID_CLAUSES = [
+    {scores: {inq: {0: '10', 1: '20', 4: '30'}}},
+    {scores: {inq: {0: '10', 1: '20', bogus: 'true'}}},
+    {scores: {between: {0: '10', 1: '20', 2: '30'}}},
+  ];
+
+  INVALID_CLAUSES.forEach(function(where) {
+    var whereStr = JSON.stringify(where);
+    it('throws an error on malformed array-like object ' + whereStr,
+    function() {
+      assert.throws(
+        function() { model._coerce(where); },
+        /property has invalid clause/);
+    });
+  });
+
   it('throws an error if the where property is not an object', function() {
     try {
       // The where clause has to be an object
