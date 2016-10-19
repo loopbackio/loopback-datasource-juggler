@@ -31,9 +31,9 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     });
 
     it('works for Object values', function() {
-      return CacheItem.set('a-key', { a: 1, b: 2 })
+      return CacheItem.set('a-key', {a: 1, b: 2})
         .then(function() { return CacheItem.get('a-key'); })
-        .then(function(value) { value.should.eql({ a: 1, b: 2 }); });
+        .then(function(value) { value.should.eql({a: 1, b: 2}); });
     });
 
     it('works for Buffer values', function() {
@@ -70,7 +70,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     });
 
     it('honours options.ttl', function() {
-      return Promise.resolve(CacheItem.set('a-key', 'a-value', { ttl: TTL_PRECISION }))
+      return Promise.resolve(CacheItem.set('a-key', 'a-value', {ttl: TTL_PRECISION}))
       .delay(2 * TTL_PRECISION)
       .then(function() { return CacheItem.get('a-key'); })
       .then(function(value) { should.equal(value, null); });
@@ -92,7 +92,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
       });
 
       it('resets TTL timer', function() {
-        return Promise.resolve(CacheItem.set('a-key', 'a-value', { ttl: TTL_PRECISION }))
+        return Promise.resolve(CacheItem.set('a-key', 'a-value', {ttl: TTL_PRECISION}))
           .then(function() {
             return CacheItem.set('a-key', 'another-value'); // no TTL
           })

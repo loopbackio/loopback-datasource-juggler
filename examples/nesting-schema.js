@@ -38,8 +38,8 @@ var user = new User({
     state: 'CA',
   },
   emails: [
-    { label: 'work', email: 'xyz@sample.com' },
+    {label: 'work', email: 'xyz@sample.com'},
   ],
-  friends: ['John', 'Mary'] });
+  friends: ['John', 'Mary']});
 console.log(user);
 console.log(user.toObject());

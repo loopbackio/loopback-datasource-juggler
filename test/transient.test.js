@@ -18,14 +18,14 @@ var getTransientDataSource = function(settings) {
 describe('Transient connector', function() {
   before(function() {
     db = getTransientDataSource();
-    TransientModel = db.define('TransientModel', {}, { idInjection: false });
+    TransientModel = db.define('TransientModel', {}, {idInjection: false});
 
-    Person = TransientModel.extend('Person', { name: String });
+    Person = TransientModel.extend('Person', {name: String});
     Person.attachTo(db);
 
-    Widget = db.define('Widget', { name: String });
+    Widget = db.define('Widget', {name: String});
     Item = db.define('Item', {
-      id: { type: Number, id: true }, name: String,
+      id: {type: Number, id: true}, name: String,
     });
   });
 
@@ -33,9 +33,9 @@ describe('Transient connector', function() {
     should.not.exist(Person.definition.properties.id);
     should.exist(Person.definition.properties.name);
 
-    Person.create({ name: 'Wilma' }, function(err, inst) {
+    Person.create({name: 'Wilma'}, function(err, inst) {
       should.not.exist(err);
-      inst.toObject().should.eql({ name: 'Wilma' });
+      inst.toObject().should.eql({name: 'Wilma'});
 
       Person.count(function(err, count) {
         should.not.exist(err);
@@ -51,7 +51,7 @@ describe('Transient connector', function() {
 
     Widget.definition.properties.id.type.should.equal(String);
 
-    Widget.create({ name: 'Thing' }, function(err, inst) {
+    Widget.create({name: 'Thing'}, function(err, inst) {
       should.not.exist(err);
       inst.id.should.match(/^[0-9a-fA-F]{24}$/);
       inst.name.should.equal('Thing');
@@ -70,7 +70,7 @@ describe('Transient connector', function() {
 
     Item.definition.properties.id.type.should.equal(Number);
 
-    Item.create({ name: 'Example' }, function(err, inst) {
+    Item.create({name: 'Example'}, function(err, inst) {
       should.not.exist(err);
       inst.name.should.equal('Example');
 
