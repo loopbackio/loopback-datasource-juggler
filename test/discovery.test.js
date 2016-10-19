@@ -2,6 +2,7 @@
 // Node module: loopback-datasource-juggler
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
+'use strict';
 
 var jdb = require('../');
 var DataSource = jdb.DataSource;
@@ -436,7 +437,7 @@ describe('discoverModelProperties', function() {
 
 describe('discoverPrimaryKeys', function() {
   var ds;
-  var modelProperties;
+  var modelProperties, primaryKeys;
   before(function() {
     ds = new DataSource({connector: 'memory'});
 
@@ -496,7 +497,7 @@ describe('discoverPrimaryKeys', function() {
 
 describe('discoverForeignKeys', function() {
   var ds;
-  var modelProperties;
+  var modelProperties, foreignKeys;
   before(function() {
     ds = new DataSource({connector: 'memory'});
 
@@ -553,7 +554,7 @@ describe('discoverForeignKeys', function() {
 
 describe('discoverExportedForeignKeys', function() {
   var ds;
-  var modelProperties;
+  var modelProperties, exportedForeignKeys;
   before(function() {
     ds = new DataSource({connector: 'memory'});
 

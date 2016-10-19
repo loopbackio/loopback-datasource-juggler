@@ -2,6 +2,7 @@
 // Node module: loopback-datasource-juggler
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
+'use strict';
 
 // This test written in mocha+should.js
 var should = require('./init.js');
@@ -3828,7 +3829,7 @@ describe('relations', function() {
     // This test spefically uses the Memory connector
     // in order to test the use of the auto-generated
     // id, in the sequence of the related model.
-
+    var Passport;
     before(function() {
       db = getMemoryDataSource();
       Person = db.define('Person', {name: String});
@@ -3879,6 +3880,7 @@ describe('relations', function() {
   });
 
   describe('embedsOne - generated id', function() {
+    var Passport;
     before(function() {
       tmp = getTransientDataSource();
       // db = getSchema();

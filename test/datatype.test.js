@@ -2,6 +2,7 @@
 // Node module: loopback-datasource-juggler
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
+'use strict';
 
 // This test written in mocha+should.js
 var should = require('./init.js');
@@ -11,7 +12,7 @@ var db, Model;
 describe('datatypes', function() {
   before(function(done) {
     db = getSchema();
-    Nested = db.define('Nested', {});
+    var Nested = db.define('Nested', {});
 
     Model = db.define('Model', {
       str: String,

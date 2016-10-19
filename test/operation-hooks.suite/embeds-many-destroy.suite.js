@@ -2,6 +2,7 @@
 // Node module: loopback-datasource-juggler
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
+'use strict';
 
 var Promise = require('bluebird');
 var ValidationError = require('../..').ValidationError;
@@ -46,7 +47,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       }
     });
 
-    var ownerInstance, existingInstance;
+    var ownerInstance, existingInstance, existingItem;
     beforeEach(function setupData() {
       return Owner.create({})
         .then(function(inst) {

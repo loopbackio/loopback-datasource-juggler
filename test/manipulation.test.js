@@ -2,6 +2,7 @@
 // Node module: loopback-datasource-juggler
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
+'use strict';
 
 // This test written in mocha+should.js
 var async = require('async');
@@ -50,7 +51,7 @@ describe('manipulation', function() {
   });
 
   beforeEach(function resetStubPasswordCounter() {
-    stubPasswordCounter = 0;
+    var stubPasswordCounter = 0;
   });
 
   describe('create', function() {
@@ -1950,7 +1951,7 @@ describe('manipulation', function() {
     });
 
     it('fails the upsertWithWhere operation when data object is empty', function(done) {
-      options = {};
+      var options = {};
       Person.upsertWithWhere({name: 'John Lennon'}, {}, options,
         function(err) {
           err.message.should.equal('data object cannot be empty!');

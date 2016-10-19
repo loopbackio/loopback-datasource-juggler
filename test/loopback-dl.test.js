@@ -2,6 +2,7 @@
 // Node module: loopback-datasource-juggler
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
+'use strict';
 
 // This test written in mocha+should.js
 var should = require('./init.js');
@@ -574,7 +575,7 @@ describe('DataSource define model', function() {
 
   it('should update the instance with unknown properties', function(done) {
     var ds = new DataSource('memory');// define models
-    Post = ds.define('Post', {
+    var Post = ds.define('Post', {
       title: {type: String, length: 255, index: true},
       content: {type: String},
     });
@@ -1558,17 +1559,17 @@ describe('DataAccessObject', function() {
   });
 
   it('should normalize limit/offset/skip', function() {
-    filter = model._normalize({limit: '10', skip: 5});
+    var filter = model._normalize({limit: '10', skip: 5});
     assert.deepEqual(filter, {limit: 10, offset: 5, skip: 5});
   });
 
   it('should set the default value for limit', function() {
-    filter = model._normalize({skip: 5});
+    var filter = model._normalize({skip: 5});
     assert.deepEqual(filter, {limit: 100, offset: 5, skip: 5});
   });
 
   it('should apply settings for handling undefined', function() {
-    filter = model._normalize({filter: {x: undefined}});
+    var filter = model._normalize({filter: {x: undefined}});
     assert.deepEqual(filter, {filter: {}});
 
     ds.settings.normalizeUndefinedInQuery = 'ignore';

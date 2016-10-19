@@ -1,3 +1,5 @@
+'use strict';
+
 var kvMemory = require('../lib/connectors/kv-memory');
 var DataSource = require('..').DataSource;
 
