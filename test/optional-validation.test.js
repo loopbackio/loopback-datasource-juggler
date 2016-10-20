@@ -2,6 +2,7 @@
 // Node module: loopback-datasource-juggler
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
+'use strict';
 
 // This test written in mocha+should.js
 var async = require('async');
@@ -12,25 +13,25 @@ var ValidationError = j.ValidationError;
 
 var INITIAL_NAME = 'Bert';
 var NEW_NAME = 'Ernie';
-var INVALID_DATA = { name: null };
-var VALID_DATA = { name: INITIAL_NAME };
+var INVALID_DATA = {name: null};
+var VALID_DATA = {name: INITIAL_NAME};
 
 describe('optional-validation', function() {
   before(function(done) {
     db = getSchema();
     ModelWithForceId = db.createModel(
     'ModelWithForceId',
-    { name: String },
-    { forceId: true });
+    {name: String},
+    {forceId: true});
     User = db.define('User', {
-      seq: { type: Number, index: true },
-      name: { type: String, index: true, sort: true },
-      email: { type: String, index: true },
-      birthday: { type: Date, index: true },
-      role: { type: String, index: true },
-      order: { type: Number, index: true, sort: true },
-      vip: { type: Boolean },
-    }, { forceId: true, strict: true });
+      seq: {type: Number, index: true},
+      name: {type: String, index: true, sort: true},
+      email: {type: String, index: true},
+      birthday: {type: Date, index: true},
+      role: {type: String, index: true},
+      order: {type: Number, index: true, sort: true},
+      vip: {type: Boolean},
+    }, {forceId: true, strict: true});
     db.automigrate(['ModelWithForceId', 'User'], done);
   });
 
@@ -54,7 +55,7 @@ describe('optional-validation', function() {
   function expectCreateSuccess(data, done) {
     if (done === undefined && typeof data === 'function') {
       done = data;
-      data = { name: INITIAL_NAME };
+      data = {name: INITIAL_NAME};
     }
     return function(err, instance) {
       if (err) return done(err);
@@ -71,7 +72,7 @@ describe('optional-validation', function() {
   function expectChangeSuccess(data, done) {
     if (done === undefined && typeof data === 'function') {
       done = data;
-      data = { name: NEW_NAME };
+      data = {name: NEW_NAME};
     }
     return function(err, instance) {
       if (err) return done(err);
@@ -86,36 +87,36 @@ describe('optional-validation', function() {
   }
 
   function createUserAndChangeName(name, cb) {
-    User.create(VALID_DATA, { validate: true }, function(err, d) {
+    User.create(VALID_DATA, {validate: true}, function(err, d) {
       d.name = name;
       cb(err, d);
     });
   }
 
   function createUser(cb) {
-    User.create(VALID_DATA, { validate: true }, cb);
+    User.create(VALID_DATA, {validate: true}, cb);
   }
 
   function callUpdateOrCreateWithExistingUserId(name, options, cb) {
-    User.create({ 'name': 'Groover' }, function(err, user) {
+    User.create({'name': 'Groover'}, function(err, user) {
       if (err) return cb(err);
-      var data = { name: name };
+      var data = {name: name};
       data.id = user.id;
       User.updateOrCreate(data, options, cb);
     });
   }
 
   function getNewWhere() {
-    return { name: 'DoesNotExist' + (whereCount++) };
+    return {name: 'DoesNotExist' + (whereCount++)};
   }
 
   describe('forceId', function() {
     context('replaceAttributes', function() {
       it('should not fail if you do not pass the Primary key in data object',
       function(done) {
-        ModelWithForceId.create({ name: 'foo' }, function(err, created) {
+        ModelWithForceId.create({name: 'foo'}, function(err, created) {
           if (err) return done(err);
-          created.replaceAttributes({ name: 'bar' }, function(err, data) {
+          created.replaceAttributes({name: 'bar'}, function(err, data) {
             done(err);
           });
         });
@@ -123,9 +124,9 @@ describe('optional-validation', function() {
 
       it('should fail if you pass the Primary key in data object',
       function(done) {
-        ModelWithForceId.create({ name: 'foo' }, function(err, created) {
+        ModelWithForceId.create({name: 'foo'}, function(err, created) {
           if (err) return done(err);
-          created.replaceAttributes({ name: 'bar', id: 999 },
+          created.replaceAttributes({name: 'bar', id: 999},
           function(err, data) {
             should.exist(err);
             done();
@@ -138,19 +139,19 @@ describe('optional-validation', function() {
   describe('no model setting', function() {
     describe('method create', function() {
       it('should throw on create with validate:true with invalid data', function(done) {
-        User.create(INVALID_DATA, { validate: true }, expectValidationError(done));
+        User.create(INVALID_DATA, {validate: true}, expectValidationError(done));
       });
 
       it('should NOT throw on create with validate:false with invalid data', function(done) {
-        User.create(INVALID_DATA, { validate: false }, expectCreateSuccess(INVALID_DATA, done));
+        User.create(INVALID_DATA, {validate: false}, expectCreateSuccess(INVALID_DATA, done));
       });
 
       it('should NOT throw on create with validate:true with valid data', function(done) {
-        User.create(VALID_DATA, { validate: true }, expectCreateSuccess(done));
+        User.create(VALID_DATA, {validate: true}, expectCreateSuccess(done));
       });
 
       it('should NOT throw on create with validate:false with valid data', function(done) {
-        User.create(VALID_DATA, { validate: false }, expectCreateSuccess(done));
+        User.create(VALID_DATA, {validate: false}, expectCreateSuccess(done));
       });
 
       it('should throw on create with invalid data', function(done) {
@@ -164,7 +165,7 @@ describe('optional-validation', function() {
 
     describe('method findOrCreate', function() {
       it('should throw on findOrCreate with validate:true with invalid data', function(done) {
-        User.findOrCreate(getNewWhere(), INVALID_DATA, { validate: true }, expectValidationError(done));
+        User.findOrCreate(getNewWhere(), INVALID_DATA, {validate: true}, expectValidationError(done));
       });
 
       it('should NOT throw on findOrCreate with validate:false with invalid ' +
@@ -172,17 +173,17 @@ describe('optional-validation', function() {
         User.findOrCreate(
           getNewWhere(),
           INVALID_DATA,
-          { validate: false },
+          {validate: false},
           expectCreateSuccess(INVALID_DATA, done)
         );
       });
 
       it('should NOT throw on findOrCreate with validate:true with valid data', function(done) {
-        User.findOrCreate(getNewWhere(), VALID_DATA, { validate: true }, expectCreateSuccess(done));
+        User.findOrCreate(getNewWhere(), VALID_DATA, {validate: true}, expectCreateSuccess(done));
       });
 
       it('should NOT throw on findOrCreate with validate:false with valid data', function(done) {
-        User.findOrCreate(getNewWhere(), VALID_DATA, { validate: false }, expectCreateSuccess(done));
+        User.findOrCreate(getNewWhere(), VALID_DATA, {validate: false}, expectCreateSuccess(done));
       });
 
       it('should throw on findOrCreate with invalid data', function(done) {
@@ -199,7 +200,7 @@ describe('optional-validation', function() {
           'data', function(done) {
         callUpdateOrCreateWithExistingUserId(
           null,
-          { validate: true },
+          {validate: true},
           expectValidationError(done)
         );
       });
@@ -208,17 +209,17 @@ describe('optional-validation', function() {
           'invalid data', function(done) {
         callUpdateOrCreateWithExistingUserId(
           null,
-          { validate: false },
+          {validate: false},
           expectChangeSuccess(INVALID_DATA, done)
         );
       });
 
       it('should NOT throw on updateOrCreate(id) with validate:true with valid data', function(done) {
-        callUpdateOrCreateWithExistingUserId(NEW_NAME, { validate: true }, expectChangeSuccess(done));
+        callUpdateOrCreateWithExistingUserId(NEW_NAME, {validate: true}, expectChangeSuccess(done));
       });
 
       it('should NOT throw on updateOrCreate(id) with validate:false with valid data', function(done) {
-        callUpdateOrCreateWithExistingUserId(NEW_NAME, { validate: false }, expectChangeSuccess(done));
+        callUpdateOrCreateWithExistingUserId(NEW_NAME, {validate: false}, expectChangeSuccess(done));
       });
 
       // backwards compatible with validateUpsert
@@ -234,25 +235,25 @@ describe('optional-validation', function() {
     describe('method save', function() {
       it('should throw on save with {validate:true} with invalid data', function(done) {
         createUserAndChangeName(null, function(err, d) {
-          d.save({ validate: true }, expectValidationError(done));
+          d.save({validate: true}, expectValidationError(done));
         });
       });
 
       it('should NOT throw on save with {validate:false} with invalid data', function(done) {
         createUserAndChangeName(null, function(err, d) {
-          d.save({ validate: false }, expectChangeSuccess(INVALID_DATA, done));
+          d.save({validate: false}, expectChangeSuccess(INVALID_DATA, done));
         });
       });
 
       it('should NOT throw on save with {validate:true} with valid data', function(done) {
         createUserAndChangeName(NEW_NAME, function(err, d) {
-          d.save({ validate: true }, expectChangeSuccess(done));
+          d.save({validate: true}, expectChangeSuccess(done));
         });
       });
 
       it('should NOT throw on save with {validate:false} with valid data', function(done) {
         createUserAndChangeName(NEW_NAME, function(err, d) {
-          d.save({ validate: false }, expectChangeSuccess(done));
+          d.save({validate: false}, expectChangeSuccess(done));
         });
       });
 
@@ -272,25 +273,25 @@ describe('optional-validation', function() {
     describe('method updateAttributes', function() {
       it('should throw on updateAttributes with {validate:true} with invalid data', function(done) {
         createUser(function(err, d) {
-          d.updateAttributes(INVALID_DATA, { validate: true }, expectValidationError(done));
+          d.updateAttributes(INVALID_DATA, {validate: true}, expectValidationError(done));
         });
       });
 
       it('should NOT throw on updateAttributes with {validate:false} with invalid data', function(done) {
         createUser(function(err, d) {
-          d.updateAttributes(INVALID_DATA, { validate: false }, expectChangeSuccess(INVALID_DATA, done));
+          d.updateAttributes(INVALID_DATA, {validate: false}, expectChangeSuccess(INVALID_DATA, done));
         });
       });
 
       it('should NOT throw on updateAttributes with {validate:true} with valid data', function(done) {
         createUser(function(err, d) {
-          d.updateAttributes({ 'name': NEW_NAME }, { validate: true }, expectChangeSuccess(done));
+          d.updateAttributes({'name': NEW_NAME}, {validate: true}, expectChangeSuccess(done));
         });
       });
 
       it('should NOT throw on updateAttributes with {validate:false} with valid data', function(done) {
         createUser(function(err, d) {
-          d.updateAttributes({ 'name': NEW_NAME }, { validate: false }, expectChangeSuccess(done));
+          d.updateAttributes({'name': NEW_NAME}, {validate: false}, expectChangeSuccess(done));
         });
       });
 
@@ -302,7 +303,7 @@ describe('optional-validation', function() {
 
       it('should NOT throw on updateAttributes(cb) with valid data', function(done) {
         createUser(function(err, d) {
-          d.updateAttributes({ 'name': NEW_NAME }, expectChangeSuccess(done));
+          d.updateAttributes({'name': NEW_NAME}, expectChangeSuccess(done));
         });
       });
     });
@@ -316,19 +317,19 @@ describe('optional-validation', function() {
 
     describe('method create', function() {
       it('should throw on create with validate:true with invalid data', function(done) {
-        User.create(INVALID_DATA, { validate: true }, expectValidationError(done));
+        User.create(INVALID_DATA, {validate: true}, expectValidationError(done));
       });
 
       it('should NOT throw on create with validate:false with invalid data', function(done) {
-        User.create(INVALID_DATA, { validate: false }, expectCreateSuccess(INVALID_DATA, done));
+        User.create(INVALID_DATA, {validate: false}, expectCreateSuccess(INVALID_DATA, done));
       });
 
       it('should NOT throw on create with validate:true with valid data', function(done) {
-        User.create(VALID_DATA, { validate: true }, expectCreateSuccess(done));
+        User.create(VALID_DATA, {validate: true}, expectCreateSuccess(done));
       });
 
       it('should NOT throw on create with validate:false with valid data', function(done) {
-        User.create(VALID_DATA, { validate: false }, expectCreateSuccess(done));
+        User.create(VALID_DATA, {validate: false}, expectCreateSuccess(done));
       });
 
       it('should NOT throw on create with invalid data', function(done) {
@@ -342,24 +343,24 @@ describe('optional-validation', function() {
 
     describe('method findOrCreate', function() {
       it('should throw on findOrCreate with validate:true with invalid data', function(done) {
-        User.findOrCreate(getNewWhere(), INVALID_DATA, { validate: true }, expectValidationError(done));
+        User.findOrCreate(getNewWhere(), INVALID_DATA, {validate: true}, expectValidationError(done));
       });
 
       it('should NOT throw on findOrCreate with validate:false with invalid data', function(done) {
         User.findOrCreate(
           getNewWhere(),
           INVALID_DATA,
-          { validate: false },
+          {validate: false},
           expectCreateSuccess(INVALID_DATA, done)
         );
       });
 
       it('should NOT throw on findOrCreate with validate:true with valid data', function(done) {
-        User.findOrCreate(getNewWhere(), VALID_DATA, { validate: true }, expectCreateSuccess(done));
+        User.findOrCreate(getNewWhere(), VALID_DATA, {validate: true}, expectCreateSuccess(done));
       });
 
       it('should NOT throw on findOrCreate with validate:false with valid data', function(done) {
-        User.findOrCreate(getNewWhere(), VALID_DATA, { validate: false }, expectCreateSuccess(done));
+        User.findOrCreate(getNewWhere(), VALID_DATA, {validate: false}, expectCreateSuccess(done));
       });
 
       it('should NOT throw on findOrCreate with invalid data', function(done) {
@@ -380,7 +381,7 @@ describe('optional-validation', function() {
           'data', function(done) {
         callUpdateOrCreateWithExistingUserId(
           null,
-          { validate: true },
+          {validate: true},
           expectValidationError(done)
         );
       });
@@ -389,17 +390,17 @@ describe('optional-validation', function() {
           'invalid data', function(done) {
         callUpdateOrCreateWithExistingUserId(
           null,
-          { validate: false },
+          {validate: false},
           expectChangeSuccess(INVALID_DATA, done)
         );
       });
 
       it('should NOT throw on updateOrCreate(id) with validate:true with valid data', function(done) {
-        callUpdateOrCreateWithExistingUserId(NEW_NAME, { validate: true }, expectChangeSuccess(done));
+        callUpdateOrCreateWithExistingUserId(NEW_NAME, {validate: true}, expectChangeSuccess(done));
       });
 
       it('should NOT throw on updateOrCreate(id) with validate:false with valid data', function(done) {
-        callUpdateOrCreateWithExistingUserId(NEW_NAME, { validate: false }, expectChangeSuccess(done));
+        callUpdateOrCreateWithExistingUserId(NEW_NAME, {validate: false}, expectChangeSuccess(done));
       });
 
       it('should NOT throw on updateOrCreate(id) with invalid data', function(done) {
@@ -414,25 +415,25 @@ describe('optional-validation', function() {
     describe('method save', function() {
       it('should throw on save with {validate:true} with invalid data', function(done) {
         createUserAndChangeName(null, function(err, d) {
-          d.save({ validate: true }, expectValidationError(done));
+          d.save({validate: true}, expectValidationError(done));
         });
       });
 
       it('should NOT throw on save with {validate:false} with invalid data', function(done) {
         createUserAndChangeName(null, function(err, d) {
-          d.save({ validate: false }, expectChangeSuccess(INVALID_DATA, done));
+          d.save({validate: false}, expectChangeSuccess(INVALID_DATA, done));
         });
       });
 
       it('should NOT throw on save with {validate:true} with valid data', function(done) {
         createUserAndChangeName(NEW_NAME, function(err, d) {
-          d.save({ validate: true }, expectChangeSuccess(done));
+          d.save({validate: true}, expectChangeSuccess(done));
         });
       });
 
       it('should NOT throw on save with {validate:false} with valid data', function(done) {
         createUserAndChangeName(NEW_NAME, function(err, d) {
-          d.save({ validate: false }, expectChangeSuccess(done));
+          d.save({validate: false}, expectChangeSuccess(done));
         });
       });
 
@@ -458,19 +459,19 @@ describe('optional-validation', function() {
 
     describe('method create', function() {
       it('should throw on create with validate:true with invalid data', function(done) {
-        User.create(INVALID_DATA, { validate: true }, expectValidationError(done));
+        User.create(INVALID_DATA, {validate: true}, expectValidationError(done));
       });
 
       it('should NOT throw on create with validate:false with invalid data', function(done) {
-        User.create(INVALID_DATA, { validate: false }, expectCreateSuccess(INVALID_DATA, done));
+        User.create(INVALID_DATA, {validate: false}, expectCreateSuccess(INVALID_DATA, done));
       });
 
       it('should NOT throw on create with validate:true with valid data', function(done) {
-        User.create(VALID_DATA, { validate: true }, expectCreateSuccess(done));
+        User.create(VALID_DATA, {validate: true}, expectCreateSuccess(done));
       });
 
       it('should NOT throw on create with validate:false with valid data', function(done) {
-        User.create(VALID_DATA, { validate: false }, expectCreateSuccess(done));
+        User.create(VALID_DATA, {validate: false}, expectCreateSuccess(done));
       });
 
       it('should throw on create with invalid data', function(done) {
@@ -484,24 +485,24 @@ describe('optional-validation', function() {
 
     describe('method findOrCreate', function() {
       it('should throw on findOrCreate with validate:true with invalid data', function(done) {
-        User.findOrCreate(getNewWhere(), INVALID_DATA, { validate: true }, expectValidationError(done));
+        User.findOrCreate(getNewWhere(), INVALID_DATA, {validate: true}, expectValidationError(done));
       });
 
       it('should NOT throw on findOrCreate with validate:false with invalid data', function(done) {
         User.findOrCreate(
           getNewWhere(),
           INVALID_DATA,
-          { validate: false },
+          {validate: false},
           expectCreateSuccess(INVALID_DATA, done)
         );
       });
 
       it('should NOT throw on findOrCreate with validate:true with valid data', function(done) {
-        User.findOrCreate(getNewWhere(), VALID_DATA, { validate: true }, expectCreateSuccess(done));
+        User.findOrCreate(getNewWhere(), VALID_DATA, {validate: true}, expectCreateSuccess(done));
       });
 
       it('should NOT throw on findOrCreate with validate:false with valid data', function(done) {
-        User.findOrCreate(getNewWhere(), VALID_DATA, { validate: false }, expectCreateSuccess(done));
+        User.findOrCreate(getNewWhere(), VALID_DATA, {validate: false}, expectCreateSuccess(done));
       });
 
       it('should throw on findOrCreate with invalid data', function(done) {
@@ -518,7 +519,7 @@ describe('optional-validation', function() {
           'data', function(done) {
         callUpdateOrCreateWithExistingUserId(
           null,
-          { validate: true },
+          {validate: true},
           expectValidationError(done)
         );
       });
@@ -527,7 +528,7 @@ describe('optional-validation', function() {
           'invalid data', function(done) {
         callUpdateOrCreateWithExistingUserId(
           null,
-          { validate: false },
+          {validate: false},
           expectChangeSuccess(INVALID_DATA, done)
         );
       });
@@ -536,7 +537,7 @@ describe('optional-validation', function() {
           'valid data', function(done) {
         callUpdateOrCreateWithExistingUserId(
           NEW_NAME,
-          { validate: true },
+          {validate: true},
           expectChangeSuccess(done)
         );
       });
@@ -545,7 +546,7 @@ describe('optional-validation', function() {
           'valid data', function(done) {
         callUpdateOrCreateWithExistingUserId(
           NEW_NAME,
-          { validate: false },
+          {validate: false},
           expectChangeSuccess(done)
         );
       });
@@ -571,19 +572,19 @@ describe('optional-validation', function() {
 
       it('should NOT throw on save with {validate:false} with invalid data', function(done) {
         createUserAndChangeName(null, function(err, d) {
-          d.save({ validate: false }, expectChangeSuccess(INVALID_DATA, done));
+          d.save({validate: false}, expectChangeSuccess(INVALID_DATA, done));
         });
       });
 
       it('should NOT throw on save with {validate:true} with valid data', function(done) {
         createUserAndChangeName(NEW_NAME, function(err, d) {
-          d.save({ validate: true }, expectChangeSuccess(done));
+          d.save({validate: true}, expectChangeSuccess(done));
         });
       });
 
       it('should NOT throw on save with {validate:false} with valid data', function(done) {
         createUserAndChangeName(NEW_NAME, function(err, d) {
-          d.save({ validate: false }, expectChangeSuccess(done));
+          d.save({validate: false}, expectChangeSuccess(done));
         });
       });
 

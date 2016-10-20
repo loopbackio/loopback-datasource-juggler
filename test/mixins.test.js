@@ -2,6 +2,7 @@
 // Node module: loopback-datasource-juggler
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
+'use strict';
 
 // This test written in mocha+should.js
 var should = require('./init.js');
@@ -15,8 +16,8 @@ var modelBuilder = new ModelBuilder();
 var mixins = modelBuilder.mixins;
 
 function timestamps(Model, options) {
-  Model.defineProperty('createdAt', { type: Date });
-  Model.defineProperty('updatedAt', { type: Date });
+  Model.defineProperty('createdAt', {type: Date});
+  Model.defineProperty('updatedAt', {type: Date});
 
   var originalBeforeSave = Model.beforeSave;
   Model.beforeSave = function(next, data) {
@@ -62,34 +63,34 @@ describe('Model class', function() {
 
   it('should apply a mixin class', function() {
     var Address = modelBuilder.define('Address', {
-      street: { type: 'string', required: true },
-      city: { type: 'string', required: true },
+      street: {type: 'string', required: true},
+      city: {type: 'string', required: true},
     });
 
-    var memory = new DataSource('mem', { connector: Memory }, modelBuilder);
-    var Item = memory.createModel('Item', { name: 'string' }, {
-      mixins: { Address: true },
+    var memory = new DataSource('mem', {connector: Memory}, modelBuilder);
+    var Item = memory.createModel('Item', {name: 'string'}, {
+      mixins: {Address: true},
     });
 
     var properties = Item.definition.properties;
 
-    properties.street.should.eql({ type: String, required: true });
-    properties.city.should.eql({ type: String, required: true });
+    properties.street.should.eql({type: String, required: true});
+    properties.city.should.eql({type: String, required: true});
   });
 
   it('should apply mixins', function(done) {
-    var memory = new DataSource('mem', { connector: Memory }, modelBuilder);
-    var Item = memory.createModel('Item', { name: 'string' }, {
+    var memory = new DataSource('mem', {connector: Memory}, modelBuilder);
+    var Item = memory.createModel('Item', {name: 'string'}, {
       mixins: {
-        TimeStamp: true, Demo: { value: true },
+        TimeStamp: true, Demo: {value: true},
         Multi: [
-          { key: 'foo', value: 'bar' },
-          { key: 'fox', value: 'baz' },
+          {key: 'foo', value: 'bar'},
+          {key: 'fox', value: 'baz'},
         ],
       },
     });
 
-    Item.mixin('Example', { foo: 'bar' });
+    Item.mixin('Example', {foo: 'bar'});
 
     Item.demoMixin.should.be.true;
 
@@ -97,13 +98,13 @@ describe('Model class', function() {
     Item.multiMixin.fox.should.equal('baz');
 
     var properties = Item.definition.properties;
-    properties.createdAt.should.eql({ type: Date });
-    properties.updatedAt.should.eql({ type: Date });
+    properties.createdAt.should.eql({type: Date});
+    properties.updatedAt.should.eql({type: Date});
 
-    Item.create({ name: 'Item 1' }, function(err, inst) {
+    Item.create({name: 'Item 1'}, function(err, inst) {
       inst.createdAt.should.be.a.date;
       inst.updatedAt.should.be.a.date;
-      inst.example().should.eql({ foo: 'bar' });
+      inst.example().should.eql({foo: 'bar'});
       done();
     });
   });
@@ -113,12 +114,12 @@ describe('Model class', function() {
 
     beforeEach(function() {
       Address = modelBuilder.define('Address', {
-        street: { type: 'string', required: true },
-        city: { type: 'string', required: true },
+        street: {type: 'string', required: true},
+        city: {type: 'string', required: true},
       });
-      var memory = new DataSource('mem', { connector: Memory }, modelBuilder);
-      Person = memory.createModel('Person', { name: 'string' });
-      Author = memory.createModel('Author', { name: 'string' });
+      var memory = new DataSource('mem', {connector: Memory}, modelBuilder);
+      Person = memory.createModel('Person', {name: 'string'});
+      Author = memory.createModel('Author', {name: 'string'});
     });
 
     it('should register mixin class into _mixins', function() {

@@ -2,6 +2,7 @@
 // Node module: loopback-datasource-juggler
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
+'use strict';
 
 var DataSource = require('../../loopback-datasource-juggler').DataSource;
 var ModelBuilder = require('../../loopback-datasource-juggler').ModelBuilder;
@@ -10,14 +11,14 @@ var introspectType = require('../lib/introspection')(ModelBuilder);
 var ds = new DataSource('memory');
 
 // Create a open model that doesn't require a schema
-var Application = ds.createModel('Schemaless', {}, { strict: false });
+var Application = ds.createModel('Schemaless', {}, {strict: false});
 
 var application = {
   owner: 'rfeng',
   name: 'MyApp1',
   description: 'My first app',
   pushSettings: [
-    {   'platform': 'apns',
+    {'platform': 'apns',
       'apns': {
         'pushOptions': {
           'gateway': 'gateway.sandbox.push.apple.com',
@@ -33,7 +34,7 @@ var application = {
           'interval': 300,
         },
       }},
-  ] };
+  ]};
 
 console.log(new Application(application).toObject());
 
@@ -59,8 +60,8 @@ var user = {
   },
   friends: ['John', 'Mary'],
   emails: [
-    { label: 'work', id: 'x@sample.com' },
-    { label: 'home', id: 'x@home.com' },
+    {label: 'work', id: 'x@sample.com'},
+    {label: 'home', id: 'x@home.com'},
   ],
   tags: [],
 };
@@ -69,7 +70,7 @@ var user = {
 var schema = introspectType(user);
 
 // Create a model for the generated schema
-var User = ds.createModel('User', schema, { idInjection: true });
+var User = ds.createModel('User', schema, {idInjection: true});
 
 // Use the model for CRUD
 var obj = new User(user);

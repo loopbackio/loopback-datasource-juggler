@@ -87,19 +87,19 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
       });
 
       it('supports "?" operator', function() {
-        return CacheItem.sortedKeys({ match: 'h?llo' }).then(function(keys) {
+        return CacheItem.sortedKeys({match: 'h?llo'}).then(function(keys) {
           should(keys).eql(['hallo', 'hello', 'hxllo']);
         });
       });
 
       it('supports "*" operator', function() {
-        return CacheItem.sortedKeys({ match: 'h*llo' }).then(function(keys) {
+        return CacheItem.sortedKeys({match: 'h*llo'}).then(function(keys) {
           should(keys).eql(['hallo', 'heeello', 'hello', 'hllo', 'hxllo']);
         });
       });
 
       it('handles no matches found', function() {
-        return CacheItem.sortedKeys({ match: 'not-found' })
+        return CacheItem.sortedKeys({match: 'not-found'})
           .then(function(keys) {
             should(keys).eql([]);
           });

@@ -2,6 +2,7 @@
 // Node module: loopback-datasource-juggler
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
+'use strict';
 
 var assert = require('assert');
 var ModelBuilder = require('..').ModelBuilder;
@@ -23,8 +24,8 @@ var json = {
   },
   friends: ['John', 'Mary'],
   emails: [
-    { label: 'work', id: 'x@sample.com' },
-    { label: 'home', id: 'x@home.com' },
+    {label: 'work', id: 'x@sample.com'},
+    {label: 'home', id: 'x@home.com'},
   ],
   tags: [],
 };
@@ -59,7 +60,7 @@ describe('Introspection of model definitions from JSON', function() {
   });
 
   it('should return a schema for object', function() {
-    var json = { a: 'str', b: 0, c: true };
+    var json = {a: 'str', b: 0, c: true};
     var type = introspectType(json);
     assert.equal(type.a, 'string');
     assert.equal(type.b, 'number');
@@ -67,7 +68,7 @@ describe('Introspection of model definitions from JSON', function() {
   });
 
   it('should handle nesting objects', function() {
-    var json = { a: 'str', b: 0, c: true, d: { x: 10, y: 5 }};
+    var json = {a: 'str', b: 0, c: true, d: {x: 10, y: 5}};
     var type = introspectType(json);
     assert.equal(type.a, 'string');
     assert.equal(type.b, 'number');
@@ -77,7 +78,7 @@ describe('Introspection of model definitions from JSON', function() {
   });
 
   it('should handle nesting arrays', function() {
-    var json = { a: 'str', b: 0, c: true, d: [1, 2] };
+    var json = {a: 'str', b: 0, c: true, d: [1, 2]};
     var type = introspectType(json);
     assert.equal(type.a, 'string');
     assert.equal(type.b, 'number');
@@ -91,7 +92,7 @@ describe('Introspection of model definitions from JSON', function() {
     var schema = introspectType(json);
 
     var builder = new ModelBuilder();
-    var Model = builder.define('MyModel', schema, { idInjection: false });
+    var Model = builder.define('MyModel', schema, {idInjection: false});
 
     // FIXME: [rfeng] The constructor mutates the arguments
     var obj = new Model(json);
@@ -106,7 +107,7 @@ describe('Introspection of model definitions from JSON', function() {
     var copy = traverse(json).clone();
 
     var builder = new ModelBuilder();
-    var Model = builder.buildModelFromInstance('MyModel', copy, { idInjection: false });
+    var Model = builder.buildModelFromInstance('MyModel', copy, {idInjection: false});
 
     var obj = new Model(json);
     obj = obj.toObject();
@@ -119,7 +120,7 @@ describe('Introspection of model definitions from JSON', function() {
 
     var builder = new DataSource('memory');
     var Model = builder.buildModelFromInstance('MyModel', copy,
-      { idInjection: false });
+      {idInjection: false});
 
     assert.equal(Model.dataSource, builder);
 
