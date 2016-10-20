@@ -558,7 +558,65 @@ describe('validations', function() {
   });
 
   describe('numericality', function() {
-    it('should validate numericality');
+    it('passes when given numeric values', function() {
+      User.validatesNumericalityOf('age');
+      var user = new User({age: 10});
+      user.isValid().should.be.true();
+    });
+
+    it('fails when given non-numeric values', function() {
+      User.validatesNumericalityOf('age');
+      var user = new User({age: 'notanumber'});
+      user.isValid().should.be.false();
+      user.errors.should.eql({age: ['is not a number']});
+    });
+
+    it('fails when given undefined values', function() {
+      User.validatesNumericalityOf('age');
+      var u = new User({});
+      u.isValid().should.be.false();
+      u.errors.should.eql({age: ['is blank']});
+    });
+
+    it('skips undefined values when allowBlank option is true', function() {
+      User.validatesNumericalityOf('age', {allowBlank: true});
+      var user = new User({});
+      user.isValid().should.be.true();
+    });
+
+    it('fails when given non-numeric values when allowBlank option is true', function() {
+      User.validatesNumericalityOf('age', {allowBlank: true});
+      var user = new User({age: 'test'});
+      user.isValid().should.be.false();
+      user.errors.should.eql({age: ['is not a number']});
+
+    });
+
+    it('fails when given null values', function() {
+      User.validatesNumericalityOf('age');
+      var user = new User({age: null});
+      user.isValid().should.be.false();
+      user.errors.should.eql({age: ['is null']});
+    });
+
+    it('passes when given null values when allowNull option is true', function() {
+      User.validatesNumericalityOf('age', {allowNull: true});
+      var user = new User({age: null});
+      user.isValid().should.be.true();
+    });
+
+    it('passes when given float values', function() {
+      User.validatesNumericalityOf('age');
+      var user = new User({age: 13.37});
+      user.isValid().should.be.true();
+    });
+
+    it('fails when given non-integer values when int option is true', function() {
+      User.validatesNumericalityOf('age', {int: true});
+      var user = new User({age: 13.37});
+      user.isValid().should.be.false();
+      user.errors.should.eql({age: ['is not an integer']});
+    });
   });
 
   describe('inclusion', function() {
