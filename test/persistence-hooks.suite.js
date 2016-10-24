@@ -6,10 +6,12 @@
 'use strict';
 var ValidationError = require('../').ValidationError;
 
+var async = require('async');
 var contextTestHelpers = require('./helpers/context-test-helpers');
 var ContextRecorder = contextTestHelpers.ContextRecorder;
 var deepCloneToObject = contextTestHelpers.deepCloneToObject;
 var aCtxForModel = contextTestHelpers.aCtxForModel;
+var GeoPoint = require('../lib/geo.js').GeoPoint;
 
 var uid = require('./helpers/uid-generator');
 var getLastGeneratedUid = uid.last;
@@ -24,7 +26,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
   }
   describe('Persistence hooks', function() {
     var ctxRecorder, hookMonitor, expectedError;
-    var TestModel, existingInstance;
+    var TestModel, existingInstance, GeoModel;
     var migrated = false;
 
     var undefinedValue = undefined;
@@ -41,12 +43,25 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         extra: {type: String, required: false},
       });
 
+      GeoModel = dataSource.createModel('GeoModel', {
+        id: {type: String, id: true},
+        name: {type: String, required: false},
+        location: {type: GeoPoint, required: false},
+      });
+
       uid.reset();
 
       if (migrated) {
-        TestModel.deleteAll(done);
+        async.series([
+          function(cb) {
+            TestModel.deleteAll(cb);
+          },
+          function(cb) {
+            GeoModel.deleteAll(cb);
+          },
+        ], done);
       } else {
-        dataSource.automigrate(TestModel.modelName, function(err) {
+        dataSource.automigrate([TestModel.modelName, 'GeoModel'], function(err) {
           migrated = true;
           done(err);
         });
@@ -64,7 +79,12 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
           TestModel.create({name: 'second'}, function(err) {
             if (err) return done(err);
-            done();
+            var location1 = new GeoPoint({lat: 10.2, lng: 6.7});
+            GeoModel.create([
+              {name: 'Rome', location: location1},
+            ], function(err) {
+              done(err);
+            });
           });
         });
       });
@@ -100,13 +120,51 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       });
 
       it('triggers correct hooks when near filter is used', function(done) {
-        monitorHookExecution();
+        var hookMonitorGeoModel;
+        hookMonitorGeoModel = new HookMonitor({includeModelName: false});
+
+        function monitorHookExecutionGeoModel(hookNames) {
+          hookMonitorGeoModel.install(GeoModel, hookNames);
+        }
+
+        monitorHookExecutionGeoModel();
+
         var query = {
-          where: {location: {near: '10,20', maxDistance: '10', unit: 'meters'}},
+          where: {location: {near: '10,5'}},
         };
-        TestModel.find(query, function(err, list) {
+        GeoModel.find(query, function(err, list) {
           if (err) return done(err);
-          hookMonitor.names.should.eql(['access']);
+          hookMonitorGeoModel.names.should.eql(['access', 'loaded']);
+          done();
+        });
+      });
+
+      it('applies updates from `loaded` hook when near filter is used', function(done) {
+        GeoModel.observe('loaded', function(ctx, next) {
+          ctx.data.name = 'Berlin';
+          next();
+        });
+
+        var query = {
+          where: {location: {near: '10,5'}},
+        };
+
+        GeoModel.find(query, function(err, list) {
+          if (err) return done(err);
+          list.map(get('name')).should.eql(['Berlin']);
+          done();
+        });
+      });
+
+      it('applies updates from `loaded` hook when near filter is not used', function(done) {
+        TestModel.observe('loaded', function(ctx, next) {
+          ctx.data.name = 'Paris';
+          next();
+        });
+
+        TestModel.find(function(err, list) {
+          if (err) return done(err);
+          list.map(get('name')).should.eql(['Paris', 'Paris']);
           done();
         });
       });
