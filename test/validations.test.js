@@ -573,9 +573,9 @@ describe('validations', function() {
 
     it('fails when given undefined values', function() {
       User.validatesNumericalityOf('age');
-      var u = new User({});
-      u.isValid().should.be.false();
-      u.errors.should.eql({age: ['is blank']});
+      var user = new User({});
+      user.isValid().should.be.false();
+      user.errors.should.eql({age: ['is blank']});
     });
 
     it('skips undefined values when allowBlank option is true', function() {
@@ -589,7 +589,6 @@ describe('validations', function() {
       var user = new User({age: 'test'});
       user.isValid().should.be.false();
       user.errors.should.eql({age: ['is not a number']});
-
     });
 
     it('fails when given null values', function() {
