@@ -6,6 +6,7 @@
 
 // This test written in mocha+should.js
 var should = require('./init.js');
+var assert = require('assert');
 var jdb = require('../');
 var DataSource = jdb.DataSource;
 var createPromiseCallback = require('../lib/utils.js').createPromiseCallback;
@@ -559,7 +560,7 @@ describe('relations', function() {
     before(function(done) {
       // db = getSchema();
       Physician = db.define('Physician', {name: String});
-      Patient = db.define('Patient', {name: String});
+      Patient = db.define('Patient', {name: String, age: Number});
       Appointment = db.define('Appointment', {date: {type: Date,
         default: function() {
           return new Date();
@@ -709,40 +710,142 @@ describe('relations', function() {
       }
     });
 
-    it('should fetch scoped instances with paging filters', function(done) {
-      Physician.create(function(err, physician) {
-        physician.patients.create({name: 'a'}, function() {
-          physician.patients.create({name: 'z'}, function() {
-            physician.patients.create({name: 'c'}, function() {
-              verify(physician);
-            });
+    describe('fetch scoped instances with paging filters', function() {
+      var samplePatientId;
+      var physician;
+
+      beforeEach(createSampleData);
+
+      context('with filter skip', function() {
+        it('skips the first patient', function(done) {
+          physician.patients({skip: 1}, function(err, ch) {
+            should.not.exist(err);
+            should.exist(ch);
+            ch.should.have.lengthOf(2);
+            ch[0].name.should.eql('z');
+            ch[1].name.should.eql('c');
+            done();
           });
         });
       });
-      function verify(physician) {
-        //limit plus skip
-        physician.patients({limit: 1, skip: 1}, function(err, ch) {
-          should.not.exist(err);
-          should.exist(ch);
-          ch.should.have.lengthOf(1);
-          ch[0].name.should.eql('z');
-          //offset plus skip
-          physician.patients({limit: 1, offset: 1}, function(err1, ch1) {
-            should.not.exist(err1);
-            should.exist(ch1);
-            ch1.should.have.lengthOf(1);
-            ch1[0].name.should.eql('z');
-            //order
-            physician.patients({order: 'patientId DESC'}, function(err2, ch2) {
-              should.not.exist(err2);
-              should.exist(ch2);
-              ch2.should.have.lengthOf(3);
-              ch2[0].name.should.eql('c');
+      context('with filter order', function() {
+        it('orders the result by patient name', function(done) {
+          physician.patients({order: 'name DESC'}, function(err, ch) {
+            should.not.exist(err);
+            should.exist(ch);
+            ch.should.have.lengthOf(3);
+            ch[0].name.should.eql('z');
+            ch[2].name.should.eql('a');
+            done();
+          });
+        });
+      });
+      context('with filter limit', function() {
+        it('limits to 1 result', function(done) {
+          physician.patients({limit: 1}, function(err, ch) {
+            should.not.exist(err);
+            should.exist(ch);
+            ch.should.have.lengthOf(1);
+            ch[0].name.should.eql('a');
+            done();
+          });
+        });
+      });
+      context('with filter fields', function() {
+        it('includes field \'name\' but not \'age\'', function(done) {
+          var fieldsFilter = {fields: {name: true, age: false}};
+          physician.patients(fieldsFilter, function(err, ch) {
+            should.not.exist(err);
+            should.exist(ch);
+            should.exist(ch[0].name);
+            ch[0].name.should.eql('a');
+            should.not.exist(ch[0].age);
+            done();
+          });
+        });
+      });
+      context('with filter include', function() {
+        it('returns physicians inluced in patient', function(done) {
+          var includeFilter = {include: 'physicians'};
+          physician.patients(includeFilter, function(err, ch) {
+            should.not.exist(err);
+            ch.should.have.lengthOf(3);
+            should.exist(ch[0].physicians);
+            done();
+          });
+        });
+      });
+      context('with filter where', function() {
+        it('returns patient where id equal to samplePatientId', function(done) {
+          var whereFilter = {where: {id: samplePatientId}};
+          physician.patients(whereFilter, function(err, ch) {
+            should.not.exist(err);
+            should.exist(ch);
+            ch.should.have.lengthOf(1);
+            ch[0].id.should.eql(samplePatientId);
+            done();
+          });
+        });
+        it('returns patients where id in an array', function(done) {
+          var idArr = [];
+          var whereFilter;
+          physician.patients.create({name: 'b'}, function(err, p) {
+            idArr.push(samplePatientId, p.id);
+            whereFilter = {where: {id: {inq: idArr}}};
+            physician.patients(whereFilter, function(err, ch) {
+              should.not.exist(err);
+              should.exist(ch);
+              ch.should.have.lengthOf(2);
+              var resultIdArr = [ch[0].id, ch[1].id];
+              assert.deepEqual(resultIdArr, idArr);
               done();
             });
           });
         });
-      }
+      });
+      context('findById with filter include', function() {
+        it('returns patient where id equal to \'samplePatientId\'' +
+          'with included physicians', function(done) {
+          var includeFilter = {include: 'physicians'};
+          physician.patients.findById(samplePatientId,
+            includeFilter, function(err, ch) {
+              should.not.exist(err);
+              should.exist(ch);
+              ch.id.should.eql(samplePatientId);
+              should.exist(ch.physicians);
+              done();
+            });
+        });
+      });
+      context('findById with filter fields', function() {
+        it('returns patient where id equal to \'samplePatientId\'' +
+          'with field \'name\' but not \'age\'', function(done) {
+          var fieldsFilter = {fields: {name: true, age: false}};
+          physician.patients.findById(samplePatientId,
+            fieldsFilter, function(err, ch) {
+              should.not.exist(err);
+              should.exist(ch);
+              should.exist(ch.name);
+              ch.name.should.eql('a');
+              should.not.exist(ch.age);
+              done();
+            });
+        });
+      });
+
+      function createSampleData(done) {
+        Physician.create(function(err, result) {
+          result.patients.create({name: 'a', age: '10'}, function(err, p) {
+            samplePatientId = p.id;
+            result.patients.create({name: 'z', age: '20'}, function() {
+              result.patients.create({name: 'c'}, function() {
+                physician = result;
+                done();
+              });
+            });
+          });
+        });
+      };
     });
 
     it('should find scoped record', function(done) {
