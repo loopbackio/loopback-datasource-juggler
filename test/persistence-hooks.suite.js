@@ -80,8 +80,10 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           TestModel.create({name: 'second'}, function(err) {
             if (err) return done(err);
             var location1 = new GeoPoint({lat: 10.2, lng: 6.7});
+            var location1 = new GeoPoint({lat: 10.3, lng: 6.8});
             GeoModel.create([
               {name: 'Rome', location: location1},
+              {name: 'Tokyo', location: location1},
             ], function(err) {
               done(err);
             });
@@ -107,6 +109,21 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           });
       });
 
+      it('triggers the loaded hook multiple times when multiple instances exist', function(done) {
+        monitorHookExecution();
+
+        TestModel.find(function(err, list) {
+          if (err) return done(err);
+
+          hookMonitor.names.should.eql([
+            'access',
+            'loaded',
+            'loaded',
+          ]);
+          done();
+        });
+      });
+
       it('should not trigger hooks, if notify is false', function(done) {
         monitorHookExecution();
         TestModel.find(
@@ -119,7 +136,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           });
       });
 
-      it('triggers correct hooks when near filter is used', function(done) {
+      it('triggers the loaded hook multiple times when multiple instances exist when near filter is used',
+      function(done) {
         var hookMonitorGeoModel;
         hookMonitorGeoModel = new HookMonitor({includeModelName: false});
 
@@ -134,7 +152,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         };
         GeoModel.find(query, function(err, list) {
           if (err) return done(err);
-          hookMonitorGeoModel.names.should.eql(['access', 'loaded']);
+
+          hookMonitorGeoModel.names.should.eql(['access', 'loaded', 'loaded']);
           done();
         });
       });
@@ -151,7 +170,26 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
         GeoModel.find(query, function(err, list) {
           if (err) return done(err);
-          list.map(get('name')).should.eql(['Berlin']);
+          list.map(get('name')).should.eql(['Berlin', 'Berlin']);
+          done();
+        });
+      });
+
+      it('applies updates to one specific instance from `loaded` hook when near filter is used',
+      function(done) {
+        GeoModel.observe('loaded', function(ctx, next) {
+          if (ctx.data.name === 'Rome')
+            ctx.data.name = 'Berlin';
+          next();
+        });
+
+        var query = {
+          where: {location: {near: '10,5'}},
+        };
+
+        GeoModel.find(query, function(err, list) {
+          if (err) return done(err);
+          list.map(get('name')).should.containEql('Berlin', 'Tokyo');
           done();
         });
       });
@@ -165,6 +203,21 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.find(function(err, list) {
           if (err) return done(err);
           list.map(get('name')).should.eql(['Paris', 'Paris']);
+          done();
+        });
+      });
+
+      it('applies updates to one specific instance from `loaded` hook when near filter is not used',
+      function(done) {
+        TestModel.observe('loaded', function(ctx, next) {
+          if (ctx.data.name === 'first')
+            ctx.data.name = 'Paris';
+          next();
+        });
+
+        TestModel.find(function(err, list) {
+          if (err) return done(err);
+          list.map(get('name')).should.eql(['Paris', 'second']);
           done();
         });
       });
