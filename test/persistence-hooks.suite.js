@@ -80,10 +80,10 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           TestModel.create({name: 'second'}, function(err) {
             if (err) return done(err);
             var location1 = new GeoPoint({lat: 10.2, lng: 6.7});
-            var location1 = new GeoPoint({lat: 10.3, lng: 6.8});
+            var location2 = new GeoPoint({lat: 10.3, lng: 6.8});
             GeoModel.create([
               {name: 'Rome', location: location1},
-              {name: 'Tokyo', location: location1},
+              {name: 'Tokyo', location: location2},
             ], function(err) {
               done(err);
             });
