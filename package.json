@@ -31,9 +31,6 @@
     "test": "mocha",
     "posttest": "npm run lint"
   },
-  "engines": [
-    "node >= 0.6"
-  ],
   "devDependencies": {
     "async-iterators": "^0.2.2",
     "eslint": "^2.13.1",
