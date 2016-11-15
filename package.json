@@ -15,6 +15,9 @@
     "Juggler",
     "ORM"
   ],
+  "engines": {
+    "node": ">=4.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/strongloop/loopback-datasource-juggler"
