@@ -52,5 +52,10 @@
     "strong-globalize": "^2.6.2",
     "traverse": "^0.6.6"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "ci": {
+    "downstreamIgnoreList": [
+      "loopback-connector-db2z"
+    ]
+  }
 }
