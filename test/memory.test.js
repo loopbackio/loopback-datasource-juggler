@@ -158,6 +158,7 @@ describe('Memory connector', function() {
         city: String,
         state: String,
         zipCode: String,
+        occupiedSince: Date,
         tags: [
           {
             tag: String,
@@ -502,6 +503,14 @@ describe('Memory connector', function() {
       });
     });
 
+    it('should support nested date property in query', function(done) {
+      User.find({where: {'address.occupiedSince': new Date('2016-01-01')}},
+        function(err, users) {
+          should(users.length).be.equal(1);
+          done();
+        });
+    });
+
     it('should support nested property with regex over arrays in query', function(done) {
       User.find({where: {'friends.name': {regexp: /^Ringo/}}}, function(err, users) {
         should.not.exist(err);
@@ -571,6 +580,7 @@ describe('Memory connector', function() {
             city: 'San Jose',
             state: 'CA',
             zipCode: '95131',
+            occupiedSince: new Date('2016-01-01'),
             tags: [
                 {tag: 'business'},
                 {tag: 'rent'},
