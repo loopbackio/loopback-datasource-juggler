@@ -1592,7 +1592,7 @@ describe('manipulation', function() {
         function(done) {
           var now = Date.now();
 
-          var myCustomModel = CustomModel.create(function(err, m) {
+          CustomModel.create(function(err, m) {
             should.not.exists(err);
             m.createdAt.should.be.instanceOf(Date);
             (m.createdAt >= now).should.be.true;
@@ -1614,8 +1614,8 @@ describe('manipulation', function() {
 
       it('should report \'$now\' as default value for string property',
         function(done) {
-          var myCustomModel = CustomModel.create(function(err, m) {
             should.not.exists(err);
+          CustomModel.create(function(err, m) {
             m.now.should.be.instanceOf(String);
             m.now.should.equal('$now');
           });
@@ -1637,8 +1637,8 @@ describe('manipulation', function() {
       it('should generate current time when "defaultFn" is "now"',
         function(done) {
           var now = Date.now();
-          var inst = CustomModel.create(function(err, m) {
             should.not.exists(err);
+          CustomModel.create(function(err, m) {
             m.now.should.be.instanceOf(Date);
             m.now.should.be.within(now, now + 200);
             done();
@@ -1676,8 +1676,8 @@ describe('manipulation', function() {
       });
 
       it('should generate a new id when "defaultfn" is "uuid"', function(done) {
-        var inst = CustomModel.create(function(err, m) {
           should.not.exists(err);
+        CustomModel.create(function(err, m) {
           m.guid.should.match(UUID_REGEXP);
           done();
         });
@@ -1695,7 +1695,7 @@ describe('manipulation', function() {
       });
 
       it('should generate a new id when "defaultfn" is "uuidv4"', function(done) {
-        var inst = CustomModel.create(function(err, m) {
+        CustomModel.create(function(err, m) {
           should.not.exists(err);
           m.guid.should.match(UUID_REGEXP);
           done();
