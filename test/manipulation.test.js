@@ -83,9 +83,10 @@ describe('manipulation', function() {
     it('should create instance', function(done) {
       Person.create({name: 'Anatoliy'}, function(err, p) {
         p.name.should.equal('Anatoliy');
-        should.not.exist(err);
+        if (err) return done(err);
         should.exist(p);
         Person.findById(p.id, function(err, person) {
+          if (err) return done(err);
           person.id.should.eql(p.id);
           person.name.should.equal('Anatoliy');
           done();
@@ -113,7 +114,7 @@ describe('manipulation', function() {
       p.name.should.equal('Anatoliy');
       p.isNewRecord().should.be.true;
       p.save(function(err, inst) {
-        should.not.exist(err);
+        if (err) return done(err);
         inst.isNewRecord().should.be.false;
         inst.should.equal(p);
         done();
@@ -136,6 +137,7 @@ describe('manipulation', function() {
 
     it('should not return instance of object', function(done) {
       var person = Person.create(function(err, p) {
+        if (err) return done(err);
         should.exist(p.id);
         if (person) person.should.not.be.an.instanceOf(Person);
         done();
@@ -209,10 +211,11 @@ describe('manipulation', function() {
 
     it('should create instance with blank data', function(done) {
       Person.create(function(err, p) {
-        should.not.exist(err);
+        if (err) return done(err);
         should.exist(p);
         should.not.exists(p.name);
         Person.findById(p.id, function(err, person) {
+          if (err) return done(err);
           person.id.should.eql(p.id);
           should.not.exists(person.name);
           done();
@@ -350,7 +353,7 @@ describe('manipulation', function() {
     it('should save new object', function(done) {
       var p = new Person;
       p.save(function(err) {
-        should.not.exist(err);
+        if (err) return done(err);
         should.exist(p.id);
         done();
       });
@@ -368,13 +371,13 @@ describe('manipulation', function() {
 
     it('should save existing object', function(done) {
       Person.findOne(function(err, p) {
-        should.not.exist(err);
+        if (err) return done(err);
         p.name = 'Hans';
         p.save(function(err) {
-          should.not.exist(err);
+          if (err) return done(err);
           p.name.should.equal('Hans');
           Person.findOne(function(err, p) {
-            should.not.exist(err);
+            if (err) return done(err);
             p.name.should.equal('Hans');
             done();
           });
@@ -400,7 +403,7 @@ describe('manipulation', function() {
 
     it('should save invalid object (skipping validation)', function(done) {
       Person.findOne(function(err, p) {
-        should.not.exist(err);
+        if (err) return done(err);
         p.isValid = function(done) {
           process.nextTick(done);
           return false;
@@ -409,7 +412,7 @@ describe('manipulation', function() {
         p.save(function(err) {
           should.exist(err);
           p.save({validate: false}, function(err) {
-            should.not.exist(err);
+            if (err) return done(err);
             done();
           });
         });
@@ -441,7 +444,7 @@ describe('manipulation', function() {
 
     it('should save throw error on validation', function() {
       Person.findOne(function(err, p) {
-        should.not.exist(err);
+        if (err) return done(err);
         p.isValid = function(cb) {
           cb(false);
           return false;
@@ -548,6 +551,7 @@ describe('manipulation', function() {
       function(done) {
         Person.definition.settings.strict = true;
         Person.findById(person.id, function(err, p) {
+          if (err) return done(err);
           p.updateAttributes({name: 'John', unknownVar: undefined},
             function(err, p) {
               // if uknownVar was defined, it would return validationError
@@ -566,6 +570,7 @@ describe('manipulation', function() {
       function(done) {
         Person.definition.settings.strict = false;
         Person.findById(person.id, function(err, p) {
+          if (err) return done(err);
           p.updateAttributes({name: 'John', foo: 'bar'},
             function(err, p) {
               if (err) return done(err);
@@ -584,6 +589,7 @@ describe('manipulation', function() {
         // changes to '{}' and breaks other tests
         Person.definition.settings.strict = true;
         Person.findById(person.id, function(err, p) {
+          if (err) return done(err);
           p.updateAttributes({name: 'John', foo: 'bar'},
             function(err, p) {
               should.exist(err);
@@ -604,6 +610,7 @@ describe('manipulation', function() {
     it('should fallback to strict:true when using strict: throw', function(done) {
       Person.definition.settings.strict = 'throw';
       Person.findById(person.id, function(err, p) {
+        if (err) return done(err);
         p.updateAttributes({foo: 'bar'},
           function(err, p) {
             should.exist(err);
@@ -623,6 +630,7 @@ describe('manipulation', function() {
     it('should fallback to strict:true when using strict:validate', function(done) {
       Person.definition.settings.strict = 'validate';
       Person.findById(person.id, function(err, p) {
+        if (err) return done(err);
         p.updateAttributes({foo: 'bar'},
           function(err, p) {
             should.exist(err);
@@ -1356,9 +1364,11 @@ describe('manipulation', function() {
 
     it('should destroy record', function(done) {
       Person.create(function(err, p) {
+        if (err) return done(err);
         p.destroy(function(err) {
-          should.not.exist(err);
+          if (err) return done(err);
           Person.exists(p.id, function(err, ex) {
+            if (err) return done(err);
             ex.should.not.be.ok;
             done();
           });
@@ -1383,10 +1393,12 @@ describe('manipulation', function() {
 
     it('should destroy all records', function(done) {
       Person.destroyAll(function(err) {
-        should.not.exist(err);
+        if (err) return done(err);
         Person.all(function(err, posts) {
+          if (err) return done(err);
           posts.should.have.lengthOf(0);
           Person.count(function(err, count) {
+            if (err) return done(err);
             count.should.eql(0);
             done();
           });
@@ -1525,6 +1537,7 @@ describe('manipulation', function() {
 
     it('should allow delete(id) - success', function(done) {
       Person.findOne(function(e, p) {
+        if (e) return done(e);
         p.delete(function(err, info) {
           if (err) return done(err);
           info.should.have.property('count', 1);
@@ -1536,6 +1549,7 @@ describe('manipulation', function() {
     it('should allow delete(id) - fail', function(done) {
       Person.settings.strictDelete = false;
       Person.findOne(function(e, p) {
+        if (e) return done(e);
         p.delete(function(err, info) {
           if (err) return done(err);
           info.should.have.property('count', 1);
@@ -1550,7 +1564,8 @@ describe('manipulation', function() {
 
     it('should allow delete(id) - fail with error', function(done) {
       Person.settings.strictDelete = true;
-      Person.findOne(function(e, u) {
+      Person.findOne(function(err, u) {
+        if (err) return done(err);
         u.delete(function(err, info) {
           if (err) return done(err);
           info.should.have.property('count', 1);
@@ -1592,10 +1607,10 @@ describe('manipulation', function() {
         function(done) {
           var now = Date.now();
 
-          CustomModel.create(function(err, m) {
+          CustomModel.create(function(err, model) {
             should.not.exists(err);
-            m.createdAt.should.be.instanceOf(Date);
-            (m.createdAt >= now).should.be.true;
+            model.createdAt.should.be.instanceOf(Date);
+            (model.createdAt >= now).should.be.true;
           });
 
           done();
@@ -1614,10 +1629,10 @@ describe('manipulation', function() {
 
       it('should report \'$now\' as default value for string property',
         function(done) {
-            should.not.exists(err);
-          CustomModel.create(function(err, m) {
-            m.now.should.be.instanceOf(String);
-            m.now.should.equal('$now');
+          CustomModel.create(function(err, model) {
+            if (err) return done(err);
+            model.now.should.be.instanceOf(String);
+            model.now.should.equal('$now');
           });
 
           done();
@@ -1637,10 +1652,10 @@ describe('manipulation', function() {
       it('should generate current time when "defaultFn" is "now"',
         function(done) {
           var now = Date.now();
-            should.not.exists(err);
-          CustomModel.create(function(err, m) {
-            m.now.should.be.instanceOf(Date);
-            m.now.should.be.within(now, now + 200);
+          CustomModel.create(function(err, model) {
+            if (err) return done(err);
+            model.now.should.be.instanceOf(Date);
+            model.now.should.be.within(now, now + 200);
             done();
           });
         });
@@ -1657,9 +1672,9 @@ describe('manipulation', function() {
       });
 
       it('should generate a new id when "defaultFn" is "guid"', function(done) {
-        var inst = CustomModel.create(function(err, m) {
-          should.not.exists(err);
-          m.guid.should.match(UUID_REGEXP);
+        CustomModel.create(function(err, model) {
+          if (err) return done(err);
+          model.guid.should.match(UUID_REGEXP);
           done();
         });
       });
@@ -1676,9 +1691,9 @@ describe('manipulation', function() {
       });
 
       it('should generate a new id when "defaultfn" is "uuid"', function(done) {
-          should.not.exists(err);
-        CustomModel.create(function(err, m) {
-          m.guid.should.match(UUID_REGEXP);
+        CustomModel.create(function(err, model) {
+          if (err) return done(err);
+          model.guid.should.match(UUID_REGEXP);
           done();
         });
       });
@@ -1695,9 +1710,9 @@ describe('manipulation', function() {
       });
 
       it('should generate a new id when "defaultfn" is "uuidv4"', function(done) {
-        CustomModel.create(function(err, m) {
+        CustomModel.create(function(err, model) {
           should.not.exists(err);
-          m.guid.should.match(UUID_REGEXP);
+          model.guid.should.match(UUID_REGEXP);
           done();
         });
       });
