@@ -59,6 +59,7 @@
       "loopback-connector-informix",
       "loopback-connector-mqlight",
       "loopback-connector-mssql",
+      "loopback-connector-mysql",
       "loopback-connector-oracle"
     ]
   }
