@@ -55,7 +55,11 @@
   "license": "MIT",
   "ci": {
     "downstreamIgnoreList": [
-      "loopback-connector-db2z"
+      "loopback-connector-db2z",
+      "loopback-connector-informix",
+      "loopback-connector-mqlight",
+      "loopback-connector-mssql",
+      "loopback-connector-oracle"
     ]
   }
 }
