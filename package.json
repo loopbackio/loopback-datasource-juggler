@@ -42,6 +42,7 @@
     "async": "~1.0.0",
     "bluebird": "^3.1.1",
     "debug": "^2.1.1",
+    "deep-equal": "^1.0.1",
     "depd": "^1.0.0",
     "inflection": "^1.6.0",
     "loopback-connector": "^2.1.0",
