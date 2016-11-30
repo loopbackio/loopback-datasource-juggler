@@ -48,7 +48,7 @@ describe('scope', function() {
     Station.scope('active', {where: {isActive: true}});
     Station.scopes.should.have.property('active');
     Station.active.create(function(err, station) {
-      should.not.exist(err);
+      if (err) return done(err);
       should.exist(station);
       should.exist(station.isActive);
       station.isActive.should.be.true;
@@ -60,7 +60,7 @@ describe('scope', function() {
     Station.scope('active', {where: {isActive: true}});
     Station.scope('subway', {where: {isUndeground: true}});
     Station.active.subway.create(function(err, station) {
-      should.not.exist(err);
+      if (err) return done(err);
       should.exist(station);
       station.isActive.should.be.true;
       station.isUndeground.should.be.true;
@@ -75,6 +75,7 @@ describe('scope', function() {
     Station.active.ground.create(function() {
       Station.inactive.ground.create(function() {
         Station.ground.inactive(function(err, ss) {
+          if (err) return done(err);
           ss.should.have.lengthOf(1);
           done();
         });
@@ -135,6 +136,7 @@ describe('scope - order', function() {
 
   it('should define scope with default order', function(done) {
     Station.reverse(function(err, stations) {
+      if (err) return done(err);
       stations[0].name.should.equal('c');
       stations[0].order.should.equal(3);
       stations[1].name.should.equal('b');
@@ -147,6 +149,7 @@ describe('scope - order', function() {
 
   it('should override default scope order', function(done) {
     Station.reverse({order: 'order ASC'}, function(err, stations) {
+      if (err) return done(err);
       stations[0].name.should.equal('a');
       stations[0].order.should.equal(1);
       stations[1].name.should.equal('b');
@@ -187,6 +190,7 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
 
   beforeEach(function(done) {
     Station.create({name: 'a', order: 1}, function(err, inst) {
+      if (err) return done(err);
       stationA = inst;
       done();
     });
@@ -202,7 +206,7 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
 
   it('should find all - verify', function(done) {
     Station.ordered(function(err, stations) {
-      should.not.exist(err);
+      if (err) return done(err);
       stations.should.have.length(4);
       stations[0].name.should.equal('a');
       stations[1].name.should.equal('b');
@@ -214,7 +218,7 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
 
   it('should find one', function(done) {
     Station.active.findOne(function(err, station) {
-      should.not.exist(err);
+      if (err) return done(err);
       station.name.should.equal('a');
       done();
     });
@@ -222,7 +226,7 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
 
   it('should find one - with filter', function(done) {
     Station.active.findOne({where: {name: 'c'}}, function(err, station) {
-      should.not.exist(err);
+      if (err) return done(err);
       station.name.should.equal('c');
       done();
     });
@@ -230,7 +234,7 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
 
   it('should find by id - match', function(done) {
     Station.active.findById(stationA.id, function(err, station) {
-      should.not.exist(err);
+      if (err) return done(err);
       station.name.should.equal('a');
       done();
     });
@@ -238,7 +242,7 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
 
   it('should find by id - no match', function(done) {
     Station.inactive.findById(stationA.id, function(err, station) {
-      should.not.exist(err);
+      if (err) return done(err);
       should.not.exist(station);
       done();
     });
@@ -246,7 +250,7 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
 
   it('should count all in scope - active', function(done) {
     Station.active.count(function(err, count) {
-      should.not.exist(err);
+      if (err) return done(err);
       count.should.equal(2);
       done();
     });
@@ -254,7 +258,7 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
 
   it('should count all in scope - inactive', function(done) {
     Station.inactive.count(function(err, count) {
-      should.not.exist(err);
+      if (err) return done(err);
       count.should.equal(2);
       done();
     });
@@ -262,7 +266,7 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
 
   it('should count filtered - active', function(done) {
     Station.active.count({order: {gt: 1}}, function(err, count) {
-      should.not.exist(err);
+      if (err) return done(err);
       count.should.equal(1);
       done();
     });
@@ -270,7 +274,7 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
 
   it('should count filtered - inactive', function(done) {
     Station.inactive.count({order: 2}, function(err, count) {
-      should.not.exist(err);
+      if (err) return done(err);
       count.should.equal(1);
       done();
     });
@@ -278,14 +282,14 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
 
   it('should allow updateAll', function(done) {
     Station.inactive.updateAll({flagged: true}, function(err, result) {
-      should.not.exist(err);
+      if (err) return done(err);
       result.count.should.equal(2);
       verify();
     });
 
     var verify = function() {
       Station.flagged.count(function(err, count) {
-        should.not.exist(err);
+        if (err) return done(err);
         count.should.equal(2);
         done();
       });
@@ -294,14 +298,14 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
 
   it('should allow filtered updateAll', function(done) {
     Station.ordered.updateAll({active: true}, {flagged: true}, function(err, result) {
-      should.not.exist(err);
+      if (err) return done(err);
       result.count.should.equal(2);
       verify();
     });
 
     var verify = function() {
       Station.flagged.count(function(err, count) {
-        should.not.exist(err);
+        if (err) return done(err);
         count.should.equal(2);
         done();
       });
@@ -310,16 +314,16 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
 
   it('should allow filtered destroyAll', function(done) {
     Station.ordered.destroyAll({active: false}, function(err) {
-      should.not.exist(err);
+      if (err) return done(err);
       verify();
     });
 
     var verify = function() {
       Station.ordered.count(function(err, count) {
-        should.not.exist(err);
+        if (err) return done(err);
         count.should.equal(2);
         Station.inactive.count(function(err, count) {
-          should.not.exist(err);
+          if (err) return done(err);
           count.should.equal(0);
           done();
         });
@@ -330,7 +334,7 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
 });
 
 describe('scope - dynamic target class', function() {
-  var Collection, Media, Image, Video;
+  var Collection, Image, Video;
 
   before(function() {
     db = getSchema();
@@ -375,10 +379,10 @@ describe('scope - dynamic target class', function() {
 
   it('should deduce modelTo at runtime - Image', function(done) {
     Collection.findOne({where: {modelName: 'Image'}}, function(err, coll) {
-      should.not.exist(err);
+      if (err) return done(err);
       coll.name.should.equal('Images');
       coll.items(function(err, items) {
-        should.not.exist(err);
+        if (err) return done(err);
         items.length.should.equal(1);
         items[0].name.should.equal('Image A');
         items[0].should.be.instanceof(Image);
@@ -389,10 +393,10 @@ describe('scope - dynamic target class', function() {
 
   it('should deduce modelTo at runtime - Video', function(done) {
     Collection.findOne({where: {modelName: 'Video'}}, function(err, coll) {
-      should.not.exist(err);
+      if (err) return done(err);
       coll.name.should.equal('Videos');
       coll.items(function(err, items) {
-        should.not.exist(err);
+        if (err) return done(err);
         items.length.should.equal(1);
         items[0].name.should.equal('Video A');
         items[0].should.be.instanceof(Video);
@@ -403,7 +407,7 @@ describe('scope - dynamic target class', function() {
 
   it('should throw if modelTo is invalid', function(done) {
     Collection.findOne({where: {name: 'Things'}}, function(err, coll) {
-      should.not.exist(err);
+      if (err) return done(err);
       coll.modelName.should.equal('Unknown');
       (function() {
         coll.items(function(err, items) {});
@@ -435,10 +439,10 @@ describe('scope - dynamic function', function() {
 
   it('should deduce item by runtime creator', function(done) {
     Item.dynamicQuery.findOne(function(err, firstQuery) {
-      should.not.exist(err);
+      if (err) return done(err);
       firstQuery.title.should.equal(1);
       Item.dynamicQuery.findOne(function(err, secondQuery) {
-        should.not.exist(err);
+        if (err) return done(err);
         secondQuery.title.should.equal(2);
         done();
       });
