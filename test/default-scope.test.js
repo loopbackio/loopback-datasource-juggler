@@ -6,6 +6,7 @@
 // This test written in mocha+should.js
 'use strict';
 
+/* global getSchema:false */
 var should = require('./init.js');
 var async = require('async');
 

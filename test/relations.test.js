@@ -5,6 +5,8 @@
 
 // This test written in mocha+should.js
 'use strict';
+
+/* global getSchema:false */
 var should = require('./init.js');
 var assert = require('assert');
 var jdb = require('../');
@@ -2945,7 +2947,7 @@ describe('relations', function() {
           should.not.exist(e);
           should.exist(supplier);
           supplier.account.update({supplierName: 'Supplier A',
-              supplierId: sid},
+            supplierId: sid},
             function(err, act) {
               should.not.exist(e);
               act.supplierName.should.equal('Supplier A');

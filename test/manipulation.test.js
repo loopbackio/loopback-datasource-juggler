@@ -5,6 +5,8 @@
 
 // This test written in mocha+should.js
 'use strict';
+
+/* global getSchema:false */
 var async = require('async');
 var should = require('./init.js');
 
@@ -442,7 +444,7 @@ describe('manipulation', function() {
         .catch(done);
     });
 
-    it('should save throw error on validation', function() {
+    it('should save throw error on validation', function(done) {
       Person.findOne(function(err, p) {
         if (err) return done(err);
         p.isValid = function(cb) {
@@ -454,6 +456,7 @@ describe('manipulation', function() {
             'throws': true,
           });
         }).should.throw(ValidationError);
+        done();
       });
     });
 
