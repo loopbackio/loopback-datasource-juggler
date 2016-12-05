@@ -44,7 +44,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       });
 
       GeoModel = dataSource.createModel('GeoModel', {
-        id: {type: String, id: true},
+        id: {type: String, id: true, default: uid.next},
         name: {type: String, required: false},
         location: {type: GeoPoint, required: false},
       });
