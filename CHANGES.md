@@ -1,3 +1,67 @@
+2016-12-05, Version 3.1.0
+=========================
+
+ * Apply hasManyThrough filter on target model (jannyHou)
+
+ * Remove valid connectors from downstream ignores (Simon Ho)
+
+ * Add some connectors to ignoreList (jannyHou)
+
+ * Tests cleanup (Amir Jafarian)
+
+ * Fixed example for creating ValidationError (Boštjan Pišler)
+
+ * Correct tests for DAO.Create (Amir Jafarian)
+
+ * Add downstream ignore list config (Simon Ho)
+
+ * Remove duplicate "engines" from package.json (Miroslav Bajtoš)
+
+ * Drop support for Node v0.10 and v0.12 (Miroslav Bajtoš)
+
+ * Fix a test (Amir Jafarian)
+
+ * Add more robust OH tests for find method (Amir Jafarian)
+
+ * Add support for `loaded` hook (Amir Jafarian)
+
+ * Use imperative mood for tests (Amir Jafarian)
+
+ * Continue _coerce after logical operators (Heath Morrison)
+
+ * Make variable names more clear (Amir Jafarian)
+
+ * test/kvao: add connectorCapabilities options (Miroslav Bajtoš)
+
+ * Fix validateNumericality, nullCheck & add tests (CerealGuy)
+
+ * Add test for operation hooks (Amir Jafarian)
+
+ * Add ilike and nilike operators (Nick Duffy)
+
+ * Fix JSDoc issue (Amir Jafarian)
+
+ * Update ja translation file (Candy)
+
+ * Remove 3.0 RELEASE-NOTES (Miroslav Bajtoš)
+
+ * Fix linting errors (Simon Ho)
+
+ * Update validations.js (Rand McKinney)
+
+ * Update translation files - round#2 (Candy)
+
+ * Fix CI Failures in MySQL (Loay)
+
+ * Add code review fixups (Simon Ho)
+
+ * More descriptive name for model with shortid (Tim De Pauw)
+
+ * Polish PR (Tim De Pauw)
+
+ * Support {defaultFn: 'shortid'} (Tim De Pauw)
+
+
 2016-09-22, Version 3.0.0
 =========================
 
