@@ -1446,7 +1446,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       });
     });
 
-    if (!getSchema().connector.replaceById) {
+    if (!dataSource.connector.replaceById) {
       describe.skip('replaceById - not implemented', function() {});
     } else {
       describe('PersistedModel.prototype.replaceAttributes', function() {
@@ -2103,7 +2103,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       });
     });
 
-    if (!getSchema().connector.replaceById) {
+    if (!dataSource.connector.replaceById) {
       describe.skip('replaceById - not implemented', function() {});
     } else {
       describe('PersistedModel.replaceOrCreate', function() {

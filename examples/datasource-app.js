@@ -106,7 +106,7 @@ Article.create(function(e, article) {
 // should be able to attach a data source to an existing model
 var modelBuilder = new ModelBuilder();
 
-Color = modelBuilder.define('Color', {
+var Color = modelBuilder.define('Color', {
   name: String,
 });
 

@@ -417,7 +417,7 @@ describe('manipulation', function() {
         .catch(done);
     });
 
-    it('should save throw error on validation', function() {
+    it('should save throw error on validation', function(done) {
       Person.findOne(function(err, p) {
         should.not.exist(err);
         p.isValid = function(cb) {
@@ -429,6 +429,7 @@ describe('manipulation', function() {
             'throws': true,
           });
         }).should.throw(ValidationError);
+        done();
       });
     });
 
