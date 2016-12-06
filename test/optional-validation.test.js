@@ -5,6 +5,8 @@
 
 // This test written in mocha+should.js
 'use strict';
+
+/* global getSchema:false */
 var async = require('async');
 var should = require('./init.js');
 var db, User, options, ModelWithForceId, whereCount = 0;

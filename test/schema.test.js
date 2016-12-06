@@ -5,6 +5,8 @@
 
 // This test written in mocha+should.js
 'use strict';
+
+/* global getSchema:false */
 var should = require('./init.js');
 
 var db = getSchema(), slave = getSchema(), Model, SlaveModel;

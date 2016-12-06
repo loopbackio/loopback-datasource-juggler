@@ -5,6 +5,7 @@
 
 'use strict';
 
+/* global getSchema:false */
 var should = require('./init.js');
 var async = require('async');
 var assert = require('assert');

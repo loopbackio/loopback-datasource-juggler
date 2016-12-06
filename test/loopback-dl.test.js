@@ -1275,7 +1275,7 @@ describe('Model define with relations configuration', function() {
     var Post = modelBuilder.define('Post', {userId: Number, content: String});
     var User = modelBuilder.define('User', {name: String}, {
       relations: {posts: {type: 'hasMany', model: 'Post'},
-    }});
+      }});
 
     assert(!User.relations['posts']);
     Post.attachTo(ds);

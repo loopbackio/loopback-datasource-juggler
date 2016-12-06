@@ -6,6 +6,7 @@
 'use strict';
 
 // This test written in mocha+should.js
+/* global getSchema:false */
 var should = require('./init.js');
 
 var j = require('../'),
