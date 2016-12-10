@@ -1777,8 +1777,7 @@ describe('ModelBuilder processing json files', function() {
     });
 
     var Customer = User.extend('Customer',
-      {customerId: {type: String, id: true}},
-      {
+      {customerId: {type: String, id: true}}, {
         defaultPermission: 'DENY',
         acls: [
           {
