@@ -5483,4 +5483,24 @@ describe('relations', function() {
       .catch(done);
     });
   });
+
+  describe('relation names', function() {
+    it('throws error when a relation name is `trigger`', function() {
+      Chapter = db.define('Chapter', {name: String});
+
+      (function() {
+        db.define(
+          'Book',
+          {name: String},
+          {
+            relations: {
+              trigger: {
+                model: 'Chapter',
+                type: 'hasMany',
+              },
+            },
+          });
+      }).should.throw('Invalid relation name: trigger');
+    });
+  });
 });
