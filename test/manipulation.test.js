@@ -8,6 +8,7 @@
 
 /* global getSchema:false */
 var async = require('async');
+var dao = require('./dao.suite/index.js');
 var should = require('./init.js');
 
 var db, Person;
@@ -16,7 +17,8 @@ var ValidationError = require('..').ValidationError;
 var UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 describe('manipulation', function() {
-
+  db = getSchema();
+  dao(db, should);
   before(function(done) {
     db = getSchema();
 
