@@ -14,7 +14,6 @@ var ModelBuilder = jdb.ModelBuilder;
 var DataSource = jdb.DataSource;
 
 describe('ModelBuilder', function() {
-
   it('supports plain models', function(done) {
     var modelBuilder = new ModelBuilder();
 
@@ -261,7 +260,6 @@ describe('ModelBuilder', function() {
     follow.should.have.property('id');
     assert.deepEqual(follow.id, {followerId: 1, followeeId: 2});
   });
-
 });
 
 describe('DataSource ping', function() {
@@ -399,7 +397,6 @@ describe('DataSource define model', function() {
     Color.all(function(err, colors) {
       colors.should.have.lengthOf(3);
     });
-
   });
 
   it('emits events during attach', function() {
@@ -436,7 +433,6 @@ describe('DataSource define model', function() {
     var User = ds.define('User', {name: String, bio: String}, {strict: true});
 
     User.create({name: 'Joe', age: 20}, function(err, user) {
-
       User.modelName.should.equal('User');
       user.should.be.type('object');
       assert(user.name === 'Joe');
@@ -480,7 +476,6 @@ describe('DataSource define model', function() {
     User.modelName.should.equal('User');
 
     User.create({name: 'Joe', age: 20}, function(err, user) {
-
       user.should.be.type('object').and.have.property('name', 'Joe');
       user.should.have.property('name', 'Joe');
       user.should.have.property('age', 20);
@@ -502,7 +497,6 @@ describe('DataSource define model', function() {
     var User = ds.define('User', {});
 
     User.create({name: 'Joe', age: 20}, function(err, user) {
-
       User.modelName.should.equal('User');
       user.should.be.type('object').and.have.property('name', 'Joe');
       user.should.have.property('name', 'Joe');
@@ -577,7 +571,6 @@ describe('DataSource define model', function() {
     user.toObject().should.not.have.property('age');
     user.toObject(true).should.not.have.property('age');
     user.toObject(false).should.have.property('age', 20);
-
   });
 
   it('updates instances with unknown properties in non-strict mode', function(done) {
@@ -603,7 +596,6 @@ describe('DataSource define model', function() {
           done();
         });
       });
-
     });
   });
 
@@ -658,7 +650,6 @@ describe('DataSource define model', function() {
     });
     User.http.path.should.equal('/accounts');
   });
-
 });
 
 describe('Model loaded with a base', function() {
@@ -858,7 +849,6 @@ describe('Models attached to a dataSource', function() {
             done();
           });
         });
-
       });
     });
 
@@ -1179,7 +1169,6 @@ describe('Model define with relations configuration', function() {
     } catch (e) {
       done();
     }
-
   });
 
   it('throws an error if a relation type is invalid', function(done) {
@@ -1194,7 +1183,6 @@ describe('Model define with relations configuration', function() {
     } catch (e) {
       done();
     }
-
   });
 
   it('sets up hasMany through relations', function(done) {
@@ -1283,7 +1271,6 @@ describe('Model define with relations configuration', function() {
     assert(User.relations['posts']);
     done();
   });
-
 });
 
 describe('Model define with scopes configuration', function() {
@@ -1403,7 +1390,6 @@ describe('DataAccessObject', function() {
 
     where = model._coerce({vip: ''});
     assert.deepEqual(where, {vip: false});
-
   });
 
   it('coerces where clause with and operators', function() {
@@ -1619,7 +1605,6 @@ describe('DataAccessObject', function() {
       ds.settings.test = 'willNotGet';
       assert.notEqual(model._getSetting('test'), ds.settings.test, 'Should not get datasource setting');
     });
-
 });
 
 describe('ModelBuilder processing json files', function() {
@@ -1647,7 +1632,6 @@ describe('ModelBuilder processing json files', function() {
   }
 
   it('defines models', function() {
-
     var models = loadSchemasSync(path.join(__dirname, 'test1-schemas.json'));
 
     models.should.have.property('AnonymousModel_0');

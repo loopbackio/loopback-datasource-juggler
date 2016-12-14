@@ -16,7 +16,6 @@ var ValidationError = require('..').ValidationError;
 var UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 describe('manipulation', function() {
-
   before(function(done) {
     db = getSchema();
 
@@ -30,7 +29,6 @@ describe('manipulation', function() {
     }, {forceId: true, strict: true});
 
     db.automigrate(['Person'], done);
-
   });
 
   // A simplified implementation of LoopBack's User model
@@ -61,7 +59,6 @@ describe('manipulation', function() {
   });
 
   describe('create', function() {
-
     before(function(done) {
       Person.destroyAll(done);
     });
@@ -134,7 +131,6 @@ describe('manipulation', function() {
           done();
         })
         .catch(done);
-
     });
 
     it('should not return instance of object', function(done) {
@@ -351,7 +347,6 @@ describe('manipulation', function() {
   });
 
   describe('save', function() {
-
     it('should save new object', function(done) {
       var p = new Person;
       p.save(function(err) {
@@ -1364,7 +1359,6 @@ describe('manipulation', function() {
   });
 
   describe('destroy', function() {
-
     it('should destroy record', function(done) {
       Person.create(function(err, p) {
         if (err) return done(err);
@@ -1426,7 +1420,6 @@ describe('manipulation', function() {
             });
         })
         .catch(done);
-
     });
 
     // TODO: implement destroy with filtered set
@@ -1789,7 +1782,6 @@ describe('manipulation', function() {
 
       p1 = new Person({name: 'John', married: undefined});
       p1.should.have.property('married', undefined);
-
     });
 
     it('should coerce date types properly', function() {

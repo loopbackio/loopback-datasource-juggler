@@ -28,7 +28,6 @@ var getMemoryDataSource = function(settings) {
 };
 
 describe('relations', function() {
-
   before(function() {
     db = getSchema();
   });
@@ -67,7 +66,6 @@ describe('relations', function() {
     });
 
     describe('with scope', function() {
-
       before(function(done) {
         Book.hasMany(Chapter);
         done();
@@ -556,7 +554,6 @@ describe('relations', function() {
         }).catch(done);
       });
     });
-
   });
 
   describe('hasMany through', function() {
@@ -677,7 +674,6 @@ describe('relations', function() {
       });
       function verify(physician) {
         physician.patients(function(err, ch) {
-
           var patients = physician.patients();
           patients.should.eql(ch);
 
@@ -706,7 +702,6 @@ describe('relations', function() {
       function verify(physician) {
         return physician.patients.getAsync()
         .then(function(ch) {
-
           var patients = physician.patients();
           patients.should.eql(ch);
 
@@ -1229,7 +1224,6 @@ describe('relations', function() {
         });
       });
     });
-
   });
 
   describe('hasMany through - collect', function() {
@@ -1327,7 +1321,6 @@ describe('relations', function() {
     });
 
     describe('when custom reverse belongsTo name for one side only', function() {
-
       beforeEach(function() {
         Physician.hasMany(Patient, {as: 'xxx', through: Appointment, foreignKey: 'fooId'});
         Patient.hasMany(Physician, {as: 'yyy', through: Appointment, keyThrough: 'fooId'});
@@ -1674,7 +1667,6 @@ describe('relations', function() {
         });
       });
     });
-
   });
 
   describe('polymorphic hasOne', function() {
@@ -1821,7 +1813,6 @@ describe('relations', function() {
         });
       });
     });
-
   });
 
   describe('polymorphic hasOne with non standard ids', function() {
@@ -2175,7 +2166,6 @@ describe('relations', function() {
             done();
           });
       });
-
   });
 
   describe('polymorphic hasAndBelongsToMany through', function() {
@@ -2475,7 +2465,6 @@ describe('relations', function() {
         });
       });
     });
-
   });
 
   describe('belongsTo', function() {
@@ -2685,7 +2674,6 @@ describe('relations', function() {
         done();
       }).catch(done);
     });
-
   });
 
   describe('belongsTo with scope', function() {
@@ -2757,7 +2745,6 @@ describe('relations', function() {
       })
       .catch(done);
     });
-
   });
 
   // Disable the tests until the issue in
@@ -3043,11 +3030,9 @@ describe('relations', function() {
         done();
       });
     });
-
   });
 
   describe('hasOne with scope', function() {
-
     var Supplier, Account;
     var supplierId, accountId;
 
@@ -3153,7 +3138,6 @@ describe('relations', function() {
       })
       .catch(done);
     });
-
   });
 
   describe('hasOne with non standard id', function() {
@@ -3240,7 +3224,6 @@ describe('relations', function() {
         done();
       });
     });
-
   });
 
   describe('hasOne with primaryKey different from model PK', function() {
@@ -3606,7 +3589,6 @@ describe('relations', function() {
   });
 
   describe('embedsOne', function() {
-
     var person;
     var Passport;
     var Other;
@@ -3945,7 +3927,6 @@ describe('relations', function() {
   });
 
   describe('embedsOne - persisted model', function() {
-
     // This test spefically uses the Memory connector
     // in order to test the use of the auto-generated
     // id, in the sequence of the related model.
@@ -3997,7 +3978,6 @@ describe('relations', function() {
         });
       }).catch(done);
     });
-
   });
 
   describe('embedsOne - generated id', function() {
@@ -4030,11 +4010,9 @@ describe('relations', function() {
         });
       });
     });
-
   });
 
   describe('embedsMany', function() {
-
     var address1, address2;
 
     before(function(done) {
@@ -4268,11 +4246,9 @@ describe('relations', function() {
         done();
       });
     });
-
   });
 
   describe('embedsMany - numeric ids + forceId', function() {
-
     before(function(done) {
       tmp = getTransientDataSource();
       // db = getSchema();
@@ -4305,7 +4281,6 @@ describe('relations', function() {
         });
       });
     });
-
   });
 
   describe('embedsMany - explicit ids', function() {
@@ -4474,11 +4449,9 @@ describe('relations', function() {
         });
       });
     });
-
   });
 
   describe('embedsMany - persisted model', function() {
-
     var address0, address1, address2;
     var person;
 
@@ -4600,11 +4573,9 @@ describe('relations', function() {
         });
       });
     });
-
   });
 
   describe('embedsMany - relations, scope and properties', function() {
-
     var category, job1, job2, job3;
 
     before(function() {
@@ -4859,11 +4830,9 @@ describe('relations', function() {
         done();
       });
     });
-
   });
 
   describe('embedsMany - polymorphic relations', function() {
-
     var person1, person2;
 
     before(function(done) {
@@ -4969,7 +4938,6 @@ describe('relations', function() {
     });
 
     it('should include nested related items on scope', function(done) {
-
       // There's some date duplication going on, so it might
       // make sense to override toObject on a case-by-case basis
       // to sort this out (delete links, keep people).
@@ -4996,11 +4964,9 @@ describe('relations', function() {
         done();
       });
     });
-
   });
 
   describe('referencesMany', function() {
-
     var job1, job2, job3;
 
     before(function(done) {
@@ -5642,7 +5608,5 @@ describe('relations', function() {
       })
       .catch(done);
     });
-
   });
-
 });
