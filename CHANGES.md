@@ -1,3 +1,25 @@
+2016-12-21, Version 3.1.1
+=========================
+
+ * Update package.json for LB3 release (Simon Ho)
+
+ * Fix eslint errors reported by the latest eslint (Miroslav Bajtoš)
+
+ * Fix HasOne.update to propagate options arg (Miroslav Bajtoš)
+
+ * Fix linter errors for CI (Simon Ho)
+
+ * Replicate .github from loopback repo (Siddhi Pai)
+
+ * Update ko translation file (Candy)
+
+ * Honour allowExtendedOperators in "DAO.find" (Miroslav Bajtoš)
+
+ * Fix MySql CI server Failure (Loay)
+
+ * Upgrade eslint & config to latest (Miroslav Bajtoš)
+
+
 2016-12-05, Version 3.1.0
 =========================
 
