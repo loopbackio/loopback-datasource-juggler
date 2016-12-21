@@ -2,6 +2,7 @@
   "name": "loopback-datasource-juggler",
   "version": "2.53.1",
   "publishConfig": {
+    "tag": "lts",
     "export-tests": true
   },
   "description": "LoopBack DataSoure Juggler",
