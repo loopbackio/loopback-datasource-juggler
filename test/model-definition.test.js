@@ -50,7 +50,6 @@ describe('ModelDefinition class', function() {
     assert.deepEqual(User.toJSON(), json);
 
     done();
-
   });
 
   it('should be able to define additional properties', function(done) {
@@ -81,7 +80,6 @@ describe('ModelDefinition class', function() {
     assert.deepEqual(json.properties.id, {type: 'Number', id: true});
 
     done();
-
   });
 
   it('should be able to define nesting models', function(done) {
@@ -123,7 +121,6 @@ describe('ModelDefinition class', function() {
       state: {type: 'String'}});
 
     done();
-
   });
 
   it('should be able to define referencing models', function(done) {
@@ -164,7 +161,6 @@ describe('ModelDefinition class', function() {
     assert.equal(json.properties.address.type, 'Address');
 
     done();
-
   });
 
   it('should be able to define referencing models by name', function(done) {
@@ -205,7 +201,6 @@ describe('ModelDefinition class', function() {
     assert.equal(json.properties.address.type, 'Address');
 
     done();
-
   });
 
   it('should report correct id names', function(done) {

@@ -485,7 +485,6 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               });
               done();
             });
-
           });
       });
 
@@ -3056,7 +3055,6 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             done();
           });
       });
-
     });
 
     describe('PersistedModel.upsertWithWhere', function() {

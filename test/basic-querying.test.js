@@ -12,7 +12,6 @@ var async = require('async');
 var db, User;
 
 describe('basic-querying', function() {
-
   before(function(done) {
     db = getSchema();
     User = db.define('User', {
@@ -26,7 +25,6 @@ describe('basic-querying', function() {
     });
 
     db.automigrate(done);
-
   });
 
   describe('ping', function() {
@@ -39,7 +37,6 @@ describe('basic-querying', function() {
   });
 
   describe('findById', function() {
-
     before(function(done) {
       User.destroyAll(done);
     });
@@ -64,7 +61,6 @@ describe('basic-querying', function() {
         });
       });
     });
-
   });
 
   describe('findByIds', function() {
@@ -125,11 +121,9 @@ describe('basic-querying', function() {
           done();
         });
     });
-
   });
 
   describe('find', function() {
-
     before(seed);
 
     before(function setupDelayingLoadedHook() {
@@ -530,12 +524,10 @@ describe('basic-querying', function() {
       var remaining = 0;
 
       function sample(fields) {
-
         return {
           expect: function(arr) {
             remaining++;
             User.find({fields: fields}, function(err, users) {
-
               remaining--;
               if (err) return done(err);
 
@@ -572,11 +564,9 @@ describe('basic-querying', function() {
       sample(['id']).expect(['id']);
       sample(['email']).expect(['email']);
     });
-
   });
 
   describe('count', function() {
-
     before(seed);
 
     it('should query total count', function(done) {
@@ -599,7 +589,6 @@ describe('basic-querying', function() {
   });
 
   describe('findOne', function() {
-
     before(seed);
 
     it('should find first record (default sort by id)', function(done) {
@@ -655,11 +644,9 @@ describe('basic-querying', function() {
         });
       });
     });
-
   });
 
   describe('exists', function() {
-
     before(seed);
 
     it('should check whether record exist', function(done) {

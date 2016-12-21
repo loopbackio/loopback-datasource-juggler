@@ -22,7 +22,6 @@ function skip(name) {
 }
 
 module.exports = function testSchema(exportCasesHere, dataSource) {
-
   batch = exportCasesHere;
   schemaName = dataSource.name;
   if (dataSource.name.match(/^\/.*\/test\/\.\.$/)) {
@@ -54,7 +53,6 @@ module.exports = function testSchema(exportCasesHere, dataSource) {
     // dataSource.disconnect();
     console.log('Test done in %dms\n', Date.now() - start);
   }
-
 };
 
 Object.defineProperty(module.exports, 'it', {
@@ -98,7 +96,6 @@ function testOrm(dataSource) {
   var Post, User, Passport, Log, Dog;
 
   it('should define class', function(test) {
-
     User = dataSource.define('User', {
       name: {type: String, index: true},
       email: {type: String, index: true},
@@ -198,7 +195,6 @@ function testOrm(dataSource) {
         test.done();
       }
     });
-
   });
 
   it('should initialize object properly', function(test) {
@@ -446,7 +442,6 @@ function testOrm(dataSource) {
   });
 
   it('should navigate variations of belongsTo regardless of column name', function(test) {
-
     Dog.create({name: 'theDog'}, function(err, obj) {
       test.ok(obj instanceof Dog);
       Log.create({name: 'theLog', ownerId: obj.id}, function(err, obj) {
@@ -471,7 +466,6 @@ function testOrm(dataSource) {
   });
 
   it('hasMany should support additional conditions', function(test) {
-
     User.create(function(e, u) {
       u.posts.create({}, function(e, p) {
         u.posts({where: {id: p.id}}, function(e, posts) {
@@ -480,7 +474,6 @@ function testOrm(dataSource) {
         });
       });
     });
-
   });
 
   /* eslint-disable max-len */
@@ -498,7 +491,6 @@ function testOrm(dataSource) {
           User.findById(post.userId, function(err, user) {
             User.create(function(err, voidUser) {
               Post.create({userId: user.id}, function() {
-
                 // There can't be any concurrency because we are counting requests
                 // We are first testing cases when user has posts
                 user.posts(function(err, data) {
@@ -535,14 +527,11 @@ function testOrm(dataSource) {
                               });
                             });
                           });
-
                         });
                       });
                     }
-
                   });
                 });
-
               });
             });
           });
@@ -740,7 +729,6 @@ function testOrm(dataSource) {
     function numerically(a, b) {
       return a - b;
     }
-
   });
 
   // if (
@@ -1143,5 +1131,4 @@ function testOrm(dataSource) {
       });
     });
   });
-
 }

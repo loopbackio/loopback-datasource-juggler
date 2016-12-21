@@ -12,7 +12,6 @@ var should = require('./init.js');
 var db = getSchema(), slave = getSchema(), Model, SlaveModel;
 
 describe('dataSource', function() {
-
   it('should define Model', function() {
     Model = db.define('Model');
     Model.dataSource.should.eql(db);
@@ -61,5 +60,4 @@ describe('dataSource', function() {
       });
     });
   });
-
 });

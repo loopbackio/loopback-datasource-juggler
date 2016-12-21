@@ -16,7 +16,6 @@ var modelBuilder = new ModelBuilder();
 var mixins = modelBuilder.mixins;
 
 function timestamps(Model, options) {
-
   Model.defineProperty('createdAt', {type: Date});
   Model.defineProperty('updatedAt', {type: Date});
 
@@ -47,7 +46,6 @@ function timestamps(Model, options) {
 mixins.define('TimeStamp', timestamps);
 
 describe('Model class', function() {
-
   it('should define mixins', function() {
     mixins.define('Example', function(Model, options) {
       Model.prototype.example = function() {
@@ -133,7 +131,6 @@ describe('Model class', function() {
   });
 
   describe('#mixin()', function() {
-
     var Person, Author, Address;
 
     beforeEach(function() {
@@ -161,7 +158,5 @@ describe('Model class', function() {
       Author.mixin(Address);
       Author._mixins.should.containEql(Address);
     });
-
   });
-
 });

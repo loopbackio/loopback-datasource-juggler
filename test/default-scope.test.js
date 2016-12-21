@@ -54,7 +54,6 @@ var setupProducts = function(ids, done) {
 };
 
 describe('default scope', function() {
-
   before(function(done) {
     db = getSchema();
 
@@ -136,7 +135,6 @@ describe('default scope', function() {
   });
 
   describe('manipulation', function() {
-
     var ids = {};
 
     before(function(done) {
@@ -213,11 +211,9 @@ describe('default scope', function() {
         done();
       });
     });
-
   });
 
   describe('findById', function() {
-
     var ids = {};
 
     before(function(done) {
@@ -248,11 +244,9 @@ describe('default scope', function() {
         done();
       });
     });
-
   });
 
   describe('find', function() {
-
     var ids = {};
 
     before(function(done) {
@@ -322,11 +316,9 @@ describe('default scope', function() {
         done();
       });
     });
-
   });
 
   describe('exists', function() {
-
     var ids = {};
 
     before(function(done) {
@@ -372,11 +364,9 @@ describe('default scope', function() {
         done();
       });
     });
-
   });
 
   describe('count', function() {
-
     var ids = {};
 
     before(function(done) {
@@ -422,11 +412,9 @@ describe('default scope', function() {
         done();
       });
     });
-
   });
 
   describe('removeById', function() {
-
     var ids = {};
 
     function isDeleted(id, done) {
@@ -482,11 +470,9 @@ describe('default scope', function() {
         done();
       });
     });
-
   });
 
   describe('update', function() {
-
     var ids = {};
 
     before(function(done) {
@@ -529,11 +515,9 @@ describe('default scope', function() {
         done();
       });
     });
-
   });
 
   describe('remove', function() {
-
     var ids = {};
 
     before(function(done) {
@@ -603,11 +587,9 @@ describe('default scope', function() {
         });
       });
     });
-
   });
 
   describe('scopes', function() {
-
     var ids = {};
 
     before(function(done) {
@@ -643,11 +625,9 @@ describe('default scope', function() {
         done();
       });
     });
-
   });
 
   describe('scope function', function() {
-
     before(function(done) {
       db.automigrate(done);
     });
@@ -695,11 +675,9 @@ describe('default scope', function() {
         done();
       });
     });
-
   });
 
   describe('relations', function() {
-
     var ids = {};
 
     before(function(done) {
@@ -818,11 +796,9 @@ describe('default scope', function() {
         });
       });
     });
-
   });
 
   describe('with include option', function() {
-
     before(function(done) {
       db.automigrate(done);
     });
@@ -844,7 +820,5 @@ describe('default scope', function() {
         done();
       });
     });
-
   });
-
 });

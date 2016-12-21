@@ -19,7 +19,6 @@ var INVALID_DATA = {name: null};
 var VALID_DATA = {name: INITIAL_NAME};
 
 describe('optional-validation', function() {
-
   before(function(done) {
     db = getSchema();
     ModelWithForceId = db.createModel(
@@ -140,7 +139,6 @@ describe('optional-validation', function() {
   });
 
   describe('no model setting', function() {
-
     describe('method create', function() {
       it('should throw on create with validate:true with invalid data', function(done) {
         User.create(INVALID_DATA, {validate: true}, expectValidationError(done));
@@ -311,11 +309,9 @@ describe('optional-validation', function() {
         });
       });
     });
-
   });
 
   describe('model setting: automaticValidation: false', function() {
-
     before(function(done) {
       User.settings.automaticValidation = false;
       done();
@@ -453,11 +449,9 @@ describe('optional-validation', function() {
         });
       });
     });
-
   });
 
   describe('model setting: automaticValidation: true', function() {
-
     before(function(done) {
       User.settings.automaticValidation = true;
       done();
@@ -594,7 +588,5 @@ describe('optional-validation', function() {
         });
       });
     });
-
   });
-
 });

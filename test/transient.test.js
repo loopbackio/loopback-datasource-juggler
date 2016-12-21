@@ -17,7 +17,6 @@ var getTransientDataSource = function(settings) {
 };
 
 describe('Transient connector', function() {
-
   before(function() {
     db = getTransientDataSource();
     TransientModel = db.define('TransientModel', {}, {idInjection: false});
@@ -83,5 +82,4 @@ describe('Transient connector', function() {
       });
     });
   });
-
 });

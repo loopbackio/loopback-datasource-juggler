@@ -136,7 +136,6 @@ describe('Memory connector', function() {
         assert.equal(users.length, 2);
         done(err);
       });
-
     });
   });
 
@@ -617,7 +616,6 @@ describe('Memory connector', function() {
         },
       ], done);
     }
-
   });
 
   it('should use collection setting', function(done) {
@@ -739,7 +737,6 @@ describe('Memory connector', function() {
           done();
         });
     });
-
   });
 
   describe('findOrCreate', function() {
@@ -980,7 +977,6 @@ describe('Memory connector with options', function() {
         done(err);
       });
   });
-
 });
 
 describe('Memory connector with observers', function() {

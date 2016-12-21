@@ -17,7 +17,6 @@ var j = require('../'),
   db, User;
 
 describe('hooks', function() {
-
   before(function(done) {
     db = getSchema();
 
@@ -32,7 +31,6 @@ describe('hooks', function() {
   });
 
   describe('initialize', function() {
-
     afterEach(function() {
       User.afterInitialize = null;
     });
@@ -57,11 +55,9 @@ describe('hooks', function() {
         done();
       });
     });
-
   });
 
   describe('create', function() {
-
     afterEach(removeHooks('Create'));
 
     it('should be triggered on create', function(done) {
@@ -212,7 +208,6 @@ describe('hooks', function() {
         });
       });
     });
-
   });
 
   describe('update', function() {
@@ -278,7 +273,6 @@ describe('hooks', function() {
   });
 
   describe('destroy', function() {
-
     afterEach(removeHooks('Destroy'));
 
     it('should be triggered on destroy', function(done) {
@@ -311,7 +305,6 @@ describe('hooks', function() {
         });
       });
     });
-
   });
 
   describe('lifecycle', function() {
@@ -438,7 +431,6 @@ describe('hooks', function() {
         done();
       });
     });
-
   });
 });
 

@@ -12,7 +12,6 @@ var should = require('./init.js');
 var db, Railway, Station;
 
 describe('scope', function() {
-
   before(function() {
     db = getSchema();
     Railway = db.define('Railway', {
@@ -106,11 +105,9 @@ describe('scope', function() {
       });
     });
   });
-
 });
 
 describe('scope - order', function() {
-
   before(function() {
     db = getSchema();
     Station = db.define('Station', {
@@ -161,11 +158,9 @@ describe('scope - order', function() {
       done();
     });
   });
-
 });
 
 describe('scope - filtered count, updateAll and destroyAll', function() {
-
   var stationA;
 
   before(function() {
@@ -332,7 +327,6 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
       });
     };
   });
-
 });
 
 describe('scope - dynamic target class', function() {
@@ -417,11 +411,9 @@ describe('scope - dynamic target class', function() {
       done();
     });
   });
-
 });
 
 describe('scope - dynamic function', function() {
-
   var Item, seed = 0;
 
   before(function() {

@@ -12,7 +12,6 @@ var async = require('async');
 var db, User, options, filter;
 
 describe('crud-with-options', function() {
-
   before(function(done) {
     db = getSchema();
     User = db.define('User', {
@@ -29,11 +28,9 @@ describe('crud-with-options', function() {
     filter = {fields: ['name', 'id']};
 
     db.automigrate(['User'], done);
-
   });
 
   describe('findById', function() {
-
     before(function(done) {
       User.destroyAll(done);
     });
@@ -190,11 +187,9 @@ describe('crud-with-options', function() {
           done(err);
         });
       });
-
   });
 
   describe('findByIds', function() {
-
     before(function(done) {
       var people = [
         {id: 1, name: 'a', vip: true},
@@ -235,11 +230,9 @@ describe('crud-with-options', function() {
             done();
           });
       });
-
   });
 
   describe('find', function() {
-
     before(seed);
 
     it('should allow find(cb)', function(done) {
@@ -307,11 +300,9 @@ describe('crud-with-options', function() {
         User.find({limit: 3}, {}, 'invalid cb');
       }).should.throw('The cb argument must be a function');
     });
-
   });
 
   describe('count', function() {
-
     before(seed);
 
     it('should allow count(cb)', function(done) {
@@ -340,11 +331,9 @@ describe('crud-with-options', function() {
         done();
       });
     });
-
   });
 
   describe('findOne', function() {
-
     before(seed);
 
     it('should allow findOne(cb)', function(done) {
@@ -387,11 +376,9 @@ describe('crud-with-options', function() {
         done();
       }, undefined);
     });
-
   });
 
   describe('exists', function() {
-
     before(seed);
 
     it('should allow exists(id, cb)', function(done) {
@@ -414,11 +401,9 @@ describe('crud-with-options', function() {
         });
       });
     });
-
   });
 
   describe('save', function() {
-
     it('should allow save(options, cb)', function(done) {
       var options = {foo: 'bar'};
       var opts;
@@ -435,11 +420,9 @@ describe('crud-with-options', function() {
         done();
       });
     });
-
   });
 
   describe('destroyAll with options', function() {
-
     beforeEach(seed);
 
     it('should allow destroyAll(where, options, cb)', function(done) {
@@ -486,11 +469,9 @@ describe('crud-with-options', function() {
         });
       });
     });
-
   });
 
   describe('updateAll ', function() {
-
     beforeEach(seed);
 
     it('should allow updateAll(where, data, cb)', function(done) {
@@ -537,9 +518,7 @@ describe('crud-with-options', function() {
         });
       });
     });
-
   });
-
 });
 
 describe('upsertWithWhere', function() {
