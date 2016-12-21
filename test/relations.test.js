@@ -4999,12 +4999,50 @@ describe('relations', function() {
 
   });
 
-  describe('referencesMany', function() {
+  describe('embedsMany - async validation', function() {
 
+    var Book, Page;
+
+    before(function(done) {
+      tmp = getTransientDataSource({defaultIdType: Number});
+      // db = getSchema();
+      Book = db.define('Book', {name: String});
+      Page = tmp.define('Page', {number: Number});
+      Page.validateAsync('number', function(err, done) {
+        var self = this;
+        process.nextTick(function() {
+          if (self.number < 0) err();
+          done();
+        });
+      });
+
+      db.automigrate(['Book'], done);
+    });
+
+    it('creation', function(done) {
+      Book.embedsMany(Page);
+      db.automigrate(['Book'], done);
+    });
+
+    it('should validate embedded model\'s attribute asynchronously', function(done) {
+      Book.create({name: 'aBook'}, function(err, b) {
+        if (err) return done(err);
+        b.pageList.create({number: 0}, function(err, p1) {
+          if (err) return done(err);
+          b.pageList.create({number: -1}, function(err, p2) {
+            err.name.should.equal('ValidationError');
+            err.details.codes.number.should.eql(['custom']);
+            done();
+          });
+        });
+      });
+    });
+  });
+
+  describe('referencesMany', function() {
     var job1, job2, job3;
 
     before(function(done) {
-      // db = getSchema();
       Category = db.define('Category', {name: String});
       Job = db.define('Job', {name: String});
 
