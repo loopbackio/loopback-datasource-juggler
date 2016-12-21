@@ -2686,6 +2686,17 @@ describe('relations', function() {
       }).catch(done);
     });
 
+    it('should avoid creating a foriegn key on the model if one already exists', function(done) {
+      var Fajita = db.define('Fajita');
+      var Vegetable = db.define('Vegetable');
+
+      Fajita.hasMany(Vegetable);
+      Vegetable.belongsTo(Fajita, { as: 'burrito' });
+
+      (new Vegetable).toObject().should.not.have.property('burritoId');
+      done();
+    });
+
   });
 
   describe('belongsTo with scope', function() {
