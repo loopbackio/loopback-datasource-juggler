@@ -12,6 +12,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     let CacheItem;
     beforeEach(function unpackContext() {
       CacheItem = helpers.givenCacheItem(dataSourceFactory);
+      return CacheItem.flush();
     });
 
     it('removes all associated keys for a given model', function() {

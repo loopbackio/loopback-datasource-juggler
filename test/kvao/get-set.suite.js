@@ -11,6 +11,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     var CacheItem;
     beforeEach(function unpackContext() {
       CacheItem = helpers.givenCacheItem(dataSourceFactory);
+      return CacheItem.flush();
     });
 
     it('works for string values - Callback API', function(done) {
