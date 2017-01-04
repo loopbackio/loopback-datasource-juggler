@@ -1111,48 +1111,22 @@ describe('manipulation', function() {
         ds.automigrate('Post', done);
       });
 
-      it('works without options on create (promise variant)', function(done) {
+      it('fails without options on create', function(done) {
         var post = {id: 123, title: 'a', content: 'AAA'};
-        Post.replaceOrCreate(post)
-        .then(function(p) {
-          should.exist(p);
-          p.should.be.instanceOf(Post);
-          p.id.should.be.equal(post.id);
-          p.should.not.have.property('_id');
-          p.title.should.equal(post.title);
-          p.content.should.equal(post.content);
-          return Post.findById(p.id)
-          .then(function(p) {
-            p.id.should.equal(post.id);
-            p.id.should.not.have.property('_id');
-            p.title.should.equal(p.title);
-            p.content.should.equal(p.content);
-            done();
-          });
-        })
-        .catch(done);
+        Post.replaceOrCreate(post, function(err, p) {
+          should.exist(err);
+          err.should.match(/'Could not replace. Object with id ' + post.id + ' does not exist!'/);
+          done();
+        });
       });
 
-      it('works with options on create (promise variant)', function(done) {
+      it('fails with options on create', function(done) {
         var post = {id: 123, title: 'a', content: 'AAA'};
-        Post.replaceOrCreate(post, {validate: false})
-        .then(function(p) {
-          should.exist(p);
-          p.should.be.instanceOf(Post);
-          p.id.should.be.equal(post.id);
-          p.should.not.have.property('_id');
-          p.title.should.equal(post.title);
-          p.content.should.equal(post.content);
-          return Post.findById(p.id)
-          .then(function(p) {
-            p.id.should.equal(post.id);
-            p.id.should.not.have.property('_id');
-            p.title.should.equal(p.title);
-            p.content.should.equal(p.content);
-            done();
-          });
-        })
-        .catch(done);
+        Post.replaceOrCreate(post, {validate: false}, function(err, p) {
+          should.exist(err);
+          err.should.match(/'Could not replace. Object with id ' + post.id + ' does not exist!'/);
+          done();
+        });
       });
 
       it('works without options on update (promise variant)', function(done) {
@@ -1270,44 +1244,6 @@ describe('manipulation', function() {
               });
             });
           });
-      });
-
-      it('works without options on create (callback variant)', function(done) {
-        var post = {id: 123, title: 'a', content: 'AAA'};
-        Post.replaceOrCreate(post, function(err, p) {
-          if (err) return done(err);
-          p.id.should.equal(post.id);
-          p.should.not.have.property('_id');
-          p.title.should.equal(post.title);
-          p.content.should.equal(post.content);
-          Post.findById(p.id, function(err, p) {
-            if (err) return done(err);
-            p.id.should.equal(post.id);
-            p.should.not.have.property('_id');
-            p.title.should.equal(post.title);
-            p.content.should.equal(post.content);
-            done();
-          });
-        });
-      });
-
-      it('works with options on create (callback variant)', function(done) {
-        var post = {id: 123, title: 'a', content: 'AAA'};
-        Post.replaceOrCreate(post, {validate: false}, function(err, p) {
-          if (err) return done(err);
-          p.id.should.equal(post.id);
-          p.should.not.have.property('_id');
-          p.title.should.equal(post.title);
-          p.content.should.equal(post.content);
-          Post.findById(p.id, function(err, p) {
-            if (err) return done(err);
-            p.id.should.equal(post.id);
-            p.should.not.have.property('_id');
-            p.title.should.equal(post.title);
-            p.content.should.equal(post.content);
-            done();
-          });
-        });
       });
     });
   }
