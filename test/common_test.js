@@ -478,7 +478,7 @@ function testOrm(dataSource) {
 
   /* eslint-disable max-len */
   it('hasMany should be cached', function(test) {
-    //User.create(function (e, u) {
+    // User.create(function (e, u) {
     //    u.posts.create({}, function (e, p) {
     // find all posts for a user.
     // Finding one post with an existing author associated

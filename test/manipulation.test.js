@@ -95,11 +95,11 @@ describe('manipulation', function() {
 
     it('should create instance (promise variant)', function(done) {
       Person.create({name: 'Anatoliy'})
-        .then (function(p) {
+        .then(function(p) {
           p.name.should.equal('Anatoliy');
           should.exist(p);
           return Person.findById(p.id)
-            .then (function(person) {
+            .then(function(person) {
               person.id.should.eql(p.id);
               person.name.should.equal('Anatoliy');
               done();
@@ -125,7 +125,7 @@ describe('manipulation', function() {
       p.name.should.equal('Anatoliy');
       p.isNewRecord().should.be.true;
       p.save()
-        .then (function(inst) {
+        .then(function(inst) {
           inst.isNewRecord().should.be.false;
           inst.should.equal(p);
           done();
@@ -156,7 +156,7 @@ describe('manipulation', function() {
 
     it('should not allow user-defined value for the id of object - create (promise variant)', function(done) {
       Person.create({id: 123456})
-        .then (function(p) {
+        .then(function(p) {
           done(new Error('Person.create should have failed.'));
         }, function(err) {
           err.should.be.instanceof(ValidationError);
@@ -184,7 +184,7 @@ describe('manipulation', function() {
       var p = new Person({id: 123456});
       p.isNewRecord().should.be.true;
       p.save()
-        .then (function(inst) {
+        .then(function(inst) {
           done(new Error('save should have failed.'));
         }, function(err) {
           err.should.be.instanceof(ValidationError);
@@ -223,11 +223,11 @@ describe('manipulation', function() {
 
     it('should create instance with blank data (promise variant)', function(done) {
       Person.create()
-        .then (function(p) {
+        .then(function(p) {
           should.exist(p);
           should.not.exists(p.name);
           return Person.findById(p.id)
-          .then (function(person) {
+          .then(function(person) {
             person.id.should.eql(p.id);
             should.not.exists(person.name);
             done();
