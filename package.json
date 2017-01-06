@@ -32,8 +32,8 @@
   },
   "devDependencies": {
     "async-iterators": "^0.2.2",
-    "eslint": "^3.11.1",
-    "eslint-config-loopback": "^6.0.0",
+    "eslint": "^3.12.2",
+    "eslint-config-loopback": "^7.0.1",
     "mocha": "^2.1.0",
     "should": "^8.0.2"
   },

@@ -92,9 +92,9 @@ describe('relations', function() {
 
       it('should create record on scope with promises', function(done) {
         Book.create()
-        .then (function(book) {
+        .then(function(book) {
           return book.chapters.create()
-          .then (function(c) {
+          .then(function(c) {
             should.exist(c);
             c.bookId.should.eql(book.id);
             done();

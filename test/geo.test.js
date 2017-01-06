@@ -3,8 +3,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-/*global describe,it*/
-/*jshint expr:true */
+/* global describe,it */
+/* jshint expr:true */
 
 'use strict';
 
@@ -44,7 +44,7 @@ describe('GeoPoint', function() {
     });
 
     it('should reject invalid parameters', function() {
-      /*jshint -W024 */
+      /* jshint -W024 */
       var fn = function() {
         new GeoPoint('150,-34');
       };
