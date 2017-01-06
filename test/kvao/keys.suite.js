@@ -18,6 +18,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
           return keys;
         });
       };
+      return CacheItem.flush();
     });
 
     it('returns all keys - Callback API', function(done) {

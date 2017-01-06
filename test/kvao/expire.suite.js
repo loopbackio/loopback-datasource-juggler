@@ -16,6 +16,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     var CacheItem;
     beforeEach(function unpackContext() {
       CacheItem = helpers.givenCacheItem(dataSourceFactory);
+      return CacheItem.flush();
     });
 
     it('sets key ttl - Callback API', function(done) {

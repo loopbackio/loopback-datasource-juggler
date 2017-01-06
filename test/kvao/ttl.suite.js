@@ -23,6 +23,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     var CacheItem;
     beforeEach(function unpackContext() {
       CacheItem = helpers.givenCacheItem(dataSourceFactory);
+      return CacheItem.flush();
     });
 
     it('gets TTL when key with unexpired TTL exists - Promise API',

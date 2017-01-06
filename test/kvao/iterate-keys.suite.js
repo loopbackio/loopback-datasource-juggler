@@ -14,6 +14,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     var CacheItem;
     beforeEach(function unpackContext() {
       CacheItem = helpers.givenCacheItem(dataSourceFactory);
+      return CacheItem.flush();
     });
 
     it('returns AsyncIterator covering all keys', function() {
