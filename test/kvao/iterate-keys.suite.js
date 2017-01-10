@@ -12,9 +12,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
 
   bdd.describeIf(canIterateKeys, 'iterateKeys', function() {
     var CacheItem;
-    beforeEach(function unpackContext() {
-      CacheItem = helpers.givenCacheItem(dataSourceFactory);
-    });
+    beforeEach(setupCacheItem);
 
     it('returns AsyncIterator covering all keys', function() {
       return helpers.givenKeys(CacheItem, ['key1', 'key2'])
@@ -47,5 +45,10 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
           should(key).equal(undefined);
         });
     });
+
+    function setupCacheItem() {
+      return helpers.givenCacheItem(dataSourceFactory)
+        .then(ModelCtor => CacheItem = ModelCtor);
+    };
   });
 };

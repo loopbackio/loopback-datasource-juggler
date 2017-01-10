@@ -9,9 +9,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
 
   describe('get/set', function() {
     var CacheItem;
-    beforeEach(function unpackContext() {
-      CacheItem = helpers.givenCacheItem(dataSourceFactory);
-    });
+    beforeEach(setupCacheItem);
 
     it('works for string values - Callback API', function(done) {
       CacheItem.set('a-key', 'a-value', function(err) {
@@ -101,5 +99,10 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
           .then(function(value) { should.equal(value, 'another-value'); });
       });
     });
+
+    function setupCacheItem() {
+      return helpers.givenCacheItem(dataSourceFactory)
+        .then(ModelCtor => CacheItem = ModelCtor);
+    };
   });
 };
