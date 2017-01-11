@@ -1123,7 +1123,6 @@ describe('manipulation', function() {
       var post = {title: 'a', content: 'AAA'};
       Post.replaceOrCreate(post, function(err, p) {
         if (err) return done(err);
-        p.should.not.have.property('_id');
         p.title.should.equal(post.title);
         p.content.should.equal(post.content);
         Post.findById(p.id, function(err, p) {
@@ -1134,32 +1133,15 @@ describe('manipulation', function() {
       });
     });
 
-    it('works on update if the request includes an exisiting ID in db', function(done) {
+    it('works on update if the request includes an exisiting id in db', function(done) {
       var post = {id: foundId, title: 'b', content: 'BBBB'};
       Post.replaceOrCreate(post, function(err, p) {
         if (err) return done(err);
         p.id.should.equal(post.id);
-        p.should.not.have.property('_id');
         p.title.should.equal(post.title);
         p.content.should.equal(post.content);
         done();
       });
-    });
-
-    it('works without options on update', function(done) {
-      Post.create({title: 'a', content: 'AAA', comments: ['Comment1']},
-          function(err, post) {
-            if (err) return done(err);
-            post = post.toObject();
-            delete post.comments;
-            delete post.content;
-            post.title = 'b';
-            Post.replaceOrCreate(post, function(err, p) {
-              if (err) return done(err);
-              p.id.should.equal(post.id);
-              done();
-            });
-          });
     });
   });
 
