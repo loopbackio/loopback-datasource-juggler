@@ -1119,7 +1119,7 @@ describe('manipulation', function() {
       });
     });
 
-    it('works on create if the request does not include an ID', function(done) {
+    it('works on create if the request does not include an id', function(done) {
       var post = {title: 'a', content: 'AAA'};
       Post.replaceOrCreate(post, function(err, p) {
         if (err) return done(err);
