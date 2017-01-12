@@ -14,9 +14,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
 
   bdd.describeIf(canExpire, 'expire', function() {
     var CacheItem;
-    beforeEach(function unpackContext() {
-      CacheItem = helpers.givenCacheItem(dataSourceFactory);
-    });
+    beforeEach(setupCacheItem);
 
     it('sets key ttl - Callback API', function(done) {
       CacheItem.set('a-key', 'a-value', function(err) {
@@ -62,5 +60,10 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
           err.should.have.property('statusCode', 404);
         });
     });
+
+    function setupCacheItem() {
+      return helpers.givenCacheItem(dataSourceFactory)
+        .then(ModelCtor => CacheItem = ModelCtor);
+    };
   });
 };
