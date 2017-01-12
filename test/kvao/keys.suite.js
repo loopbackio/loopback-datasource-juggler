@@ -45,7 +45,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
 
     it('returns keys of the given model only', function() {
       let AnotherModel;
-      helpers.givenModel(dataSourceFactory, 'AnotherModel')
+      return helpers.givenModel(dataSourceFactory, 'AnotherModel')
         .then(ModelCtor => AnotherModel = ModelCtor)
         .then(() => helpers.givenKeys(CacheItem, ['key1', 'key2']))
         .then(() => helpers.givenKeys(AnotherModel, ['otherKey1', 'otherKey2']))
