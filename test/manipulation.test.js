@@ -1100,13 +1100,12 @@ describe('manipulation', function() {
 
   var hasReplaceById = !!getSchema().connector.replaceById;
   bdd.describeIf(hasReplaceById, 'replaceOrCreate when forceId is true', function() {
-    var Post, foundId;
-    var ds = getSchema();
+    var Post;
     before(function(done) {
+      var ds = getSchema();
       Post = ds.define('Post', {
-        title: {type: String, length: 255, index: true},
+        title: {type: String, length: 255},
         content: {type: String},
-        comments: [String],
       }, {forceId: true});
       ds.automigrate('Post', done);
     });
@@ -1120,6 +1119,7 @@ describe('manipulation', function() {
     });
 
     it('works on create if the request does not include an id', function(done) {
+      var foundId;
       var post = {title: 'a', content: 'AAA'};
       Post.replaceOrCreate(post, function(err, p) {
         if (err) return done(err);
@@ -1133,15 +1133,19 @@ describe('manipulation', function() {
       });
     });
 
-    it('works on update if the request includes an exisiting id in db', function(done) {
-      var post = {id: foundId, title: 'b', content: 'BBBB'};
-      Post.replaceOrCreate(post, function(err, p) {
-        if (err) return done(err);
-        p.id.should.equal(post.id);
-        p.title.should.equal(post.title);
-        p.content.should.equal(post.content);
-        done();
-      });
+    it('works on update if the request includes an existing id in db', function(done) {
+      Post.create({title: 'a', content: 'AAA'},
+           function(err, post) {
+             if (err) return done(err);
+             post = post.toObject();
+             delete post.content;
+             post.title = 'b';
+             Post.replaceOrCreate(post, function(err, p) {
+               if (err) return done(err);
+               p.id.should.equal(post.id);
+               done();
+             });
+           });
     });
   });
 
