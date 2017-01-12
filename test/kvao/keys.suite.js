@@ -9,15 +9,15 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
   var canIterateKeys = connectorCapabilities.canIterateKeys !== false;
 
   bdd.describeIf(canIterateKeys, 'keys', function() {
-    var CacheItem;
-    beforeEach(function unpackContext() {
-      CacheItem = helpers.givenCacheItem(dataSourceFactory);
-      CacheItem.sortedKeys = function(filter, options) {
-        return this.keys(filter, options).then(function(keys) {
-          keys.sort();
-          return keys;
+    let CacheItem;
+    beforeEach(function setupCacheItem() {
+      return helpers.givenCacheItem(dataSourceFactory)
+        .then(ModelCtor => CacheItem = ModelCtor)
+        .then(() => {
+          CacheItem.sortedKeys = function(filter, options) {
+            return this.keys(filter, options).then(keys => keys.sort());
+          };
         });
-      };
     });
 
     it('returns all keys - Callback API', function(done) {
@@ -44,17 +44,13 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     });
 
     it('returns keys of the given model only', function() {
-      var AnotherModel = CacheItem.dataSource.createModel('AnotherModel');
-      return helpers.givenKeys(CacheItem, ['key1', 'key2'])
-        .then(function() {
-          return helpers.givenKeys(AnotherModel, ['otherKey1', 'otherKey2']);
-        })
-        .then(function() {
-          return CacheItem.sortedKeys();
-        })
-        .then(function(keys) {
-          should(keys).eql(['key1', 'key2']);
-        });
+      let AnotherModel;
+      return helpers.givenModel(dataSourceFactory, 'AnotherModel')
+        .then(ModelCtor => AnotherModel = ModelCtor)
+        .then(() => helpers.givenKeys(CacheItem, ['key1', 'key2']))
+        .then(() => helpers.givenKeys(AnotherModel, ['otherKey1', 'otherKey2']))
+        .then(() => CacheItem.sortedKeys())
+        .then(keys => should(keys).eql(['key1', 'key2']));
     });
 
     var largeKeySets = connectorCapabilities.canIterateLargeKeySets !== false;

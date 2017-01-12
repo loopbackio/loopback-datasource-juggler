@@ -20,10 +20,8 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
   var canQueryTtl = connectorCapabilities.canQueryTtl !== false;
 
   bdd.describeIf(canQueryTtl, 'ttl', function() {
-    var CacheItem;
-    beforeEach(function unpackContext() {
-      CacheItem = helpers.givenCacheItem(dataSourceFactory);
-    });
+    let CacheItem;
+    beforeEach(setupCacheItem);
 
     it('gets TTL when key with unexpired TTL exists - Promise API',
     function() {
@@ -75,5 +73,10 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
           err.should.have.property('statusCode', 404);
         });
     });
+
+    function setupCacheItem() {
+      return helpers.givenCacheItem(dataSourceFactory)
+        .then(ModelCtor => CacheItem = ModelCtor);
+    }
   });
 };
