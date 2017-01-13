@@ -1098,7 +1098,7 @@ describe('manipulation', function() {
     });
   }
 
-  var hasReplaceById = !!getSchema().connector.replaceById;
+  var hasReplaceById = !getSchema().connector.replaceById;
   bdd.describeIf(hasReplaceById, 'replaceOrCreate when forceId is true', function() {
     var Post;
     before(function(done) {
