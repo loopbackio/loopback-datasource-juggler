@@ -34,22 +34,23 @@
     "async-iterators": "^0.2.2",
     "eslint": "^3.12.2",
     "eslint-config-loopback": "^7.0.1",
-    "mocha": "^2.1.0",
-    "should": "^8.0.2"
+    "mocha": "^3.2.0",
+    "should": "^11.1.2"
   },
   "dependencies": {
-    "async": "~1.0.0",
+    "async": "~2.1.4",
     "bluebird": "^3.1.1",
     "debug": "^2.1.1",
     "depd": "^1.0.0",
     "inflection": "^1.6.0",
-    "loopback-connector": "^2.1.0",
+    "loopback-connector": "^3.0.0",
     "minimatch": "^3.0.3",
-    "node-uuid": "^1.4.2",
-    "qs": "^3.1.0",
+    "qs": "^6.3.0",
     "shortid": "^2.2.6",
+    "should": "^8.4.0",
     "strong-globalize": "^2.6.2",
-    "traverse": "^0.6.6"
+    "traverse": "^0.6.6",
+    "uuid": "^3.0.1"
   },
   "license": "MIT",
   "ci": {
