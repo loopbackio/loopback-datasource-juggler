@@ -1,3 +1,15 @@
+2017-01-17, Version 2.54.0
+==========================
+
+ * Replace deprecated node-uuid with uuid module (Raymond Feng)
+
+ * Coerce array-like objects into arrays (Heath Morrison)
+
+ * Throw error when model relation name is trigger (Brian Schemp)
+
+ * Update package.json for LB3 release (Simon Ho)
+
+
 2016-12-21, Version 2.53.1
 ==========================
 
