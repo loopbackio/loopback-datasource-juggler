@@ -657,6 +657,17 @@ describe('validations', function() {
         done();
       })).should.be.false;
     });
+
+    it.only('should validate using custom async validation using promises', function(done) {
+      User.validateAsync('email', function(options) {
+        return Promise.resolve(true);
+      }, {});
+      var u = new User({email: 'hello'});
+      Boolean(u.isValid(function(valid) {
+        valid.should.be.true;
+        done();
+      })).should.be.false;
+    });
   });
 
   describe('invalid value formatting', function() {
