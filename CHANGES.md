@@ -1,3 +1,29 @@
+2017-01-19, Version 3.2.0
+=========================
+
+ * Fix should dep (Raymond Feng)
+
+ * Upgrade dependencies to remove npm install warnings (Raymond Feng)
+
+ * Add missing return for KVAO delete all (Simon Ho)
+
+ * Add missing return in KVAO keys test suite (Simon Ho)
+
+ * Detect deleteAll support in KVAO tests (Simon Ho)
+
+ * Coerce array-like objects into arrays (Heath Morrison)
+
+ * Refactor flush to deleteAll (Simon Ho)
+
+ * Upgrade eslint-config to 7.x (Miroslav Bajtoš)
+
+ * Throw error when model relation name is trigger (Brian Schemp)
+
+ * Add flush operation to KVAO (Simon Ho)
+
+ * Fix block padding (Siddhi Pai)
+
+
 2016-12-21, Version 3.1.1
 =========================
 
