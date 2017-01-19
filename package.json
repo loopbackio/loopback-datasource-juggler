@@ -35,7 +35,7 @@
     "eslint": "^3.12.2",
     "eslint-config-loopback": "^7.0.1",
     "mocha": "^3.2.0",
-    "should": "^11.1.2"
+    "should": "^8.4.0"
   },
   "dependencies": {
     "async": "~2.1.4",
@@ -47,7 +47,6 @@
     "minimatch": "^3.0.3",
     "qs": "^6.3.0",
     "shortid": "^2.2.6",
-    "should": "^8.4.0",
     "strong-globalize": "^2.6.2",
     "traverse": "^0.6.6",
     "uuid": "^3.0.1"
