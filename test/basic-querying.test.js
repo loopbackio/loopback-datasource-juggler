@@ -462,6 +462,23 @@ describe('basic-querying', function() {
       });
     });
 
+    it('supports non-empty inq', function() {
+      // note there is no record with seq=100
+      return User.find({where: {seq: {inq: [0, 1, 100]}}})
+        .then(function(result) {
+          var seqsFound = result.map(function(r) { return r.seq; });
+          should(seqsFound).eql([0, 1]);
+        });
+    });
+
+    it('supports empty inq', function() {
+      return User.find({where: {seq: {inq: []}}})
+        .then(function(result) {
+          var seqsFound = result.map(function(r) { return r.seq; });
+          should(seqsFound).eql([]);
+        });
+    });
+
     var itWhenIlikeSupported = connectorCapabilities.ilike ? it : it.skip.bind(it);
 
     itWhenIlikeSupported('should support "like" that is satisfied', function(done) {
