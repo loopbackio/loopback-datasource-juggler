@@ -1340,6 +1340,27 @@ describe('manipulation', function() {
     });
   }
 
+  hasReplaceById = !!getSchema().connector.replaceById;
+  bdd.describeIf(hasReplaceById, 'replaceById', function() {
+    var Post;
+    before(function(done) {
+      var ds = getSchema();
+      Post = ds.define('Post', {
+        title: {type: String, length: 255},
+        content: {type: String},
+      }, {forceId: true});
+      ds.automigrate('Post', done);
+    });
+
+    it('fails when id does not exist in db using replaceById', function(done) {
+      var post = {id: 123, title: 'a', content: 'AAA'};
+      Post.replaceById(post.id, post, function(err, p) {
+        err.statusCode.should.equal(404);
+        done();
+      });
+    });
+  });
+
   describe('findOrCreate', function() {
     it('should create a record with if new', function(done) {
       Person.findOrCreate({name: 'Zed', gender: 'male'},
