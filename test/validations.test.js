@@ -399,7 +399,7 @@ describe('validations', function() {
       u.isValid().should.not.be.true;
       u.reserved = null;
       u.isValid().should.be.true;
-      var u = new User({reserved: 'foo', locked: false});
+      u = new User({reserved: 'foo', locked: false});
       u.isValid().should.be.true;
     });
   });

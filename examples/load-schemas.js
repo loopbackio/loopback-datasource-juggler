@@ -28,13 +28,13 @@ function loadSchemasSync(schemaFile, dataSource) {
 
 var models = loadSchemasSync(path.join(__dirname, 'jdb-schemas.json'));
 
-for (var s in models) {
-  var m = models[s];
+for (const s in models) {
+  const m = models[s];
   console.log(m.modelName, new m());
 }
 
 models = loadSchemasSync(path.join(__dirname, 'schemas.json'));
-for (var s in models) {
-  var m = models[s];
+for (const s in models) {
+  const m = models[s];
   console.log(m.modelName, new m());
 }

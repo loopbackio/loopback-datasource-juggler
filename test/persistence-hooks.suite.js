@@ -2512,7 +2512,6 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
               var expectedContext = aCtxForModel(TestModel, expected);
 
-              var expectedContext;
               if (!dataSource.connector.replaceOrCreate) {
                 expectedContext.isNewInstance = false;
               }

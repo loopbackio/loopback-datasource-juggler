@@ -33,7 +33,7 @@
   "devDependencies": {
     "async-iterators": "^0.2.2",
     "eslint": "^3.12.2",
-    "eslint-config-loopback": "^7.0.1",
+    "eslint-config-loopback": "^8.0.0",
     "mocha": "^3.2.0",
     "should": "^8.4.0"
   },
