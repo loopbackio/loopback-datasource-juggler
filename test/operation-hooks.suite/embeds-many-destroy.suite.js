@@ -48,7 +48,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       }
     });
 
-    var ownerInstance, existingInstance, existingItem, existingItem;
+    var ownerInstance, existingInstance, existingItem;
     beforeEach(function setupData() {
       return Owner.create({})
         .then(function(inst) {
