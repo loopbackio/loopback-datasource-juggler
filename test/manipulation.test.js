@@ -149,7 +149,6 @@ describe('manipulation', function() {
         err.statusCode.should.equal(422);
         err.details.messages.id.should.eql(['can\'t be set']);
         p.should.be.instanceof(Person);
-        p.id.should.equal(123456);
         p.isNewRecord().should.be.true;
         done();
       });
@@ -175,7 +174,6 @@ describe('manipulation', function() {
         err.should.be.instanceof(ValidationError);
         err.statusCode.should.equal(422);
         err.details.messages.id.should.eql(['can\'t be set']);
-        inst.id.should.equal(123456);
         inst.isNewRecord().should.be.true;
         done();
       });
