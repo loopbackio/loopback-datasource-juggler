@@ -2,6 +2,7 @@
 // Node module: loopback-datasource-juggler
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
+'use strict';
 
 // This test written in mocha+should.js
 var should = require('./init.js');
@@ -11,14 +12,14 @@ var db, Model;
 describe('datatypes', function() {
   before(function(done) {
     db = getSchema();
-    Nested = db.define('Nested', {});
+    var Nested = db.define('Nested', {});
 
     Model = db.define('Model', {
       str: String,
       date: Date,
       num: Number,
       bool: Boolean,
-      list: { type: [String] },
+      list: {type: [String]},
       arr: Array,
       nested: Nested,
     });
@@ -28,12 +29,12 @@ describe('datatypes', function() {
   it('should return 400 when property of type array is set to string value',
     function(done) {
       var myModel = db.define('myModel', {
-        list: { type: ['object'] },
+        list: {type: ['object']},
       });
 
       (function() {
-        myModel.create({ list: 'This string will crash the server' });
-      }).should.throw({ statusCode: 400 });
+        myModel.create({list: 'This string will crash the server'});
+      }).should.throw({statusCode: 400});
 
       done();
     });
@@ -41,14 +42,25 @@ describe('datatypes', function() {
   it('should return 400 when property of type array is set to object value',
     function(done) {
       var myModel = db.define('myModel', {
-        list: { type: ['object'] },
+        list: {type: ['object']},
       });
 
       (function() {
-        myModel.create({ list: { key: 'This string will crash the server' }});
-      }).should.throw({ statusCode: 400 });
+        myModel.create({list: {key: 'This string will crash the server'}});
+      }).should.throw({statusCode: 400});
 
       done();
+    });
+
+  it('throws an error when property of type Date is set to an invalid value',
+    function() {
+      var myModel = db.define('myModel', {
+        date: {type: Date},
+      });
+
+      (function() {
+        myModel.create({date: 'invalid'});
+      }).should.throw({message: 'Invalid date: invalid'});
     });
 
   it('should keep types when get read data from db', function(done) {
@@ -103,7 +115,7 @@ describe('datatypes', function() {
     var d = new Date, id;
 
     Model.create({
-      str: 'hello', date: d, num: '3', bool: 1 }, function(err, m) {
+      str: 'hello', date: d, num: '3', bool: 1}, function(err, m) {
       should.not.exist(err);
       should.exist(m && m.id);
 
@@ -151,7 +163,7 @@ describe('datatypes', function() {
   });
 
   it('should not coerce nested objects into ModelConstructor types', function() {
-    var coerced = Model._coerce({ nested: { foo: 'bar' }});
+    var coerced = Model._coerce({nested: {foo: 'bar'}});
     coerced.nested.constructor.name.should.equal('Object');
   });
 
@@ -159,10 +171,10 @@ describe('datatypes', function() {
   function(done) {
     db = getSchema();
     Model = db.define('RequiredNumber', {
-      num: { type: Number, required: true },
+      num: {type: Number, required: true},
     });
     db.automigrate(['Model'], function() {
-      Model.create({ num: [1, 2, 3] }, function(err, inst) {
+      Model.create({num: [1, 2, 3]}, function(err, inst) {
         should.exist(err);
         err.should.have.property('name').equal('ValidationError');
         done();
@@ -176,8 +188,8 @@ describe('datatypes', function() {
       TestModel = db.define(
         'TestModel',
         {
-          desc: { type: String, required: false },
-          stars: { type: Number, required: false },
+          desc: {type: String, required: false},
+          stars: {type: Number, required: false},
         },
         {
           persistUndefinedAsNull: true,
@@ -189,8 +201,8 @@ describe('datatypes', function() {
     });
 
     it('should set missing optional properties to null', function(done) {
-      var EXPECTED = { desc: null, stars: null };
-      TestModel.create({ name: 'a-test-name' }, function(err, created) {
+      var EXPECTED = {desc: null, stars: null};
+      TestModel.create({name: 'a-test-name'}, function(err, created) {
         if (err) return done(err);
         created.should.have.properties(EXPECTED);
 
@@ -203,13 +215,13 @@ describe('datatypes', function() {
     });
 
     it('should convert property value undefined to null', function(done) {
-      var EXPECTED = { desc: null, extra: null };
+      var EXPECTED = {desc: null, extra: null};
       if (isStrict) {
         // SQL-based connectors don't support dynamic properties
         delete EXPECTED.extra;
       }
 
-      var data = { desc: undefined, extra: undefined };
+      var data = {desc: undefined, extra: undefined};
       TestModel.create(data, function(err, created) {
         if (err) return done(err);
 
@@ -238,7 +250,7 @@ describe('datatypes', function() {
     });
 
     it('should convert undefined to null on save', function(done) {
-      var EXPECTED = { desc: null, stars: null, extra: null, dx: null };
+      var EXPECTED = {desc: null, stars: null, extra: null, dx: null};
       if (isStrict) {
         // SQL-based connectors don't support dynamic properties
         delete EXPECTED.extra;
@@ -268,14 +280,14 @@ describe('datatypes', function() {
           if (TestModel.dataSource.connector.all.length === 4) {
             TestModel.dataSource.connector.all(
               TestModel.modelName,
-              { where: { id: created.id }},
+              {where: {id: created.id}},
               {},
               cb
             );
           } else {
             TestModel.dataSource.connector.all(
               TestModel.modelName,
-              { where: { id: created.id }},
+              {where: {id: created.id}},
               cb
             );
           }

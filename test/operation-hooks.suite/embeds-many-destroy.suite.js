@@ -2,6 +2,7 @@
 // Node module: loopback-datasource-juggler
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
+'use strict';
 
 var Promise = require('bluebird');
 var ValidationError = require('../..').ValidationError;
@@ -18,7 +19,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
     var ctxRecorder, hookMonitor, expectedError;
     beforeEach(function sharedSetup() {
       ctxRecorder = new ContextRecorder('hook not called');
-      hookMonitor = new HookMonitor({ includeModelName: true });
+      hookMonitor = new HookMonitor({includeModelName: true});
       expectedError = new Error('test error');
     });
 
@@ -27,9 +28,9 @@ module.exports = function(dataSource, should, connectorCapabilities) {
     beforeEach(function setupDatabase() {
       Embedded = dataSource.createModel('Embedded', {
         // Set id.generated to false to honor client side values
-        id: { type: String, id: true, generated: false, default: uid.next },
-        name: { type: String, required: true },
-        extra: { type: String, required: false },
+        id: {type: String, id: true, generated: false, default: uid.next},
+        name: {type: String, required: true},
+        extra: {type: String, required: false},
       });
 
       Owner = dataSource.createModel('Owner', {});
@@ -46,14 +47,14 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       }
     });
 
-    var ownerInstance, existingInstance;
+    var ownerInstance, existingInstance, existingItem;
     beforeEach(function setupData() {
       return Owner.create({})
         .then(function(inst) {
           ownerInstance = inst;
         })
         .then(function() {
-          var item = new Embedded({ name: 'created' });
+          var item = new Embedded({name: 'created'});
           return ownerInstance.embeddedList.create(item).then(function(it) {
             existingItem = it;
           });

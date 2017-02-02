@@ -2,6 +2,7 @@
 // Node module: loopback-datasource-juggler
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
+'use strict';
 
 module.exports = require('should');
 
@@ -34,4 +35,8 @@ if (!('getModelBuilder' in global)) {
 
 if (!('Promise' in global)) {
   global.Promise = require('bluebird');
+}
+
+if (!('connectorCapabilities' in global)) {
+  global.connectorCapabilities = {};
 }

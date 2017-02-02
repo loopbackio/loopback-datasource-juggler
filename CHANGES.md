@@ -1,3 +1,151 @@
+2017-01-17, Version 2.54.0
+==========================
+
+ * Replace deprecated node-uuid with uuid module (Raymond Feng)
+
+ * Coerce array-like objects into arrays (Heath Morrison)
+
+ * Throw error when model relation name is trigger (Brian Schemp)
+
+ * Update package.json for LB3 release (Simon Ho)
+
+
+2016-12-21, Version 2.53.1
+==========================
+
+ * Fix HasOne.update to propagate options arg (Miroslav Bajtoš)
+
+ * Update ko translation file (Candy)
+
+ * Back-port fixes for linter errors from master (Miroslav Bajtoš)
+
+ * Update chinese simplified translation file (Candy)
+
+ * Apply style guide to test names (Amir Jafarian)
+
+ * Continue _coerce after logical operators (Heath Morrison)
+
+ * Fix manually (Amir Jafarian)
+
+ * Auto-update by eslint --fix (Amir Jafarian)
+
+ * update eslintrc according to master branch (Amir Jafarian)
+
+ * Update eslint (Amir Jafarian)
+
+ * test/kvao: add connectorCapabilities options (Miroslav Bajtoš)
+
+ * Update validations.js (Rand McKinney)
+
+ * Fix bug when near filter is used (Amir Jafarian)
+
+
+2016-10-13, Version 2.52.0
+==========================
+
+ * Support {defaultFn: 'shortid'} (#1110) (Simon Ho)
+
+ * Add ilike and nilike operators (#1136) (Simon Ho)
+
+ * Fix JSdoc (Amir Jafarian)
+
+ * Update ja translation file (Candy)
+
+ * Update translation files - round#2 (Candy)
+
+ * Add 'isNewInstance' for updateAttributes (Amir Jafarian)
+
+ * Add globalization strings (Amir Jafarian)
+
+ * Add docs for KVAO (Simon Ho)
+
+ * Skip test temporarily (Loay)
+
+
+2016-09-12, Version 2.51.0
+==========================
+
+ * Add missing "done" arg in test/kvao/ttl.suite (Miroslav Bajtoš)
+
+ * Support nested queries for arrays (pponugo)
+
+ * Remove expired item before executing expire (Simon Ho)
+
+ * Fix failures for connectors (Amir Jafarian)
+
+ * upsertWithWhere feature support in juggler DAO (Sonali Samantaray)
+
+ * Remove ESLint from dependencies (Simon Ho)
+
+ * Refactor TTL test suite (Simon Ho)
+
+
+2016-08-26, Version 2.50.0
+==========================
+
+ * test/memory: remove dummy findOrCreate impl (Miroslav Bajtoš)
+
+ * Implement `notify` for find method (Amir Jafarian)
+
+ * kvao: implement key filter (Miroslav Bajtoš)
+
+ * kvao: add iterateKeys() and keys() (Miroslav Bajtoš)
+
+ * Globalize KeyValue Memory connector (Simon Ho)
+
+ * test: Rename KVAO get test suite (Simon Ho)
+
+
+2016-08-16, Version 2.49.0
+==========================
+
+ * Fix error message for missing global.Promise (Miroslav Bajtoš)
+
+ * Add TTL for KeyValue related features (Simon Ho)
+
+ * test/kvao: setup global.Promise on Node v0.10 (Miroslav Bajtoš)
+
+ * kv-memory: fix crash in regular cleanup (Miroslav Bajtoš)
+
+ * Backport globalization (Amir Jafarian)
+
+
+2016-08-09, Version 2.48.0
+==========================
+
+ * Return error if connector does not implement (Amir Jafarian)
+
+ * kvao: return 404 when expiring unknown key (Miroslav Bajtoš)
+
+ * Update doc for `validatesFormatOf` (Amir Jafarian)
+
+ * Implement KeyValue API and memory connector (Miroslav Bajtoš)
+
+ * Fix test case typo (Amir Jafarian)
+
+ * Remove unused variables in model.js (Amir Jafarian)
+
+ * Add test for updateOrCreate (Amir Jafarian)
+
+ * Declare `definition` (Amir Jafarian)
+
+ * Add test to catch invalid date property (Supasate Choochaisri)
+
+
+2016-07-14, Version 2.47.0
+==========================
+
+ * Ensure stable order of items in DAO.find() (Miroslav Bajtoš)
+
+ * give options to validators #984 (RobinBiondi)
+
+ * Update datasource.js (Amir Jafarian)
+
+ * Give warning if PK is changed in hooks (Amir Jafarian)
+
+ * Persist changes on parent for embedsOne (Dimitris Halatsis)
+
+
 2016-06-03, Version 2.46.1
 ==========================
 

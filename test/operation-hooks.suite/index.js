@@ -1,3 +1,5 @@
+'use strict';
+
 var debug = require('debug')('test');
 var fs = require('fs');
 var path = require('path');

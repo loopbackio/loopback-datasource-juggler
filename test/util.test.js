@@ -2,6 +2,7 @@
 // Node module: loopback-datasource-juggler
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
+'use strict';
 
 var should = require('./init.js');
 var utils = require('../lib/utils');
@@ -29,10 +30,10 @@ describe('util.fieldsToArray', function() {
     sample({}).expect(undefined);
     sample('foo').expect(['foo']);
     sample(['foo']).expect(['foo']);
-    sample({ 'foo': 1 }).expect(['foo']);
-    sample({ 'bat': true }).expect(['bat']);
-    sample({ 'bat': 0 }).expect(['foo', 'bar', 'baz']);
-    sample({ 'bat': false }).expect(['foo', 'bar', 'baz']);
+    sample({'foo': 1}).expect(['foo']);
+    sample({'bat': true}).expect(['bat']);
+    sample({'bat': 0}).expect(['foo', 'bar', 'baz']);
+    sample({'bat': false}).expect(['foo', 'bar', 'baz']);
   });
 
   it('should exclude unknown properties', function() {
@@ -41,23 +42,23 @@ describe('util.fieldsToArray', function() {
     sample({}, true).expect(undefined);
     sample('foo', true).expect(['foo']);
     sample(['foo', 'unknown'], true).expect(['foo']);
-    sample({ 'foo': 1, unknown: 1 }, true).expect(['foo']);
-    sample({ 'bat': true, unknown: true }, true).expect(['bat']);
-    sample({ 'bat': 0 }, true).expect(['foo', 'bar', 'baz']);
-    sample({ 'bat': false }, true).expect(['foo', 'bar', 'baz']);
+    sample({'foo': 1, unknown: 1}, true).expect(['foo']);
+    sample({'bat': true, unknown: true}, true).expect(['bat']);
+    sample({'bat': 0}, true).expect(['foo', 'bar', 'baz']);
+    sample({'bat': false}, true).expect(['foo', 'bar', 'baz']);
   });
 });
 
 describe('util.removeUndefined', function() {
   it('Remove undefined values from the query object', function() {
-    var q1 = { where: { x: 1, y: undefined }};
-    should.deepEqual(removeUndefined(q1), { where: { x: 1 }});
+    var q1 = {where: {x: 1, y: undefined}};
+    should.deepEqual(removeUndefined(q1), {where: {x: 1}});
 
-    var q2 = { where: { x: 1, y: 2 }};
-    should.deepEqual(removeUndefined(q2), { where: { x: 1, y: 2 }});
+    var q2 = {where: {x: 1, y: 2}};
+    should.deepEqual(removeUndefined(q2), {where: {x: 1, y: 2}});
 
-    var q3 = { where: { x: 1, y: { in: [2, undefined] }}};
-    should.deepEqual(removeUndefined(q3), { where: { x: 1, y: { in: [2] }}});
+    var q3 = {where: {x: 1, y: {in: [2, undefined]}}};
+    should.deepEqual(removeUndefined(q3), {where: {x: 1, y: {in: [2]}}});
 
     should.equal(removeUndefined(null), null);
 
@@ -66,14 +67,14 @@ describe('util.removeUndefined', function() {
     should.equal(removeUndefined('x'), 'x');
 
     var date = new Date();
-    var q4 = { where: { x: 1, y: date }};
-    should.deepEqual(removeUndefined(q4), { where: { x: 1, y: date }});
+    var q4 = {where: {x: 1, y: date}};
+    should.deepEqual(removeUndefined(q4), {where: {x: 1, y: date}});
 
     // test handling of undefined
-    var q5 = { where: { x: 1, y: undefined }};
-    should.deepEqual(removeUndefined(q5, 'nullify'), { where: { x: 1, y: null }});
+    var q5 = {where: {x: 1, y: undefined}};
+    should.deepEqual(removeUndefined(q5, 'nullify'), {where: {x: 1, y: null}});
 
-    var q6 = { where: { x: 1, y: undefined }};
+    var q6 = {where: {x: 1, y: undefined}};
     (function() { removeUndefined(q6, 'throw'); }).should.throw(/`undefined` in query/);
   });
 });
@@ -138,71 +139,71 @@ describe('util.parseSettings', function() {
 
 describe('mergeSettings', function() {
   it('should merge settings correctly', function() {
-    var src = { base: 'User',
-      relations: { accessTokens: { model: 'accessToken', type: 'hasMany',
-        foreignKey: 'userId' },
-        account: { model: 'account', type: 'belongsTo' }},
+    var src = {base: 'User',
+      relations: {accessTokens: {model: 'accessToken', type: 'hasMany',
+        foreignKey: 'userId'},
+        account: {model: 'account', type: 'belongsTo'}},
       acls: [
-        { accessType: '*',
+        {accessType: '*',
           permission: 'DENY',
           principalType: 'ROLE',
-          principalId: '$everyone' },
-        { accessType: '*',
+          principalId: '$everyone'},
+        {accessType: '*',
           permission: 'ALLOW',
           principalType: 'ROLE',
           property: 'login',
-          principalId: '$everyone' },
-        { permission: 'ALLOW',
+          principalId: '$everyone'},
+        {permission: 'ALLOW',
           property: 'findById',
           principalType: 'ROLE',
-          principalId: '$owner' },
-      ] };
-    var tgt = { strict: false,
+          principalId: '$owner'},
+      ]};
+    var tgt = {strict: false,
       acls: [
-        { principalType: 'ROLE',
+        {principalType: 'ROLE',
           principalId: '$everyone',
           permission: 'ALLOW',
-          property: 'create' },
-        { principalType: 'ROLE',
+          property: 'create'},
+        {principalType: 'ROLE',
           principalId: '$owner',
           permission: 'ALLOW',
-          property: 'removeById' },
+          property: 'removeById'},
       ],
       maxTTL: 31556926,
-      ttl: 1209600 };
+      ttl: 1209600};
 
     var dst = mergeSettings(tgt, src);
 
-    var expected = { strict: false,
+    var expected = {strict: false,
       acls: [
-        { principalType: 'ROLE',
+        {principalType: 'ROLE',
           principalId: '$everyone',
           permission: 'ALLOW',
-          property: 'create' },
-        { principalType: 'ROLE',
+          property: 'create'},
+        {principalType: 'ROLE',
           principalId: '$owner',
           permission: 'ALLOW',
-          property: 'removeById' },
-        { accessType: '*',
+          property: 'removeById'},
+        {accessType: '*',
           permission: 'DENY',
           principalType: 'ROLE',
-          principalId: '$everyone' },
-        { accessType: '*',
+          principalId: '$everyone'},
+        {accessType: '*',
           permission: 'ALLOW',
           principalType: 'ROLE',
           property: 'login',
-          principalId: '$everyone' },
-        { permission: 'ALLOW',
+          principalId: '$everyone'},
+        {permission: 'ALLOW',
           property: 'findById',
           principalType: 'ROLE',
-          principalId: '$owner' },
+          principalId: '$owner'},
       ],
       maxTTL: 31556926,
       ttl: 1209600,
       base: 'User',
-      relations: { accessTokens: { model: 'accessToken', type: 'hasMany',
-        foreignKey: 'userId' },
-        account: { model: 'account', type: 'belongsTo' }}};
+      relations: {accessTokens: {model: 'accessToken', type: 'hasMany',
+        foreignKey: 'userId'},
+        account: {model: 'account', type: 'belongsTo'}}};
 
     should.deepEqual(dst.acls, expected.acls, 'Merged settings should match the expectation');
   });
@@ -210,12 +211,12 @@ describe('mergeSettings', function() {
 
 describe('sortObjectsByIds', function() {
   var items = [
-    { id: 1, name: 'a' },
-    { id: 2, name: 'b' },
-    { id: 3, name: 'c' },
-    { id: 4, name: 'd' },
-    { id: 5, name: 'e' },
-    { id: 6, name: 'f' },
+    {id: 1, name: 'a'},
+    {id: 2, name: 'b'},
+    {id: 3, name: 'c'},
+    {id: 4, name: 'd'},
+    {id: 5, name: 'e'},
+    {id: 6, name: 'f'},
   ];
 
   it('should sort', function() {
@@ -248,8 +249,8 @@ describe('util.mergeIncludes', function() {
     var baseInclude = 'relation1';
     var updateInclude = 'relation2';
     var expectedInclude = [
-      { relation2: true },
-      { relation1: true },
+      {relation2: true},
+      {relation1: true},
     ];
     checkInputOutput(baseInclude, updateInclude, expectedInclude);
   });
@@ -258,18 +259,18 @@ describe('util.mergeIncludes', function() {
     var baseInclude = 'relation1';
     var updateInclude = ['relation2'];
     var expectedInclude = [
-      { relation2: true },
-      { relation1: true },
+      {relation2: true},
+      {relation1: true},
     ];
     checkInputOutput(baseInclude, updateInclude, expectedInclude);
   });
 
   it('Merge string & object values to object', function() {
     var baseInclude = ['relation1'];
-    var updateInclude = { relation2: 'relation2Include' };
+    var updateInclude = {relation2: 'relation2Include'};
     var expectedInclude = [
-      { relation2: 'relation2Include' },
-      { relation1: true },
+      {relation2: 'relation2Include'},
+      {relation1: true},
     ];
     checkInputOutput(baseInclude, updateInclude, expectedInclude);
   });
@@ -278,37 +279,37 @@ describe('util.mergeIncludes', function() {
     var baseInclude = ['relation1'];
     var updateInclude = ['relation2'];
     var expectedInclude = [
-      { relation2: true },
-      { relation1: true },
+      {relation2: true},
+      {relation1: true},
     ];
     checkInputOutput(baseInclude, updateInclude, expectedInclude);
   });
 
   it('Merge array & object values to object', function() {
     var baseInclude = ['relation1'];
-    var updateInclude = { relation2: 'relation2Include' };
+    var updateInclude = {relation2: 'relation2Include'};
     var expectedInclude = [
-      { relation2: 'relation2Include' },
-      { relation1: true },
+      {relation2: 'relation2Include'},
+      {relation1: true},
     ];
     checkInputOutput(baseInclude, updateInclude, expectedInclude);
   });
 
   it('Merge object & object values to object', function() {
-    var baseInclude = { relation1: 'relation1Include' };
-    var updateInclude = { relation2: 'relation2Include' };
+    var baseInclude = {relation1: 'relation1Include'};
+    var updateInclude = {relation2: 'relation2Include'};
     var expectedInclude = [
-      { relation2: 'relation2Include' },
-      { relation1: 'relation1Include' },
+      {relation2: 'relation2Include'},
+      {relation1: 'relation1Include'},
     ];
     checkInputOutput(baseInclude, updateInclude, expectedInclude);
   });
 
   it('Override property collision with update value', function() {
-    var baseInclude = { relation1: 'baseValue' };
-    var updateInclude = { relation1: 'updateValue' };
+    var baseInclude = {relation1: 'baseValue'};
+    var updateInclude = {relation1: 'updateValue'};
     var expectedInclude = [
-      { relation1: 'updateValue' },
+      {relation1: 'updateValue'},
     ];
     checkInputOutput(baseInclude, updateInclude, expectedInclude);
   });
@@ -316,9 +317,9 @@ describe('util.mergeIncludes', function() {
   it('Merge string includes & include with relation syntax properly',
     function() {
       var baseInclude = 'relation1';
-      var updateInclude = { relation: 'relation1' };
+      var updateInclude = {relation: 'relation1'};
       var expectedInclude = [
-        { relation: 'relation1' },
+        {relation: 'relation1'},
       ];
       checkInputOutput(baseInclude, updateInclude, expectedInclude);
     });
@@ -327,10 +328,10 @@ describe('util.mergeIncludes', function() {
     var baseInclude = 'relation1';
     var updateInclude = {
       relation: 'relation1',
-      scope: { include: 'relation2' },
+      scope: {include: 'relation2'},
     };
     var expectedInclude = [
-      { relation: 'relation1', scope: { include: 'relation2' }},
+      {relation: 'relation1', scope: {include: 'relation2'}},
     ];
     checkInputOutput(baseInclude, updateInclude, expectedInclude);
   });
@@ -341,39 +342,39 @@ describe('util.mergeIncludes', function() {
       var baseInclude = ['relation2'];
       var updateInclude = {
         relation: 'relation1',
-        scope: { include: 'relation2' },
+        scope: {include: 'relation2'},
       };
       var expectedInclude = [{
         relation: 'relation1',
-        scope: { include: 'relation2' },
-      }, { relation2: true }];
+        scope: {include: 'relation2'},
+      }, {relation2: true}];
       checkInputOutput(baseInclude, updateInclude, expectedInclude);
 
       //w & w/o relation syntax - collision
       baseInclude = ['relation1'];
-      updateInclude = { relation: 'relation1', scope: { include: 'relation2' }};
+      updateInclude = {relation: 'relation1', scope: {include: 'relation2'}};
       expectedInclude =
-        [{ relation: 'relation1', scope: { include: 'relation2' }}];
+        [{relation: 'relation1', scope: {include: 'relation2'}}];
       checkInputOutput(baseInclude, updateInclude, expectedInclude);
 
       //w & w/o relation syntax - collision
-      baseInclude = { relation: 'relation1', scope: { include: 'relation2' }};
+      baseInclude = {relation: 'relation1', scope: {include: 'relation2'}};
       updateInclude = ['relation1'];
-      expectedInclude = [{ relation1: true }];
+      expectedInclude = [{relation1: true}];
       checkInputOutput(baseInclude, updateInclude, expectedInclude);
     });
 
   it('Merge includes with mixture of strings, arrays & objects properly', function() {
-    var baseInclude = ['relation1', { relation2: true },
-      { relation: 'relation3', scope: { where: { id: 'some id' }}},
-      { relation: 'relation5', scope: { where: { id: 'some id' }}},
+    var baseInclude = ['relation1', {relation2: true},
+      {relation: 'relation3', scope: {where: {id: 'some id'}}},
+      {relation: 'relation5', scope: {where: {id: 'some id'}}},
     ];
-    var updateInclude = ['relation4', { relation3: true },
-      { relation: 'relation2', scope: { where: { id: 'some id' }}}];
-    var expectedInclude = [{ relation4: true }, { relation3: true },
-      { relation: 'relation2', scope: { where: { id: 'some id' }}},
-      { relation1: true },
-      { relation: 'relation5', scope: { where: { id: 'some id' }}}];
+    var updateInclude = ['relation4', {relation3: true},
+      {relation: 'relation2', scope: {where: {id: 'some id'}}}];
+    var expectedInclude = [{relation4: true}, {relation3: true},
+      {relation: 'relation2', scope: {where: {id: 'some id'}}},
+      {relation1: true},
+      {relation: 'relation5', scope: {where: {id: 'some id'}}}];
     checkInputOutput(baseInclude, updateInclude, expectedInclude);
   });
 });

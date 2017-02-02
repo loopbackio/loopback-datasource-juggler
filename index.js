@@ -2,6 +2,10 @@
 // Node module: loopback-datasource-juggler
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
+'use strict';
+
+var SG = require('strong-globalize');
+SG.SetRootDir(__dirname);
 
 exports.ModelBuilder = exports.LDL = require('./lib/model-builder.js').ModelBuilder;
 exports.DataSource = exports.Schema = require('./lib/datasource.js').DataSource;
@@ -19,3 +23,5 @@ Object.defineProperty(exports, 'test', {
 });
 
 exports.Transaction = require('loopback-connector').Transaction;
+
+exports.KeyValueAccessObject = require('./lib/kvao');

@@ -2,6 +2,7 @@
 // Node module: loopback-datasource-juggler
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
+'use strict';
 
 /* eslint-disable camelcase */
 
@@ -14,8 +15,8 @@ describe('include_util', function() {
   describe('#buildOneToOneIdentityMapWithOrigKeys', function() {
     it('should return an object with keys', function() {
       var objs = [
-          { id: 11, letter: 'A' },
-          { id: 22, letter: 'B' },
+          {id: 11, letter: 'A'},
+          {id: 22, letter: 'B'},
       ];
       var result = includeUtils.buildOneToOneIdentityMapWithOrigKeys(objs, 'id');
       result.get(11).should.be.ok;
@@ -24,10 +25,10 @@ describe('include_util', function() {
 
     it('should overwrite keys in case of collision', function() {
       var objs = [
-            { id: 11, letter: 'A' },
-            { id: 22, letter: 'B' },
-            { id: 33, letter: 'C' },
-            { id: 11, letter: 'HA!' },
+            {id: 11, letter: 'A'},
+            {id: 22, letter: 'B'},
+            {id: 33, letter: 'C'},
+            {id: 11, letter: 'HA!'},
       ];
 
       var result = includeUtils.buildOneToOneIdentityMapWithOrigKeys(objs, 'id');
@@ -41,8 +42,8 @@ describe('include_util', function() {
   describe('#buildOneToOneIdentityMapWithOrigKeys', function() {
     it('should return an object with keys', function() {
       var objs = [
-        { id: 11, letter: 'A' },
-        { id: 22, letter: 'B' },
+        {id: 11, letter: 'A'},
+        {id: 22, letter: 'B'},
       ];
       var result = includeUtils.buildOneToOneIdentityMapWithOrigKeys(objs, 'id');
       result.get(11).should.be.ok;
@@ -53,8 +54,8 @@ describe('include_util', function() {
   describe('#buildOneToManyIdentityMap', function() {
     it('should return an object with keys', function() {
       var objs = [
-                { id: 11, letter: 'A' },
-                { id: 22, letter: 'B' },
+                {id: 11, letter: 'A'},
+                {id: 22, letter: 'B'},
       ];
       var result = includeUtils.buildOneToManyIdentityMapWithOrigKeys(objs, 'id');
       result.exist(11).should.be.true;
@@ -63,10 +64,10 @@ describe('include_util', function() {
 
     it('should collect keys in case of collision', function() {
       var objs = [
-                { fk_id: 11, letter: 'A' },
-                { fk_id: 22, letter: 'B' },
-                { fk_id: 33, letter: 'C' },
-                { fk_id: 11, letter: 'HA!' },
+                {fk_id: 11, letter: 'A'},
+                {fk_id: 22, letter: 'B'},
+                {fk_id: 33, letter: 'C'},
+                {fk_id: 11, letter: 'HA!'},
       ];
 
       var result = includeUtils.buildOneToManyIdentityMapWithOrigKeys(objs, 'fk_id');
@@ -92,11 +93,11 @@ describe('KVMap', function() {
     map.set('name', 'Alex');
     map.set(true, 'male');
     map.set(false, false);
-    map.set({ isTrue: 'yes' }, 25);
+    map.set({isTrue: 'yes'}, 25);
     map.get('name').should.be.equal('Alex');
     map.get(true).should.be.equal('male');
     map.get(false).should.be.equal(false);
-    map.get({ isTrue: 'yes' }).should.be.equal(25);
+    map.get({isTrue: 'yes'}).should.be.equal(25);
   });
   it('should not allow to get values with [] operator', function() {
     var map = new includeUtils.KVMap();

@@ -2,6 +2,7 @@
 // Node module: loopback-datasource-juggler
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
+'use strict';
 
 // This test written in mocha+should.js
 var should = require('./init.js');
@@ -12,16 +13,16 @@ describe('crud-with-options', function() {
   before(function(done) {
     db = getSchema();
     User = db.define('User', {
-      seq: { type: Number, index: true },
-      name: { type: String, index: true, sort: true },
-      email: { type: String, index: true },
-      birthday: { type: Date, index: true },
-      role: { type: String, index: true },
-      order: { type: Number, index: true, sort: true },
-      vip: { type: Boolean },
+      seq: {type: Number, index: true},
+      name: {type: String, index: true, sort: true},
+      email: {type: String, index: true},
+      birthday: {type: Date, index: true},
+      role: {type: String, index: true},
+      order: {type: Number, index: true, sort: true},
+      vip: {type: Boolean},
     });
     options = {};
-    filter = { fields: ['name', 'id'] };
+    filter = {fields: ['name', 'id']};
 
     db.automigrate(['User'], done);
   });
@@ -92,7 +93,7 @@ describe('crud-with-options', function() {
 
     it('should allow findById(id, filter, cb) for a matching id',
       function(done) {
-        User.create({ name: 'x', email: 'x@y.com' }, function(err, u) {
+        User.create({name: 'x', email: 'x@y.com'}, function(err, u) {
           should.not.exist(err);
           should.exist(u.id);
           User.findById(u.id, filter, function(err, u) {
@@ -108,7 +109,7 @@ describe('crud-with-options', function() {
 
     it('should allow findById(id, options, cb) for a matching id',
       function(done) {
-        User.create({ name: 'y', email: 'y@y.com' }, function(err, u) {
+        User.create({name: 'y', email: 'y@y.com'}, function(err, u) {
           should.not.exist(err);
           should.exist(u.id);
           User.findById(u.id, options, function(err, u) {
@@ -124,7 +125,7 @@ describe('crud-with-options', function() {
 
     it('should allow findById(id, filter, options, cb) for a matching id',
       function(done) {
-        User.create({ name: 'z', email: 'z@y.com' }, function(err, u) {
+        User.create({name: 'z', email: 'z@y.com'}, function(err, u) {
           should.not.exist(err);
           should.exist(u.id);
           User.findById(u.id, filter, options, function(err, u) {
@@ -140,7 +141,7 @@ describe('crud-with-options', function() {
 
     it('should allow promise-style findById',
       function(done) {
-        User.create({ name: 'w', email: 'w@y.com' }).then(function(u) {
+        User.create({name: 'w', email: 'w@y.com'}).then(function(u) {
           should.exist(u.id);
           return User.findById(u.id).then(function(u) {
             should.exist(u);
@@ -188,12 +189,12 @@ describe('crud-with-options', function() {
   describe('findByIds', function() {
     before(function(done) {
       var people = [
-        { id: 1, name: 'a', vip: true },
-        { id: 2, name: 'b' },
-        { id: 3, name: 'c' },
-        { id: 4, name: 'd', vip: true },
-        { id: 5, name: 'e' },
-        { id: 6, name: 'f' },
+        {id: 1, name: 'a', vip: true},
+        {id: 2, name: 'b'},
+        {id: 3, name: 'c'},
+        {id: 4, name: 'd', vip: true},
+        {id: 5, name: 'e'},
+        {id: 6, name: 'f'},
       ];
       // Use automigrate so that serial keys are 1-6
       db.automigrate(['User'], function(err) {
@@ -216,7 +217,7 @@ describe('crud-with-options', function() {
     it('should allow findByIds(ids, filter, options, cb)',
       function(done) {
         User.findByIds([4, 3, 2, 1],
-          { where: { vip: true }}, options, function(err, users) {
+          {where: {vip: true}}, options, function(err, users) {
             should.exist(users);
             should.not.exist(err);
             var names = users.map(function(u) {
@@ -241,7 +242,7 @@ describe('crud-with-options', function() {
     });
 
     it('should allow find(filter, cb)', function(done) {
-      User.find({ limit: 3 }, function(err, users) {
+      User.find({limit: 3}, function(err, users) {
         should.exists(users);
         should.not.exists(err);
         users.should.have.lengthOf(3);
@@ -259,15 +260,15 @@ describe('crud-with-options', function() {
     });
 
     it('should allow find(filter, options)', function() {
-      User.find({ limit: 3 }, options);
+      User.find({limit: 3}, options);
     });
 
     it('should allow find(filter)', function() {
-      User.find({ limit: 3 });
+      User.find({limit: 3});
     });
 
     it('should skip trailing undefined args', function(done) {
-      User.find({ limit: 3 }, function(err, users) {
+      User.find({limit: 3}, function(err, users) {
         should.exists(users);
         should.not.exists(err);
         users.should.have.lengthOf(3);
@@ -285,7 +286,7 @@ describe('crud-with-options', function() {
 
     it('should throw on an invalid options arg', function() {
       (function() {
-        User.find({ limit: 3 }, 'invalid option', function(err, users) {
+        User.find({limit: 3}, 'invalid option', function(err, users) {
           // noop
         });
       }).should.throw('The options argument must be an object');
@@ -293,7 +294,7 @@ describe('crud-with-options', function() {
 
     it('should throw on an invalid cb arg', function() {
       (function() {
-        User.find({ limit: 3 }, {}, 'invalid cb');
+        User.find({limit: 3}, {}, 'invalid cb');
       }).should.throw('The cb argument must be a function');
     });
   });
@@ -311,7 +312,7 @@ describe('crud-with-options', function() {
     });
 
     it('should allow count(where, cb)', function(done) {
-      User.count({ role: 'lead' }, function(err, n) {
+      User.count({role: 'lead'}, function(err, n) {
         should.not.exist(err);
         should.exist(n);
         n.should.equal(2);
@@ -320,7 +321,7 @@ describe('crud-with-options', function() {
     });
 
     it('should allow count(where, options, cb)', function(done) {
-      User.count({ role: 'lead' }, options, function(err, n) {
+      User.count({role: 'lead'}, options, function(err, n) {
         should.not.exist(err);
         should.exist(n);
         n.should.equal(2);
@@ -333,7 +334,7 @@ describe('crud-with-options', function() {
     before(seed);
 
     it('should allow findOne(cb)', function(done) {
-      User.find({ order: 'id' }, function(err, users) {
+      User.find({order: 'id'}, function(err, users) {
         User.findOne(function(e, u) {
           should.not.exist(e);
           should.exist(u);
@@ -344,7 +345,7 @@ describe('crud-with-options', function() {
     });
 
     it('should allow findOne(filter, options, cb)', function(done) {
-      User.findOne({ order: 'order' }, options, function(e, u) {
+      User.findOne({order: 'order'}, options, function(e, u) {
         should.not.exist(e);
         should.exist(u);
         u.order.should.equal(1);
@@ -354,7 +355,7 @@ describe('crud-with-options', function() {
     });
 
     it('should allow findOne(filter, cb)', function(done) {
-      User.findOne({ order: 'order' }, function(e, u) {
+      User.findOne({order: 'order'}, function(e, u) {
         should.not.exist(e);
         should.exist(u);
         u.order.should.equal(1);
@@ -364,7 +365,7 @@ describe('crud-with-options', function() {
     });
 
     it('should allow trailing undefined args', function(done) {
-      User.findOne({ order: 'order' }, function(e, u) {
+      User.findOne({order: 'order'}, function(e, u) {
         should.not.exist(e);
         should.exist(u);
         u.order.should.equal(1);
@@ -401,7 +402,7 @@ describe('crud-with-options', function() {
 
   describe('save', function() {
     it('should allow save(options, cb)', function(done) {
-      var options = { foo: 'bar' };
+      var options = {foo: 'bar'};
       var opts;
 
       User.observe('after save', function(ctx, next) {
@@ -422,12 +423,12 @@ describe('crud-with-options', function() {
     beforeEach(seed);
 
     it('should allow destroyAll(where, options, cb)', function(done) {
-      User.destroyAll({ name: 'John Lennon' }, options, function(err) {
+      User.destroyAll({name: 'John Lennon'}, options, function(err) {
         should.not.exist(err);
-        User.find({ where: { name: 'John Lennon' }}, function(err, data) {
+        User.find({where: {name: 'John Lennon'}}, function(err, data) {
           should.not.exist(err);
           data.length.should.equal(0);
-          User.find({ where: { name: 'Paul McCartney' }}, function(err, data) {
+          User.find({where: {name: 'Paul McCartney'}}, function(err, data) {
             should.not.exist(err);
             data.length.should.equal(1);
             done();
@@ -437,12 +438,12 @@ describe('crud-with-options', function() {
     });
 
     it('should allow destroyAll(where, cb)', function(done) {
-      User.destroyAll({ name: 'John Lennon' }, function(err) {
+      User.destroyAll({name: 'John Lennon'}, function(err) {
         should.not.exist(err);
-        User.find({ where: { name: 'John Lennon' }}, function(err, data) {
+        User.find({where: {name: 'John Lennon'}}, function(err, data) {
           should.not.exist(err);
           data.length.should.equal(0);
-          User.find({ where: { name: 'Paul McCartney' }}, function(err, data) {
+          User.find({where: {name: 'Paul McCartney'}}, function(err, data) {
             should.not.exist(err);
             data.length.should.equal(1);
             done();
@@ -454,10 +455,10 @@ describe('crud-with-options', function() {
     it('should allow destroyAll(cb)', function(done) {
       User.destroyAll(function(err) {
         should.not.exist(err);
-        User.find({ where: { name: 'John Lennon' }}, function(err, data) {
+        User.find({where: {name: 'John Lennon'}}, function(err, data) {
           should.not.exist(err);
           data.length.should.equal(0);
-          User.find({ where: { name: 'Paul McCartney' }}, function(err, data) {
+          User.find({where: {name: 'Paul McCartney'}}, function(err, data) {
             should.not.exist(err);
             data.length.should.equal(0);
             done();
@@ -471,12 +472,12 @@ describe('crud-with-options', function() {
     beforeEach(seed);
 
     it('should allow updateAll(where, data, cb)', function(done) {
-      User.update({ name: 'John Lennon' }, { name: 'John Smith' }, function(err) {
+      User.update({name: 'John Lennon'}, {name: 'John Smith'}, function(err) {
         should.not.exist(err);
-        User.find({ where: { name: 'John Lennon' }}, function(err, data) {
+        User.find({where: {name: 'John Lennon'}}, function(err, data) {
           should.not.exist(err);
           data.length.should.equal(0);
-          User.find({ where: { name: 'John Smith' }}, function(err, data) {
+          User.find({where: {name: 'John Smith'}}, function(err, data) {
             should.not.exist(err);
             data.length.should.equal(1);
             done();
@@ -486,13 +487,13 @@ describe('crud-with-options', function() {
     });
 
     it('should allow updateAll(where, data, options, cb)', function(done) {
-      User.update({ name: 'John Lennon' }, { name: 'John Smith' }, options,
+      User.update({name: 'John Lennon'}, {name: 'John Smith'}, options,
         function(err) {
           should.not.exist(err);
-          User.find({ where: { name: 'John Lennon' }}, function(err, data) {
+          User.find({where: {name: 'John Lennon'}}, function(err, data) {
             should.not.exist(err);
             data.length.should.equal(0);
-            User.find({ where: { name: 'John Smith' }}, function(err, data) {
+            User.find({where: {name: 'John Smith'}}, function(err, data) {
               should.not.exist(err);
               data.length.should.equal(1);
               done();
@@ -502,16 +503,79 @@ describe('crud-with-options', function() {
     });
 
     it('should allow updateAll(data, cb)', function(done) {
-      User.update({ name: 'John Smith' }, function() {
-        User.find({ where: { name: 'John Lennon' }}, function(err, data) {
+      User.update({name: 'John Smith'}, function() {
+        User.find({where: {name: 'John Lennon'}}, function(err, data) {
           should.not.exist(err);
           data.length.should.equal(0);
-          User.find({ where: { name: 'John Smith' }}, function(err, data) {
+          User.find({where: {name: 'John Smith'}}, function(err, data) {
             should.not.exist(err);
             data.length.should.equal(6);
             done();
           });
         });
+      });
+    });
+  });
+});
+
+describe('upsertWithWhere', function() {
+  beforeEach(seed);
+  it('rejects upsertWithWhere (options,cb)', function(done) {
+    try {
+      User.upsertWithWhere({}, function(err) {
+        if (err) return done(err);
+      });
+    } catch (ex) {
+      ex.message.should.equal('The data argument must be an object');
+      done();
+    }
+  });
+
+  it('rejects upsertWithWhere (cb)', function(done) {
+    try {
+      User.upsertWithWhere(function(err) {
+        if (err) return done(err);
+      });
+    } catch (ex) {
+      ex.message.should.equal('The where argument must be an object');
+      done();
+    }
+  });
+
+  it('allows upsertWithWhere by accepting where,data and cb as arguments', function(done) {
+    User.upsertWithWhere({name: 'John Lennon'}, {name: 'John Smith'}, function(err) {
+      if (err) return done(err);
+      User.find({where: {name: 'John Lennon'}}, function(err, data) {
+        if (err) return done(err);
+        data.length.should.equal(0);
+        User.find({where: {name: 'John Smith'}}, function(err, data) {
+          if (err) return done(err);
+          data.length.should.equal(1);
+          data[0].name.should.equal('John Smith');
+          data[0].email.should.equal('john@b3atl3s.co.uk');
+          data[0].role.should.equal('lead');
+          data[0].order.should.equal(2);
+          data[0].vip.should.equal(true);
+          done();
+        });
+      });
+    });
+  });
+
+  it('allows upsertWithWhere by accepting where, data, options, and cb as arguments', function(done) {
+    options = {};
+    User.upsertWithWhere({name: 'John Lennon'}, {name: 'John Smith'}, options, function(err) {
+      if (err) return done(err);
+      User.find({where: {name: 'John Smith'}}, function(err, data) {
+        if (err) return done(err);
+        data.length.should.equal(1);
+        data[0].name.should.equal('John Smith');
+        data[0].seq.should.equal(0);
+        data[0].email.should.equal('john@b3atl3s.co.uk');
+        data[0].role.should.equal('lead');
+        data[0].order.should.equal(2);
+        data[0].vip.should.equal(true);
+        done();
       });
     });
   });
@@ -537,10 +601,10 @@ function seed(done) {
       order: 1,
       vip: true,
     },
-    { seq: 2, name: 'George Harrison', order: 5, vip: false },
-    { seq: 3, name: 'Ringo Starr', order: 6, vip: false },
-    { seq: 4, name: 'Pete Best', order: 4 },
-    { seq: 5, name: 'Stuart Sutcliffe', order: 3, vip: true },
+    {seq: 2, name: 'George Harrison', order: 5, vip: false},
+    {seq: 3, name: 'Ringo Starr', order: 6, vip: false},
+    {seq: 4, name: 'Pete Best', order: 4},
+    {seq: 5, name: 'Stuart Sutcliffe', order: 3, vip: true},
   ];
 
   async.series([
