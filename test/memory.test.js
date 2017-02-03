@@ -660,6 +660,26 @@ describe('Memory connector', function() {
     });
   });
 
+  it('should refuse to create object with duplicate id', function(done) {
+    var ds = new DataSource({connector: 'memory'});
+    var Product = ds.define('ProductTest', {name: String}, {forceId: false});
+    ds.automigrate('ProductTest', function(err) {
+      if (err) return done(err);
+
+      Product.create({name: 'a-name'}, function(err, p) {
+        if (err) return done(err);
+        Product.create({id: p.id, name: 'duplicate'}, function(err) {
+          if (!err) {
+            return done(new Error('Create should have rejected duplicate id.'));
+          }
+          err.message.should.match(/duplicate/i);
+          err.statusCode.should.equal(409);
+          done();
+        });
+      });
+    });
+  });
+
   describe('automigrate', function() {
     var ds;
     beforeEach(function() {
