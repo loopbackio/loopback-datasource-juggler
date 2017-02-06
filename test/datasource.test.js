@@ -24,4 +24,24 @@ describe('DataSource', function() {
       });
     }).should.throw(/loopback-connector-throwing/);
   });
+
+  it('reports helpful error when connector init via short name throws', function() {
+    (function() {
+      // this is what LoopBack does
+      return new DataSource({
+        name: 'dsname',
+        connector: 'throwing',
+      });
+    }).should.throw(/expected test error/);
+  });
+
+  it('reports helpful error when connector init via long name throws', function() {
+    (function() {
+      // this is what LoopBack does
+      return new DataSource({
+        name: 'dsname',
+        connector: 'loopback-connector-throwing',
+      });
+    }).should.throw(/expected test error/);
+  });
 });

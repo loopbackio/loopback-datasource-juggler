@@ -36,6 +36,7 @@
     "bluebird": "^2.9.9",
     "eslint": "^2.13.1",
     "eslint-config-loopback": "^4.0.0",
+    "loopback-connector-throwing": "file:./test/fixtures/loopback-connector-throwing",
     "mocha": "^2.1.0",
     "should": "^8.0.2"
   },
