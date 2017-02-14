@@ -22,6 +22,22 @@ describe('basic-querying', function() {
       role: {type: String, index: true},
       order: {type: Number, index: true, sort: true},
       vip: {type: Boolean},
+      address: {
+        street: String,
+        city: String,
+        state: String,
+        zipCode: String,
+        tags: [
+          {
+            tag: String,
+          },
+        ],
+      },
+      friends: [
+        {
+          name: String,
+        },
+      ],
     });
 
     db.automigrate(done);
@@ -574,12 +590,70 @@ describe('basic-querying', function() {
       }
 
       sample({name: true}).expect(['name']);
-      sample({name: false}).expect(['id', 'seq', 'email', 'role', 'order', 'birthday', 'vip']);
+      sample({name: false}).expect(['id', 'seq', 'email', 'role', 'order', 'birthday', 'vip',
+        'address', 'friends']);
       sample({name: false, id: true}).expect(['id']);
       sample({id: true}).expect(['id']);
       sample('id').expect(['id']);
       sample(['id']).expect(['id']);
       sample(['email']).expect(['email']);
+    });
+
+    var describeWhenNestedSupported = connectorCapabilities.nestedProperty ? describe : describe.skip;
+    describeWhenNestedSupported('query with nested property', function() {
+      it('should support nested property in query', function(done) {
+        User.find({where: {'address.city': 'San Jose'}}, function(err, users) {
+          if (err) return done(err);
+          users.length.should.be.equal(1);
+          for (var i = 0; i < users.length; i++) {
+            users[i].address.city.should.be.eql('San Jose');
+          }
+          done();
+        });
+      });
+
+      it('should support nested property with regex over arrays in query', function(done) {
+        User.find({where: {'friends.name': {regexp: /^Ringo/}}}, function(err, users) {
+          if (err) return done(err);
+          users.length.should.be.equal(2);
+          var expectedUsers = ['John Lennon', 'Paul McCartney'];
+          (expectedUsers.indexOf(users[0].name) > -1).should.be.ok();
+          (expectedUsers.indexOf(users[1].name) > -1).should.be.ok();
+          done();
+        });
+      });
+
+      it('should support nested property with gt in query', function(done) {
+        User.find({where: {'address.city': {gt: 'San'}}}, function(err, users) {
+          if (err) return done(err);
+          users.length.should.be.equal(2);
+          for (var i = 0; i < users.length; i++) {
+            users[i].address.state.should.be.eql('CA');
+          }
+          done();
+        });
+      });
+
+      it('should support nested property for order in query', function(done) {
+        User.find({where: {'address.state': 'CA'}, order: 'address.city DESC'},
+          function(err, users) {
+            if (err) return done(err);
+            users.length.should.be.equal(2);
+            users[0].address.city.should.be.eql('San Mateo');
+            users[1].address.city.should.be.eql('San Jose');
+            done();
+          });
+      });
+
+      it('should support multi-level nested array property in query', function(done) {
+        User.find({where: {'address.tags.tag': 'business'}}, function(err, users) {
+          if (err) return done(err);
+          users.length.should.be.equal(1);
+          users[0].address.tags[0].tag.should.be.equal('business');
+          users[0].address.tags[1].tag.should.be.equal('rent');
+          done();
+        });
+      });
     });
   });
 
@@ -886,6 +960,21 @@ function seed(done) {
       birthday: new Date('1980-12-08'),
       order: 2,
       vip: true,
+      address: {
+        street: '123 A St',
+        city: 'San Jose',
+        state: 'CA',
+        zipCode: '95131',
+        tags: [
+          {tag: 'business'},
+          {tag: 'rent'},
+        ],
+      },
+      friends: [
+        {name: 'Paul McCartney'},
+        {name: 'George Harrison'},
+        {name: 'Ringo Starr'},
+      ],
     },
     {
       seq: 1,
@@ -895,6 +984,17 @@ function seed(done) {
       birthday: new Date('1942-06-18'),
       order: 1,
       vip: true,
+      address: {
+        street: '456 B St',
+        city: 'San Mateo',
+        state: 'CA',
+        zipCode: '94065',
+      },
+      friends: [
+        {name: 'John Lennon'},
+        {name: 'George Harrison'},
+        {name: 'Ringo Starr'},
+      ],
     },
     {seq: 2, name: 'George Harrison', order: 5, vip: false},
     {seq: 3, name: 'Ringo Starr', order: 6, vip: false},
