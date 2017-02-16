@@ -60,6 +60,42 @@ describe('include', function() {
     });
   });
 
+  it('should not have changed the __strict flag of the model', function(done) {
+    const originalStrict = User.definition.settings.strict;
+    User.definition.settings.strict = true; // Change to test regression for issue #1252
+    const finish = (err) => {
+      // Restore original user strict property
+      User.definition.settings.strict = originalStrict;
+      done(err);
+    };
+    User.find({include: 'posts'}, function(err, users) {
+      if (err) return finish(err);
+      users.forEach(user => {
+        user.should.have.property('__strict', true); // we changed it
+      });
+      finish();
+    });
+  });
+
+  it('should not save in db included models, in query returned models', function(done) {
+    const originalStrict = User.definition.settings.strict;
+    User.definition.settings.strict = true; // Change to test regression for issue #1252
+    const finish = (err) => {
+      // Restore original user strict property
+      User.definition.settings.strict = originalStrict;
+      done(err);
+    };
+    User.findOne({where: {id: 1}, include: 'posts'}, function(err, user) {
+      if (err) return finish(err);
+      user.save(function(err) { // save the returned user
+        if (err) return finish(err);
+        // should not store in db the posts
+        JSON.parse(User.dataSource.adapter.cache.User[1]).should.not.have.property('posts');
+        finish();
+      });
+    });
+  });
+
   it('should fetch Passport - Owner - Posts', function(done) {
     Passport.find({include: {owner: 'posts'}}, function(err, passports) {
       should.not.exist(err);
