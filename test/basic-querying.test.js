@@ -601,6 +601,7 @@ describe('basic-querying', function() {
 
     it('should ignore non existing properties when excluding', function(done) {
       return User.find({fields: {notExist: false}}, (err, users) => {
+        if (err) return done(err);
         users.forEach(user => {
           Object.keys(user.__data).should.containDeep(['id', 'seq', 'name', 'email', 'role',
             'order', 'birthday', 'vip', 'address', 'friends']);
