@@ -613,7 +613,6 @@ describe('validations', function() {
     it('fails when included value is not used for property', function(done) {
       User.validatesInclusionOf('name', {in: ['bob', 'john']});
       User.create({name: 'bobby'}, function(err, user) {
-        should.exist(err);
         err.details.messages.should.eql({name: ['is not included in the list']});
         done();
       });
@@ -622,7 +621,7 @@ describe('validations', function() {
     it('passes when included value is used for property', function(done) {
       User.validatesInclusionOf('name', {in: ['bob', 'john']});
       User.create({name: 'bob'}, function(err, user) {
-        should.not.exist(err);
+        if (err) return done(err);
         user.name.should.eql('bob');
         done();
       });
@@ -631,7 +630,6 @@ describe('validations', function() {
     it('fails with a custom error message', function(done) {
       User.validatesInclusionOf('name', {in: ['bob', 'john'], message: 'not used'});
       User.create({name: 'dude'}, function(err, user) {
-        should.exist(err);
         err.details.messages.should.eql({name: ['not used']});
         done();
       });
@@ -640,7 +638,6 @@ describe('validations', function() {
     it('fails with a null value when allowNull is false', function(done) {
       User.validatesInclusionOf('name', {in: ['bob'], allowNull: false});
       User.create({name: null}, function(err, user) {
-        should.exist(err);
         err.details.messages.should.eql({name: ['is null']});
         done();
       });
@@ -648,16 +645,12 @@ describe('validations', function() {
 
     it('passes with a null value when allowNull is true', function(done) {
       User.validatesInclusionOf('name', {in: ['bob'], allowNull: true});
-      User.create({name: null}, function(err, user) {
-        should.not.exist(err);
-        done();
-      });
+      User.create({name: null}, done);
     });
 
     it('fails if value is used for integer property', function(done) {
       User.validatesInclusionOf('age', {in: [123, 456]});
       User.create({age: 789}, function(err, user) {
-        should.exist(err);
         err.details.messages.should.eql({age: ['is not included in the list']});
         done();
       });
