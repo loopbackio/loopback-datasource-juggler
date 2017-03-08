@@ -605,7 +605,7 @@ describe('validations', function() {
       User.validatesNumericalityOf('age', {int: true});
       var user = new User({age: 13.37});
       user.isValid().should.be.false();
-      user.errors.should.eql({age: ['is not an integer']});
+      user.errors.should.match({age: /is not an integer/});
     });
   });
 
@@ -614,7 +614,55 @@ describe('validations', function() {
   });
 
   describe('exclusion', function() {
-    it('should validate exclusion');
+    it('fails when excluded value is used for property', function(done) {
+      User.validatesExclusionOf('name', {in: ['bob']});
+      User.create({name: 'bob'}, function(err, user) {
+        err.should.be.instanceof(Error);
+        err.details.messages.should.match({name: /is reserved/});
+        done();
+      });
+    });
+
+    it('passes when excluded value not found for property', function(done) {
+      User.validatesExclusionOf('name', {in: ['dude']});
+      User.create({name: 'bob'}, function(err, user) {
+        if (err) return done(err);
+        user.name.should.eql('bob');
+        done();
+      });
+    });
+
+    it('fails with a custom error message', function(done) {
+      User.validatesExclusionOf('name', {in: ['bob'], message: 'cannot use this'});
+      User.create({name: 'bob'}, function(err) {
+        err.should.be.instanceof(Error);
+        err.details.messages.should.match({name: /cannot use this/});
+        done();
+      });
+    });
+
+    it('fails with a null value when allowNull is false', function(done) {
+      User.validatesExclusionOf('name', {in: ['bob'], allowNull: false});
+      User.create({name: null}, function(err) {
+        err.should.be.instanceof(Error);
+        err.details.messages.should.match({name: /is null/});
+        done();
+      });
+    });
+
+    it('passes with a null value when allowNull is true', function(done) {
+      User.validatesExclusionOf('name', {in: ['bob'], allowNull: true});
+      User.create({name: null}, done);
+    });
+
+    it('fails if value is used for integer property', function(done) {
+      User.validatesExclusionOf('age', {in: [123, 456]});
+      User.create({age: 123}, function(err) {
+        err.should.be.instanceof(Error);
+        err.details.messages.should.match({age: /is reserved/});
+        done();
+      });
+    });
   });
 
   describe('length', function() {
