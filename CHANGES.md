@@ -1,3 +1,13 @@
+2017-03-13, Version 2.54.1
+==========================
+
+ * fix incorrect engines property in package.json (Ryan Graham)
+
+ * Fix datasource to report connector-loading errors (Miroslav Bajtoš)
+
+ * Add two basic tests for "inq" operator (Miroslav Bajtoš)
+
+
 2017-01-17, Version 2.54.0
 ==========================
 
