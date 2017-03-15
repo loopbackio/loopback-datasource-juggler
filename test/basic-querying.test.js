@@ -465,9 +465,9 @@ describe('basic-querying', function() {
     it('supports non-empty inq', function() {
       // note there is no record with seq=100
       return User.find({where: {seq: {inq: [0, 1, 100]}}})
-        .then(function(result) {
-          var seqsFound = result.map(function(r) { return r.seq; });
-          should(seqsFound).eql([0, 1]);
+        .then(result => {
+          const seqsFound = result.map(r => r.seq);
+          should(seqsFound).be.oneOf([0, 1], [1, 0]);
         });
     });
 
