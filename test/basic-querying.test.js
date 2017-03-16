@@ -654,6 +654,15 @@ describe('basic-querying', function() {
           done();
         });
       });
+
+      it('should fail when querying with an invalid value for a type',
+      function(done) {
+        User.find({where: {birthday: 'notadate'}}, function(err, users) {
+          should.exist(err);
+          err.message.should.equal('Invalid date: notadate');
+          done();
+        });
+      });
     });
   });
 

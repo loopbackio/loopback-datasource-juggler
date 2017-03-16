@@ -685,6 +685,15 @@ describe('manipulation', function() {
         });
       });
 
+    it('should fail if field validation fails', function(done) {
+      person.updateAttributes({'name': 'John', dob: 'notadate'},
+      function(err, p) {
+        should.exist(err);
+        err.message.should.equal('Invalid date: notadate');
+        done();
+      });
+    });
+
     it('should allow model instance on updateAttributes', function(done) {
       person.updateAttributes(new Person({'name': 'John', age: undefined}),
         function(err, p) {
