@@ -612,8 +612,9 @@ describe('validations', function() {
   describe('inclusion', function() {
     it('fails when included value is not used for property', function(done) {
       User.validatesInclusionOf('name', {in: ['bob', 'john']});
-      User.create({name: 'bobby'}, function(err, user) {
-        err.details.messages.should.eql({name: ['is not included in the list']});
+      User.create({name: 'bobby'}, function(err) {
+        err.should.be.instanceof(Error);
+        err.details.messages.should.match({name: /is not included in the list/});
         done();
       });
     });
@@ -629,16 +630,18 @@ describe('validations', function() {
 
     it('fails with a custom error message', function(done) {
       User.validatesInclusionOf('name', {in: ['bob', 'john'], message: 'not used'});
-      User.create({name: 'dude'}, function(err, user) {
-        err.details.messages.should.eql({name: ['not used']});
+      User.create({name: 'dude'}, function(err) {
+        err.should.be.instanceof(Error);
+        err.details.messages.should.match({name: /not used/});
         done();
       });
     });
 
     it('fails with a null value when allowNull is false', function(done) {
       User.validatesInclusionOf('name', {in: ['bob'], allowNull: false});
-      User.create({name: null}, function(err, user) {
-        err.details.messages.should.eql({name: ['is null']});
+      User.create({name: null}, function(err) {
+        err.should.be.instanceof(Error);
+        err.details.messages.should.match({name: /is null/});
         done();
       });
     });
@@ -650,8 +653,9 @@ describe('validations', function() {
 
     it('fails if value is used for integer property', function(done) {
       User.validatesInclusionOf('age', {in: [123, 456]});
-      User.create({age: 789}, function(err, user) {
-        err.details.messages.should.eql({age: ['is not included in the list']});
+      User.create({age: 789}, function(err) {
+        err.should.be.instanceof(Error);
+        err.details.messages.should.match({age: /is not included in the list/});
         done();
       });
     });
