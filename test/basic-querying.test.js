@@ -603,8 +603,18 @@ describe('basic-querying', function() {
       return User.find({fields: {notExist: false}}, (err, users) => {
         if (err) return done(err);
         users.forEach(user => {
-          Object.keys(user.__data).should.containDeep(['id', 'seq', 'name', 'email', 'role',
-            'order', 'birthday', 'vip', 'address', 'friends']);
+          switch (user.seq) { // all fields depending on each document
+            case 0:
+            case 1:
+              Object.keys(user.__data).should.containDeep(['id', 'seq', 'name', 'order', 'role',
+                'birthday', 'vip', 'address', 'friends']);
+              break;
+            case 4: // seq 4
+              Object.keys(user.__data).should.containDeep(['id', 'seq', 'name', 'order']);
+              break;
+            default: // Other records, seq 2, 3, 5
+              Object.keys(user.__data).should.containDeep(['id', 'seq', 'name', 'order', 'vip']);
+          }
         });
         done();
       });
