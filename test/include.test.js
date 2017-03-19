@@ -85,13 +85,31 @@ describe('include', function() {
       User.definition.settings.strict = originalStrict;
       done(err);
     };
-    User.findOne({where: {id: 1}, include: 'posts'}, function(err, user) {
+    User.findOne({where: {name: 'User A'}, include: 'posts'}, function(err, user) {
       if (err) return finish(err);
+      if (!user) return finish(new Error('User Not found to check relation not saved'));
       user.save(function(err) { // save the returned user
         if (err) return finish(err);
         // should not store in db the posts
-        JSON.parse(User.dataSource.adapter.cache.User[1]).should.not.have.property('posts');
-        finish();
+        var dsName = User.dataSource.name;
+        if (dsName === 'memory') {
+          JSON.parse(User.dataSource.adapter.cache.User[1]).should.not.have.property('posts');
+          finish();
+        } else if (dsName === 'mongodb') { //  Check native mongodb connector
+          // get hold of native mongodb collection
+          var dbCollection = User.dataSource.connector.collection(User.modelName);
+          dbCollection.findOne({_id: user.id})
+            .then(function(foundUser) {
+              if (!foundUser) {
+                finish(new Error('User not found to check posts not saved'));
+              }
+              foundUser.should.not.have.property('posts');
+              finish();
+            })
+            .catch(finish);
+        } else { // TODO make native checks for other connectors as well
+          finish();
+        }
       });
     });
   });
