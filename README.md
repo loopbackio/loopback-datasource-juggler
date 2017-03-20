@@ -8,7 +8,7 @@ Current|Long Term Support
 :-:|:-:
 3.x|2.x
 
-Learn more about our LTS plan in [docs](http://loopback.io/doc/en/contrib/Long-term-support.html).
+Learn more about our LTS plan in the [LoopBack documenation](http://loopback.io/doc/en/contrib/Long-term-support.html).
 
 ## Usage
 
@@ -26,8 +26,6 @@ npm install loopback-connector-mongodb // in this case, the mongodb connector
 
 ## Documentation
 
-See the [official documentation](http://docs.strongloop.com).
+See the [LoopBack documentation](http://loopback.io/doc/en/lb3/index.html).
 
-### Creating data sources programmatically
-
-See [Advanced topics: data sources](http://docs.strongloop.com/display/LB/Advanced+topics%3A+data+sources).
+For information on data source connectors, see [Connecting models to data sources](https://loopback.io/doc/en/lb3/Connecting-models-to-data-sources.html).
