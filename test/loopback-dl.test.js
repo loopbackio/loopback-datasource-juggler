@@ -1312,6 +1312,8 @@ describe('DataAccessObject', function() {
       date: Date,
       location: 'GeoPoint',
       scores: [Number],
+      array: 'array',
+      object: 'object',
     });
   });
 
@@ -1546,7 +1548,7 @@ describe('DataAccessObject', function() {
     assert(error, 'An error should have been thrown');
   });
 
-  it('throws an error if the filter.limit property is nagative', function() {
+  it('throws an error if the filter.limit property is negative', function() {
     try {
       // The limit param must be a valid number
       filter = model._normalize({limit: -1});
@@ -1625,6 +1627,18 @@ describe('DataAccessObject', function() {
   it('does not coerce undefined values', function() {
     where = model._coerce({date: undefined});
     assert.deepEqual(where, {date: undefined});
+  });
+
+  it('does not coerce empty objects to arrays', function() {
+    where = model._coerce({object: {}});
+    where.object.should.not.be.an.Array();
+    where.object.should.be.an.Object();
+  });
+
+  it('does not coerce an empty array', function() {
+    where = model._coerce({array: []});
+    where.array.should.be.an.Array();
+    where.array.should.have.length(0);
   });
 
   it('does not coerce to a number for a simple value that produces NaN',

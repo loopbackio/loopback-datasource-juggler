@@ -561,7 +561,7 @@ describe('include', function() {
       posts[1].title.should.equal('Post B');
       posts[2].title.should.equal('Post A');
 
-      var posts = users[1].posts();
+      posts = users[1].posts();
       posts.should.be.an.array;
       posts.should.have.length(1);
       posts[0].title.should.equal('Post D');

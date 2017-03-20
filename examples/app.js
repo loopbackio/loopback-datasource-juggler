@@ -41,5 +41,5 @@ console.log(modelBuilder.models);
 console.log(modelBuilder.definitions);
 
 User.mixin(Group);
-var user = new User({name: 'Ray', group: 'Admin'});
+user = new User({name: 'Ray', group: 'Admin'});
 console.log(user);

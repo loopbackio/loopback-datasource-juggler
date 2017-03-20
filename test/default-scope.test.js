@@ -81,6 +81,7 @@ describe('default scope', function() {
       base: 'Product',
       scope: {where: {kind: 'Tool'}, order: 'name'},
       scopes: {active: {where: {active: true}}},
+      arangodb: {collection: 'Product'},
       mongodb: {collection: 'Product'},
       memory: {collection: 'Product'},
     });
@@ -90,6 +91,7 @@ describe('default scope', function() {
       properties: {kind: 'Widget'},
       scope: {where: {kind: 'Widget'}, order: 'name'},
       scopes: {active: {where: {active: true}}},
+      arangodb: {collection: 'Product'},
       mongodb: {collection: 'Product'},
       memory: {collection: 'Product'},
     });
@@ -114,6 +116,7 @@ describe('default scope', function() {
       base: 'Product',
       attributes: propertiesFn,
       scope: scopeFn,
+      arangodb: {collection: 'Product'},
       mongodb: {collection: 'Product'},
       memory: {collection: 'Product'},
     });

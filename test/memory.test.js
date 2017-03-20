@@ -490,49 +490,6 @@ describe('Memory connector', function() {
       });
     });
 
-    it('should support nested property in query', function(done) {
-      User.find({where: {'address.city': 'San Jose'}}, function(err, users) {
-        should.not.exist(err);
-        users.length.should.be.equal(1);
-        for (var i = 0; i < users.length; i++) {
-          users[i].address.city.should.be.eql('San Jose');
-        }
-        done();
-      });
-    });
-
-    it('should support nested property with regex over arrays in query', function(done) {
-      User.find({where: {'friends.name': {regexp: /^Ringo/}}}, function(err, users) {
-        should.not.exist(err);
-        users.length.should.be.equal(2);
-        users[0].name.should.be.equal('John Lennon');
-        users[1].name.should.be.equal('Paul McCartney');
-        done();
-      });
-    });
-
-    it('should support nested property with gt in query', function(done) {
-      User.find({where: {'address.city': {gt: 'San'}}}, function(err, users) {
-        should.not.exist(err);
-        users.length.should.be.equal(2);
-        for (var i = 0; i < users.length; i++) {
-          users[i].address.state.should.be.eql('CA');
-        }
-        done();
-      });
-    });
-
-    it('should support nested property for order in query', function(done) {
-      User.find({where: {'address.state': 'CA'}, order: 'address.city DESC'},
-        function(err, users) {
-          should.not.exist(err);
-          users.length.should.be.equal(2);
-          users[0].address.city.should.be.eql('San Mateo');
-          users[1].address.city.should.be.eql('San Jose');
-          done();
-        });
-    });
-
     it('should deserialize values after saving in upsert', function(done) {
       User.findOne({where: {seq: 1}}, function(err, paul) {
         User.updateOrCreate({id: paul.id, name: 'Sir Paul McCartney'},
@@ -543,16 +500,6 @@ describe('Memory connector', function() {
             sirpaul.vip.should.be.instanceOf(Boolean);
             done();
           });
-      });
-    });
-
-    it('should support multi-level nested array property in query', function(done) {
-      User.find({where: {'address.tags.tag': 'business'}}, function(err, users) {
-        should.not.exist(err);
-        users.length.should.be.equal(1);
-        users[0].address.tags[0].tag.should.be.equal('business');
-        users[0].address.tags[1].tag.should.be.equal('rent');
-        done();
       });
     });
 
@@ -656,6 +603,26 @@ describe('Memory connector', function() {
         products[1].toObject().should.eql({name: 'Tool B', id: 2});
         products[2].toObject().should.eql({name: 'Widget A', id: 3});
         done();
+      });
+    });
+  });
+
+  it('should refuse to create object with duplicate id', function(done) {
+    var ds = new DataSource({connector: 'memory'});
+    var Product = ds.define('ProductTest', {name: String}, {forceId: false});
+    ds.automigrate('ProductTest', function(err) {
+      if (err) return done(err);
+
+      Product.create({name: 'a-name'}, function(err, p) {
+        if (err) return done(err);
+        Product.create({id: p.id, name: 'duplicate'}, function(err) {
+          if (!err) {
+            return done(new Error('Create should have rejected duplicate id.'));
+          }
+          err.message.should.match(/duplicate/i);
+          err.statusCode.should.equal(409);
+          done();
+        });
       });
     });
   });

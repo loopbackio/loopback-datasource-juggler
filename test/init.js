@@ -34,5 +34,7 @@ if (!('getModelBuilder' in global)) {
 }
 
 if (!('connectorCapabilities' in global)) {
-  global.connectorCapabilities = {};
+  global.connectorCapabilities = {
+  	nestedProperty: true,
+  };
 }

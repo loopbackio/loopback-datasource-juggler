@@ -12,6 +12,7 @@ var should = require('./init.js');
 
 var db, Person;
 var ValidationError = require('..').ValidationError;
+var bdd = require('./helpers/bdd-if.js');
 
 var UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -684,6 +685,15 @@ describe('manipulation', function() {
         });
       });
 
+    it('should fail if field validation fails', function(done) {
+      person.updateAttributes({'name': 'John', dob: 'notadate'},
+      function(err, p) {
+        should.exist(err);
+        err.message.should.equal('Invalid date: notadate');
+        done();
+      });
+    });
+
     it('should allow model instance on updateAttributes', function(done) {
       person.updateAttributes(new Person({'name': 'John', age: undefined}),
         function(err, p) {
@@ -1097,6 +1107,52 @@ describe('manipulation', function() {
     });
   }
 
+  var hasReplaceById = !!getSchema().connector.replaceById;
+  bdd.describeIf(hasReplaceById, 'replaceOrCreate when forceId is true', function() {
+    var Post;
+    before(function(done) {
+      var ds = getSchema();
+      Post = ds.define('Post', {
+        title: {type: String, length: 255},
+        content: {type: String},
+      }, {forceId: true});
+      ds.automigrate('Post', done);
+    });
+
+    it('fails when id does not exist in db', function(done) {
+      var post = {id: 123, title: 'a', content: 'AAA'};
+      Post.replaceOrCreate(post, function(err, p) {
+        err.statusCode.should.equal(404);
+        done();
+      });
+    });
+
+    it('works on create if the request does not include an id', function(done) {
+      var post = {title: 'a', content: 'AAA'};
+      Post.replaceOrCreate(post, function(err, p) {
+        if (err) return done(err);
+        p.title.should.equal(post.title);
+        p.content.should.equal(post.content);
+        done();
+      });
+    });
+
+    it('works on update if the request includes an existing id in db', function(done) {
+      Post.create({title: 'a', content: 'AAA'},
+           function(err, post) {
+             if (err) return done(err);
+             post = post.toObject();
+             delete post.content;
+             post.title = 'b';
+             Post.replaceOrCreate(post, function(err, p) {
+               if (err) return done(err);
+               p.id.should.equal(post.id);
+               done();
+             });
+           });
+    });
+  });
+
   if (!getSchema().connector.replaceById) {
     describe.skip('replaceAttributes/replaceById - not implemented', function() {});
   } else {
@@ -1292,6 +1348,27 @@ describe('manipulation', function() {
       }
     });
   }
+
+  hasReplaceById = !!getSchema().connector.replaceById;
+  bdd.describeIf(hasReplaceById, 'replaceById', function() {
+    var Post;
+    before(function(done) {
+      var ds = getSchema();
+      Post = ds.define('Post', {
+        title: {type: String, length: 255},
+        content: {type: String},
+      }, {forceId: true});
+      ds.automigrate('Post', done);
+    });
+
+    it('fails when id does not exist in db using replaceById', function(done) {
+      var post = {id: 123, title: 'a', content: 'AAA'};
+      Post.replaceById(post.id, post, function(err, p) {
+        err.statusCode.should.equal(404);
+        done();
+      });
+    });
+  });
 
   describe('findOrCreate', function() {
     it('should create a record with if new', function(done) {

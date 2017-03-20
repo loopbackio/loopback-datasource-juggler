@@ -308,6 +308,19 @@ describe('optional-validation', function() {
           d.updateAttributes({'name': NEW_NAME}, expectChangeSuccess(done));
         });
       });
+
+      it('returns an error when trying to update the id property when forceId is set to true',
+      function(done) {
+        ModelWithForceId.create({name: 'foo'}, function(err, model) {
+          if (err) return done(err);
+          model.updateAttributes({id: 123}, function(err) {
+            err.should.be.instanceOf(Error);
+            err.message.should.eql('id cannot be updated from ' + model.id +
+              ' to 123 when forceId is set to true');
+            done();
+          });
+        });
+      });
     });
   });
 

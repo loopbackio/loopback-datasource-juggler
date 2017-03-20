@@ -3729,7 +3729,7 @@ describe('relations', function() {
       Person.findById(personId, function(err, p) {
         p.passportItem.update({name: 'Freddy'}, function(err, passport) {
           should.not.exist(err);
-          var passport = p.passportItem();
+          passport = p.passportItem();
           passport.toObject().should.eql({name: 'Freddy'});
           passport.should.be.an.instanceOf(Passport);
           passport.should.equal(p.passport);
@@ -3841,7 +3841,7 @@ describe('relations', function() {
       .then(function(p) {
         return p.passportItem.update({name: 'Jason'})
         .then(function(passport) {
-          var passport = p.passportItem();
+          passport = p.passportItem();
           passport.toObject().should.eql({name: 'Jason'});
           passport.should.be.an.instanceOf(Passport);
           passport.should.equal(p.passport);
@@ -4622,7 +4622,7 @@ describe('relations', function() {
         if (err) return done(err);
         var link = cat.items.build();
         link.job(job1);
-        var link = cat.items.build();
+        link = cat.items.build();
         link.job(job2);
         cat.save(function(err, cat) {
           if (err) return done(err);
@@ -4631,7 +4631,7 @@ describe('relations', function() {
           job.should.not.have.property('jobId');
           job.id.should.eql(job1.id);
           job.name.should.equal(job1.name);
-          var job = cat.items.at(1);
+          job = cat.items.at(1);
           job.id.should.eql(job2.id);
           job.name.should.equal(job2.name);
           done();
@@ -4882,7 +4882,7 @@ describe('relations', function() {
       Book.create({name: 'Book'}, function(err, book) {
         var link = book.people.build({notes: 'Something ...'});
         link.linked(person1);
-        var link = book.people.build();
+        link = book.people.build();
         link.linked(person2);
         book.save(function(err, book) {
           should.not.exist(err);
@@ -4894,7 +4894,7 @@ describe('relations', function() {
           link.linkedType.should.equal('Author');
           link.name.should.equal('Author 1');
 
-          var link = book.people.at(1);
+          link = book.people.at(1);
           link.should.be.instanceof(Link);
           link.id.should.equal(2);
           link.linkedId.should.eql(person2.id);
@@ -4917,7 +4917,7 @@ describe('relations', function() {
         link.linkedType.should.equal('Author');
         link.notes.should.equal('Something ...');
 
-        var link = book.people.at(1);
+        link = book.people.at(1);
         link.should.be.instanceof(Link);
         link.id.should.equal(2);
         link.linkedId.should.eql(person2.id);
