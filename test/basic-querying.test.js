@@ -599,6 +599,27 @@ describe('basic-querying', function() {
       sample(['email']).expect(['email']);
     });
 
+    it('should ignore non existing properties when excluding', function(done) {
+      return User.find({fields: {notExist: false}}, (err, users) => {
+        if (err) return done(err);
+        users.forEach(user => {
+          switch (user.seq) { // all fields depending on each document
+            case 0:
+            case 1:
+              Object.keys(user.__data).should.containDeep(['id', 'seq', 'name', 'order', 'role',
+                'birthday', 'vip', 'address', 'friends']);
+              break;
+            case 4: // seq 4
+              Object.keys(user.__data).should.containDeep(['id', 'seq', 'name', 'order']);
+              break;
+            default: // Other records, seq 2, 3, 5
+              Object.keys(user.__data).should.containDeep(['id', 'seq', 'name', 'order', 'vip']);
+          }
+        });
+        done();
+      });
+    });
+
     var describeWhenNestedSupported = connectorCapabilities.nestedProperty ? describe : describe.skip;
     describeWhenNestedSupported('query with nested property', function() {
       it('should support nested property in query', function(done) {

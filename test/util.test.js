@@ -46,6 +46,7 @@ describe('util.fieldsToArray', function() {
     sample({'bat': true, unknown: true}, true).expect(['bat']);
     sample({'bat': 0}, true).expect(['foo', 'bar', 'baz']);
     sample({'bat': false}, true).expect(['foo', 'bar', 'baz']);
+    sample({'other': false}, true).expect(['foo', 'bar', 'bat', 'baz']);
   });
 });
 
