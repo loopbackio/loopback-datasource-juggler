@@ -835,6 +835,24 @@ describe('relations', function() {
         });
       });
 
+      context('findById with include filter that contains string fields', function() {
+        it('should accept string and convert it to array', function(done) {
+          var includeFilter = {include: {relation: 'patients', scope: {fields: 'name'}}};
+          var physicianId = physician.id;
+          Physician.findById(physicianId, includeFilter, function(err, result) {
+            should.not.exist(err);
+            should.exist(result);
+            result.id.should.eql(physicianId);
+            should.exist(result.patients);
+            result.patients().should.be.an.instanceOf(Array);
+            should.exist(result.patients()[0]);
+            should.exist(result.patients()[0].name);
+            should.not.exist(result.patients()[0].age);
+            done();
+          });
+        });
+      });
+
       function createSampleData(done) {
         Physician.create(function(err, result) {
           result.patients.create({name: 'a', age: '10'}, function(err, p) {
