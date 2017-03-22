@@ -1364,6 +1364,30 @@ describe('relations', function() {
     });
   });
 
+  describe('hasMany through - customized relation name and foreign key', function() {
+    var Physician, Patient, Appointment;
+
+    beforeEach(function(done) {
+      // db = getSchema();
+      Physician = db.define('Physician', {name: String});
+      Patient = db.define('Patient', {name: String});
+      Appointment = db.define('Appointment', {date: {type: Date, defaultFn: 'now'}});
+
+      db.automigrate(['Physician', 'Patient', 'Appointment'], done);
+    });
+
+    it('should use real target class', function() {
+      Physician.hasMany(Patient, {through: Appointment, as: 'xxx', foreignKey: 'aaaId', keyThrough: 'bbbId'});
+      Patient.hasMany(Physician, {through: Appointment, as: 'yyy', foreignKey: 'bbbId', keyThrough: 'aaaId'});
+      Appointment.belongsTo(Physician, {as: 'aaa', foreignKey: 'aaaId'});
+      Appointment.belongsTo(Patient, {as: 'bbb', foreignKey: 'bbbId'});
+      var physician = new Physician({id: 1});
+      physician.xxx.should.have.property('_targetClass', 'Patient');
+      var patient = new Patient({id: 1});
+      patient.yyy.should.have.property('_targetClass', 'Physician');
+    });
+  });
+
   describe('hasMany through bi-directional relations on the same model', function() {
     var User, Follow, Address;
 
