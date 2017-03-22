@@ -1653,6 +1653,13 @@ describe('DataAccessObject', function() {
       assert.deepEqual(where, {age: {inq: ['xyz', 12]}});
     });
 
+  it('does not coerce to a string for a regexp value in an array ',
+    function() {
+      var regexp = new RegExp(/xyz/i);
+      where = model._coerce({age: {inq: [/xyz/i, regexp]}});
+      assert.deepEqual(where, {age: {inq: [/xyz/i, regexp]}});
+    });
+
   // settings
   it('gets settings in priority',
     function() {
