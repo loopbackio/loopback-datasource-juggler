@@ -1308,6 +1308,7 @@ describe('DataAccessObject', function() {
     model = ds.createModel('M1', {
       id: {type: String, id: true},
       age: Number,
+      string: 'string',
       vip: Boolean,
       date: Date,
       location: 'GeoPoint',
@@ -1651,6 +1652,12 @@ describe('DataAccessObject', function() {
     function() {
       where = model._coerce({age: {inq: ['xyz', '12']}});
       assert.deepEqual(where, {age: {inq: ['xyz', 12]}});
+    });
+
+  it('does not coerce to a string for a regexp value in an array ',
+    function() {
+      where = model._coerce({string: {inq: [/xyz/i, new RegExp(/xyz/i)]}});
+      assert.deepEqual(where, {string: {inq: [/xyz/i, /xyz/i]}});
     });
 
   // settings
