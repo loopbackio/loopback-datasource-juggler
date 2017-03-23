@@ -2748,18 +2748,22 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
         TestModel.deleteAll(function(err) {
           if (err) return done(err);
-          ctxRecorder.records.should.eql(aCtxForModel(TestModel, {where: {}}));
+          ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
+            where: {},
+            info: {count: 2},
+          }));
           done();
         });
       });
 
-      it('triggers `after delete` hook without query', function(done) {
+      it('triggers `after delete` hook with query', function(done) {
         TestModel.observe('after delete', ctxRecorder.recordAndNext());
 
         TestModel.deleteAll({name: existingInstance.name}, function(err) {
           if (err) return done(err);
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
             where: {name: existingInstance.name},
+            info: {count: 1},
           }));
           done();
         });
@@ -2855,6 +2859,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
             where: {id: existingInstance.id},
             instance: existingInstance,
+            info: { count: 1 }
           }));
           done();
         });
@@ -2867,6 +2872,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           if (err) return done(err);
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
             where: {name: existingInstance.name},
+            info: { count: 1 }
           }));
           done();
         });
@@ -2900,6 +2906,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             }),
             aCtxForModel(TestModel, {
               hookState: {foo: 'BAR'},
+              info: { count: 1 },
               where: {id: '1'},
               instance: existingInstance,
             }),
@@ -3056,6 +3063,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
               where: {id: existingInstance.id},
               data: {name: 'updated name'},
+              info: { count: 1 }
             }));
             done();
           });
