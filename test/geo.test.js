@@ -11,6 +11,8 @@
 require('should');
 
 var GeoPoint = require('../lib/geo').GeoPoint;
+var nearFilter = require('../lib/geo').nearFilter;
+var geoFilter = require('../lib/geo').filter;
 var DELTA = 0.0000001;
 
 describe('GeoPoint', function() {
@@ -130,6 +132,72 @@ describe('GeoPoint', function() {
       distance = here.distanceTo(there, {type: 'degrees'});
       distance.should.be.a.Number;
       distance.should.be.approximately(0.0004483676593058972, DELTA);
+    });
+  });
+
+  describe('nearFilter()', function() {
+    it('should return a filter includes minDistance if where contains minDistance option', function() {
+      var where = {
+        location: {
+          near: {
+            lat: 40.77492964101182,
+            lng: -73.90950187151662,
+          },
+          minDistance: 100,
+        },
+      };
+      var filter = nearFilter(where);
+      filter.key.should.equal('location');
+      filter.should.have.properties({
+        key: 'location',
+        near: {
+          lat: 40.77492964101182,
+          lng: -73.90950187151662,
+        },
+        minDistance: 100,
+      });
+    });
+  });
+
+  describe('filter()', function() {
+    it('should be able to filter geo points via minDistance', function() {
+      var points = [{
+        location: {
+          lat: 30.283552,
+          lng: 120.126048,
+        },
+      }, {
+        location: {
+          lat: 30.380307,
+          lng: 119.979445,
+        },
+      }, {
+        location: {
+          lat: 30.229896,
+          lng: 119.744592,
+        },
+      }, {
+        location: {
+          lat: 30.250863,
+          lng: 120.129498,
+        },
+      }, {
+        location: {
+          lat: 31.244209,
+          lng: 121.483687,
+        },
+      }];
+      var filter = {
+        key: 'location',
+        near: {
+          lat: 30.278562,
+          lng: 120.139846,
+        },
+        unit: 'meters',
+        minDistance: 10000,
+      };
+      var results = geoFilter(points, filter);
+      results.length.should.be.equal(3);
     });
   });
 });
