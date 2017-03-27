@@ -1,7 +1,8 @@
 {
   "name": "loopback-datasource-juggler",
-  "version": "2.53.0",
+  "version": "2.54.1",
   "publishConfig": {
+    "tag": "lts",
     "export-tests": true
   },
   "description": "LoopBack DataSoure Juggler",
@@ -27,14 +28,15 @@
     "test": "mocha",
     "posttest": "npm run lint"
   },
-  "engines": [
-    "node >= 0.6"
-  ],
+  "engines": {
+    "node": ">= 0.6"
+  },
   "devDependencies": {
     "async-iterators": "^0.2.2",
     "bluebird": "^2.9.9",
     "eslint": "^2.13.1",
     "eslint-config-loopback": "^4.0.0",
+    "loopback-connector-throwing": "file:./test/fixtures/loopback-connector-throwing",
     "mocha": "^2.1.0",
     "should": "^8.0.2"
   },
@@ -45,11 +47,11 @@
     "inflection": "^1.6.0",
     "loopback-connector": "^2.1.0",
     "minimatch": "^3.0.3",
-    "node-uuid": "^1.4.2",
     "qs": "^3.1.0",
     "shortid": "^2.2.6",
     "strong-globalize": "^2.6.2",
-    "traverse": "^0.6.6"
+    "traverse": "^0.6.6",
+    "uuid": "^3.0.1"
   },
   "license": "MIT"
 }

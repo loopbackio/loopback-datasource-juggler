@@ -1,5 +1,51 @@
-2016-10-13, Version 2.53.0
+2017-03-13, Version 2.54.1
 ==========================
+
+ * fix incorrect engines property in package.json (Ryan Graham)
+
+ * Fix datasource to report connector-loading errors (Miroslav Bajtoš)
+
+ * Add two basic tests for "inq" operator (Miroslav Bajtoš)
+
+
+2017-01-17, Version 2.54.0
+==========================
+
+ * Replace deprecated node-uuid with uuid module (Raymond Feng)
+
+ * Coerce array-like objects into arrays (Heath Morrison)
+
+ * Throw error when model relation name is trigger (Brian Schemp)
+
+ * Update package.json for LB3 release (Simon Ho)
+
+
+2016-12-21, Version 2.53.1
+==========================
+
+ * Fix HasOne.update to propagate options arg (Miroslav Bajtoš)
+
+ * Update ko translation file (Candy)
+
+ * Back-port fixes for linter errors from master (Miroslav Bajtoš)
+
+ * Update chinese simplified translation file (Candy)
+
+ * Apply style guide to test names (Amir Jafarian)
+
+ * Continue _coerce after logical operators (Heath Morrison)
+
+ * Fix manually (Amir Jafarian)
+
+ * Auto-update by eslint --fix (Amir Jafarian)
+
+ * update eslintrc according to master branch (Amir Jafarian)
+
+ * Update eslint (Amir Jafarian)
+
+ * test/kvao: add connectorCapabilities options (Miroslav Bajtoš)
+
+ * Update validations.js (Rand McKinney)
 
  * Fix bug when near filter is used (Amir Jafarian)
 

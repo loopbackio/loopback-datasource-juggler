@@ -1,0 +1,5 @@
+{
+  "name": "loopback-connector-throwing",
+  "version": "1.0.0",
+  "description": "A dummy connector that throws at initialization time."
+}
