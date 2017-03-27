@@ -434,6 +434,27 @@ describe('discoverModelProperties', function() {
       done(err);
     });
   });
+
+  it('should use custom nameMapper function to `discoverModelProperties`', function(done) {
+    // Custom version of fake -- need to assert that modelName is being overridden!
+    ds.connector.discoverModelProperties = function(modelName, options, cb) {
+      modelName.should.equal('INVENTORY');
+      process.nextTick(function() {
+        cb(null, modelProperties);
+      });
+    };
+    var customMapper = function(type, name) {
+      return name.toUpperCase();
+    };
+    // Table name is intentionally lowercase!
+    ds.discoverModelProperties('inventory', {
+      nameMapper: customMapper,
+    }, function(err, schemas) {
+      if (err) return done(err);
+      schemas.should.be.eql(modelProperties);
+      done();
+    });
+  });
 });
 
 describe('discoverPrimaryKeys', function() {
@@ -494,6 +515,27 @@ describe('discoverPrimaryKeys', function() {
         done(err);
       });
   });
+
+  it('should use custom nameMapper function to `discoverPrimaryKeys`', function(done) {
+    // Custom version of fake -- need to assert that modelName is being overridden!
+    ds.connector.discoverPrimaryKeys = function(modelName, options, cb) {
+      modelName.should.equal('INVENTORY');
+      process.nextTick(function() {
+        cb(null, primaryKeys);
+      });
+    };
+    var customMapper = function(type, name) {
+      return name.toUpperCase();
+    };
+    // Table name is intentionally lowercase!
+    ds.discoverPrimaryKeys('inventory', {
+      nameMapper: customMapper,
+    }, function(err, schemas) {
+      if (err) return done(err);
+      schemas.should.be.eql(primaryKeys);
+      done();
+    });
+  });
 });
 
 describe('discoverForeignKeys', function() {
@@ -550,6 +592,27 @@ describe('discoverForeignKeys', function() {
       .catch(function(err) {
         done(err);
       });
+  });
+
+  it('should use custom nameMapper function to `discoverForeignKeys`', function(done) {
+    // Custom version of fake -- need to assert that modelName is being overridden!
+    ds.connector.discoverForeignKeys = function(modelName, options, cb) {
+      modelName.should.equal('INVENTORY');
+      process.nextTick(function() {
+        cb(null, foreignKeys);
+      });
+    };
+    var customMapper = function(type, name) {
+      return name.toUpperCase();
+    };
+    // Table name is intentionally lowercase!
+    ds.discoverForeignKeys('inventory', {
+      nameMapper: customMapper,
+    }, function(err, schemas) {
+      if (err) return done(err);
+      schemas.should.be.eql(foreignKeys);
+      done();
+    });
   });
 });
 
@@ -608,6 +671,27 @@ describe('discoverExportedForeignKeys', function() {
       .catch(function(err) {
         done(err);
       });
+  });
+
+  it('should use custom nameMapper function to `discoverExportedForeignKeys`', function(done) {
+    // Custom version of fake -- need to assert that modelName is being overridden!
+    ds.connector.discoverExportedForeignKeys = function(modelName, options, cb) {
+      modelName.should.equal('INVENTORY');
+      process.nextTick(function() {
+        cb(null, exportedForeignKeys);
+      });
+    };
+    var customMapper = function(type, name) {
+      return name.toUpperCase();
+    };
+    // Table name is intentionally lowercase!
+    ds.discoverExportedForeignKeys('inventory', {
+      nameMapper: customMapper,
+    }, function(err, schemas) {
+      if (err) return done(err);
+      schemas.should.be.eql(exportedForeignKeys);
+      done();
+    });
   });
 });
 
