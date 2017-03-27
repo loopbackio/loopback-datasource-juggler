@@ -257,43 +257,6 @@ describe('ModelDefinition class', function() {
     done();
   });
 
-  it('should inherit prototype using option.base', function() {
-    var modelBuilder = memory.modelBuilder;
-    var parent = memory.createModel('parent', {}, {
-      relations: {
-        children: {
-          type: 'hasMany',
-          model: 'anotherChild',
-        },
-      },
-    });
-    var baseChild = modelBuilder.define('baseChild');
-    baseChild.attachTo(memory);
-    // the name of this must begin with a letter < b
-    // for this test to fail
-    var anotherChild = baseChild.extend('anotherChild');
-
-    assert(anotherChild.prototype instanceof baseChild);
-  });
-
-  it('should ignore inherited options.base', function() {
-    var modelBuilder = memory.modelBuilder;
-    var base = modelBuilder.define('base');
-    var child = base.extend('child', {}, {base: 'base'});
-    var grandChild = child.extend('grand-child');
-    assert.equal('child', grandChild.base.modelName);
-    assert(grandChild.prototype instanceof child);
-  });
-
-  it('should ignore inherited options.super', function() {
-    var modelBuilder = memory.modelBuilder;
-    var base = modelBuilder.define('base');
-    var child = base.extend('child', {}, {super: 'base'});
-    var grandChild = child.extend('grand-child');
-    assert.equal('child', grandChild.base.modelName);
-    assert(grandChild.prototype instanceof child);
-  });
-
   it('should serialize protected properties into JSON', function() {
     var modelBuilder = memory.modelBuilder;
     var ProtectedModel = memory.createModel('protected', {}, {

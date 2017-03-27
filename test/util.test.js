@@ -8,7 +8,8 @@ var should = require('./init.js');
 var utils = require('../lib/utils');
 var fieldsToArray = utils.fieldsToArray;
 var removeUndefined = utils.removeUndefined;
-var mergeSettings = utils.mergeSettings;
+var deepMerge = utils.deepMerge;
+var rankArrayElements = utils.rankArrayElements;
 var mergeIncludes = utils.mergeIncludes;
 var sortObjectsByIds = utils.sortObjectsByIds;
 var uniq = utils.uniq;
@@ -138,9 +139,9 @@ describe('util.parseSettings', function() {
   });
 });
 
-describe('mergeSettings', function() {
-  it('should merge settings correctly', function() {
-    var src = {base: 'User',
+describe('util.deepMerge', function() {
+  it('should deep merge objects', function() {
+    var extras = {base: 'User',
       relations: {accessTokens: {model: 'accessToken', type: 'hasMany',
         foreignKey: 'userId'},
         account: {model: 'account', type: 'belongsTo'}},
@@ -159,7 +160,7 @@ describe('mergeSettings', function() {
           principalType: 'ROLE',
           principalId: '$owner'},
       ]};
-    var tgt = {strict: false,
+    var base = {strict: false,
       acls: [
         {principalType: 'ROLE',
           principalId: '$everyone',
@@ -173,7 +174,7 @@ describe('mergeSettings', function() {
       maxTTL: 31556926,
       ttl: 1209600};
 
-    var dst = mergeSettings(tgt, src);
+    var merged = deepMerge(base, extras);
 
     var expected = {strict: false,
       acls: [
@@ -206,11 +207,41 @@ describe('mergeSettings', function() {
         foreignKey: 'userId'},
         account: {model: 'account', type: 'belongsTo'}}};
 
-    should.deepEqual(dst.acls, expected.acls, 'Merged settings should match the expectation');
+    should.deepEqual(merged, expected, 'Merged objects should match the expectation');
   });
 });
 
-describe('sortObjectsByIds', function() {
+describe('util.rankArrayElements', function() {
+  it('should add property \'__rank\' to array elements of type object {}', function() {
+    var acls = [
+      {accessType: '*',
+        permission: 'DENY',
+        principalType: 'ROLE',
+        principalId: '$everyone'},
+    ];
+
+    var rankedAcls = rankArrayElements(acls, 2);
+
+    should.equal(rankedAcls[0].__rank, 2);
+  });
+
+  it('should not replace existing \'__rank\' property of array elements', function() {
+    var acls = [
+      {accessType: '*',
+        permission: 'DENY',
+        principalType: 'ROLE',
+        principalId: '$everyone',
+        __rank: 1,
+      },
+    ];
+
+    var rankedAcls = rankArrayElements(acls, 2);
+
+    should.equal(rankedAcls[0].__rank, 1);
+  });
+});
+
+describe('util.sortObjectsByIds', function() {
   var items = [
     {id: 1, name: 'a'},
     {id: 2, name: 'b'},
