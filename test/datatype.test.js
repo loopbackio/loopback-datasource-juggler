@@ -15,8 +15,7 @@ describe('datatypes', function() {
   before(function(done) {
     db = getSchema();
     var Nested = db.define('Nested', {});
-
-    Model = db.define('Model', {
+    var modelTableSchema = {
       str: String,
       date: Date,
       num: Number,
@@ -24,7 +23,8 @@ describe('datatypes', function() {
       list: {type: [String]},
       arr: Array,
       nested: Nested,
-    });
+    };
+    Model = db.define('Model', modelTableSchema);
     db.automigrate(['Model'], done);
   });
 
@@ -136,10 +136,9 @@ describe('datatypes', function() {
     function testUpdate(done) {
       Model.findById(id, function(err, m) {
         should.not.exist(err);
-
         // update using updateAttributes
         m.updateAttributes({
-          id: m.id, num: '10',
+          id: m.id, num: 10,
         }, function(err, m) {
           should.not.exist(err);
           m.num.should.be.type('number');
