@@ -260,6 +260,23 @@ describe('ModelBuilder', function() {
     follow.should.have.property('id');
     assert.deepEqual(follow.id, {followerId: 1, followeeId: 2});
   });
+
+  it('instantiates model from data with no constructor', function(done) {
+    var modelBuilder = new ModelBuilder();
+
+    var User = modelBuilder.define('User', {name: String, age: Number});
+
+    try {
+      var data = Object.create(null);
+      data.name = 'Joe';
+      data.age = 20;
+      var user = new User(data);
+      assert(true, 'The code is expected to pass');
+    } catch (e) {
+      assert(false, 'The code should have not thrown an error');
+    }
+    done(null, User);
+  });
 });
 
 describe('DataSource ping', function() {
