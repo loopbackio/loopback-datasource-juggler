@@ -5503,32 +5503,4 @@ describe('relations', function() {
       }).should.throw('Invalid relation name: trigger');
     });
   });
-
-  describe('polymorphic hasMany', function() {
-    before(function(done) {
-      Picture = db.define('Picture', {name: String});
-      Author = db.define('Author', {name: String});
-      PictureLink = db.define('PictureLink', {});
-
-      Author.hasMany(Picture, {through: PictureLink, polymorphic: 'imageable', invert: true});
-      Picture.hasMany(Author, {through: PictureLink, polymorphic: 'imageable'});
-
-      db.automigrate(['Picture', 'Author', 'PictureLink'], done);
-    });
-
-    it('should properly query through an inverted relationship', function(done) {
-      Author.create({name: 'Steve'}, function(err, author) {
-        if (err) { return done(err); }
-        author.pictures.create({name: 'Steve pic 1'}, function(err, pic) {
-          if (err) { return done(err); }
-          Author.findOne({include: 'pictures'}, function(err, author) {
-            if (err) { return done(err); }
-            author.pictures().length.should.eql(1);
-            author.pictures()[0].name.should.eql('Steve pic 1');
-            done();
-          });
-        });
-      });
-    });
-  });
 });
