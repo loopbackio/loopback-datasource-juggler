@@ -1,3 +1,67 @@
+2017-03-31, Version 3.3.0
+=========================
+
+ * make geo nearFilter support minDistance (#987) (Vincent Wen)
+
+ * Disallow regexp string in arrays for coerce (#1279) (Mikhail)
+
+ * Fix - `_targetClass` on scope function (#1280) (Clark Wang)
+
+ * Fixes #1275. `Include` filter transforms fields property into array. (#1276) (Nick Oikonomou)
+
+ * Included models from include operations do not change defined `strict` model option (#1259) (Dimitris)
+
+ * Using a filter with exclusion of a non existent property, removes an existing one (#1257) (Dimitris)
+
+ * Clean version of PR 1272 (#1273) (Sakib Hasan)
+
+ * Replicate new issue_template from loopback (Siddhi Pai)
+
+ * Replicate issue_template from loopback repo (Siddhi Pai)
+
+ * Update README.md (Rand McKinney)
+
+ * FindOrCreate missing error callback (Diana Lau)
+
+ * Fixes #1230 coerceArray converts empty Objects (#1269) (Dimitris)
+
+ * override collection name for arangodb (#1243) (Matteo Padovano)
+
+ * Add test coverage for `validatesInclusionOf` (#1249) (Rémi Bèges)
+
+ * dao: catch errors on Model creation in find (Kevin Delisle)
+
+ * dao: catch sync errors on setAttributes (Kevin Delisle)
+
+ * Update error message (Loay)
+
+ * Fix Order query test case (Loay)
+
+ * Doc:Add option for discoverModelDefinitions (jannyHou)
+
+ * Add tests for validatesExclusionOf (#1248) (Rémi Bèges)
+
+ * Fix id update error message formatting (Rémi Bèges)
+
+ * Add test case for all connectors (jannyHou)
+
+ * Add proper statusCode for duplicate (Loay)
+
+ * Fix datasource to report connector-loading errors (Miroslav Bajtoš)
+
+ * Ensure replaceById returns 404 when id not found (Loay)
+
+ * Upgrade eslint-config, fix new violations (Miroslav Bajtoš)
+
+ * Fix option propagation in relation methods (Miroslav Bajtoš)
+
+ * Refactor logic of options.allowExtendedOperators (Matteo Padovano)
+
+ * Fix forceId validation error (Loay)
+
+ * Add two basic tests for "inq" operator (Miroslav Bajtoš)
+
+
 2017-01-19, Version 3.2.0
 =========================
 
