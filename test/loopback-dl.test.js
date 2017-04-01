@@ -1084,31 +1084,15 @@ describe('Model define with relations configuration', function() {
     done();
   });
 
-  it('sets up polymorphic relations', function(done) {
+  it('sets up belongsTo polymorphic relation with `{polymorphic: true}`', function(done) {
     var ds = new DataSource('memory');
 
-    var Author = ds.define('Author', {name: String}, {relations: {
+    var Product = ds.define('Product', {name: String}, {relations: {
       pictures: {type: 'hasMany', model: 'Picture', polymorphic: 'imageable'},
     }});
     var Picture = ds.define('Picture', {name: String}, {relations: {
       imageable: {type: 'belongsTo', polymorphic: true},
     }});
-
-    assert(Author.relations['pictures']);
-    assert.deepEqual(Author.relations['pictures'].toJSON(), {
-      name: 'pictures',
-      type: 'hasMany',
-      modelFrom: 'Author',
-      keyFrom: 'id',
-      modelTo: 'Picture',
-      keyTo: 'imageableId',
-      multiple: true,
-      polymorphic: {
-        as: 'imageable',
-        foreignKey: 'imageableId',
-        discriminator: 'imageableType',
-      },
-    });
 
     assert(Picture.relations['imageable']);
     assert.deepEqual(Picture.relations['imageable'].toJSON(), {
@@ -1120,7 +1104,35 @@ describe('Model define with relations configuration', function() {
       keyTo: 'id',
       multiple: false,
       polymorphic: {
-        as: 'imageable',
+        selector: 'imageable',
+        foreignKey: 'imageableId',
+        discriminator: 'imageableType',
+      },
+    });
+    done();
+  });
+
+  it('sets up hasMany polymorphic relation with `{polymorphic: belongsToRelationName}`', function(done) {
+    var ds = new DataSource('memory');
+
+    var Picture = ds.define('Picture', {name: String}, {relations: {
+      imageable: {type: 'belongsTo', polymorphic: true},
+    }});
+    var Product = ds.define('Product', {name: String}, {relations: {
+      pictures: {type: 'hasMany', model: 'Picture', polymorphic: 'imageable'},
+    }});
+
+    assert(Product.relations['pictures']);
+    assert.deepEqual(Product.relations['pictures'].toJSON(), {
+      name: 'pictures',
+      type: 'hasMany',
+      modelFrom: 'Product',
+      keyFrom: 'id',
+      modelTo: 'Picture',
+      keyTo: 'imageableId',
+      multiple: true,
+      polymorphic: {
+        selector: 'imageable',
         foreignKey: 'imageableId',
         discriminator: 'imageableType',
       },

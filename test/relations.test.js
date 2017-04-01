@@ -15,7 +15,7 @@ var jdb = require('../');
 var DataSource = jdb.DataSource;
 var createPromiseCallback = require('../lib/utils.js').createPromiseCallback;
 
-var db, tmp, Book, Chapter, Author, Reader;
+var db, tmp, Book, Chapter, Author, Reader, Article, Employee;
 var Category, Job;
 var Picture, PictureLink;
 var Person, Address;
@@ -36,7 +36,6 @@ describe('relations', function() {
 
   describe('hasMany', function() {
     before(function(done) {
-      db = getSchema();
       Book = db.define('Book', {name: String, type: String});
       Chapter = db.define('Chapter', {name: {type: String, index: true},
         bookType: String});
@@ -572,7 +571,6 @@ describe('relations', function() {
     var Physician, Patient, Appointment, Address;
 
     before(function(done) {
-      db = getSchema();
       Physician = db.define('Physician', {name: String});
       Patient = db.define('Patient', {name: String, age: Number, sequence: Number});
       Appointment = db.define('Appointment', {date: {type: Date,
@@ -1299,7 +1297,6 @@ describe('relations', function() {
     var idPatient, idPhysician;
 
     beforeEach(function(done) {
-      db = getSchema();
       idPatient = uid.fromConnector(db) || 1234;
       idPhysician = uid.fromConnector(db) || 2345;
       Physician = db.define('Physician', {name: String});
@@ -1421,7 +1418,6 @@ describe('relations', function() {
     var Physician, Patient, Appointment;
 
     beforeEach(function(done) {
-      db = getSchema();
       Physician = db.define('Physician', {name: String});
       Patient = db.define('Patient', {name: String});
       Appointment = db.define('Appointment', {date: {type: Date, defaultFn: 'now'}});
@@ -1446,7 +1442,6 @@ describe('relations', function() {
     var idFollower, idFollowee;
 
     before(function(done) {
-      db = getSchema();
       idFollower = uid.fromConnector(db) || 3456;
       idFollowee = uid.fromConnector(db) || 4567;
       User = db.define('User', {name: String});
@@ -1500,7 +1495,6 @@ describe('relations', function() {
     var idFollower, idFollowee;
 
     before(function(done) {
-      db = getSchema();
       idFollower = uid.fromConnector(db) || 3456;
       idFollowee = uid.fromConnector(db) || 4567;
       User = db.define('User', {name: String});
@@ -1547,7 +1541,6 @@ describe('relations', function() {
 
   describe('hasMany with properties', function() {
     before(function(done) {
-      db = getSchema();
       Book = db.define('Book', {name: String, type: String});
       Chapter = db.define('Chapter', {name: {type: String, index: true},
         bookType: String});
@@ -1583,7 +1576,6 @@ describe('relations', function() {
 
   describe('hasMany with scope and properties', function() {
     it('can be declared with properties', function(done) {
-      db = getSchema();
       Category = db.define('Category', {name: String, jobType: String});
       Job = db.define('Job', {name: String, type: String});
 
@@ -1776,339 +1768,178 @@ describe('relations', function() {
     });
   });
 
+  describe('relations validation', function() {
+    var validationError;
+    // define a mockup getRelationValidationMsg() method to log the validation error
+    var logRelationValidationError = function(code, rType, rName) {
+      validationError = {code, rType, rName};
+    };
+
+    it('rejects belongsTo relation if `model` is not provided', function() {
+      try {
+        var Picture = db.define('Picture', {name: String}, {relations: {
+          author: {
+            type: 'belongsTo',
+            foreignKey: 'authorId'},
+        }});
+        should.not.exist(Picture, 'relation validation should have thrown');
+      } catch (err) {
+        err.details.should.eql({
+          code: 'BELONGS_TO_MISSING_MODEL',
+          rType: 'belongsTo',
+          rName: 'author'});
+      }
+    });
+
+    it('rejects polymorphic belongsTo relation if `model` is provided', function() {
+      try {
+        var Picture = db.define('Picture', {name: String}, {relations: {
+          imageable: {
+            type: 'belongsTo',
+            model: 'Picture',
+            polymorphic: true},
+        }});
+        should.not.exist(Picture, 'relation validation should have thrown');
+      } catch (err) {
+        err.details.should.eql({
+          code: 'POLYMORPHIC_BELONGS_TO_MODEL',
+          rType: 'belongsTo',
+          rName: 'imageable'});
+      }
+    });
+
+    it('rejects polymorphic non belongsTo relation if `model` is not provided', function() {
+      try {
+        var Article = db.define('Picture', {name: String}, {relations: {
+          pictures: {
+            type: 'hasMany',
+            polymorphic: 'imageable'},
+        }});
+        should.not.exist(Picture, 'relation validation should have thrown');
+      } catch (err) {
+        err.details.should.eql({
+          code: 'POLYMORPHIC_NOT_BELONGS_TO_MISSING_MODEL',
+          rType: 'hasMany',
+          rName: 'pictures'});
+      }
+    });
+
+    it('rejects polymorphic relation if `foreignKey` is provided but discriminator ' +
+    'is missing', function() {
+      try {
+        var Article = db.define('Picture', {name: String}, {relations: {
+          pictures: {
+            type: 'hasMany',
+            model: 'Picture',
+            polymorphic: {foreignKey: 'imageableId'}},
+        }});
+        should.not.exist(Picture, 'relation validation should have thrown');
+      } catch (err) {
+        err.details.should.eql({
+          code: 'POLYMORPHIC_MISSING_DISCRIMINATOR',
+          rType: 'hasMany',
+          rName: 'pictures'});
+      }
+    });
+
+    it('rejects polymorphic relation if `discriminator` is provided but foreignKey ' +
+    'is missing', function() {
+      try {
+        var Article = db.define('Picture', {name: String}, {relations: {
+          pictures: {
+            type: 'hasMany',
+            model: 'Picture',
+            polymorphic: {discriminator: 'imageableType'}},
+        }});
+        should.not.exist(Picture, 'relation validation should have thrown');
+      } catch (err) {
+        err.details.should.eql({
+          code: 'POLYMORPHIC_MISSING_FOREIGN_KEY',
+          rType: 'hasMany',
+          rName: 'pictures'});
+      }
+    });
+
+    it('rejects polymorphic relation if `polymorphic.as` is provided along ' +
+    'with custom foreignKey/discriminator', function() {
+      try {
+        var Article = db.define('Picture', {name: String}, {relations: {
+          pictures: {
+            type: 'hasMany',
+            model: 'Picture',
+            polymorphic: {
+              as: 'image',
+              foreignKey: 'imageableId',
+              discriminator: 'imageableType',
+            }},
+        }});
+        should.not.exist(Picture, 'relation validation should have thrown');
+      } catch (err) {
+        err.details.should.eql({
+          code: 'POLYMORPHIC_EXTRANEOUS_AS',
+          rType: 'hasMany',
+          rName: 'pictures'});
+      }
+    });
+
+    it('rejects polymorphic relation if `polymorphic.selector` is provided along ' +
+    'with custom foreignKey/discriminator', function() {
+      try {
+        var Article = db.define('Picture', {name: String}, {relations: {
+          pictures: {
+            type: 'hasMany',
+            model: 'Picture',
+            polymorphic: {
+              selector: 'image',
+              foreignKey: 'imageableId',
+              discriminator: 'imageableType',
+            }},
+        }});
+        should.not.exist(Picture, 'relation validation should have thrown');
+      } catch (err) {
+        err.details.should.eql({
+          code: 'POLYMORPHIC_EXTRANEOUS_SELECTOR',
+          rType: 'hasMany',
+          rName: 'pictures'});
+      }
+    });
+
+    it('warns on use of deprecated `polymorphic.as` keyword in polymorphic relation', function() {
+      var message = 'deprecation not reported';
+      process.once('deprecation', function(err) { message = err.message; });
+
+      var Article = db.define('Picture', {name: String}, {relations: {
+        pictures: {type: 'hasMany', model: 'Picture', polymorphic: {as: 'imageable'}},
+      }});
+
+      message.should.match(/keyword `polymorphic.as` which will be DEPRECATED in LoopBack.next/);
+    });
+  });
+
   describe('polymorphic hasOne', function() {
     before(function(done) {
-      db = getSchema();
       Picture = db.define('Picture', {name: String});
-      Author = db.define('Author', {name: String});
-      Reader = db.define('Reader', {name: String});
+      Article = db.define('Article', {name: String});
+      Employee = db.define('Employee', {name: String});
 
-      db.automigrate(['Picture', 'Author', 'Reader'], done);
+      db.automigrate(['Picture', 'Article', 'Employee'], done);
     });
 
-    it('can be declared', function(done) {
-      Author.hasOne(Picture, {as: 'avatar', polymorphic: 'imageable'});
-      Reader.hasOne(Picture, {as: 'mugshot', polymorphic: 'imageable'});
-      Picture.belongsTo('imageable', {polymorphic: true});
-      db.automigrate(['Picture', 'Author', 'Reader'], done);
-    });
-
-    it('should create polymorphic relation - author', function(done) {
-      Author.create({name: 'Author 1'}, function(err, author) {
-        should.not.exists(err);
-        author.avatar.create({name: 'Avatar'}, function(err, p) {
-          if (err) return done(err);
-          should.exist(p);
-          p.imageableId.should.eql(author.id);
-          p.imageableType.should.equal('Author');
-          done();
-        });
-      });
-    });
-
-    it('should create polymorphic relation with promises - author', function(done) {
-      Author.create({name: 'Author 1'})
-      .then(function(author) {
-        return author.avatar.create({name: 'Avatar'})
-        .then(function(p) {
-          should.exist(p);
-          p.imageableId.should.eql(author.id);
-          p.imageableType.should.equal('Author');
-          done();
-        });
-      }).catch(done);
-    });
-
-    it('should create polymorphic relation - reader', function(done) {
-      Reader.create({name: 'Reader 1'}, function(err, reader) {
-        should.not.exists(err);
-        reader.mugshot.create({name: 'Mugshot'}, function(err, p) {
-          if (err) return done(err);
-          should.exist(p);
-          p.imageableId.should.eql(reader.id);
-          p.imageableType.should.equal('Reader');
-          done();
-        });
-      });
-    });
-
-    it('should find polymorphic relation - author', function(done) {
-      Author.findOne(function(err, author) {
-        should.not.exists(err);
-        author.avatar(function(err, p) {
-          if (err) return done(err);
-
-          var avatar = author.avatar();
-          avatar.should.equal(p);
-
-          p.name.should.equal('Avatar');
-          p.imageableId.toString().should.eql(author.id.toString());
-          p.imageableType.should.equal('Author');
-          done();
-        });
-      });
-    });
-
-    it('should find polymorphic relation - reader', function(done) {
-      Reader.findOne(function(err, reader) {
-        should.not.exists(err);
-        reader.mugshot(function(err, p) {
-          if (err) return done(err);
-          p.name.should.equal('Mugshot');
-          p.imageableId.toString().should.eql(reader.id.toString());
-          p.imageableType.should.equal('Reader');
-          done();
-        });
-      });
-    });
-
-    it('should include polymorphic relation - author', function(done) {
-      Author.findOne({include: 'avatar'}, function(err, author) {
-        should.not.exists(err);
-        var avatar = author.avatar();
-        should.exist(avatar);
-        avatar.name.should.equal('Avatar');
-        done();
-      });
-    });
-
-    it('should find polymorphic relation with promises - reader', function(done) {
-      Reader.findOne()
-      .then(function(reader) {
-        return reader.mugshot.getAsync()
-        .then(function(p) {
-          p.name.should.equal('Mugshot');
-          p.imageableId.toString().should.eql(reader.id.toString());
-          p.imageableType.should.equal('Reader');
-          done();
-        });
-      }).catch(done);
-    });
-
-    it('should find inverse polymorphic relation - author', function(done) {
-      Picture.findOne({where: {name: 'Avatar'}}, function(err, p) {
-        should.not.exists(err);
-        p.imageable(function(err, imageable) {
-          if (err) return done(err);
-          imageable.should.be.instanceof(Author);
-          imageable.name.should.equal('Author 1');
-          done();
-        });
-      });
-    });
-
-    it('should include inverse polymorphic relation - author', function(done) {
-      Picture.findOne({where: {name: 'Avatar'}, include: 'imageable'},
-        function(err, p) {
-          should.not.exists(err);
-          var imageable = p.imageable();
-          should.exist(imageable);
-          imageable.should.be.instanceof(Author);
-          imageable.name.should.equal('Author 1');
-          done();
-        });
-    });
-
-    it('should find inverse polymorphic relation - reader', function(done) {
-      Picture.findOne({where: {name: 'Mugshot'}}, function(err, p) {
-        should.not.exists(err);
-        p.imageable(function(err, imageable) {
-          if (err) return done(err);
-          imageable.should.be.instanceof(Reader);
-          imageable.name.should.equal('Reader 1');
-          done();
-        });
-      });
-    });
-  });
-
-  describe('polymorphic hasOne with non standard ids', function() {
-    before(function(done) {
-      db = getSchema();
-      Picture = db.define('Picture', {name: String});
-      Author = db.define('Author', {
-        username: {type: String, id: true, generated: true},
-        name: String,
-      });
-      Reader = db.define('Reader', {
-        username: {type: String, id: true, generated: true},
-        name: String,
-      });
-
-      db.automigrate(['Picture', 'Author', 'Reader'], done);
-    });
-
-    it('can be declared with non standard foreign key', function(done) {
-      Author.hasOne(Picture, {
-        as: 'avatar',
-        polymorphic: {
-          foreignKey: 'oid',
-          discriminator: 'type',
-        },
-      });
-      Reader.hasOne(Picture, {
-        as: 'mugshot',
-        polymorphic: {
-          foreignKey: 'oid',
-          discriminator: 'type',
-        },
-      });
-      Picture.belongsTo('owner', {
-        idName: 'username',
-        polymorphic: {
-          idType: Author.definition.properties.username.type,
-          foreignKey: 'oid',
-          discriminator: 'type',
-        },
-      });
-      db.automigrate(['Picture', 'Author', 'Reader'], done);
-    });
-
-    it('should create polymorphic relation - author', function(done) {
-      Author.create({name: 'Author 1'}, function(err, author) {
-        should.not.exists(err);
-        author.avatar.create({name: 'Avatar'}, function(err, p) {
-          if (err) return done(err);
-          should.exist(p);
-          p.oid.toString().should.equal(author.username.toString());
-          p.type.should.equal('Author');
-          done();
-        });
-      });
-    });
-
-    it('should create polymorphic relation with promises - author', function(done) {
-      Author.create({name: 'Author 1'})
-      .then(function(author) {
-        return author.avatar.create({name: 'Avatar'})
-        .then(function(p) {
-          should.exist(p);
-          p.oid.toString().should.equal(author.username.toString());
-          p.type.should.equal('Author');
-          done();
-        });
-      }).catch(done);
-    });
-
-    it('should create polymorphic relation - reader', function(done) {
-      Reader.create({name: 'Reader 1'}, function(err, reader) {
-        should.not.exists(err);
-        reader.mugshot.create({name: 'Mugshot'}, function(err, p) {
-          if (err) return done(err);
-          should.exist(p);
-          p.oid.toString().should.equal(reader.username.toString());
-          p.type.should.equal('Reader');
-          done();
-        });
-      });
-    });
-
-    it('should find polymorphic relation - author', function(done) {
-      Author.findOne(function(err, author) {
-        should.not.exists(err);
-        author.avatar(function(err, p) {
-          if (err) return done(err);
-
-          var avatar = author.avatar();
-          avatar.should.equal(p);
-
-          p.name.should.equal('Avatar');
-          p.oid.toString().should.equal(author.username.toString());
-          p.type.should.equal('Author');
-          done();
-        });
-      });
-    });
-
-    it('should find polymorphic relation - reader', function(done) {
-      Reader.findOne(function(err, reader) {
-        should.not.exists(err);
-        reader.mugshot(function(err, p) {
-          if (err) return done(err);
-          p.name.should.equal('Mugshot');
-          p.oid.toString().should.equal(reader.username.toString());
-          p.type.should.equal('Reader');
-          done();
-        });
-      });
-    });
-
-    it('should find inverse polymorphic relation - author', function(done) {
-      Picture.findOne({where: {name: 'Avatar'}}, function(err, p) {
-        should.not.exists(err);
-        p.owner(function(err, owner) {
-          if (err) return done(err);
-          owner.should.be.instanceof(Author);
-          owner.name.should.equal('Author 1');
-          done();
-        });
-      });
-    });
-
-    it('should find inverse polymorphic relation - reader', function(done) {
-      Picture.findOne({where: {name: 'Mugshot'}}, function(err, p) {
-        should.not.exists(err);
-        p.owner(function(err, owner) {
-          if (err) return done(err);
-          owner.should.be.instanceof(Reader);
-          owner.name.should.equal('Reader 1');
-          done();
-        });
-      });
-    });
-
-    it('should include polymorphic relation - reader', function(done) {
-      Reader.findOne({include: 'mugshot'},
-        function(err, reader) {
-          should.not.exists(err);
-          var mugshot = reader.mugshot();
-          should.exist(mugshot);
-          mugshot.name.should.equal('Mugshot');
-          done();
-        });
-    });
-
-    it('should include inverse polymorphic relation - reader', function(done) {
-      Picture.findOne({where: {name: 'Mugshot'}, include: 'owner'},
-        function(err, p) {
-          should.not.exists(err);
-          var owner = p.owner();
-          should.exist(owner);
-          owner.should.be.instanceof(Reader);
-          owner.name.should.equal('Reader 1');
-          done();
-        });
-    });
-  });
-
-  describe('polymorphic hasMany', function() {
-    before(function(done) {
-      db = getSchema();
-      Picture = db.define('Picture', {name: String});
-      Author = db.define('Author', {name: String});
-      Reader = db.define('Reader', {name: String});
-
-      db.automigrate(['Picture', 'Author', 'Reader'], done);
-    });
-
-    it('can be declared', function(done) {
-      Author.hasMany(Picture, {polymorphic: 'imageable'});
-      Reader.hasMany(Picture, {polymorphic: { // alt syntax
-        as: 'imageable', foreignKey: 'imageableId',
-        discriminator: 'imageableType',
-      }});
+    it('can be declared using default polymorphic selector', function(done) {
+      Article.hasOne(Picture, {as: 'packshot', polymorphic: 'imageable'});
+      Employee.hasOne(Picture, {as: 'mugshot', polymorphic: 'imageable'});
       Picture.belongsTo('imageable', {polymorphic: true});
 
-      Author.relations['pictures'].toJSON().should.eql({
-        name: 'pictures',
-        type: 'hasMany',
-        modelFrom: 'Author',
+      Article.relations['packshot'].toJSON().should.eql({
+        name: 'packshot',
+        type: 'hasOne',
+        modelFrom: 'Article',
         keyFrom: 'id',
         modelTo: 'Picture',
         keyTo: 'imageableId',
-        multiple: true,
+        multiple: false,
         polymorphic: {
-          as: 'imageable',
+          selector: 'imageable',
           foreignKey: 'imageableId',
           discriminator: 'imageableType',
         },
@@ -2123,91 +1954,566 @@ describe('relations', function() {
         keyTo: 'id',
         multiple: false,
         polymorphic: {
-          as: 'imageable',
+          selector: 'imageable',
           foreignKey: 'imageableId',
           discriminator: 'imageableType',
         },
       });
 
-      db.automigrate(['Picture', 'Author', 'Reader'], done);
+      db.automigrate(['Picture', 'Article', 'Employee'], done);
     });
 
-    it('should create polymorphic relation - author', function(done) {
-      Author.create({name: 'Author 1'}, function(err, author) {
+    it('should create polymorphic relation - Article', function(done) {
+      Article.create({name: 'Article 1'}, function(err, article) {
         should.not.exists(err);
-        author.pictures.create({name: 'Author Pic'}, function(err, p) {
+        article.packshot.create({name: 'Packshot'}, function(err, pic) {
           if (err) return done(err);
-          should.exist(p);
-          p.imageableId.should.eql(author.id);
-          p.imageableType.should.equal('Author');
+          should.exist(pic);
+          pic.imageableId.should.eql(article.id);
+          pic.imageableType.should.equal('Article');
           done();
         });
       });
+    });
+
+    it('should create polymorphic relation with promises - article', function(done) {
+      Article.create({name: 'Article 1'})
+      .then(function(article) {
+        return article.packshot.create({name: 'Packshot'})
+        .then(function(pic) {
+          should.exist(pic);
+          pic.imageableId.should.eql(article.id);
+          pic.imageableType.should.equal('Article');
+          done();
+        });
+      }).catch(done);
     });
 
     it('should create polymorphic relation - reader', function(done) {
-      Reader.create({name: 'Reader 1'}, function(err, reader) {
+      Employee.create({name: 'Employee 1'}, function(err, employee) {
         should.not.exists(err);
-        reader.pictures.create({name: 'Reader Pic'}, function(err, p) {
+        employee.mugshot.create({name: 'Mugshot'}, function(err, pic) {
           if (err) return done(err);
-          should.exist(p);
-          p.imageableId.should.eql(reader.id);
-          p.imageableType.should.equal('Reader');
+          should.exist(pic);
+          pic.imageableId.should.eql(employee.id);
+          pic.imageableType.should.equal('Employee');
           done();
         });
       });
     });
 
-    it('should find polymorphic items - author', function(done) {
-      Author.findOne(function(err, author) {
+    it('should find polymorphic relation - article', function(done) {
+      Article.findOne(function(err, article) {
         should.not.exists(err);
-        if (!author) return done();
-        author.pictures(function(err, pics) {
+        article.packshot(function(err, pic) {
           if (err) return done(err);
 
-          var pictures = author.pictures();
+          var packshot = article.packshot();
+          packshot.should.equal(pic);
+
+          pic.name.should.equal('Packshot');
+          pic.imageableId.toString().should.eql(article.id.toString());
+          pic.imageableType.should.equal('Article');
+          done();
+        });
+      });
+    });
+
+    it('should find polymorphic relation - employee', function(done) {
+      Employee.findOne(function(err, employee) {
+        should.not.exists(err);
+        employee.mugshot(function(err, mugshot) {
+          if (err) return done(err);
+          mugshot.name.should.equal('Mugshot');
+          mugshot.imageableId.toString().should.eql(employee.id.toString());
+          mugshot.imageableType.should.equal('Employee');
+          done();
+        });
+      });
+    });
+
+    it('should include polymorphic relation - article', function(done) {
+      Article.findOne({include: 'packshot'}, function(err, article) {
+        should.not.exists(err);
+        var packshot = article.packshot();
+        should.exist(packshot);
+        packshot.name.should.equal('Packshot');
+        done();
+      });
+    });
+
+    it('should find polymorphic relation with promises - employee', function(done) {
+      Employee.findOne()
+      .then(function(employee) {
+        return employee.mugshot.getAsync()
+        .then(function(pic) {
+          pic.name.should.equal('Mugshot');
+          pic.imageableId.toString().should.eql(employee.id.toString());
+          pic.imageableType.should.equal('Employee');
+          done();
+        });
+      }).catch(done);
+    });
+
+    it('should find inverse polymorphic relation - article', function(done) {
+      Picture.findOne({where: {name: 'Packshot'}}, function(err, pic) {
+        should.not.exists(err);
+        pic.imageable(function(err, imageable) {
+          if (err) return done(err);
+          imageable.should.be.instanceof(Article);
+          imageable.name.should.equal('Article 1');
+          done();
+        });
+      });
+    });
+
+    it('should include inverse polymorphic relation - article', function(done) {
+      Picture.findOne({where: {name: 'Packshot'}, include: 'imageable'},
+        function(err, pic) {
+          should.not.exists(err);
+          var imageable = pic.imageable();
+          should.exist(imageable);
+          imageable.should.be.instanceof(Article);
+          imageable.name.should.equal('Article 1');
+          done();
+        });
+    });
+
+    it('should find inverse polymorphic relation - employee', function(done) {
+      Picture.findOne({where: {name: 'Mugshot'}}, function(err, pic) {
+        should.not.exists(err);
+        pic.imageable(function(err, imageable) {
+          if (err) return done(err);
+          imageable.should.be.instanceof(Employee);
+          imageable.name.should.equal('Employee 1');
+          done();
+        });
+      });
+    });
+  });
+
+  describe('polymorphic hasOne with non standard ids', function() {
+    before(function(done) {
+      Picture = db.define('Picture', {name: String});
+      Article = db.define('Article', {
+        username: {type: String, id: true, generated: true},
+        name: String,
+      });
+      Employee = db.define('Employee', {
+        username: {type: String, id: true, generated: true},
+        name: String,
+      });
+
+      db.automigrate(['Picture', 'Article', 'Employee'], done);
+    });
+
+    it('can be declared using custom foreignKey/discriminator', function(done) {
+      Article.hasOne(Picture, {
+        as: 'packshot',
+        polymorphic: {
+          foreignKey: 'oid',
+          discriminator: 'type',
+        },
+      });
+      Employee.hasOne(Picture, {
+        as: 'mugshot',
+        polymorphic: {
+          foreignKey: 'oid',
+          discriminator: 'type',
+        },
+      });
+      Picture.belongsTo('imageable', {
+        idName: 'username',
+        polymorphic: {
+          idType: Article.definition.properties.username.type,
+          foreignKey: 'oid',
+          discriminator: 'type',
+        },
+      });
+
+      Article.relations['packshot'].toJSON().should.eql({
+        name: 'packshot',
+        type: 'hasOne',
+        modelFrom: 'Article',
+        keyFrom: 'username',
+        modelTo: 'Picture',
+        keyTo: 'oid',
+        multiple: false,
+        polymorphic: {
+          selector: 'packshot',
+          foreignKey: 'oid',
+          discriminator: 'type',
+        },
+      });
+
+      var imageableRel = Picture.relations['imageable'].toJSON();
+
+      // assert idType independantly
+      assert(typeof imageableRel.polymorphic.idType == 'function');
+
+      // backup idType and remove it temporarily from the relation
+      // object to ease the test
+      var idType = imageableRel.polymorphic.idType;
+      delete imageableRel.polymorphic.idType;
+
+      imageableRel.should.eql({
+        name: 'imageable',
+        type: 'belongsTo',
+        modelFrom: 'Picture',
+        keyFrom: 'oid',
+        modelTo: '<polymorphic>',
+        keyTo: 'username',
+        multiple: false,
+        polymorphic: {
+          selector: 'imageable',
+          foreignKey: 'oid',
+          discriminator: 'type',
+        },
+      });
+
+      // restore idType for next tests
+      imageableRel.polymorphic.idType = idType;
+
+      db.automigrate(['Picture', 'Article', 'Employee'], done);
+    });
+
+    it('should create polymorphic relation - article', function(done) {
+      Article.create({name: 'Article 1'}, function(err, article) {
+        should.not.exists(err);
+        article.packshot.create({name: 'Packshot'}, function(err, pic) {
+          if (err) return done(err);
+          should.exist(pic);
+          pic.oid.toString().should.equal(article.username.toString());
+          pic.type.should.equal('Article');
+          done();
+        });
+      });
+    });
+
+    it('should create polymorphic relation with promises - article', function(done) {
+      Article.create({name: 'Article 1'})
+      .then(function(article) {
+        return article.packshot.create({name: 'Packshot'})
+        .then(function(pic) {
+          should.exist(pic);
+          pic.oid.toString().should.equal(article.username.toString());
+          pic.type.should.equal('Article');
+          done();
+        });
+      }).catch(done);
+    });
+
+    it('should create polymorphic relation - employee', function(done) {
+      Employee.create({name: 'Employee 1'}, function(err, employee) {
+        should.not.exists(err);
+        employee.mugshot.create({name: 'Mugshot'}, function(err, pic) {
+          if (err) return done(err);
+          should.exist(pic);
+          pic.oid.toString().should.equal(employee.username.toString());
+          pic.type.should.equal('Employee');
+          done();
+        });
+      });
+    });
+
+    it('should find polymorphic relation - article', function(done) {
+      Article.findOne(function(err, article) {
+        should.not.exists(err);
+        article.packshot(function(err, pic) {
+          if (err) return done(err);
+
+          var packshot = article.packshot();
+          packshot.should.equal(pic);
+
+          pic.name.should.equal('Packshot');
+          pic.oid.toString().should.equal(article.username.toString());
+          pic.type.should.equal('Article');
+          done();
+        });
+      });
+    });
+
+    it('should find polymorphic relation - employee', function(done) {
+      Employee.findOne(function(err, employee) {
+        should.not.exists(err);
+        employee.mugshot(function(err, pic) {
+          if (err) return done(err);
+          pic.name.should.equal('Mugshot');
+          pic.oid.toString().should.equal(employee.username.toString());
+          pic.type.should.equal('Employee');
+          done();
+        });
+      });
+    });
+
+    it('should find inverse polymorphic relation - article', function(done) {
+      Picture.findOne({where: {name: 'Packshot'}}, function(err, pic) {
+        should.not.exists(err);
+        pic.imageable(function(err, imageable) {
+          if (err) return done(err);
+          imageable.should.be.instanceof(Article);
+          imageable.name.should.equal('Article 1');
+          done();
+        });
+      });
+    });
+
+    it('should find inverse polymorphic relation - employee', function(done) {
+      Picture.findOne({where: {name: 'Mugshot'}}, function(err, p) {
+        should.not.exists(err);
+        p.imageable(function(err, imageable) {
+          if (err) return done(err);
+          imageable.should.be.instanceof(Employee);
+          imageable.name.should.equal('Employee 1');
+          done();
+        });
+      });
+    });
+
+    it('should include polymorphic relation - employee', function(done) {
+      Employee.findOne({include: 'mugshot'},
+        function(err, employee) {
+          should.not.exists(err);
+          var mugshot = employee.mugshot();
+          should.exist(mugshot);
+          mugshot.name.should.equal('Mugshot');
+          done();
+        });
+    });
+
+    it('should include inverse polymorphic relation - employee', function(done) {
+      Picture.findOne({where: {name: 'Mugshot'}, include: 'imageable'},
+        function(err, pic) {
+          should.not.exists(err);
+          var imageable = pic.imageable();
+          should.exist(imageable);
+          imageable.should.be.instanceof(Employee);
+          imageable.name.should.equal('Employee 1');
+          done();
+        });
+    });
+  });
+
+  describe('polymorphic hasMany', function() {
+    before(function(done) {
+      Picture = db.define('Picture', {name: String});
+      Article = db.define('Article', {name: String});
+      Employee = db.define('Employee', {name: String});
+
+      db.automigrate(['Picture', 'Article', 'Employee'], done);
+    });
+
+    it('can be declared with model JSON definition when related model is already attached', function(done) {
+      var ds = new DataSource('memory');
+
+      // by defining Picture model before Article model we make sure Picture IS
+      // already attached when defining Article. This way, datasource.defineRelations
+      // WILL NOT use the async listener to call hasMany relation method
+      var Picture = ds.define('Picture', {name: String}, {relations: {
+        imageable: {type: 'belongsTo', polymorphic: true},
+      }});
+      var Article = ds.define('Article', {name: String}, {relations: {
+        pictures: {type: 'hasMany', model: 'Picture', polymorphic: 'imageable'},
+      }});
+
+      assert(Article.relations['pictures']);
+      assert.deepEqual(Article.relations['pictures'].toJSON(), {
+        name: 'pictures',
+        type: 'hasMany',
+        modelFrom: 'Article',
+        keyFrom: 'id',
+        modelTo: 'Picture',
+        keyTo: 'imageableId',
+        multiple: true,
+        polymorphic: {
+          selector: 'imageable',
+          foreignKey: 'imageableId',
+          discriminator: 'imageableType',
+        },
+      });
+
+      assert(Picture.relations['imageable']);
+      assert.deepEqual(Picture.relations['imageable'].toJSON(), {
+        name: 'imageable',
+        type: 'belongsTo',
+        modelFrom: 'Picture',
+        keyFrom: 'imageableId',
+        modelTo: '<polymorphic>',
+        keyTo: 'id',
+        multiple: false,
+        polymorphic: {
+          selector: 'imageable',
+          foreignKey: 'imageableId',
+          discriminator: 'imageableType',
+        },
+      });
+      done();
+    });
+
+    it('can be declared with model JSON definition when related model is not yet attached', function(done) {
+      var ds = new DataSource('memory');
+
+      // by defining Author model before Picture model we make sure Picture IS NOT
+      // already attached when defining Author. This way, datasource.defineRelations
+      // WILL use the async listener to call hasMany relation method
+      var Author = ds.define('Author', {name: String}, {relations: {
+        pictures: {type: 'hasMany', model: 'Picture', polymorphic: 'imageable'},
+      }});
+      var Picture = ds.define('Picture', {name: String}, {relations: {
+        imageable: {type: 'belongsTo', polymorphic: true},
+      }});
+
+      assert(Author.relations['pictures']);
+      assert.deepEqual(Author.relations['pictures'].toJSON(), {
+        name: 'pictures',
+        type: 'hasMany',
+        modelFrom: 'Author',
+        keyFrom: 'id',
+        modelTo: 'Picture',
+        keyTo: 'imageableId',
+        multiple: true,
+        polymorphic: {
+          selector: 'imageable',
+          foreignKey: 'imageableId',
+          discriminator: 'imageableType',
+        },
+      });
+
+      assert(Picture.relations['imageable']);
+      assert.deepEqual(Picture.relations['imageable'].toJSON(), {
+        name: 'imageable',
+        type: 'belongsTo',
+        modelFrom: 'Picture',
+        keyFrom: 'imageableId',
+        modelTo: '<polymorphic>',
+        keyTo: 'id',
+        multiple: false,
+        polymorphic: {
+          selector: 'imageable',
+          foreignKey: 'imageableId',
+          discriminator: 'imageableType',
+        },
+      });
+      done();
+    });
+
+    it('can be declared using default polymorphic selector', function(done) {
+      Article.hasMany(Picture, {polymorphic: 'imageable'});
+      Employee.hasMany(Picture, {polymorphic: { // alt syntax
+        foreignKey: 'imageableId',
+        discriminator: 'imageableType',
+      }});
+      Picture.belongsTo('imageable', {polymorphic: true});
+
+      Article.relations['pictures'].toJSON().should.eql({
+        name: 'pictures',
+        type: 'hasMany',
+        modelFrom: 'Article',
+        keyFrom: 'id',
+        modelTo: 'Picture',
+        keyTo: 'imageableId',
+        multiple: true,
+        polymorphic: {
+          selector: 'imageable',
+          foreignKey: 'imageableId',
+          discriminator: 'imageableType',
+        },
+      });
+
+      Picture.relations['imageable'].toJSON().should.eql({
+        name: 'imageable',
+        type: 'belongsTo',
+        modelFrom: 'Picture',
+        keyFrom: 'imageableId',
+        modelTo: '<polymorphic>',
+        keyTo: 'id',
+        multiple: false,
+        polymorphic: {
+          selector: 'imageable',
+          foreignKey: 'imageableId',
+          discriminator: 'imageableType',
+        },
+      });
+
+      db.automigrate(['Picture', 'Article', 'Employee'], done);
+    });
+
+    it('should create polymorphic relation - article', function(done) {
+      Article.create({name: 'Article 1'}, function(err, article) {
+        should.not.exists(err);
+        article.pictures.create({name: 'Article Pic'}, function(err, pics) {
+          if (err) return done(err);
+          should.exist(pics);
+          pics.imageableId.should.eql(article.id);
+          pics.imageableType.should.equal('Article');
+          done();
+        });
+      });
+    });
+
+    it('should create polymorphic relation - employee', function(done) {
+      Employee.create({name: 'Employee 1'}, function(err, employee) {
+        should.not.exists(err);
+        employee.pictures.create({name: 'Employee Pic'}, function(err, pics) {
+          if (err) return done(err);
+          should.exist(pics);
+          pics.imageableId.should.eql(employee.id);
+          pics.imageableType.should.equal('Employee');
+          done();
+        });
+      });
+    });
+
+    it('should find polymorphic items - article', function(done) {
+      Article.findOne(function(err, article) {
+        should.not.exists(err);
+        if (!article) return done();
+        article.pictures(function(err, pics) {
+          if (err) return done(err);
+
+          var pictures = article.pictures();
           pictures.should.eql(pics);
 
           pics.should.have.length(1);
-          pics[0].name.should.equal('Author Pic');
+          pics[0].name.should.equal('Article Pic');
           done();
         });
       });
     });
 
-    it('should find polymorphic items - reader', function(done) {
-      Reader.findOne(function(err, reader) {
+    it('should find polymorphic items - employee', function(done) {
+      Employee.findOne(function(err, employee) {
         should.not.exists(err);
-        reader.pictures(function(err, pics) {
+        employee.pictures(function(err, pics) {
           if (err) return done(err);
           pics.should.have.length(1);
-          pics[0].name.should.equal('Reader Pic');
+          pics[0].name.should.equal('Employee Pic');
           done();
         });
       });
     });
 
-    it('should find the inverse of polymorphic relation - author', function(done) {
-      Picture.findOne({where: {name: 'Author Pic'}}, function(err, p) {
+    it('should find the inverse of polymorphic relation - article', function(done) {
+      Picture.findOne({where: {name: 'Article Pic'}}, function(err, pics) {
         if (err) return done(err);
-        p.imageableType.should.equal('Author');
-        p.imageable(function(err, imageable) {
+        pics.imageableType.should.equal('Article');
+        pics.imageable(function(err, imageable) {
           if (err) return done(err);
-          imageable.should.be.instanceof(Author);
-          imageable.name.should.equal('Author 1');
+          imageable.should.be.instanceof(Article);
+          imageable.name.should.equal('Article 1');
           done();
         });
       });
     });
 
-    it('should find the inverse of polymorphic relation - reader', function(done) {
-      Picture.findOne({where: {name: 'Reader Pic'}}, function(err, p) {
+    it('should find the inverse of polymorphic relation - employee', function(done) {
+      Picture.findOne({where: {name: 'Employee Pic'}}, function(err, pics) {
         if (err) return done(err);
-        p.imageableType.should.equal('Reader');
-        p.imageable(function(err, imageable) {
+        pics.imageableType.should.equal('Employee');
+        pics.imageable(function(err, imageable) {
           if (err) return done(err);
-          imageable.should.be.instanceof(Reader);
-          imageable.name.should.equal('Reader 1');
+          imageable.should.be.instanceof(Employee);
+          imageable.name.should.equal('Employee 1');
           done();
         });
       });
@@ -2220,13 +2526,13 @@ describe('relations', function() {
         pics.should.have.length(2);
 
         const actual = pics.map(
-          function(p) {
-            return {imageName: p.name, name: p.imageable().name};
+          function(pic) {
+            return {imageName: pic.name, name: pic.imageable().name};
           });
 
         actual.should.containDeep([
-          {name: 'Author 1', imageName: 'Author Pic'},
-          {name: 'Reader 1', imageName: 'Reader Pic'},
+          {name: 'Article 1', imageName: 'Article Pic'},
+          {name: 'Employee 1', imageName: 'Employee Pic'},
         ]);
 
         done();
@@ -2238,8 +2544,8 @@ describe('relations', function() {
       Picture.find({include: 'imageable'}, function(err, pics) {
         if (err) return done(err);
         pics.should.have.length(2);
-        var names = ['Author Pic', 'Reader Pic'];
-        var imageables = ['Author 1', 'Reader 1'];
+        var names = ['Article Pic', 'Employee Pic'];
+        var imageables = ['Article 1', 'Employee 1'];
         names.should.containEql(pics[0].name);
         names.should.containEql(pics[1].name);
         imageables.should.containEql(pics[0].imageable().name);
@@ -2249,20 +2555,20 @@ describe('relations', function() {
     });
 
     it('should assign a polymorphic relation', function(done) {
-      Author.create({name: 'Author 2'}, function(err, author) {
+      Article.create({name: 'Article 2'}, function(err, article) {
         should.not.exists(err);
         var p = new Picture({name: 'Sample'});
-        p.imageable(author); // assign
-        p.imageableId.should.eql(author.id);
-        p.imageableType.should.equal('Author');
+        p.imageable(article); // assign
+        p.imageableId.should.eql(article.id);
+        p.imageableType.should.equal('Article');
         p.save(done);
       });
     });
 
-    it('should find polymorphic items - author', function(done) {
-      Author.findOne({where: {name: 'Author 2'}}, function(err, author) {
+    it('should find polymorphic items - article', function(done) {
+      Article.findOne({where: {name: 'Article 2'}}, function(err, article) {
         should.not.exists(err);
-        author.pictures(function(err, pics) {
+        article.pictures(function(err, pics) {
           if (err) return done(err);
           pics.should.have.length(1);
           pics[0].name.should.equal('Sample');
@@ -2271,104 +2577,150 @@ describe('relations', function() {
       });
     });
 
-    it('should find the inverse of polymorphic relation - author', function(done) {
+    it('should find the inverse of polymorphic relation - article', function(done) {
       Picture.findOne({where: {name: 'Sample'}}, function(err, p) {
         if (err) return done(err);
-        p.imageableType.should.equal('Author');
+        p.imageableType.should.equal('Article');
         p.imageable(function(err, imageable) {
           if (err) return done(err);
-          imageable.should.be.instanceof(Author);
-          imageable.name.should.equal('Author 2');
+          imageable.should.be.instanceof(Article);
+          imageable.name.should.equal('Article 2');
           done();
         });
       });
     });
 
-    it('should include the inverse of polymorphic relation - author',
+    it('should include the inverse of polymorphic relation - article',
       function(done) {
         Picture.findOne({where: {name: 'Sample'}, include: 'imageable'},
           function(err, p) {
             if (err) return done(err);
             var imageable = p.imageable();
             should.exist(imageable);
-            imageable.should.be.instanceof(Author);
-            imageable.name.should.equal('Author 2');
+            imageable.should.be.instanceof(Article);
+            imageable.name.should.equal('Article 2');
             done();
           });
       });
+
+    it('can be declared using custom foreignKey/discriminator', function(done) {
+      Article.hasMany(Picture, {polymorphic: {
+        foreignKey: 'imageId',
+        discriminator: 'imageType',
+      }});
+      Employee.hasMany(Picture, {polymorphic: { // alt syntax
+        foreignKey: 'imageId',
+        discriminator: 'imageType',
+      }});
+      Picture.belongsTo('imageable', {polymorphic: {
+        foreignKey: 'imageId',
+        discriminator: 'imageType',
+      }});
+
+      Article.relations['pictures'].toJSON().should.eql({
+        name: 'pictures',
+        type: 'hasMany',
+        modelFrom: 'Article',
+        keyFrom: 'id',
+        modelTo: 'Picture',
+        keyTo: 'imageId',
+        multiple: true,
+        polymorphic: {
+          selector: 'pictures',
+          foreignKey: 'imageId',
+          discriminator: 'imageType',
+        },
+      });
+
+      Picture.relations['imageable'].toJSON().should.eql({
+        name: 'imageable',
+        type: 'belongsTo',
+        modelFrom: 'Picture',
+        keyFrom: 'imageId',
+        modelTo: '<polymorphic>',
+        keyTo: 'id',
+        multiple: false,
+        polymorphic: {
+          selector: 'imageable',
+          foreignKey: 'imageId',
+          discriminator: 'imageType',
+        },
+      });
+
+      db.automigrate(['Picture', 'Article', 'Employee'], done);
+    });
   });
 
   describe('polymorphic hasAndBelongsToMany through', function() {
-    var idAuthor, idReader;
+    var idArticle, idEmployee;
 
     before(function(done) {
-      db = getSchema();
-      idAuthor = uid.fromConnector(db) || 3456;
-      idReader = uid.fromConnector(db) || 4567;
+      idArticle = uid.fromConnector(db) || 3456;
+      idEmployee = uid.fromConnector(db) || 4567;
       Picture = db.define('Picture', {name: String});
-      Author = db.define('Author', {name: String});
-      Reader = db.define('Reader', {name: String});
+      Article = db.define('Article', {name: String});
+      Employee = db.define('Employee', {name: String});
       PictureLink = db.define('PictureLink', {});
 
-      db.automigrate(['Picture', 'Author', 'Reader', 'PictureLink'], done);
+      db.automigrate(['Picture', 'Article', 'Employee', 'PictureLink'], done);
     });
 
-    it('can be declared', function(done) {
-      Author.hasAndBelongsToMany(Picture, {through: PictureLink, polymorphic: 'imageable'});
-      Reader.hasAndBelongsToMany(Picture, {through: PictureLink, polymorphic: 'imageable'});
+    it('can be declared using default polymorphic selector', function(done) {
+      Article.hasAndBelongsToMany(Picture, {through: PictureLink, polymorphic: 'imageable'});
+      Employee.hasAndBelongsToMany(Picture, {through: PictureLink, polymorphic: 'imageable'});
       // Optionally, define inverse relations:
-      Picture.hasMany(Author, {through: PictureLink, polymorphic: 'imageable', invert: true});
-      Picture.hasMany(Reader, {through: PictureLink, polymorphic: 'imageable', invert: true});
-      db.automigrate(['Picture', 'Author', 'Reader', 'PictureLink'], done);
+      Picture.hasMany(Article, {through: PictureLink, polymorphic: 'imageable', invert: true});
+      Picture.hasMany(Employee, {through: PictureLink, polymorphic: 'imageable', invert: true});
+      db.automigrate(['Picture', 'Article', 'Employee', 'PictureLink'], done);
     });
 
     it('can determine the collect via modelTo name', function() {
-      Author.hasAndBelongsToMany(Picture, {through: PictureLink, polymorphic: 'imageable'});
-      Reader.hasAndBelongsToMany(Picture, {through: PictureLink, polymorphic: 'imageable'});
+      Article.hasAndBelongsToMany(Picture, {through: PictureLink, polymorphic: 'imageable'});
+      Employee.hasAndBelongsToMany(Picture, {through: PictureLink, polymorphic: 'imageable'});
       // Optionally, define inverse relations:
-      Picture.hasMany(Author, {through: PictureLink, polymorphic: 'imageable', invert: true});
-      Picture.hasMany(Reader, {through: PictureLink, polymorphic: 'imageable', invert: true});
-      var author = new Author({id: idAuthor});
-      var scope1 = author.pictures._scope;
+      Picture.hasMany(Article, {through: PictureLink, polymorphic: 'imageable', invert: true});
+      Picture.hasMany(Employee, {through: PictureLink, polymorphic: 'imageable', invert: true});
+      var article = new Article({id: idArticle});
+      var scope1 = article.pictures._scope;
       scope1.should.have.property('collect', 'picture');
       scope1.should.have.property('include', 'picture');
-      var reader = new Reader({id: idReader});
-      var scope2 = reader.pictures._scope;
+      var employee = new Employee({id: idEmployee});
+      var scope2 = employee.pictures._scope;
       scope2.should.have.property('collect', 'picture');
       scope2.should.have.property('include', 'picture');
-      var picture = new Picture({id: idAuthor});
-      var scope3 = picture.authors._scope;
+      var picture = new Picture({id: idArticle});
+      var scope3 = picture.articles._scope;
       scope3.should.have.property('collect', 'imageable');
       scope3.should.have.property('include', 'imageable');
-      var scope4 = picture.readers._scope;
+      var scope4 = picture.employees._scope;
       scope4.should.have.property('collect', 'imageable');
       scope4.should.have.property('include', 'imageable');
     });
 
-    var author, reader, pictures = [];
-    it('should create polymorphic relation - author', function(done) {
-      Author.create({name: 'Author 1'}, function(err, a) {
+    var article, employee, pictures = [];
+    it('should create polymorphic relation - article', function(done) {
+      Article.create({name: 'Article 1'}, function(err, a) {
         if (err) return done(err);
-        author = a;
-        author.pictures.create({name: 'Author Pic 1'}, function(err, p) {
+        article = a;
+        article.pictures.create({name: 'Article Pic 1'}, function(err, pic) {
           if (err) return done(err);
-          pictures.push(p);
-          author.pictures.create({name: 'Author Pic 2'}, function(err, p) {
+          pictures.push(pic);
+          article.pictures.create({name: 'Article Pic 2'}, function(err, pic) {
             if (err) return done(err);
-            pictures.push(p);
+            pictures.push(pic);
             done();
           });
         });
       });
     });
 
-    it('should create polymorphic relation - reader', function(done) {
-      Reader.create({name: 'Reader 1'}, function(err, r) {
+    it('should create polymorphic relation - employee', function(done) {
+      Employee.create({name: 'Employee 1'}, function(err, r) {
         if (err) return done(err);
-        reader = r;
-        reader.pictures.create({name: 'Reader Pic 1'}, function(err, p) {
+        employee = r;
+        employee.pictures.create({name: 'Employee Pic 1'}, function(err, pic) {
           if (err) return done(err);
-          pictures.push(p);
+          pictures.push(pic);
           done();
         });
       });
@@ -2379,35 +2731,35 @@ describe('relations', function() {
         if (err) return done(err);
         if (connectorCapabilities.adhocSort !== false) {
           link.pictureId.should.eql(pictures[0].id);
-          link.imageableId.should.eql(author.id);
-          link.imageableType.should.equal('Author');
+          link.imageableId.should.eql(article.id);
+          link.imageableType.should.equal('Article');
           link.imageable(function(err, imageable) {
-            imageable.should.be.instanceof(Author);
-            imageable.id.should.eql(author.id);
+            imageable.should.be.instanceof(Article);
+            imageable.id.should.eql(article.id);
             done();
           });
         } else {
           const picIds = pictures.map(pic => pic.id.toString());
           picIds.should.containEql(link.pictureId.toString());
-          link.imageableType.should.be.oneOf('Author', 'Reader');
+          link.imageableType.should.be.oneOf('Article', 'Employee');
           link.imageable(function(err, imageable) {
-            imageable.id.should.be.oneOf(author.id, reader.id);
+            imageable.id.should.be.oneOf(article.id, employee.id);
             done();
           });
         }
       });
     });
 
-    it('should get polymorphic relation through model - author', function(done) {
-      if (!author) return done();
-      Author.findById(author.id, function(err, author) {
+    it('should get polymorphic relation through model - article', function(done) {
+      if (!article) return done();
+      Article.findById(article.id, function(err, article) {
         if (err) return done(err);
-        author.name.should.equal('Author 1');
-        author.pictures(function(err, pics) {
+        article.name.should.equal('Article 1');
+        article.pictures(function(err, pics) {
           if (err) return done(err);
           pics.should.have.length(2);
           const names = pics.map(p => p.name);
-          const expected = ['Author Pic 1', 'Author Pic 2'];
+          const expected = ['Article Pic 1', 'Article Pic 2'];
           if (connectorCapabilities.adhocSort !== false) {
             names.should.eql(expected);
           } else {
@@ -2418,27 +2770,27 @@ describe('relations', function() {
       });
     });
 
-    it('should get polymorphic relation through model - reader', function(done) {
-      Reader.findById(reader.id, function(err, reader) {
+    it('should get polymorphic relation through model - employee', function(done) {
+      Employee.findById(employee.id, function(err, employee) {
         if (err) return done(err);
-        reader.name.should.equal('Reader 1');
-        reader.pictures(function(err, pics) {
+        employee.name.should.equal('Employee 1');
+        employee.pictures(function(err, pics) {
           if (err) return done(err);
           pics.should.have.length(1);
-          pics[0].name.should.equal('Reader Pic 1');
+          pics[0].name.should.equal('Employee Pic 1');
           done();
         });
       });
     });
 
     it('should include polymorphic items', function(done) {
-      Author.find({include: 'pictures'}, function(err, authors) {
-        authors.should.have.length(1);
-        if (!authors) return done();
-        authors[0].pictures(function(err, pics) {
+      Article.find({include: 'pictures'}, function(err, articles) {
+        articles.should.have.length(1);
+        if (!articles) return done();
+        articles[0].pictures(function(err, pics) {
           pics.should.have.length(2);
           const names = pics.map(p => p.name);
-          const expected = ['Author Pic 1', 'Author Pic 2'];
+          const expected = ['Article Pic 1', 'Article Pic 2'];
           if (connectorCapabilities.adhocSort !== false) {
             names.should.eql(expected);
           } else {
@@ -2450,18 +2802,18 @@ describe('relations', function() {
     });
 
     var anotherPicture;
-    it('should add to a polymorphic relation - author', function(done) {
-      if (!author) return done();
-      Author.findById(author.id, function(err, author) {
-        Picture.create({name: 'Example'}, function(err, p) {
+    it('should add to a polymorphic relation - article', function(done) {
+      if (!article) return done();
+      Article.findById(article.id, function(err, article) {
+        Picture.create({name: 'Example'}, function(err, pic) {
           if (err) return done(err);
-          pictures.push(p);
-          anotherPicture = p;
-          author.pictures.add(p, function(err, link) {
+          pictures.push(pic);
+          anotherPicture = pic;
+          article.pictures.add(pic, function(err, link) {
             link.should.be.instanceof(PictureLink);
-            link.pictureId.should.eql(p.id);
-            link.imageableId.should.eql(author.id);
-            link.imageableType.should.equal('Author');
+            link.pictureId.should.eql(pic.id);
+            link.imageableId.should.eql(article.id);
+            link.imageableType.should.equal('Article');
             done();
           });
         });
@@ -2470,48 +2822,48 @@ describe('relations', function() {
 
     it('should create polymorphic through model', function(done) {
       if (!anotherPicture) return done();
-      PictureLink.findOne({where: {pictureId: anotherPicture.id, imageableType: 'Author'}},
+      PictureLink.findOne({where: {pictureId: anotherPicture.id, imageableType: 'Article'}},
       function(err, link) {
         if (err) return done(err);
         link.pictureId.toString().should.eql(anotherPicture.id.toString());
-        link.imageableId.toString().should.eql(author.id.toString());
-        link.imageableType.should.equal('Author');
+        link.imageableId.toString().should.eql(article.id.toString());
+        link.imageableType.should.equal('Article');
         done();
       });
     });
 
-    var anotherAuthor, anotherReader;
-    it('should add to a polymorphic relation - author', function(done) {
-      Author.create({name: 'Author 2'}, function(err, author) {
+    var anotherArticle, anotherEmployee;
+    it('should add to a polymorphic relation - article', function(done) {
+      Article.create({name: 'Article 2'}, function(err, article) {
         if (err) return done(err);
-        anotherAuthor = author;
+        anotherArticle = article;
         if (!anotherPicture) return done();
-        author.pictures.add(anotherPicture.id, function(err, p) {
+        article.pictures.add(anotherPicture.id, function(err, pic) {
           if (err) return done(err);
           done();
         });
       });
     });
 
-    it('should add to a polymorphic relation - author', function(done) {
-      Reader.create({name: 'Reader 2'}, function(err, reader) {
+    it('should add to a polymorphic relation - article', function(done) {
+      Employee.create({name: 'Employee 2'}, function(err, reader) {
         if (err) return done(err);
-        anotherReader = reader;
+        anotherEmployee = reader;
         if (!anotherPicture) return done();
-        reader.pictures.add(anotherPicture.id, function(err, p) {
+        reader.pictures.add(anotherPicture.id, function(err, pic) {
           if (err) return done(err);
           done();
         });
       });
     });
 
-    it('should get the inverse polymorphic relation - author', function(done) {
+    it('should get the inverse polymorphic relation - article', function(done) {
       if (!anotherPicture) return done();
-      Picture.findById(anotherPicture.id, function(err, p) {
-        p.authors(function(err, authors) {
-          authors.should.have.length(2);
-          const names = authors.map(p => p.name);
-          const expected = ['Author 1', 'Author 2'];
+      Picture.findById(anotherPicture.id, function(err, pic) {
+        pic.articles(function(err, articles) {
+          articles.should.have.length(2);
+          const names = articles.map(pic => pic.name);
+          const expected = ['Article 1', 'Article 2'];
           if (connectorCapabilities.adhocSort !== false) {
             names.should.eql(expected);
           } else {
@@ -2524,27 +2876,27 @@ describe('relations', function() {
 
     it('should get the inverse polymorphic relation - reader', function(done) {
       if (!anotherPicture) return done();
-      Picture.findById(anotherPicture.id, function(err, p) {
-        p.readers(function(err, readers) {
-          readers.should.have.length(1);
+      Picture.findById(anotherPicture.id, function(err, pic) {
+        pic.employees(function(err, employees) {
+          employees.should.have.length(1);
           if (connectorCapabilities.adhocSort !== false) {
-            readers[0].name.should.equal('Reader 2');
+            employees[0].name.should.equal('Employee 2');
           } else {
-            var readerNames = ['Reader 1', 'Reader 2'];
-            readers[0].name.should.be.oneOf(readerNames);
+            var employeeNames = ['Employee 1', 'Employee 2'];
+            employees[0].name.should.be.oneOf(employeeNames);
           }
           done();
         });
       });
     });
 
-    it('should find polymorphic items - author', function(done) {
-      if (!author) return done();
-      Author.findById(author.id, function(err, author) {
-        author.pictures(function(err, pics) {
+    it('should find polymorphic items - article', function(done) {
+      if (!article) return done();
+      Article.findById(article.id, function(err, article) {
+        article.pictures(function(err, pics) {
           pics.should.have.length(3);
-          const names = pics.map(p => p.name);
-          const expected = ['Author Pic 1', 'Author Pic 2', 'Example'];
+          const names = pics.map(pic => pic.name);
+          const expected = ['Article Pic 1', 'Article Pic 2', 'Example'];
           if (connectorCapabilities.adhocSort !== false) {
             names.should.eql(expected);
           } else {
@@ -2555,10 +2907,10 @@ describe('relations', function() {
       });
     });
 
-    it('should check if polymorphic relation exists - author', function(done) {
-      if (!author) return done();
-      Author.findById(author.id, function(err, author) {
-        author.pictures.exists(anotherPicture.id, function(err, exists) {
+    it('should check if polymorphic relation exists - article', function(done) {
+      if (!article) return done();
+      Article.findById(article.id, function(err, article) {
+        article.pictures.exists(anotherPicture.id, function(err, exists) {
           exists.should.be.true;
           done();
         });
@@ -2566,20 +2918,20 @@ describe('relations', function() {
     });
 
     bdd.itIf(connectorCapabilities.deleteWithOtherThanId !== false,
-    'should remove from a polymorphic relation - author', function(done) {
-      if (!author || !anotherPicture) return done();
-      Author.findById(author.id, function(err, author) {
-        author.pictures.remove(anotherPicture.id, function(err) {
+    'should remove from a polymorphic relation - article', function(done) {
+      if (!article || !anotherPicture) return done();
+      Article.findById(article.id, function(err, article) {
+        article.pictures.remove(anotherPicture.id, function(err) {
           if (err) return done(err);
           done();
         });
       });
     });
 
-    it('should find polymorphic items - author', function(done) {
-      if (!author) return done();
-      Author.findById(author.id, function(err, author) {
-        author.pictures(function(err, pics) {
+    it('should find polymorphic items - article', function(done) {
+      if (!article) return done();
+      Article.findById(article.id, function(err, article) {
+        article.pictures(function(err, pics) {
           // If deleteWithOtherThanId is not implemented, the above test is skipped and
           // the remove did not take place.  Thus +1.
           var expectedLength = connectorCapabilities.deleteWithOtherThanId !== false ?
@@ -2588,19 +2940,19 @@ describe('relations', function() {
 
           const names = pics.map(p => p.name);
           if (connectorCapabilities.adhocSort !== false) {
-            names.should.eql(['Author Pic 1', 'Author Pic 2']);
+            names.should.eql(['Article Pic 1', 'Article Pic 2']);
           } else {
-            names.should.containDeep(['Author Pic 1', 'Author Pic 2', 'Example']);
+            names.should.containDeep(['Article Pic 1', 'Article Pic 2', 'Example']);
           }
           done();
         });
       });
     });
 
-    it('should check if polymorphic relation exists - author', function(done) {
-      if (!author) return done();
-      Author.findById(author.id, function(err, author) {
-        author.pictures.exists(7, function(err, exists) {
+    it('should check if polymorphic relation exists - article', function(done) {
+      if (!article) return done();
+      Article.findById(article.id, function(err, article) {
+        article.pictures.exists(7, function(err, exists) {
           exists.should.be.false;
           done();
         });
@@ -2609,33 +2961,33 @@ describe('relations', function() {
 
     it('should create polymorphic item through relation scope', function(done) {
       if (!anotherPicture) return done();
-      Picture.findById(anotherPicture.id, function(err, p) {
-        p.authors.create({name: 'Author 3'}, function(err, a) {
+      Picture.findById(anotherPicture.id, function(err, pic) {
+        pic.articles.create({name: 'Article 3'}, function(err, prd) {
           if (err) return done(err);
-          author = a;
-          should.equal(author.name, 'Author 3');
+          article = prd;
+          should.equal(article.name, 'Article 3');
           done();
         });
       });
     });
 
-    it('should create polymorphic through model - new author', function(done) {
-      if (!author || !anotherPicture) return done();
+    it('should create polymorphic through model - new article', function(done) {
+      if (!article || !anotherPicture) return done();
       PictureLink.findOne({where: {
-        pictureId: anotherPicture.id, imageableId: author.id, imageableType: 'Author',
+        pictureId: anotherPicture.id, imageableId: article.id, imageableType: 'Article',
       }}, function(err, link) {
         if (err) return done(err);
         link.pictureId.toString().should.eql(anotherPicture.id.toString());
-        link.imageableId.toString().should.eql(author.id.toString());
-        link.imageableType.should.equal('Author');
+        link.imageableId.toString().should.eql(article.id.toString());
+        link.imageableType.should.equal('Article');
         done();
       });
     });
 
-    it('should find polymorphic items - new author', function(done) {
-      if (!author) return done();
-      Author.findById(author.id, function(err, author) {
-        author.pictures(function(err, pics) {
+    it('should find polymorphic items - new article', function(done) {
+      if (!article) return done();
+      Article.findById(article.id, function(err, article) {
+        article.pictures(function(err, pics) {
           pics.should.have.length(1);
           pics[0].id.should.eql(anotherPicture.id);
           pics[0].name.should.equal('Example');
@@ -2645,19 +2997,76 @@ describe('relations', function() {
     });
 
     it('should use author_pictures as modelThrough', function(done) {
-      Author.hasAndBelongsToMany(Picture, {throughTable: 'author_pictures'});
-      Author.relations['pictures'].toJSON().should.eql({
+      Article.hasAndBelongsToMany(Picture, {throughTable: 'article_pictures'});
+      Article.relations['pictures'].toJSON().should.eql({
         name: 'pictures',
         type: 'hasMany',
-        modelFrom: 'Author',
+        modelFrom: 'Article',
         keyFrom: 'id',
         modelTo: 'Picture',
-        keyTo: 'authorId',
+        keyTo: 'articleId',
         multiple: true,
-        modelThrough: 'author_pictures',
+        modelThrough: 'article_pictures',
         keyThrough: 'pictureId',
       });
       done();
+    });
+
+    it('can be declared using custom foreignKey/discriminator', function(done) {
+      Article.hasAndBelongsToMany(Picture, {through: PictureLink, polymorphic: {
+        foreignKey: 'imageId',
+        discriminator: 'imageType',
+      }});
+      Employee.hasAndBelongsToMany(Picture, {through: PictureLink, polymorphic: {
+        foreignKey: 'imageId',
+        discriminator: 'imageType',
+      }});
+      // Optionally, define inverse relations:
+      Picture.hasMany(Article, {through: PictureLink, polymorphic: {
+        foreignKey: 'imageId',
+        discriminator: 'imageType',
+      }, invert: true});
+      Picture.hasMany(Employee, {through: PictureLink, polymorphic: {
+        foreignKey: 'imageId',
+        discriminator: 'imageType',
+      }, invert: true});
+
+      Article.relations['pictures'].toJSON().should.eql({
+        name: 'pictures',
+        type: 'hasMany',
+        modelFrom: 'Article',
+        keyFrom: 'id',
+        modelTo: 'Picture',
+        keyTo: 'imageId',
+        multiple: true,
+        modelThrough: 'PictureLink',
+        keyThrough: 'pictureId',
+        polymorphic: {
+          selector: 'pictures',
+          foreignKey: 'imageId',
+          discriminator: 'imageType',
+        },
+      });
+
+      Picture.relations['articles'].toJSON().should.eql({
+        name: 'articles',
+        type: 'hasMany',
+        modelFrom: 'Picture',
+        keyFrom: 'id',
+        modelTo: 'Article',
+        keyTo: 'pictureId',
+        multiple: true,
+        modelThrough: 'PictureLink',
+        keyThrough: 'imageId',
+        polymorphic: {
+          foreignKey: 'imageId',
+          discriminator: 'imageType',
+          selector: 'articles',
+          invert: true,
+        },
+      });
+
+      db.automigrate(['Picture', 'Article', 'Employee', 'PictureLink'], done);
     });
   });
 
@@ -3002,7 +3411,6 @@ describe('relations', function() {
     var supplierId, accountId;
 
     before(function() {
-      db = getSchema();
       Supplier = db.define('Supplier', {name: String});
       Account = db.define('Account', {accountNo: String, supplierName: String});
     });
@@ -3235,7 +3643,6 @@ describe('relations', function() {
     var supplierId, accountId;
 
     before(function() {
-      db = getSchema();
       Supplier = db.define('Supplier', {name: String});
       Account = db.define('Account', {accountNo: String, supplierName: String, block: Boolean});
       Supplier.hasOne(Account, {scope: {where: {block: false}}, properties: {name: 'supplierName'}});
@@ -3350,7 +3757,6 @@ describe('relations', function() {
     var supplierId, accountId;
 
     before(function() {
-      db = getSchema();
       Supplier = db.define('Supplier', {
         sid: {
           type: String,
@@ -3436,7 +3842,6 @@ describe('relations', function() {
     var companyBoardId, bossId;
 
     before(function() {
-      db = getSchema();
       CompanyBoard = db.define('CompanyBoard', {
         membersNumber: Number,
         companyId: String,
@@ -3509,7 +3914,6 @@ describe('relations', function() {
     var COMPANY_ID = 'Company1';
 
     before(function() {
-      db = getSchema();
       Employee = db.define('Employee', {name: String, companyId: String});
       Boss = db.define('Boss', {address: String, companyId: String});
     });
@@ -3567,7 +3971,6 @@ describe('relations', function() {
     var bossId;
 
     before(function() {
-      db = getSchema();
       Employee = db.define('Employee', {name: String, companyId: String});
       Boss = db.define('Boss', {address: String, companyId: String});
     });
@@ -3802,7 +4205,6 @@ describe('relations', function() {
 
     before(function() {
       tmp = getTransientDataSource();
-      db = getSchema();
       Person = db.define('Person', {name: String});
       Passport = tmp.define('Passport',
         {name: {type: 'string', required: true}},
@@ -4191,7 +4593,6 @@ describe('relations', function() {
     var Passport;
     before(function() {
       tmp = getTransientDataSource();
-      db = getSchema();
       Person = db.define('Person', {name: String});
       Passport = tmp.define('Passport',
         {
@@ -4224,7 +4625,6 @@ describe('relations', function() {
 
     before(function(done) {
       tmp = getTransientDataSource({defaultIdType: Number});
-      db = getSchema();
       Person = db.define('Person', {name: String});
       Address = tmp.define('Address', {street: String});
       Address.validatesPresenceOf('street');
@@ -4458,7 +4858,6 @@ describe('relations', function() {
   describe('embedsMany - numeric ids + forceId', function() {
     before(function(done) {
       tmp = getTransientDataSource();
-      db = getSchema();
       Person = db.define('Person', {name: String});
       Address = tmp.define('Address', {
         id: {type: Number, id: true},
@@ -4493,7 +4892,6 @@ describe('relations', function() {
   describe('embedsMany - explicit ids', function() {
     before(function(done) {
       tmp = getTransientDataSource();
-      db = getSchema();
       Person = db.define('Person', {name: String});
       Address = tmp.define('Address', {street: String}, {forceId: false});
       Address.validatesPresenceOf('street');
@@ -4787,7 +5185,6 @@ describe('relations', function() {
     var category, job1, job2, job3;
 
     before(function() {
-      db = getSchema();
       Category = db.define('Category', {name: String});
       Job = db.define('Job', {name: String});
       Link = db.define('Link', {name: String, notes: String}, {forceId: false});
@@ -5047,7 +5444,6 @@ describe('relations', function() {
     var person1, person2;
 
     before(function(done) {
-      db = getSchema();
       tmp = getTransientDataSource();
 
       Book = db.define('Book', {name: String});
@@ -5182,7 +5578,6 @@ describe('relations', function() {
     var job1, job2, job3;
 
     before(function(done) {
-      db = getSchema();
       Category = db.define('Category', {name: String});
       Job = db.define('Job', {name: String});
 
@@ -5792,7 +6187,6 @@ describe('relations', function() {
     var categoryId;
 
     before(function(done) {
-      db = getSchema();
       Category = db.define('Category', {name: String});
       Job = db.define('Job', {name: String});
 
@@ -5890,10 +6284,6 @@ describe('relations', function() {
   });
 
   describe('relation names', function() {
-    before(function() {
-      db = getSchema();
-    });
-
     it('throws error when a relation name is `trigger`', function() {
       Chapter = db.define('Chapter', {name: String});
 
