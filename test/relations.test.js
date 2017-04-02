@@ -2507,6 +2507,22 @@ describe('relations', function() {
         });
       });
     });
+
+    it('should use author_pictures as modelThrough', function(done) {
+      Author.hasAndBelongsToMany(Picture, {throughTable: 'author_pictures'});
+      Author.relations['pictures'].toJSON().should.eql({
+        name: 'pictures',
+        type: 'hasMany',
+        modelFrom: 'Author',
+        keyFrom: 'id',
+        modelTo: 'Picture',
+        keyTo: 'authorId',
+        multiple: true,
+        modelThrough: 'author_pictures',
+        keyThrough: 'pictureId',
+      });
+      done();
+    });
   });
 
   describe('belongsTo', function() {
