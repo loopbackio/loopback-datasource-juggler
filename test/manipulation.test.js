@@ -752,7 +752,18 @@ describe('manipulation', function() {
       Todo = db.define('Todo', {
         content: String,
       });
-      db.automigrate(['Post', 'Todo'], done);
+      // Here `Person` model overrides the one outside 'updataOrCreate'
+      // with forceId: false. Related test cleanup see issue:
+      // https://github.com/strongloop/loopback-datasource-juggler/issues/1317
+      Person = db.define('Person', {
+        name: String,
+        gender: String,
+        married: Boolean,
+        age: {type: Number, index: true},
+        dob: Date,
+        createdAt: {type: Date, default: Date},
+      }, {forceId: false});
+      db.automigrate(['Post', 'Todo', 'Person'], done);
     });
 
     beforeEach(function deleteModelsInstances(done) {
@@ -899,6 +910,61 @@ describe('manipulation', function() {
           if (err) return done(err);
           inst.save(done);
         });
+    });
+  });
+
+  describe('updateOrCreate when forceId is true', function() {
+    var Post;
+    before(function definePostModel(done) {
+      var ds = getSchema();
+      Post = ds.define('Post', {
+        title: {type: String, length: 255},
+        content: {type: String},
+      }, {forceId: true});
+      ds.automigrate('Post', done);
+    });
+
+    it('fails when id does not exist in db & validate is true', function(done) {
+      var unknownId = uid.fromConnector(db) || 123;
+      var post = {id: unknownId, title: 'a', content: 'AAA'};
+      Post.updateOrCreate(post, {validate: true}, (err) => {
+        err.statusCode.should.equal(404);
+        done();
+      });
+    });
+
+    it('fails when id does not exist in db & validate is false', function(done) {
+      var unknownId = uid.fromConnector(db) || 123;
+      var post = {id: unknownId, title: 'a', content: 'AAA'};
+      Post.updateOrCreate(post, {validate: false}, (err) => {
+        err.statusCode.should.equal(404);
+        done();
+      });
+    });
+
+    it('works on create if the request does not include an id', function(done) {
+      var post = {title: 'a', content: 'AAA'};
+      Post.updateOrCreate(post, (err, p) => {
+        if (err) return done(err);
+        p.title.should.equal(post.title);
+        p.content.should.equal(post.content);
+        done();
+      });
+    });
+
+    it('works on update if the request includes an existing id in db', function(done) {
+      Post.create({title: 'a', content: 'AAA'}, (err, post) => {
+        if (err) return done(err);
+        post = post.toObject();
+        delete post.content;
+        post.title = 'b';
+        Post.updateOrCreate(post, function(err, p) {
+          if (err) return done(err);
+          p.id.should.equal(post.id);
+          p.title.should.equal('b');
+          done();
+        });
+      });
     });
   });
 
