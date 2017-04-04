@@ -1,3 +1,11 @@
+2017-04-04, Version 3.4.1
+=========================
+
+ * Use dataSource.connect to avoid duplicate connects (Raymond Feng)
+
+ * remove equality value for user defined id (#1293) (Matteo Padovano)
+
+
 2017-04-04, Version 3.4.0
 =========================
 
