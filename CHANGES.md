@@ -1,3 +1,9 @@
+2017-04-04, Version 3.4.0
+=========================
+
+ * Fix in-mem connector file operation racing condition (Raymond Feng)
+
+
 2017-03-31, Version 3.3.0
 =========================
 
