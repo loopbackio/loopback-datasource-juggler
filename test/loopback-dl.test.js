@@ -260,6 +260,47 @@ describe('ModelBuilder', function() {
     follow.should.have.property('id');
     assert.deepEqual(follow.id, {followerId: 1, followeeId: 2});
   });
+
+  it('instantiates model from data with no constructor', function(done) {
+    var modelBuilder = new ModelBuilder();
+
+    var User = modelBuilder.define('User', {name: String, age: Number});
+
+    try {
+      var data = Object.create(null);
+      data.name = 'Joe';
+      data.age = 20;
+      var user = new User(data);
+      assert(true, 'The code is expected to pass');
+    } catch (e) {
+      assert(false, 'The code should have not thrown an error');
+    }
+    done();
+  });
+
+  it('instantiates model from data with non function constructor', function(done) {
+    var modelBuilder = new ModelBuilder();
+
+    var User = modelBuilder.define('User', {name: String, age: Number});
+
+    try {
+      var Person = function(name, age) {
+        this.name = name;
+        this.age = age;
+      };
+
+      Person.prototype.constructor = 'constructor';
+
+      var data = new Person('Joe', 20);
+
+      var user = new User(data);
+      assert(false, 'The code should have thrown an error');
+    } catch (e) {
+      e.message.should.equal('Property name "constructor" is not allowed in User data');
+      assert(true, 'The code is expected to throw an error');
+    }
+    done();
+  });
 });
 
 describe('DataSource ping', function() {
