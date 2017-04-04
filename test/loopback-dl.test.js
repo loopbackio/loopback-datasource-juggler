@@ -275,7 +275,7 @@ describe('ModelBuilder', function() {
     } catch (e) {
       assert(false, 'The code should have not thrown an error');
     }
-    done(null, User);
+    done();
   });
 
   it('instantiates model from data with non function constructor', function(done) {
@@ -299,7 +299,7 @@ describe('ModelBuilder', function() {
       e.message.should.equal('Property name "constructor" is not allowed in User data');
       assert(true, 'The code is expected to throw an error');
     }
-    done(null, User);
+    done();
   });
 });
 
