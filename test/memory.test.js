@@ -37,7 +37,7 @@ describe('Memory connector', function() {
     var ds;
 
     function createUserModel() {
-      ds = new DataSource({
+      var ds = new DataSource({
         connector: 'memory',
         file: file,
       });
@@ -62,6 +62,7 @@ describe('Memory connector', function() {
 
     before(function() {
       User = createUserModel();
+      ds = User.dataSource;
     });
 
     it('should allow multiple connects', function(done) {
@@ -92,9 +93,10 @@ describe('Memory connector', function() {
      * newly created ones.
      */
     it('should not have out of sequence read/write', function(done) {
-      ds.connected = false;
-      ds.connector.connected = false; // Change the state to force reconnect
-      ds.connector.cache = {};
+      // Create the new data source with the same file to simulate
+      // existing records
+      var User = createUserModel();
+      var ds = User.dataSource;
 
       async.times(10, function(n, next) {
         if (n === 10) {
@@ -121,17 +123,21 @@ describe('Memory connector', function() {
     });
 
     it('should persist delete', function(done) {
-      // Now try to delete one
-      User.deleteById(ids[0], function(err) {
-        if (err) {
-          return done(err);
-        }
-        readModels(function(err, json) {
+      // Force the data source to reconnect so that the updated records
+      // are reloaded
+      ds.disconnect(function() {
+        // Now try to delete one
+        User.deleteById(ids[0], function(err) {
           if (err) {
             return done(err);
           }
-          assert.equal(Object.keys(json.models.User).length, 4);
-          done();
+          readModels(function(err, json) {
+            if (err) {
+              return done(err);
+            }
+            assert.equal(Object.keys(json.models.User).length, 4);
+            done();
+          });
         });
       });
     });
