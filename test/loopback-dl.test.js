@@ -296,6 +296,7 @@ describe('ModelBuilder', function() {
       var user = new User(data);
       assert(false, 'The code should have thrown an error');
     } catch (e) {
+      e.message.should.equal('Property name "constructor" is not allowed in User data');
       assert(true, 'The code is expected to throw an error');
     }
     done(null, User);
