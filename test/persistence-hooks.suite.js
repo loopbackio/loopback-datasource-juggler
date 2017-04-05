@@ -363,10 +363,10 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           });
       });
 
-      it('aborts when `after save` fires when option to notify is false', function (done) {
+      it('aborts when `after save` fires when option to notify is false', function(done) {
         monitorHookExecution();
 
-        TestModel.create({ name: 'created' }, { notify: false }, function (err, record, created) {
+        TestModel.create({name: 'created'}, {notify: false}, function(err, record, created) {
           if (err) return done(err);
 
           hookMonitor.names.should.not.containEql('after save');
@@ -2213,17 +2213,17 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           });
       });
 
-      it('aborts when `after save` fires on update or create when option to notify is false', function (done) {
+      it('aborts when `after save` fires on update or create when option to notify is false', function(done) {
         monitorHookExecution();
 
-        TestModel.updateOrCreate({ name: 'created' }, { notify: false }, function (err, record, created) {
+        TestModel.updateOrCreate({name: 'created'}, {notify: false}, function(err, record, created) {
           if (err) return done(err);
 
           hookMonitor.names.should.not.containEql('after save');
           done();
         });
       });
-   
+
       it('triggers `after save` hook on create', function(done) {
         TestModel.observe('after save', ctxRecorder.recordAndNext());
 
