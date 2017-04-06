@@ -38,7 +38,6 @@ describe('basic-querying', function() {
           name: String,
         },
       ],
-      addressLoc: {type: 'GeoPoint'},
     });
 
     db.automigrate(done);
@@ -554,147 +553,6 @@ describe('basic-querying', function() {
       });
     });
 
-    describe('geo queries', function() {
-      describe('near filter', function() {
-        it('supports a basic "near" query', function(done) {
-          User.find({
-            where: {
-              addressLoc: {
-                near: '29.9,-90.07',
-              },
-            },
-          }, function(err, users) {
-            if (err) done(err);
-            users.should.have.property('length', 3);
-            users[0].name.should.equal('John Lennon');
-            users[0].addressLoc.should.not.be.null();
-            done();
-          });
-        });
-
-        it('supports "near" inside a coumpound query with "and"', function(done) {
-          User.find({
-            where: {
-              and: [
-                {
-                  addressLoc: {
-                    near: '29.9,-90.07',
-                  },
-                },
-                {
-                  vip: true,
-                },
-              ],
-            },
-          }, function(err, users) {
-            if (err) done(err);
-            users.should.have.property('length', 2);
-            users[0].name.should.equal('John Lennon');
-            users[0].addressLoc.should.not.be.null();
-            users[0].vip.should.be.true();
-            done();
-          });
-        });
-
-        it('supports "near" inside a complex coumpound query with multiple "and"', function(done) {
-          User.find({
-            where: {
-              and: [
-                {
-                  and: [
-                    {
-                      addressLoc: {
-                        near: '29.9,-90.07',
-                      },
-                    },
-                    {
-                      order: 2,
-                    },
-                  ],
-                },
-                {
-                  vip: true,
-                },
-              ],
-            },
-          }, function(err, users) {
-            if (err) done(err);
-            users.should.have.property('length', 1);
-            users[0].name.should.equal('John Lennon');
-            users[0].addressLoc.should.not.be.null();
-            users[0].vip.should.be.true();
-            users[0].order.should.equal(2);
-            done();
-          });
-        });
-
-        it('supports multiple "near" queries with "or"', function(done) {
-          User.find({
-            where: {
-              or: [
-                {
-                  addressLoc: {
-                    near: '29.9,-90.04',
-                    maxDistance: 300,
-                  },
-                },
-                {
-                  addressLoc: {
-                    near: '22.97,-88.03',
-                    maxDistance: 50,
-                  },
-                },
-              ],
-            },
-          }, function(err, users) {
-            if (err) done(err);
-            users.should.have.property('length', 2);
-            users[0].addressLoc.should.not.be.null();
-            users[0].name.should.equal('Paul McCartney');
-            users[1].addressLoc.should.not.equal(null);
-            users[1].name.should.equal('John Lennon');
-            done();
-          });
-        });
-
-        it('supports multiple "near" queries with "or" ' +
-          'inside a coumpound query with "and"', function(done) {
-          User.find({
-            where: {
-              and: [
-                {
-                  or: [
-                    {
-                      addressLoc: {
-                        near: '29.9,-90.04',
-                        maxDistance: 300,
-                      },
-                    },
-                    {
-                      addressLoc: {
-                        near: '22.7,-89.03',
-                        maxDistance: 50,
-                      },
-                    },
-                  ],
-                },
-                {
-                  vip: true,
-                },
-              ],
-            },
-          }, function(err, users) {
-            if (err) done(err);
-            users.should.have.property('length', 1);
-            users[0].addressLoc.should.not.be.null();
-            users[0].name.should.equal('John Lennon');
-            users[0].vip.should.be.true();
-            done();
-          });
-        });
-      });
-    });
-
     it('should only include fields as specified', function(done) {
       var remaining = 0;
 
@@ -732,9 +590,8 @@ describe('basic-querying', function() {
       }
 
       sample({name: true}).expect(['name']);
-      sample({name: false}).expect([
-        'id', 'seq', 'email', 'role', 'order', 'birthday', 'vip', 'address', 'friends', 'addressLoc',
-      ]);
+      sample({name: false}).expect(['id', 'seq', 'email', 'role', 'order', 'birthday', 'vip',
+        'address', 'friends']);
       sample({name: false, id: true}).expect(['id']);
       sample({id: true}).expect(['id']);
       sample('id').expect(['id']);
@@ -1148,7 +1005,6 @@ function seed(done) {
         {name: 'George Harrison'},
         {name: 'Ringo Starr'},
       ],
-      addressLoc: {lat: 29.97, lng: -90.03},
     },
     {
       seq: 1,
@@ -1169,15 +1025,8 @@ function seed(done) {
         {name: 'George Harrison'},
         {name: 'Ringo Starr'},
       ],
-      addressLoc: {lat: 22.97, lng: -88.03},
     },
-    {
-      seq: 2,
-      name: 'George Harrison',
-      order: 5,
-      vip: false,
-      addressLoc: {lat: 22.7, lng: -89.03},
-    },
+    {seq: 2, name: 'George Harrison', order: 5, vip: false},
     {seq: 3, name: 'Ringo Starr', order: 6, vip: false},
     {seq: 4, name: 'Pete Best', order: 4},
     {seq: 5, name: 'Stuart Sutcliffe', order: 3, vip: true},
