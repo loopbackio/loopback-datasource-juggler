@@ -2859,7 +2859,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
             where: {id: existingInstance.id},
             instance: existingInstance,
-            info: { count: 1 }
+            info: {count: 1},
           }));
           done();
         });
@@ -2872,7 +2872,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           if (err) return done(err);
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
             where: {name: existingInstance.name},
-            info: { count: 1 }
+            info: {count: 1},
           }));
           done();
         });
@@ -2906,7 +2906,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             }),
             aCtxForModel(TestModel, {
               hookState: {foo: 'BAR'},
-              info: { count: 1 },
+              info: {count: 1},
               where: {id: '1'},
               instance: existingInstance,
             }),
@@ -3063,7 +3063,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
               where: {id: existingInstance.id},
               data: {name: 'updated name'},
-              info: { count: 1 }
+              info: {count: 1},
             }));
             done();
           });
