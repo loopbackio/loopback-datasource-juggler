@@ -5008,7 +5008,6 @@ describe('relations', function() {
     });
 
     it('should remove items from scope - and save parent', function(done) {
-      debugger;
       Category.findById(category.id, function(err, cat) {
         if (err) return done(err);
         cat.items.at(0).destroy(function(err, link) {
