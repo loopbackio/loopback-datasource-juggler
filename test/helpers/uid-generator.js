@@ -19,3 +19,8 @@ exports.last = function() {
 exports.reset = function() {
   lastId = 0;
 };
+
+exports.fromConnector = function(db) {
+  return (db && db.connector && db.connector.generateUniqueId) ?
+    db.connector.generateUniqueId() : null;
+};
