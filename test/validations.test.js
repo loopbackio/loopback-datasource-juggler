@@ -43,11 +43,13 @@ describe('validations', function() {
       createdByScript: Boolean,
       updatedAt: Date,
     });
+
     Entry = db.define('Entry', {
       id: {type: 'string', id: true, generated: false},
       name: {type: 'string'},
     });
     Entry.validatesUniquenessOf('id');
+
     db.automigrate(done);
   });
 
