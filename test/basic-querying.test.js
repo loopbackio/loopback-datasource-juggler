@@ -16,8 +16,7 @@ var db, User;
 
 describe('basic-querying', function() {
   before(function(done) {
-    db = getSchema();
-    User = db.define('User', {
+    var userModelDef = {
       seq: {type: Number, index: true},
       name: {type: String, index: true, sort: true},
       email: {type: String, index: true},
@@ -41,9 +40,19 @@ describe('basic-querying', function() {
           name: String,
         },
       ],
-      addressLoc: {type: 'GeoPoint'},
-    });
+      addressLoc: {
+        lat: Number,
+        lng: Number,
+      },
+    };
 
+    db = getSchema();
+    // ibmdb connectors do not support loopback geopoint types
+    connectorCapabilities.geoPoint = (db.adapter.name != 'dashdb') && (db.adapter.name != 'db2') &&
+    (db.adapter.name != 'informix');
+    if (connectorCapabilities.geoPoint) userModelDef.addressLoc = {type: 'GeoPoint'};
+
+    User = db.define('User', userModelDef);
     db.automigrate(done);
   });
 
