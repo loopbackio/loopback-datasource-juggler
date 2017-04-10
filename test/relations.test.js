@@ -5008,12 +5008,11 @@ describe('relations', function() {
     });
 
     it('should remove items from scope - and save parent', function(done) {
-      debugger;
       Category.findById(category.id, function(err, cat) {
         if (err) return done(err);
         cat.items.at(0).destroy(function(err, link) {
           if (err) return done(err);
-          cat.links.should.have.lengthOf(0);
+          cat.links.should.eql([]);
           done();
         });
       });
@@ -5023,7 +5022,7 @@ describe('relations', function() {
       Category.findById(category.id, function(err, cat) {
         if (err) return done(err);
         cat.name.should.equal('Category B');
-        cat.links.should.have.lengthOf(0);
+        cat.links.should.eql([]);
         done();
       });
     });
@@ -5217,8 +5216,8 @@ describe('relations', function() {
         cat.jobIds.should.have.length(0);
         cat.jobs.create({name: 'Job 2'}, function(err, p) {
           if (err) return done(err);
-          cat.jobIds.should.have.lengthOf(1);
-          cat.jobIds[0].should.eql(p.id);
+          cat.jobIds.should.have.length(1);
+          cat.jobIds.should.eql([p.id]);
           p.name.should.equal('Job 2');
           job2 = p;
           done();
@@ -5240,8 +5239,7 @@ describe('relations', function() {
 
     it('should find items on scope', function(done) {
       Category.findOne(function(err, cat) {
-        cat.jobIds.should.have.lengthOf(1);
-        cat.jobIds[0].should.eql(job2.id);
+        cat.jobIds.should.eql([job2.id]);
         cat.jobs(function(err, jobs) {
           if (err) return done(err);
           var p = jobs[0];
@@ -5254,8 +5252,7 @@ describe('relations', function() {
 
     it('should find items on scope - findById', function(done) {
       Category.findOne(function(err, cat) {
-        cat.jobIds.should.have.lengthOf(1);
-        cat.jobIds[0].should.eql(job2.id);
+        cat.jobIds.should.eql([job2.id]);
         cat.jobs.findById(job2.id, function(err, p) {
           if (err) return done(err);
           p.should.be.instanceof(Job);
@@ -5400,8 +5397,10 @@ describe('relations', function() {
       Category.findOne(function(err, cat) {
         cat.jobs.reverse(function(err, ids) {
           var expected = [job3.id, job2.id];
-          ids.should.eql(expected);
-          cat.jobIds.should.eql(expected);
+          ids[0].should.eql(expected[0]);
+          ids[1].should.eql(expected[1]);
+          cat.jobIds[0].should.eql(expected[0]);
+          cat.jobIds[1].should.eql(expected[1]);
           done();
         });
       });
@@ -5438,8 +5437,8 @@ describe('relations', function() {
       Category.findOne(function(err, cat) {
         cat.jobs.destroy(job2.id, function(err) {
           if (err) return done(err);
-          cat.jobIds.should.have.lengthOf(1);
-          cat.jobIds[0].should.eql(job3.id);
+          var expected = [job3.id];
+          cat.jobIds.should.eql(expected);
           Job.exists(job2.id, function(err, exists) {
             if (err) return done(err);
             should.exist(exists);
@@ -5452,8 +5451,8 @@ describe('relations', function() {
 
     it('should find items on scope - verify', function(done) {
       Category.findOne(function(err, cat) {
-        cat.jobIds.should.have.lengthOf(1);
-        cat.jobIds[0].should.eql(job3.id);
+        var expected = [job3.id];
+        cat.jobIds.should.eql(expected);
         cat.jobs(function(err, jobs) {
           if (err) return done(err);
           jobs.should.have.length(1);
@@ -5485,7 +5484,7 @@ describe('relations', function() {
         return cat.jobs.create({name: 'Job 2'})
         .then(function(p) {
           cat.jobIds.should.have.length(1);
-          cat.jobIds[0].should.eql(p.id);
+          cat.jobIds.should.eql([p.id]);
           p.name.should.equal('Job 2');
           job2 = p;
           done();
@@ -5545,8 +5544,7 @@ describe('relations', function() {
     it('should find items on scope with promises - findById', function(done) {
       Category.findOne()
       .then(function(cat) {
-        cat.jobIds.should.have.lengthOf(1);
-        cat.jobIds[0].should.eql(job2.id);
+        cat.jobIds.should.eql([job2.id]);
         return cat.jobs.findById(job2.id);
       })
       .then(function(p) {
@@ -5601,9 +5599,7 @@ describe('relations', function() {
       .then(function(cat) {
         return cat.jobs.add(job1)
         .then(function(prod) {
-          var expected = [job2.id, job1.id];
-          cat.jobIds.should.have.lengthOf(expected.length);
-          cat.jobIds.should.containDeep(expected);
+          cat.jobIds.should.eql([job2.id, job1.id]);
           prod.id.should.eql(job1.id);
           prod.should.have.property('name');
           done();
@@ -5618,8 +5614,7 @@ describe('relations', function() {
         return cat.jobs.add(job3.id)
         .then(function(prod) {
           var expected = [job2.id, job1.id, job3.id];
-          cat.jobIds.should.have.lengthOf(expected.length);
-          cat.jobIds.should.containDeep(expected);
+          cat.jobIds.should.eql(expected);
           prod.id.should.eql(job3.id);
           prod.should.have.property('name');
           done();
@@ -5663,8 +5658,7 @@ describe('relations', function() {
         return cat.jobs.remove(job1.id)
         .then(function(ids) {
           var expected = [job2.id, job3.id];
-          cat.jobIds.should.have.lengthOf(expected.length);
-          cat.jobIds.should.containDeep(expected);
+          cat.jobIds.should.eql(expected);
           cat.jobIds.should.eql(ids);
           done();
         });
@@ -5676,8 +5670,7 @@ describe('relations', function() {
       Category.findOne()
       .then(function(cat) {
         var expected = [job2.id, job3.id];
-        cat.jobIds.should.have.lengthOf(expected.length);
-        cat.jobIds.should.containDeep(expected);
+        cat.jobIds.should.eql(expected);
         return cat.jobs.getAsync();
       })
       .then(function(jobs) {
@@ -5712,6 +5705,21 @@ describe('relations', function() {
         return cat.jobs.reverse()
         .then(function(ids) {
           var expected = [job3.id, job2.id];
+          cat.jobIds.should.eql(expected);
+          cat.jobIds.should.eql(ids);
+          done();
+        });
+      })
+      .catch(done);
+    });
+
+    bdd.itIf(connectorCapabilities.adhocSort === false,
+    'should allow custom scope methods with promises - reverse', function(done) {
+      Category.findOne()
+      .then(function(cat) {
+        return cat.jobs.reverse()
+        .then(function(ids) {
+          var expected = [job3.id, job2.id];
           ids.should.eql(expected);
           cat.jobIds.should.eql(expected);
           done();
@@ -5735,17 +5743,29 @@ describe('relations', function() {
       }).catch(done);
     });
 
+    bdd.itIf(connectorCapabilities.adhocSort === false &&
+    connectorCapabilities.supportInclude !== false,
+    'should include related items from scope with promises', function(done) {
+      Category.find({include: 'jobs'})
+      .then(function(categories) {
+        categories.should.have.length(1);
+        var cat = categories[0].toObject();
+        cat.name.should.equal('Category A');
+        cat.jobIds.should.have.length(2);
+        var theExpectedIds = [job1.id, job2.id, job3.id];
+        cat.jobIds[0].id.should.be.oneOf(theExpectedIds);
+        cat.jobIds[1].id.should.be.oneOf(theExpectedIds);
+        done();
+      }).catch(done);
+    });
+
     it('should destroy items from scope with promises - destroyById', function(done) {
       Category.findOne()
       .then(function(cat) {
         return cat.jobs.destroy(job2.id)
         .then(function() {
           var expected = [job3.id];
-          if (connectorCapabilities.adhocSort !== false) {
-            cat.jobIds.should.eql(expected);
-          } else {
-            cat.jobIds.should.containDeep(expected);
-          }
+          cat.jobIds[0].should.eql(expected[0]);
           return Job.exists(job2.id);
         })
         .then(function(exists) {
@@ -5761,8 +5781,7 @@ describe('relations', function() {
       Category.findOne()
       .then(function(cat) {
         var expected = [job3.id];
-        cat.jobIds.should.have.lengthOf(expected.length);
-        cat.jobIds.should.containDeep(expected);
+        cat.jobIds.should.eql(expected);
         return cat.jobs.getAsync();
       })
       .then(function(jobs) {
