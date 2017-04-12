@@ -47,9 +47,9 @@ describe('basic-querying', function() {
     };
 
     db = getSchema();
-    // ibmdb connectors do not support loopback geopoint types
+    // connectors that do not support geo-point types
     connectorCapabilities.geoPoint = (db.adapter.name != 'dashdb') && (db.adapter.name != 'db2') &&
-    (db.adapter.name != 'informix');
+    (db.adapter.name != 'informix') && (db.adapter.name != 'cassandra');
     if (connectorCapabilities.geoPoint) userModelDef.addressLoc = {type: 'GeoPoint'};
 
     User = db.define('User', userModelDef);
