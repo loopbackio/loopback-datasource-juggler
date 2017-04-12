@@ -1380,7 +1380,6 @@ describe('relations', function() {
 
     describe('when custom reverse belongsTo name for one side only', function() {
       beforeEach(function() {
-        db = getSchema();
         Physician.hasMany(Patient, {as: 'xxx', through: Appointment, foreignKey: 'fooId'});
         Patient.hasMany(Physician, {as: 'yyy', through: Appointment, keyThrough: 'fooId'});
         Appointment.belongsTo(Physician, {as: 'foo'});
@@ -2876,7 +2875,7 @@ describe('relations', function() {
       var p = new Passport({name: 'Passport', notes: 'Some notes...'});
       p.person.create({name: 'Fred', age: 36}, function(err, person) {
         personCreated = person;
-        p.personId.should.eql(person.id);
+        p.personId.toString().should.eql(person.id.toString());
         person.name.should.equal('Fred');
         person.passportNotes.should.equal('Some notes...');
         p.save(function(err, passport) {
@@ -2888,7 +2887,7 @@ describe('relations', function() {
 
     it('should find record on scope', function(done) {
       Passport.findOne(function(err, p) {
-        should.equal(p.personId, personCreated.id);
+        p.personId.toString().should.eql(personCreated.id.toString());
         p.person(function(err, person) {
           person.name.should.equal('Fred');
           person.should.have.property('age', undefined);
@@ -5133,7 +5132,7 @@ describe('relations', function() {
       });
     });
 
-    bdd.itIf(connectorCapabilities.supportInclude !== false,
+    bdd.itIf(connectorCapabilities.supportInclude === true,
     'should include nested related items on scope', function(done) {
       // There's some date duplication going on, so it might
       // make sense to override toObject on a case-by-case basis
@@ -5420,7 +5419,7 @@ describe('relations', function() {
       });
     });
 
-    bdd.itIf(connectorCapabilities.supportInclude !== false,
+    bdd.itIf(connectorCapabilities.supportInclude === true,
     'should include related items from scope', function(done) {
       Category.find({include: 'jobs'}, function(err, categories) {
         categories.should.have.length(1);
@@ -5719,8 +5718,8 @@ describe('relations', function() {
       .catch(done);
     });
 
-    bdd.itIf(connectorCapabilities.adhocSort !== false &&
-    connectorCapabilities.supportInclude !== false,
+    bdd.itIf(connectorCapabilities.adhocSort === true &&
+    connectorCapabilities.supportInclude === true,
     'should include related items from scope with promises', function(done) {
       Category.find({include: 'jobs'})
       .then(function(categories) {
@@ -5875,6 +5874,10 @@ describe('relations', function() {
   });
 
   describe('relation names', function() {
+    before(function() {
+      db = getSchema();
+    });
+
     it('throws error when a relation name is `trigger`', function() {
       Chapter = db.define('Chapter', {name: String});
 
