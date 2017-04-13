@@ -4987,7 +4987,10 @@ describe('relations', function() {
       Category.findById(category.id, function(err, cat) {
         if (err) return done(err);
         var link = cat.items.at(0);
-        link.updateAttributes({notes: 'Updated notes...'}, function(err, link) {
+        // use 'updateById' instead as a replacement as it is one of the embedsMany methods,
+        // that works with all connectors. `updateAttributes` does not recognize the query done on
+        // the Category Model, resulting with an error in three connectors: mssql, oracle, postgresql
+        cat.items.updateById(link.id, {notes: 'Updated notes...'}, function(err, link) {
           if (err) return done(err);
           link.notes.should.equal('Updated notes...');
           done();
