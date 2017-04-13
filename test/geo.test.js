@@ -147,8 +147,8 @@ describe('GeoPoint', function() {
         },
       };
       var filter = nearFilter(where);
-      filter.key.should.equal('location');
-      filter.should.have.properties({
+      filter[0].key.should.equal('location');
+      filter[0].should.have.properties({
         key: 'location',
         near: {
           lat: 40.77492964101182,
@@ -187,7 +187,7 @@ describe('GeoPoint', function() {
           lng: 121.483687,
         },
       }];
-      var filter = {
+      var filter = [{
         key: 'location',
         near: {
           lat: 30.278562,
@@ -195,7 +195,7 @@ describe('GeoPoint', function() {
         },
         unit: 'meters',
         minDistance: 10000,
-      };
+      }];
       var results = geoFilter(points, filter);
       results.length.should.be.equal(3);
     });
