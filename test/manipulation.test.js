@@ -855,7 +855,12 @@ describe('manipulation', function() {
         });
     });
 
-    it.skip('updates specific instances when PK is not an auto-generated id', function(done) {
+    it('updates specific instances when PK is not an auto-generated id', function(done) {
+      // skip the test if the connector is mssql
+      // https://github.com/strongloop/loopback-connector-mssql/pull/92#r72853474
+      var dsName = Post.dataSource.name;
+      if (dsName === 'mssql') return done();
+
       Post.create([
         {title: 'postA', content: 'contentA'},
         {title: 'postB', content: 'contentB'},
