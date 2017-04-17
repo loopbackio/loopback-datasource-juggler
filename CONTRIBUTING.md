@@ -11,8 +11,20 @@ Contributing to `loopback-datasource-juggler` is easy. In a few simple steps:
 
   * Make something better or fix a bug.
 
+  * If possible update existing or add a new unit test in the [test](tests/) directory
+
   * Adhere to code style outlined in the [Google C++ Style Guide][] and
     [Google Javascript Style Guide][].
+
+  * Run lint to check adherence the style guide. Note this is also run at the end of the tests.
+    ```
+    npm run lint
+    ```
+
+  * Run tests and verify that they pass, or any that fail already failed before you introduced your change.
+    ```
+    npm run test
+    ```
 
   * Sign the [Contributor License Agreement](https://cla.strongloop.com/agreements/strongloop/loopback-datasource-juggler)
 
