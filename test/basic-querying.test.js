@@ -334,6 +334,30 @@ describe('basic-querying', function() {
       });
     });
 
+    it('should support where date "neq" null', function(done) {
+      User.find({where: {birthday: {'neq': null},
+      }}, function(err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 2);
+        users[0].name.should.equal('John Lennon');
+        users[1].name.should.equal('Paul McCartney');
+        done();
+      });
+    });
+
+    it('should support where date is null', function(done) {
+      User.find({where: {birthday: null,
+      }}, function(err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 4);
+        users[0].name.should.equal('George Harrison');
+        users[1].name.should.equal('Ringo Starr');
+        users[2].name.should.equal('Pete Best');
+        users[3].name.should.equal('Stuart Sutcliffe');
+        done();
+      });
+    });
+
     it('should support date "gte" that is satisfied', function(done) {
       User.find({where: {birthday: {'gte': new Date('1980-12-08')},
       }}, function(err, users) {
