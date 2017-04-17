@@ -1,3 +1,41 @@
+2017-04-17, Version 3.5.0
+=========================
+
+ * Add instructions for running the tests (#1330) (Andrew McDonnell)
+
+ * handle deep geo-near queries (#1314) (Eric Barault)
+
+ * Unskip test case (Loay)
+
+ * Make tests work for other connectors as well as C* (Tetsuo Seto)
+
+ * Remove debugger statement (Tetsuo Seto)
+
+ * Fixup test support for Cassandra connector (Tetsuo Seto)
+
+ * Add test support for Cassandra connector (Tetsuo Seto)
+
+ * package: use loopback-connector@^4.0.0 (Kevin Delisle)
+
+ * Revert "handle deep geo-near queries (#1216)" (Sakib Hasan)
+
+ * Revert "Allow `after save` hook to see count of records changed (#1231)" (Sakib Hasan)
+
+ * Allow `after save` hook to see count of records changed (#1231) (Joshua Chaitin-Pollak)
+
+ * handle deep geo-near queries (#1216) (Corentin H)
+
+ * Fix model def column name method (#1224) (destillat)
+
+ * Added notify flag for create and upsert (#1277) (Jonathan Sheely)
+
+ * Custom Table Names on rels (#1303) (Waldemar Zahn)
+
+ * Support multiple fk relations (#1308) (Sakib Hasan)
+
+ * #1261 Property name "constructor" is not allowed in 'Model' data (#1284) (Thaer Abbas)
+
+
 2017-04-04, Version 3.4.1
 =========================
 
