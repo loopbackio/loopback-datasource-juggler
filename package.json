@@ -4,7 +4,7 @@
   "publishConfig": {
     "export-tests": true
   },
-  "description": "LoopBack DataSoure Juggler",
+  "description": "LoopBack DataSource Juggler",
   "keywords": [
     "StrongLoop",
     "LoopBack",
