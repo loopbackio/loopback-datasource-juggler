@@ -156,21 +156,12 @@ describe('basic-querying', function() {
     it('should query by ids and null condition', function(done) {
       User.findByIds([
         createdUsers[0].id,
-        createdUsers[1].id,
-        createdUsers[2].id,
-        createdUsers[3].id],
+        createdUsers[1].id],
         {where: {vip: null}}, function(err, users) {
           should.exist(users);
           should.not.exist(err);
-          var names = users.map(function(u) {
-            return u.name;
-          });
-          names.should.eql(createdUsers.slice(0, 4).
-            filter(function(u) {
-              return !u.vip;
-            }).map(function(u) {
-              return u.name;
-            }));
+          users.length.should.eql(1);
+          users[0].name.should.eql(createdUsers[1].name);
           done();
         });
     });
