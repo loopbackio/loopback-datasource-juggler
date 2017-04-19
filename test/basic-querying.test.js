@@ -613,6 +613,19 @@ describe('basic-querying', function() {
 
     describe('geo queries', function() {
       describe('near filter', function() {
+        it('supports a near query with null condition', function(done) {
+          User.find({fields: {name: true, addressLoc: true}}, function(err, users) {
+            if (err) done(err);
+            var usersWithoutAddressLoc = [];
+            users.forEach(function(user) {
+              if (!user.addressLoc || user.addressLoc === null)
+                usersWithoutAddressLoc.push(user);
+            });
+            should.exist(usersWithoutAddressLoc);
+            usersWithoutAddressLoc.length.should.eql(3);
+            done();
+          });
+        });
         it('supports a basic "near" query', function(done) {
           User.find({
             where: {
