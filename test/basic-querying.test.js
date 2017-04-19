@@ -158,8 +158,8 @@ describe('basic-querying', function() {
         createdUsers[0].id,
         createdUsers[1].id],
         {where: {vip: null}}, function(err, users) {
-          should.exist(users);
           should.not.exist(err);
+          should.exist(users);
           users.length.should.eql(1);
           users[0].name.should.eql(createdUsers[1].name);
           done();
