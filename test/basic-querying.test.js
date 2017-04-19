@@ -153,9 +153,9 @@ describe('basic-querying', function() {
           done();
         });
     });
-    it('should query by ids and null condition', function(done) {
+    it('should query by ids to check null/undefined property', function(done) {
       // due to some connectors not being assigning null value by default
-      // the query is filtered by the fields which may consist null value
+      // the query is filtered by the fields which may consist in null value
       // or not exist at all
       User.findByIds([
         createdUsers[0].id,
@@ -613,19 +613,6 @@ describe('basic-querying', function() {
 
     describe('geo queries', function() {
       describe('near filter', function() {
-        it('supports a near query with null condition', function(done) {
-          User.find({fields: {name: true, addressLoc: true}}, function(err, users) {
-            if (err) done(err);
-            var usersWithoutAddressLoc = [];
-            users.forEach(function(user) {
-              if (!user.addressLoc || user.addressLoc === null)
-                usersWithoutAddressLoc.push(user);
-            });
-            should.exist(usersWithoutAddressLoc);
-            usersWithoutAddressLoc.length.should.eql(3);
-            done();
-          });
-        });
         it('supports a basic "near" query', function(done) {
           User.find({
             where: {
@@ -638,6 +625,20 @@ describe('basic-querying', function() {
             users.should.have.property('length', 3);
             users[0].name.should.equal('John Lennon');
             users[0].addressLoc.should.not.be.null();
+            done();
+          });
+        });
+
+        it('supports a compound near query to check null/undefined property', function(done) {
+          User.find({fields: {name: true, addressLoc: true}}, function(err, users) {
+            if (err) done(err);
+            var usersWithoutAddressLoc = [];
+            users.forEach(function(user) {
+              if (!user.addressLoc || user.addressLoc === null)
+                usersWithoutAddressLoc.push(user);
+            });
+            should.exist(usersWithoutAddressLoc);
+            usersWithoutAddressLoc.length.should.eql(3);
             done();
           });
         });
