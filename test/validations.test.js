@@ -823,4 +823,78 @@ describe('validations', function() {
       return err.message.replace(/^.*Details: /, '');
     }
   });
+  describe('date', function() {
+    it('should validate a date object', function() {
+      User.validatesDateOf('updatedAt');
+      var u = new User({updatedAt: new Date()});
+      u.isValid().should.be.true;
+    });
+
+    it('should validate a date string', function() {
+      User.validatesDateOf('updatedAt');
+      var u = new User({updatedAt: '2000-01-01'});
+      u.isValid().should.be.true;
+    });
+
+    it('should validate a null date', function() {
+      User.validatesDateOf('updatedAt');
+      var u = new User({updatedAt: null});
+      u.isValid().should.be.true;
+    });
+
+    it('should validate an undefined date', function() {
+      User.validatesDateOf('updatedAt');
+      var u = new User({updatedAt: undefined});
+      u.isValid().should.be.true;
+    });
+
+    it('should validate an invalid date string', function() {
+      User.validatesDateOf('updatedAt');
+      var u = new User({updatedAt: 'invalid date string'});
+      u.isValid().should.not.be.true;
+      u.errors.should.eql({
+        updatedAt: ['is not a valid date'],
+        codes: {
+          updatedAt: ['date'],
+        },
+      });
+    });
+
+    it('should attach validation by default to all date properties', function() {
+      var AnotherUser = db.define('User', {
+        email: String,
+        name: String,
+        password: String,
+        state: String,
+        age: Number,
+        gender: String,
+        domain: String,
+        pendingPeriod: Number,
+        createdByAdmin: Boolean,
+        createdByScript: Boolean,
+        updatedAt: Date,
+      });
+      var u = new AnotherUser({updatedAt: 'invalid date string'});
+      u.isValid().should.not.be.true;
+      u.errors.should.eql({
+        updatedAt: ['is not a valid date'],
+        codes: {
+          updatedAt: ['date'],
+        },
+      });
+    });
+
+    it('should overwrite default blank message with custom format message', function() {
+      var CUSTOM_MESSAGE = 'custom validation message';
+      User.validatesDateOf('updatedAt', {message: CUSTOM_MESSAGE});
+      var u = new User({updatedAt: 'invalid date string'});
+      u.isValid().should.not.be.true;
+      u.errors.should.eql({
+        updatedAt: [CUSTOM_MESSAGE],
+        codes: {
+          updatedAt: ['date'],
+        },
+      });
+    });
+  });
 });
