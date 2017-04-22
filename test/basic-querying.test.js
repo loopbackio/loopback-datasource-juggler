@@ -100,7 +100,7 @@ describe('basic-querying', function() {
       db = getSchema();
       var people = [
         {name: 'a', vip: true},
-        {name: 'b'},
+        {name: 'b', vip: null},
         {name: 'c'},
         {name: 'd', vip: true},
         {name: 'e'},
@@ -153,23 +153,16 @@ describe('basic-querying', function() {
           done();
         });
     });
-    it('should query by ids to check null/undefined property', function(done) {
-      // due to some connectors not being assigning null value by default
-      // the query is filtered by the fields which may consist in null value
-      // or not exist at all
+
+    it('should query by ids to check null property', function(done) {
       User.findByIds([
         createdUsers[0].id,
         createdUsers[1].id],
-        {fields: {name: true, vip: true}}, function(err, users) {
-          var usersWithoutVip = [];
-          users.forEach(function(user) {
-            if (!user.vip || user.vip === null)
-              usersWithoutVip.push(user);
-          });
+        {where: {vip: null}}, function(err, users) {
           should.not.exist(err);
-          should.exist(usersWithoutVip);
-          usersWithoutVip.length.should.eql(1);
-          usersWithoutVip[0].name.should.eql(createdUsers[1].name);
+          should.exist(users);
+          users.length.should.eql(1);
+          users[0].name.should.eql(createdUsers[1].name);
           done();
         });
     });
@@ -625,20 +618,6 @@ describe('basic-querying', function() {
             users.should.have.property('length', 3);
             users[0].name.should.equal('John Lennon');
             users[0].addressLoc.should.not.be.null();
-            done();
-          });
-        });
-
-        it('supports a compound near query to check null/undefined property', function(done) {
-          User.find({fields: {name: true, addressLoc: true}}, function(err, users) {
-            if (err) done(err);
-            var usersWithoutAddressLoc = [];
-            users.forEach(function(user) {
-              if (!user.addressLoc || user.addressLoc === null)
-                usersWithoutAddressLoc.push(user);
-            });
-            should.exist(usersWithoutAddressLoc);
-            usersWithoutAddressLoc.length.should.eql(3);
             done();
           });
         });
