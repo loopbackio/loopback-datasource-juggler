@@ -286,8 +286,8 @@ describe('basic-querying', function() {
           assert.equal(order2.length, randomUsers2.length);
           // Though it is a possibility, but probability is very low.
           assert.notDeepEqual(order1, order2);
-          assert.deepEqual(order1.sort(), [1,2,3,4,5,6]);
-          assert.deepEqual(order2.sort(), [1,2,3,4,5,6]);
+          assert.deepEqual(order1.sort(), [1, 2, 3, 4, 5, 6]);
+          assert.deepEqual(order2.sort(), [1, 2, 3, 4, 5, 6]);
           done();
         });
       });
