@@ -154,7 +154,8 @@ describe('basic-querying', function() {
         });
     });
 
-    it('should query by ids to check null property', function(done) {
+    bdd.itIf(connectorCapabilities.nullDataValueExists !== false,
+    'should query by ids to check null property', function(done) {
       User.findByIds([
         createdUsers[0].id,
         createdUsers[1].id],
