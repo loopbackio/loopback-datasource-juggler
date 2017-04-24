@@ -11,6 +11,7 @@ var async = require('async');
 var bdd = require('./helpers/bdd-if');
 var should = require('./init.js');
 var uid = require('./helpers/uid-generator');
+var assert = require('assert');
 
 var db, User;
 
@@ -271,6 +272,24 @@ describe('basic-querying', function() {
         var order = users.map(function(u) { return u.order; });
         order.should.eql([6, 5, 4, 3, 2, 1]);
         done();
+      });
+    });
+
+    it('should support order with random sorting', function(done) {
+      User.find({order: 'rand'}, function(err, randomUsers1) {
+        should.not.exist(err);
+        var order1 = randomUsers1.map(function(u) { return u.order; });
+        assert.equal(order1.length, randomUsers1.length);
+        User.find({order: 'rand'}, function(err, randomUsers2) {
+          should.not.exist(err);
+          var order2 = randomUsers2.map(function(u) { return u.order; });
+          assert.equal(order2.length, randomUsers2.length);
+          // Though it is a possibility, but probability is very low.
+          assert.notDeepEqual(order1, order2);
+          assert.deepEqual(order1.sort(), [1,2,3,4,5,6]);
+          assert.deepEqual(order2.sort(), [1,2,3,4,5,6]);
+          done();
+        });
       });
     });
 
