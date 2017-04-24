@@ -100,7 +100,7 @@ describe('basic-querying', function() {
       db = getSchema();
       var people = [
         {name: 'a', vip: true},
-        {name: 'b'},
+        {name: 'b', vip: null},
         {name: 'c'},
         {name: 'd', vip: true},
         {name: 'e'},
@@ -150,6 +150,20 @@ describe('basic-querying', function() {
             }).map(function(u) {
               return u.name;
             }));
+          done();
+        });
+    });
+
+    bdd.itIf(connectorCapabilities.nullDataValueExists !== false,
+    'should query by ids to check null property', function(done) {
+      User.findByIds([
+        createdUsers[0].id,
+        createdUsers[1].id],
+        {where: {vip: null}}, function(err, users) {
+          should.not.exist(err);
+          should.exist(users);
+          users.length.should.eql(1);
+          users[0].name.should.eql(createdUsers[1].name);
           done();
         });
     });
