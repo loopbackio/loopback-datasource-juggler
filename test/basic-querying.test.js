@@ -334,6 +334,30 @@ describe('basic-querying', function() {
       });
     });
 
+    bdd.itIf(connectorCapabilities.nullDataValueExists !== false,
+    'should support where date "neq" null', function(done) {
+      User.find({where: {birthday: {'neq': null},
+      }}, function(err, users) {
+        should.not.exist(err);
+        should.exist(users);
+        users.should.have.property('length', 2);
+        users[0].name.should.equal('John Lennon');
+        users[1].name.should.equal('Paul McCartney');
+        done();
+      });
+    });
+
+    bdd.itIf(connectorCapabilities.nullDataValueExists !== false,
+    'should support where date is null', function(done) {
+      User.find({where: {birthday: null,
+      }}, function(err, users) {
+        should.not.exist(err);
+        should.exist(users);
+        users.should.have.property('length', 4);
+        done();
+      });
+    });
+
     it('should support date "gte" that is satisfied', function(done) {
       User.find({where: {birthday: {'gte': new Date('1980-12-08')},
       }}, function(err, users) {
@@ -1227,13 +1251,14 @@ function seed(done) {
     {
       seq: 2,
       name: 'George Harrison',
+      birthday: null,
       order: 5,
       vip: false,
       addressLoc: {lat: 22.7, lng: -89.03},
     },
-    {seq: 3, name: 'Ringo Starr', order: 6, vip: false},
-    {seq: 4, name: 'Pete Best', order: 4},
-    {seq: 5, name: 'Stuart Sutcliffe', order: 3, vip: true},
+    {seq: 3, name: 'Ringo Starr', order: 6, birthday: null, vip: false},
+    {seq: 4, name: 'Pete Best', order: 4, birthday: null},
+    {seq: 5, name: 'Stuart Sutcliffe', order: 3, birthday: null, vip: true},
   ];
 
   async.series([
