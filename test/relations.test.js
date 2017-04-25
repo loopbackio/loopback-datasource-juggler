@@ -574,7 +574,7 @@ describe('relations', function() {
     before(function(done) {
       db = getSchema();
       Physician = db.define('Physician', {name: String});
-      Patient = db.define('Patient', {name: String, age: Number});
+      Patient = db.define('Patient', {name: String, age: Number, sequence: Number});
       Appointment = db.define('Appointment', {date: {type: Date,
         default: function() {
           return new Date();
@@ -734,7 +734,7 @@ describe('relations', function() {
       context('with filter skip', function() {
         bdd.itIf(connectorCapabilities.supportPagination !== false,
         'skips the first patient', function(done) {
-          physician.patients({skip: 1}, function(err, ch) {
+          physician.patients({skip: 1, order: 'sequence'}, function(err, ch) {
             if (err) return done(err);
             should.exist(ch);
             ch.should.have.lengthOf(2);
@@ -767,7 +767,7 @@ describe('relations', function() {
       });
       context('with filter limit', function() {
         it('limits to 1 result', function(done) {
-          physician.patients({limit: 1}, function(err, ch) {
+          physician.patients({limit: 1, order: 'sequence'}, function(err, ch) {
             if (err) return done(err);
             should.exist(ch);
             ch.should.have.lengthOf(1);
@@ -782,7 +782,10 @@ describe('relations', function() {
       });
       context('with filter fields', function() {
         it('includes field \'name\' but not \'age\'', function(done) {
-          var fieldsFilter = {fields: {name: true, age: false}};
+          var fieldsFilter = {
+            fields: {name: true, age: false},
+            order: 'sequence',
+          };
           physician.patients(fieldsFilter, function(err, ch) {
             if (err) return done(err);
             should.exist(ch);
@@ -832,8 +835,8 @@ describe('relations', function() {
               if (err) return done(err);
               should.exist(ch);
               ch.should.have.lengthOf(2);
-              var resultIdArr = [ch[0].id, ch[1].id];
-              assert.deepEqual(resultIdArr, idArr);
+              idArr.indexOf(ch[0].id).should.be.above(-1);
+              idArr.indexOf(ch[1].id).should.be.above(-1);
               done();
             });
           });
@@ -888,15 +891,17 @@ describe('relations', function() {
 
       function createSampleData(done) {
         Physician.create(function(err, result) {
-          result.patients.create({name: 'a', age: '10'}, function(err, p) {
-            samplePatientId = p.id;
-            result.patients.create({name: 'z', age: '20'}, function() {
-              result.patients.create({name: 'c'}, function() {
-                physician = result;
-                done();
-              });
+          result.patients.create({name: 'a', age: '10', sequence: 1},
+            function(err, p) {
+              samplePatientId = p.id;
+              result.patients.create({name: 'z', age: '20', sequence: 2},
+                function() {
+                  result.patients.create({name: 'c', sequence: 3}, function() {
+                    physician = result;
+                    done();
+                  });
+                });
             });
-          });
         });
       };
     });
