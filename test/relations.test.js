@@ -835,8 +835,16 @@ describe('relations', function() {
               if (err) return done(err);
               should.exist(ch);
               ch.should.have.lengthOf(2);
-              idArr.indexOf(ch[0].id).should.be.above(-1);
-              idArr.indexOf(ch[1].id).should.be.above(-1);
+              if (typeof idArr[0] === 'object') {
+                // mongodb returns `id` as an object 
+                idArr[0] = idArr[0].toString();
+                idArr[1] = idArr[1].toString();
+                idArr.indexOf(ch[0].id.toString()).should.be.above(-1);
+                idArr.indexOf(ch[1].id.toString()).should.be.above(-1);
+              } else {
+                idArr.indexOf(ch[0].id).should.be.above(-1);
+                idArr.indexOf(ch[1].id).should.be.above(-1);
+              }
               done();
             });
           });
