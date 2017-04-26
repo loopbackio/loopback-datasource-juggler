@@ -79,7 +79,7 @@ describe('validations', function() {
         var user = new User;
         user.createdByAdmin = true;
         user.isValid().should.be.false();
-        user.errors.pendingPeriod.should.eql(['can\'t be blank']);
+        user.__errors.pendingPeriod.should.eql(['can\'t be blank']);
         user.pendingPeriod = 1;
         user.isValid().should.be.true();
       });
@@ -89,7 +89,7 @@ describe('validations', function() {
         var user = new User;
         user.createdByAdmin = false;
         user.isValid().should.be.true();
-        user.errors.should.be.false();
+        user.__errors.should.be.false();
         user.pendingPeriod = 1;
         user.isValid().should.be.true();
       });
@@ -99,7 +99,7 @@ describe('validations', function() {
         var user = new User;
         user.createdByAdmin = false;
         user.isValid().should.be.false();
-        user.errors.pendingPeriod.should.eql(['can\'t be blank']);
+        user.__errors.pendingPeriod.should.eql(['can\'t be blank']);
         user.pendingPeriod = 1;
         user.isValid().should.be.true();
       });
@@ -109,7 +109,7 @@ describe('validations', function() {
         var user = new User;
         user.createdByAdmin = true;
         user.isValid().should.be.true();
-        user.errors.should.be.false();
+        user.__errors.should.be.false();
         user.pendingPeriod = 1;
         user.isValid().should.be.true();
       });
@@ -125,7 +125,7 @@ describe('validations', function() {
         user.createdByAdmin = false;
         user.isValid(function(valid) {
           valid.should.be.true();
-          user.errors.should.be.false();
+          user.__errors.should.be.false();
           done();
         });
       });
@@ -139,7 +139,7 @@ describe('validations', function() {
         user.createdByAdmin = true;
         user.isValid(function(valid) {
           valid.should.be.false();
-          user.errors.pendingPeriod.should.eql(['can\'t be blank']);
+          user.__errors.pendingPeriod.should.eql(['can\'t be blank']);
           done();
         });
       });
@@ -153,7 +153,7 @@ describe('validations', function() {
         user.createdByAdmin = true;
         user.isValid(function(valid) {
           valid.should.be.true();
-          user.errors.should.be.false();
+          user.__errors.should.be.false();
           done();
         });
       });
@@ -167,7 +167,7 @@ describe('validations', function() {
         user.createdByAdmin = false;
         user.isValid(function(valid) {
           valid.should.be.false();
-          user.errors.pendingPeriod.should.eql(['can\'t be blank']);
+          user.__errors.pendingPeriod.should.eql(['can\'t be blank']);
           done();
         });
       });
@@ -405,7 +405,7 @@ describe('validations', function() {
 
       user.createdByScript = false;
       user.isValid().should.be.false();
-      user.errors.domain.should.eql(['can\'t be blank']);
+      user.__errors.domain.should.eql(['can\'t be blank']);
 
       user.domain = 'domain';
       user.isValid().should.be.true();
@@ -804,7 +804,7 @@ describe('validations', function() {
       User.validatesFormatOf('name', {with: /[a-z][A-Z]*$/, message: CUSTOM_MESSAGE});
       var u = new User({name: 'invalid name string 123'});
       u.isValid().should.be.false();
-      u.errors.should.eql({
+      u.__errors.should.eql({
         name: [CUSTOM_MESSAGE],
         codes: {
           name: ['format'],
@@ -894,14 +894,14 @@ describe('validations', function() {
       User.validatesNumericalityOf('age');
       var user = new User({age: 'notanumber'});
       user.isValid().should.be.false();
-      user.errors.should.eql({age: ['is not a number']});
+      user.__errors.should.eql({age: ['is not a number']});
     });
 
     it('fails when given undefined values', function() {
       User.validatesNumericalityOf('age');
       var user = new User({});
       user.isValid().should.be.false();
-      user.errors.should.eql({age: ['is blank']});
+      user.__errors.should.eql({age: ['is blank']});
     });
 
     it('skips undefined values when allowBlank option is true', function() {
@@ -914,14 +914,14 @@ describe('validations', function() {
       User.validatesNumericalityOf('age', {allowBlank: true});
       var user = new User({age: 'test'});
       user.isValid().should.be.false();
-      user.errors.should.eql({age: ['is not a number']});
+      user.__errors.should.eql({age: ['is not a number']});
     });
 
     it('fails when given null values', function() {
       User.validatesNumericalityOf('age');
       var user = new User({age: null});
       user.isValid().should.be.false();
-      user.errors.should.eql({age: ['is null']});
+      user.__errors.should.eql({age: ['is null']});
     });
 
     it('passes when given null values when allowNull option is true', function() {
@@ -940,7 +940,7 @@ describe('validations', function() {
       User.validatesNumericalityOf('age', {int: true});
       var user = new User({age: 13.37});
       user.isValid().should.be.false();
-      user.errors.should.match({age: /is not an integer/});
+      user.__errors.should.match({age: /is not an integer/});
     });
 
     describe('validate numericality on update', function() {
@@ -1263,20 +1263,20 @@ describe('validations', function() {
       }, {code: 'invalid-email'});
       var u = new User({email: 'hello'});
       Boolean(u.isValid()).should.be.false();
-      u.errors.codes.should.eql({email: ['invalid-email']});
+      u.__errors.codes.should.eql({email: ['invalid-email']});
     });
 
     it('should validate and return detailed error messages', function() {
       User.validate('global', function(err) {
         if (this.email === 'hello' || this.email === 'hey') {
-          this.errors.add('email', 'Cannot be `' + this.email + '`', 'invalid-email');
+          this.__errors.add('email', 'Cannot be `' + this.email + '`', 'invalid-email');
           err(false); // false: prevent global error message
         }
       });
       var u = new User({email: 'hello'});
       Boolean(u.isValid()).should.be.false();
-      u.errors.should.eql({email: ['Cannot be `hello`']});
-      u.errors.codes.should.eql({email: ['invalid-email']});
+      u.__errors.should.eql({email: ['Cannot be `hello`']});
+      u.__errors.codes.should.eql({email: ['invalid-email']});
     });
 
     it('should validate using custom async validation', function(done) {
@@ -1352,7 +1352,7 @@ describe('validations', function() {
       errorVal[propertyName] = [errorMessage];
 
       var obj = {
-        errors: errorVal,
+        __errors: errorVal,
         toJSON: function() { return jsonVal; },
       };
       return new ValidationError(obj);
@@ -1392,7 +1392,7 @@ describe('validations', function() {
       User.validatesDateOf('updatedAt');
       var u = new User({updatedAt: 'invalid date string'});
       u.isValid().should.not.be.true();
-      u.errors.should.eql({
+      u.__errors.should.eql({
         updatedAt: ['is not a valid date'],
         codes: {
           updatedAt: ['date'],
@@ -1416,7 +1416,7 @@ describe('validations', function() {
       });
       var u = new AnotherUser({updatedAt: 'invalid date string'});
       u.isValid().should.not.be.true();
-      u.errors.should.eql({
+      u.__errors.should.eql({
         updatedAt: ['is not a valid date'],
         codes: {
           updatedAt: ['date'],
@@ -1429,7 +1429,7 @@ describe('validations', function() {
       User.validatesDateOf('updatedAt', {message: CUSTOM_MESSAGE});
       var u = new User({updatedAt: 'invalid date string'});
       u.isValid().should.not.be.true();
-      u.errors.should.eql({
+      u.__errors.should.eql({
         updatedAt: [CUSTOM_MESSAGE],
         codes: {
           updatedAt: ['date'],

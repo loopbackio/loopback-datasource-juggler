@@ -505,7 +505,7 @@ describe('DataSource define model', function() {
       var User = ds.define('User', {name: String}, {strict: 'validate'});
       var user = new User({name: 'Joe', age: 20});
       user.isValid().should.be.false;
-      var codes = user.errors && user.errors.codes || {};
+      var codes = user.__errors && user.__errors.codes || {};
       codes.should.have.property('age').eql(['unknown-property']);
     });
   });
@@ -1907,7 +1907,7 @@ describe('ModelBuilder options.models', function() {
     });
     assert.equal(m1.address.number, undefined, 'm1 should not contain number property in address');
     assert.equal(m1.address.isValid(), false, 'm1 address should not validate with extra property');
-    var codes = m1.address.errors && m1.address.errors.codes || {};
+    var codes = m1.address.__errors && m1.address.__errors.codes || {};
     assert.deepEqual(codes.number, ['unknown-property']);
   });
 });
