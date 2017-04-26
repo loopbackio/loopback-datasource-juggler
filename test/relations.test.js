@@ -836,7 +836,7 @@ describe('relations', function() {
               should.exist(ch);
               ch.should.have.lengthOf(2);
               if (typeof idArr[0] === 'object') {
-                // mongodb returns `id` as an object 
+                // mongodb returns `id` as an object
                 idArr[0] = idArr[0].toString();
                 idArr[1] = idArr[1].toString();
                 idArr.indexOf(ch[0].id.toString()).should.be.above(-1);
