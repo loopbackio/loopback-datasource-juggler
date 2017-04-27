@@ -839,11 +839,11 @@ describe('relations', function() {
                 // mongodb returns `id` as an object
                 idArr[0] = idArr[0].toString();
                 idArr[1] = idArr[1].toString();
-                idArr.indexOf(ch[0].id.toString()).should.be.above(-1);
-                idArr.indexOf(ch[1].id.toString()).should.be.above(-1);
+                idArr.indexOf(ch[0].id.toString()).should.not.equal(-1);
+                idArr.indexOf(ch[1].id.toString()).should.not.equal(-1);
               } else {
-                idArr.indexOf(ch[0].id).should.be.above(-1);
-                idArr.indexOf(ch[1].id).should.be.above(-1);
+                idArr.indexOf(ch[0].id).should.not.equal(-1);
+                idArr.indexOf(ch[1].id).should.not.equal(-1);
               }
               done();
             });
