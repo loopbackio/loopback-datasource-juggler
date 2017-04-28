@@ -157,6 +157,7 @@ describe('Memory connector', function() {
         city: String,
         state: String,
         zipCode: String,
+        since: Date,
         tags: [
           {
             tag: String,
@@ -166,6 +167,7 @@ describe('Memory connector', function() {
       friends: [
         {
           name: String,
+          since: Date,
         },
       ],
     });
@@ -294,8 +296,7 @@ describe('Memory connector', function() {
       });
     });
 
-    it('should successfully extract 2 users using implied and & and',
-    function(done) {
+    it('should successfully extract 2 users using implied and & and', function(done) {
       User.find({
         where: {
           name: 'John Lennon',
@@ -435,15 +436,14 @@ describe('Memory connector', function() {
       });
     });
 
-    it('should work when a regex is provided without the regexp operator',
-        function(done) {
-          User.find({where: {name: /John.*/i}}, function(err, users) {
-            should.not.exist(err);
-            users.length.should.equal(1);
-            users[0].name.should.equal('John Lennon');
-            done();
-          });
-        });
+    it('should work when a regex is provided without the regexp operator', function(done) {
+      User.find({where: {name: /John.*/i}}, function(err, users) {
+        should.not.exist(err);
+        users.length.should.equal(1);
+        users[0].name.should.equal('John Lennon');
+        done();
+      });
+    });
 
     it('should support the regexp operator with regex strings', function(done) {
       User.find({where: {name: {regexp: '^J'}}}, function(err, users) {
@@ -516,6 +516,28 @@ describe('Memory connector', function() {
         });
     });
 
+    it('should support date as nested property in query', function(done) {
+      var d = new Date('2017-01-01');
+      User.find({where: {'address.since': d}},
+        function(err, users) {
+          should.not.exist(err);
+          users.length.should.be.equal(1);
+          users[0].address.since.should.be.eql(d);
+          done();
+        });
+    });
+
+    it('should support date as array property in query', function(done) {
+      var d = new Date('1960-01-01');
+      User.find({where: {'friends.since': d}},
+        function(err, users) {
+          should.not.exist(err);
+          users.length.should.be.equal(2);
+          users[0].friends[0].since.should.be.eql(d);
+          done();
+        });
+    });
+
     it('should deserialize values after saving in upsert', function(done) {
       User.findOne({where: {seq: 1}}, function(err, paul) {
         User.updateOrCreate({id: paul.id, name: 'Sir Paul McCartney'},
@@ -553,15 +575,16 @@ describe('Memory connector', function() {
             city: 'San Jose',
             state: 'CA',
             zipCode: '95131',
+            since: new Date('2017-01-01'),
             tags: [
                 {tag: 'business'},
                 {tag: 'rent'},
             ],
           },
           friends: [
-            {name: 'Paul McCartney'},
-            {name: 'George Harrison'},
-            {name: 'Ringo Starr'},
+            {name: 'Paul McCartney', since: new Date('1960-01-01')},
+            {name: 'George Harrison', since: new Date('1960-01-01')},
+            {name: 'Ringo Starr', since: new Date('1960-01-01')},
           ],
           children: ['Sean', 'Julian'],
         },
@@ -578,11 +601,12 @@ describe('Memory connector', function() {
             city: 'San Mateo',
             state: 'CA',
             zipCode: '94065',
+            since: new Date('2017-02-01'),
           },
           friends: [
-            {name: 'John Lennon'},
-            {name: 'George Harrison'},
-            {name: 'Ringo Starr'},
+            {name: 'John Lennon', since: new Date('1960-01-01')},
+            {name: 'George Harrison', since: new Date('1960-01-01')},
+            {name: 'Ringo Starr', since: new Date('1960-01-01')},
           ],
           children: ['Stella', 'Mary', 'Heather', 'Beatrice', 'James'],
         },
