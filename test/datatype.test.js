@@ -55,7 +55,7 @@ describe('datatypes', function() {
     });
 
   it('should keep types when get read data from db', function(done) {
-    var d = new Date, id;
+    var d = new Date('2015-01-01T12:00:00'), id;
 
     Model.create({
       str: 'hello', date: d, num: '3', bool: 1, list: ['test'], arr: [1, 'str'],
