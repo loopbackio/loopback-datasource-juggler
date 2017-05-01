@@ -920,7 +920,7 @@ describe('manipulation', function() {
         var unknownId = uid.fromConnector(db) || 123;
         var post = {id: unknownId, title: 'a', content: 'AAA'};
         Post.updateOrCreate(post, {validate: true}, (err) => {
-          err.statusCode.should.equal(404);
+          should(err).have.property('statusCode', 404);
           done();
         });
       });
@@ -929,20 +929,20 @@ describe('manipulation', function() {
         var unknownId = uid.fromConnector(db) || 123;
         var post = {id: unknownId, title: 'a', content: 'AAA'};
         Post.updateOrCreate(post, {validate: false}, (err) => {
-          err.statusCode.should.equal(404);
+          should(err).have.property('statusCode', 404);
           done();
         });
       });
 
       it('fails when id does not exist in db & validate is false when using updateAttributes',
-    function(done) {
-      var unknownId = uid.fromConnector(db) || 123;
-      var post = new Post({id: unknownId});
-      post.updateAttributes({title: 'updated title', content: 'AAA'}, {validate: false}, (err) => {
-        err.statusCode.should.equal(404);
-        done();
+      function(done) {
+        var unknownId = uid.fromConnector(db) || 123;
+        var post = new Post({id: unknownId});
+        post.updateAttributes({title: 'updated title', content: 'AAA'}, {validate: false}, (err) => {
+          should(err).have.property('statusCode', 404);
+          done();
+        });
       });
-    });
 
       it('works on create if the request does not include an id', function(done) {
         var post = {title: 'a', content: 'AAA'};
