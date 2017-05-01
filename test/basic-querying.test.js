@@ -341,8 +341,8 @@ describe('basic-querying', function() {
         should.not.exist(err);
         should.exist(users);
         users.should.have.property('length', 2);
-        users[0].name.should.equal('John Lennon');
-        users[1].name.should.equal('Paul McCartney');
+        should(users[0].name).be.oneOf('John Lennon', 'Paul McCartney');
+        should(users[1].name).be.oneOf('John Lennon', 'Paul McCartney');
         done();
       });
     });
