@@ -588,8 +588,7 @@ describe('relations', function() {
       db.automigrate(['Physician', 'Patient', 'Appointment', 'Address'], done);
     });
 
-    bdd.itIf(connectorCapabilities.supportInclude !== false,
-    'should build record on scope', function(done) {
+    it('should build record on scope', function(done) {
       Physician.create(function(err, physician) {
         var patient = physician.patients.build();
         patient.physicianId.should.eql(physician.id);
@@ -799,8 +798,7 @@ describe('relations', function() {
         });
       });
       context('with filter include', function() {
-        bdd.itIf(connectorCapabilities.supportNonPrimaryKeyIN !== false,
-        'returns physicians included in patient', function(done) {
+        it('returns physicians included in patient', function(done) {
           var includeFilter = {include: 'physicians'};
           physician.patients(includeFilter, function(err, ch) {
             if (err) return done(err);
@@ -811,10 +809,10 @@ describe('relations', function() {
         });
       });
       context('with filter where', function() {
-        bdd.itIf(connectorCapabilities.supportNonPrimaryKeyIN !== false,
-        'returns patient where id equal to samplePatientId', function(done) {
+        it('returns patient where id equal to samplePatientId', function(done) {
           var whereFilter = {where: {id: samplePatientId}};
-          physician.patients(whereFilter, function(err, ch) {
+          var patientsFun = physician.patients;
+          patientsFun(whereFilter, function(err, ch) {
             if (err) return done(err);
             should.exist(ch);
             ch.should.have.lengthOf(1);
@@ -822,8 +820,7 @@ describe('relations', function() {
             done();
           });
         });
-        bdd.itIf(connectorCapabilities.supportNonPrimaryKeyIN !== false,
-        'returns patients where id in an array', function(done) {
+        it('returns patients where id in an array', function(done) {
           var idArr = [];
           var whereFilter;
           physician.patients.create({name: 'b'}, function(err, p) {
