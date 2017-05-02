@@ -1,3 +1,9 @@
+2017-05-02, Version 3.6.1
+=========================
+
+ * docs: add DateString definition (Kevin Delisle)
+
+
 2017-05-02, Version 3.6.0
 =========================
 
