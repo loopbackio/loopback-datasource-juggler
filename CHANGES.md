@@ -1,3 +1,37 @@
+2017-05-02, Version 3.6.0
+=========================
+
+ * create sequence for nosql id (#1354) (Janny)
+
+ * Fix order of query results (Loay)
+
+ * Add DateString type (Kevin Delisle)
+
+ * datatype.test: use predefined date (Kevin Delisle)
+
+ * Update api documents (Loay)
+
+ * Datasource documentation tune-up (Kevin Delisle)
+
+ * Added unit tests specific to DateType where null (#1349) (Andrew McDonnell)
+
+ * Fix/geo null (#1334) (paulussup)
+
+ * replace exception thrown for invalid dates (Diana Lau)
+
+ * Revert PR #1326 (#1336) (Sakib Hasan)
+
+ * Make lib peerDepend on loopback-connector (#1326) (Russ Tyndall)
+
+ * Add test case using updateAttributes (Loay)
+
+ * Fix forceId bug for updateOrCreate (Loay)
+
+ * Fix typo in description (jannyHou)
+
+ * Fix relations test case (loay)
+
+
 2017-04-17, Version 3.5.0
 =========================
 
