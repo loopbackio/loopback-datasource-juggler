@@ -2,6 +2,7 @@
     "content": [
         "lib/datasource.js",
         "lib/model.js",
+        "lib/date-string.js",
         "lib/geo.js",
         "lib/hooks.js",
         "lib/include.js",
