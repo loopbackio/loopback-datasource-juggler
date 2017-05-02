@@ -856,8 +856,8 @@ describe('basic-querying', function() {
           if (err) return done(err);
           users.length.should.be.equal(2);
           var expectedUsers = ['John Lennon', 'Paul McCartney'];
-          (expectedUsers.indexOf(users[0].name) > -1).should.be.ok();
-          (expectedUsers.indexOf(users[1].name) > -1).should.be.ok();
+          expectedUsers.indexOf(users[0].name).should.not.equal(-1);
+          expectedUsers.indexOf(users[1].name).should.not.equal(-1);
           done();
         });
       });
