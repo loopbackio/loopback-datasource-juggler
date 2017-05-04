@@ -1,4 +1,4 @@
-# LoopBack DataSource Juggler - TestAigain
+# LoopBack DataSource Juggler - Test
 
 LoopBack DataSource Juggler is an ORM that provides a common set of interfaces
 for interacting with databases, REST APIs, and other data sources. It was
