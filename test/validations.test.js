@@ -517,6 +517,102 @@ describe('validations', function() {
         })).should.be.false;
       });
     });
+
+    it('passes case insensitive validation', function(done) {
+      User.validatesUniquenessOf('email', {ignoreCase: true});
+      var u = new User({email: 'hey'});
+      Boolean(u.isValid(function(valid) {
+        valid.should.be.true();
+        u.save(function(err) {
+          if (err) return done(err);
+          var u2 = new User({email: 'HEY'});
+          u2.isValid(function(valid) {
+            valid.should.be.false();
+            done();
+          });
+        });
+      })).should.be.false();
+    });
+
+    it('passed case sensitive validation', function(done) {
+      User.validatesUniquenessOf('email', {ignoreCase: false});
+      var u = new User({email: 'hey'});
+      Boolean(u.isValid(function(valid) {
+        valid.should.be.true();
+        u.save(function(err) {
+          if (err) return done(err);
+          var u2 = new User({email: 'HEY'});
+          u2.isValid(function(valid) {
+            valid.should.be.true();
+            done();
+          });
+        });
+      })).should.be.false();
+    });
+
+    it('passes case insensitive validation with string that needs escaping', function(done) {
+      User.validatesUniquenessOf('email', {ignoreCase: true});
+      var u = new User({email: 'me+me@my.com'});
+      Boolean(u.isValid(function(valid) {
+        valid.should.be.true();
+        u.save(function(err) {
+          if (err) return done(err);
+          var u2 = new User({email: 'ME+ME@MY.COM'});
+          u2.isValid(function(valid) {
+            valid.should.be.false();
+            done();
+          });
+        });
+      })).should.be.false();
+    });
+
+    it('passed case sensitive validation with string that needs escaping', function(done) {
+      User.validatesUniquenessOf('email', {ignoreCase: false});
+      var u = new User({email: 'me+me@my.com'});
+      Boolean(u.isValid(function(valid) {
+        valid.should.be.true();
+        u.save(function(err) {
+          if (err) return done(err);
+          var u2 = new User({email: 'ME+ME@MY.COM'});
+          u2.isValid(function(valid) {
+            valid.should.be.true();
+            done();
+          });
+        });
+      })).should.be.false();
+    });
+
+    it('passes partial case insensitive validation with string that needs escaping', function(done) {
+      User.validatesUniquenessOf('email', {ignoreCase: true});
+      var u = new User({email: 'also+me@my.com'});
+      Boolean(u.isValid(function(valid) {
+        valid.should.be.true();
+        u.save(function(err) {
+          if (err) return done(err);
+          var u2 = new User({email: 'Me@My.com'});
+          u2.isValid(function(valid) {
+            valid.should.be.true();
+            done();
+          });
+        });
+      })).should.be.false();
+    });
+
+    it('passes partial case sensitive validation with string that needs escaping', function(done) {
+      User.validatesUniquenessOf('email', {ignoreCase: false});
+      var u = new User({email: 'also+me@my.com'});
+      Boolean(u.isValid(function(valid) {
+        valid.should.be.true();
+        u.save(function(err) {
+          if (err) return done(err);
+          var u2 = new User({email: 'Me@My.com'});
+          u2.isValid(function(valid) {
+            valid.should.be.true();
+            done();
+          });
+        });
+      })).should.be.false();
+    });
   });
 
   describe('format', function() {
