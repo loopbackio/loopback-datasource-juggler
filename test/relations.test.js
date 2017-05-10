@@ -16,7 +16,7 @@ var DataSource = jdb.DataSource;
 var createPromiseCallback = require('../lib/utils.js').createPromiseCallback;
 
 var db, tmp, Book, Chapter, Author, Reader;
-var Category, Job;
+var Category, Job, Container, Item;
 var Picture, PictureLink;
 var Person, Address;
 var Link;
@@ -5185,8 +5185,9 @@ describe('relations', function() {
       db = getSchema();
       Category = db.define('Category', {name: String});
       Job = db.define('Job', {name: String});
-
-      db.automigrate(['Job', 'Category'], done);
+      Container = db.define('Container', {name: String, fk2: {doc: 'x', type: [Number], preserved: 'value'}});
+      Item = db.define('Item', {blob: String});
+      db.automigrate(['Job', 'Category', 'Item', 'Container'], done);
     });
 
     it('can be declared', function(done) {
@@ -5207,6 +5208,9 @@ describe('relations', function() {
       Category.referencesMany(Job, {scopeMethods: {
         reverse: reverse,
       }});
+
+      (new Category).jobs.should.be.an.instanceOf(Function);
+      Object.keys((new Category).toObject()).should.containEql('jobIds');
 
       Category.prototype['__reverse__jobs'].should.be.a.function;
       should.exist(Category.prototype['__reverse__jobs'].shared);
@@ -5236,6 +5240,29 @@ describe('relations', function() {
           p.name.should.equal('Job 2');
           job2 = p;
           done();
+        });
+      });
+    });
+
+    it('can have a custom fk', function(done) {
+      Item.create({blob: 'Item 1'}, function(err, p) {
+        Item.create({blob: 'Item 3'}, function(err, p) {
+          Container.referencesMany(Item, {foreignKey: 'fk2', as: 'anotherRelation'});
+          (new Container).anotherRelation.should.be.an.instanceOf(Function);
+          Object.keys((new Container).toObject()).should.containEql('fk2');
+          Container.definition.properties.fk2.preserved.should.eql('value');
+          db.automigrate(['Item', 'Container'], done);
+          Container.create({name: 'Container X'}, function(err, cat) {
+            cat.fk2.should.be.an.array;
+            cat.fk2.should.have.length(0);
+            cat.anotherRelation.create({blob: 'Item X'}, function(err, p) {
+              if (err) return done(err);
+              cat.fk2.should.have.lengthOf(1);
+              cat.fk2[0].should.eql(p.id);
+              p.blob.should.equal('Item X');
+              done();
+            });
+          });
         });
       });
     });
