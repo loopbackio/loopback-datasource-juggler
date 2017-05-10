@@ -81,12 +81,12 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       return callUpdate().then(function(result) {
         hookMonitor.names.should.eql([
           'Embedded:before save',
-          //TODO 'Embedded:persist',
+          // TODO 'Embedded:persist',
           'Owner:before save',
           'Owner:persist',
           'Owner:loaded',
           'Owner:after save',
-          //TODO 'Embedded:loaded',
+          // TODO 'Embedded:loaded',
           'Embedded:after save',
         ]);
       });

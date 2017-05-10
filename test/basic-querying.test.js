@@ -467,7 +467,7 @@ describe('basic-querying', function() {
       return User.find({where: {seq: {inq: [0, 1, 100]}}})
         .then(function(result) {
           var seqsFound = result.map(function(r) { return r.seq; });
-          should(seqsFound).eql([0, 1]);
+          should(seqsFound).be.oneOf([0, 1], [1, 0]);
         });
     });
 

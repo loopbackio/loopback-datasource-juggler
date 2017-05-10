@@ -89,9 +89,9 @@ describe('relations', function() {
 
       it('should create record on scope with promises', function(done) {
         Book.create()
-        .then (function(book) {
+        .then(function(book) {
           return book.chapters.create()
-          .then (function(c) {
+          .then(function(c) {
             should.exist(c);
             c.bookId.should.eql(book.id);
             done();
@@ -720,19 +720,19 @@ describe('relations', function() {
         });
       });
       function verify(physician) {
-        //limit plus skip
+        // limit plus skip
         physician.patients({limit: 1, skip: 1}, function(err, ch) {
           should.not.exist(err);
           should.exist(ch);
           ch.should.have.lengthOf(1);
           ch[0].name.should.eql('z');
-          //offset plus skip
+          // offset plus skip
           physician.patients({limit: 1, offset: 1}, function(err1, ch1) {
             should.not.exist(err1);
             should.exist(ch1);
             ch1.should.have.lengthOf(1);
             ch1[0].name.should.eql('z');
-            //order
+            // order
             physician.patients({order: 'patientId DESC'}, function(err2, ch2) {
               should.not.exist(err2);
               should.exist(ch2);
@@ -2833,7 +2833,7 @@ describe('relations', function() {
           should.not.exist(e);
           should.exist(supplier);
           supplier.account.update({supplierName: 'Supplier A',
-              supplierId: sid},
+            supplierId: sid},
             function(err, act) {
               should.not.exist(e);
               act.supplierName.should.equal('Supplier A');
