@@ -532,11 +532,11 @@ describe('include', function() {
                   result.forEach(function(r) {
                     assemblies[r.name] = r;
                   });
-                  //sedan
+                  // sedan
                   assemblies.sedan.parts().should.have.length(3);
-                  //hatchback
+                  // hatchback
                   assemblies.hatchback.parts().should.have.length(2);
-                  //SUV
+                  // SUV
                   assemblies.SUV.parts().should.have.length(0);
                   self.called.should.eql(3);
                   done();

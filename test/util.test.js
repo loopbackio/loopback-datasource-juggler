@@ -338,7 +338,7 @@ describe('util.mergeIncludes', function() {
 
   it('Merge includes with and without relation syntax properly',
     function() {
-      //w & w/o relation syntax - no collision
+      // w & w/o relation syntax - no collision
       var baseInclude = ['relation2'];
       var updateInclude = {
         relation: 'relation1',
@@ -350,14 +350,14 @@ describe('util.mergeIncludes', function() {
       }, {relation2: true}];
       checkInputOutput(baseInclude, updateInclude, expectedInclude);
 
-      //w & w/o relation syntax - collision
+      // w & w/o relation syntax - collision
       baseInclude = ['relation1'];
       updateInclude = {relation: 'relation1', scope: {include: 'relation2'}};
       expectedInclude =
         [{relation: 'relation1', scope: {include: 'relation2'}}];
       checkInputOutput(baseInclude, updateInclude, expectedInclude);
 
-      //w & w/o relation syntax - collision
+      // w & w/o relation syntax - collision
       baseInclude = {relation: 'relation1', scope: {include: 'relation2'}};
       updateInclude = ['relation1'];
       expectedInclude = [{relation1: true}];
