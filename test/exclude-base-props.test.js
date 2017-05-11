@@ -20,28 +20,18 @@ describe('exclude properties ', function() {
       {idInjection: false, excludeBaseProperties: ['id']});
     // User will have these properties: name, password
     var properties = User.definition.properties;
-
-    var notFound = true;
-    for (var p in properties) {
-      if (p == 'id') {
-        notFound = false; // id should not be found in the properties list
-      }
-    }
-    assert.equal(notFound, true);
-
+    assert(('name', 'password' in properties));
+    // id should not be found in the properties list
+    assert(!('id' in properties));
     // this excludes id property from the base model and and password property coming from base 'User' model since customer is
     // extended from User.
     var Customer = User.extend('Customer', {vip: {type: String}},
       {idInjection: false, excludeBaseProperties: ['password']});
-    // Customer will have these properties: name, vip
+    // Customer will have these properties: name(from UserModel) & vip
     properties = Customer.definition.properties;
-    notFound = true;
-    for (p in properties) {
-      if (p == 'id' || p == 'password') {
-        notFound = false; // id and password properties should not be found in the properties list
-      }
-    }
-    assert.equal(notFound, true);
+    assert(('name', 'vip' in properties));
+    // id and password properties should not be found in the properties list
+    assert(!('id', 'password' in properties));
     done();
   });
 });
