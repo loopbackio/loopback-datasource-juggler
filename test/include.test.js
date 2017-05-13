@@ -416,7 +416,8 @@ describe('include', function() {
               where: {
                 and: [
                   {id: createdPosts[0].id},
-                  {userId: createdPosts[0].userId},
+                  // Remove the duplicate userId to avoid Cassandra failure
+                  // {userId: createdPosts[0].userId},
                   {title: 'Post A'},
                 ],
               },
@@ -689,7 +690,8 @@ describe('include', function() {
               where: {
                 and: [
                   {id: createdPosts[0].id},
-                  {userId: createdPosts[0].userId},
+                  // Remove the duplicate userId to avoid Cassandra failure
+                  // {userId: createdPosts[0].userId},
                   {title: createdPosts[0].title},
                 ],
               },
