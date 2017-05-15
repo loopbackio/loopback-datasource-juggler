@@ -655,7 +655,8 @@ describe('include', function() {
     });
   });
 
-  it('findWithForeignKeysByPage', function() {
+  bdd.describeIf(connectorCapabilities.adhocSort === false,
+  'findWithForeignKeysByPage', function() {
     context('filter', function() {
       it('works when using a `where` with a foreign key', function(done) {
         User.findOne({
@@ -1262,9 +1263,7 @@ describe('include', function() {
         }
       })
       .then(done)
-      .catch(function(err) {
-        done(err);
-      });
+      .catch(done);
   });
 
   describe('performance', function() {
