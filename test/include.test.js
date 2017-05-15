@@ -339,7 +339,7 @@ describe('include', function() {
               where: {
                 and: [
                   {id: createdPosts[0].id},
-                  {userId: createdPosts[0].userId},
+                  // {userId: createdPosts[0].userId},
                   {title: 'Post A'},
                 ],
               },
