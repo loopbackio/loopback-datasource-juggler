@@ -1,3 +1,15 @@
+2017-05-15, Version 3.8.0
+=========================
+
+ * fix assert, make the test case more clear (rashmihunt)
+
+ * code review, better asserts (rashmihunt)
+
+ * test case to exclude base props (rashmihunt)
+
+ * handle excludeBaseProperties (rashmihunt)
+
+
 2017-05-15, Version 3.7.0
 =========================
 
