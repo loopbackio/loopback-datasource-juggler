@@ -1,3 +1,23 @@
+2017-05-15, Version 3.7.0
+=========================
+
+ * Remove unnecessary tests for adhocSort !== false (Tetsuo Seto)
+
+ * Fix the test case to avoid duplicate userId (Tetsuo Seto)
+
+ * Support include rework for C* connector (Tetsuo Seto)
+
+ * Overall review of polymorphic relations (ebarault)
+
+ * configurable model merge (ebarault)
+
+ * Fix assertion errors (Loay)
+
+ * Update modelbaseclass api docs (Loay)
+
+ * Add caseInsensitive opt to validatesUniquenessOf (Bram Borggreve)
+
+
 2017-05-02, Version 3.6.1
 =========================
 
