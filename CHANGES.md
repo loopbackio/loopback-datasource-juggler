@@ -1,3 +1,11 @@
+2017-05-19, Version 3.9.0
+=========================
+
+ * Return promise for batch create (Raymond Feng)
+
+ * Use correct data on replace callback (ssh24)
+
+
 2017-05-15, Version 3.8.0
 =========================
 
