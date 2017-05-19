@@ -277,6 +277,34 @@ describe('manipulation', function() {
       });
     });
 
+    it('should create batch of objects (promise variant)', function(done) {
+      var batch = [
+        {name: 'ShaltayPromise'},
+        {name: 'BoltayPromise'},
+        {},
+      ];
+      Person.create(batch).then(function(ps) {
+        should.exist(ps);
+        ps.should.be.instanceOf(Array);
+        ps.should.have.lengthOf(batch.length);
+
+        Person.validatesPresenceOf('name');
+        Person.create(batch, function(errors, persons) {
+          delete Person.validations;
+          should.exist(errors);
+          errors.should.have.lengthOf(batch.length);
+          should.not.exist(errors[0]);
+          should.not.exist(errors[1]);
+          should.exist(errors[2]);
+
+          should.exist(persons);
+          persons.should.have.lengthOf(batch.length);
+          persons[0].errors.should.be.false;
+          done();
+        });
+      });
+    });
+
     it('should create batch of objects with beforeCreate', function(done) {
       Person.beforeCreate = function(next, data) {
         if (data && data.name === 'A') {
