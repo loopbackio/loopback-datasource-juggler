@@ -174,9 +174,9 @@ describe('Model class inheritance', function() {
       customer.should.have.property('customerId', 'c01');
       customer.should.have.property('bio', undefined);
 
-        // The properties are defined at prototype level
+      // The properties are defined at prototype level
       assert.equal(Object.keys(customer).filter(function(k) {
-          // Remove internal properties
+        // Remove internal properties
         return k.indexOf('__') === -1;
       }).length, 0);
       var count = 0;
@@ -184,13 +184,15 @@ describe('Model class inheritance', function() {
         if (p.indexOf('__') === 0) {
           continue;
         }
-        if (typeof customer[p] !== 'function') {
+        // Please note there is an injected id from User prototype which is a function
+        // On node >= 7, this property does not show up
+        if (typeof customer[p] !== 'function' && p !== 'id') {
           count++;
         }
       }
-      assert.equal(count, 7); // Please note there is an injected id from User prototype
+      assert.equal(count, 6);
       assert.equal(Object.keys(customer.toObject()).filter(function(k) {
-          // Remove internal properties
+        // Remove internal properties
         return k.indexOf('__') === -1;
       }).length, 6);
 
