@@ -29,7 +29,7 @@
     "posttest": "npm run lint"
   },
   "engines": {
-    "node": ">= 0.6"
+    "node": ">= 0.6 <7"
   },
   "devDependencies": {
     "async-iterators": "^0.2.2",
