@@ -180,13 +180,11 @@ describe('Model class inheritance', function() {
         return k.indexOf('__') === -1;
       }).length, 0);
       var count = 0;
-      for (var p in customer) {
+      for (var p in customer.toObject()) {
         if (p.indexOf('__') === 0) {
           continue;
         }
-        // Please note there is an injected id from User prototype which is a function
-        // On node >= 7, this property does not show up
-        if (typeof customer[p] !== 'function' && p !== 'id') {
+        if (typeof customer[p] !== 'function') {
           count++;
         }
       }
