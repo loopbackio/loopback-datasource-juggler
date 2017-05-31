@@ -528,7 +528,7 @@ describe('default scope', function() {
     });
 
     it('should apply default scope - custom where', function(done) {
-      Widget.remove({name: 'Widget A'}, function(err) {
+      Widget.removeAll({name: 'Widget A'}, function(err) {
         should.not.exist(err);
         Product.find(function(err, products) {
           products.should.have.length(4);
@@ -542,7 +542,7 @@ describe('default scope', function() {
     });
 
     it('should apply default scope - custom where (no match)', function(done) {
-      Tool.remove({name: 'Widget Z'}, function(err) {
+      Tool.removeAll({name: 'Widget Z'}, function(err) {
         should.not.exist(err);
         Product.find(function(err, products) {
           products.should.have.length(4);
