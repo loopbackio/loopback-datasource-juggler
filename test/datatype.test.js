@@ -83,7 +83,7 @@ describe('datatypes', function() {
         m.arr[0].should.be.equal(1);
         m.arr[1].should.be.equal('str');
         m.date.should.be.an.instanceOf(Date);
-        m.date.toString().should.equal(d.toString(), 'Time must match');
+        m.date.toISOString().should.equal(d.toISOString(), 'Time must match');
         next();
       });
     }
