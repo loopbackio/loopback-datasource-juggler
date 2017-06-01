@@ -1,3 +1,23 @@
+2017-06-01, Version 3.9.1
+=========================
+
+ * Update translated strings Q2 2017 (Allen Boone)
+
+ * Fix updateAttributes cb (ssh24)
+
+ * Apply iteration on the model object (ssh24)
+
+ * Remove spurious extra options arg (#1390) (Rand McKinney)
+
+ * include: remove JSDoc refs to recursive calls (Kevin Delisle)
+
+ * Fix count of properties (ssh24)
+
+ * hooks: add JSDoc for .trigger (Kevin Delisle)
+
+ * model-builder: JSDoc tidy-up (Kevin Delisle)
+
+
 2017-05-19, Version 3.9.0
 =========================
 
