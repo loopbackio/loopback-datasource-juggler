@@ -573,59 +573,66 @@ describe('basic-querying', function() {
         });
     });
 
-    var itWhenIlikeSupported = connectorCapabilities.ilike ? it : it.skip.bind(it);
+    var itWhenIlikeSupported = connectorCapabilities.ilike;
+    bdd.describeIf(itWhenIlikeSupported, 'ilike', function() {
+      it('should support "like" that is satisfied',
+        function(done) {
+          User.find({where: {name: {like: 'John'}}},
+            function(err, users) {
+              if (err) return done(err);
+              users.length.should.equal(1);
+              users[0].name.should.equal('John Lennon');
+              done();
+            });
+        });
 
-    itWhenIlikeSupported('should support "like" that is satisfied', function(done) {
-      User.find({where: {name: {like: 'John'}}}, function(err, users) {
-        if (err) return done(err);
-        users.length.should.equal(1);
-        users[0].name.should.equal('John Lennon');
-        done();
+      it('should support "like" that is not satisfied',
+        function(done) {
+          User.find({where: {name: {like: 'Bob'}}},
+            function(err, users) {
+              if (err) return done(err);
+              users.length.should.equal(0);
+              done();
+            });
+        });
+      it('should support "ilike" that is satisfied', function(done) {
+        User.find({where: {name: {ilike: 'john'}}},
+          function(err, users) {
+            if (err) return done(err);
+            users.length.should.equal(1);
+            users[0].name.should.equal('John Lennon');
+            done();
+          });
+      });
+      it('should support "ilike" that is not satisfied', function(done) {
+        User.find({where: {name: {ilike: 'bob'}}}, function(err, users) {
+          if (err) return done(err);
+          users.length.should.equal(0);
+          done();
+        });
       });
     });
 
-    itWhenIlikeSupported('should support "like" that is not satisfied', function(done) {
-      User.find({where: {name: {like: 'Bob'}}}, function(err, users) {
-        if (err) return done(err);
-        users.length.should.equal(0);
-        done();
+    var itWhenNilikeSupported = connectorCapabilities.nilike !== false;
+    bdd.describeIf(itWhenNilikeSupported, 'nilike', function() {
+      it('should support "nlike" that is satisfied', function(done) {
+        User.find({where: {name: {nlike: 'John'}}},
+          function(err, users) {
+            if (err) return done(err);
+            users.length.should.equal(5);
+            users[0].name.should.equal('Paul McCartney');
+            done();
+          });
       });
-    });
 
-    var itWhenNilikeSupported = connectorCapabilities.nilike ? it : it.skip.bind(it);
-
-    itWhenNilikeSupported('should support "nlike" that is satisfied', function(done) {
-      User.find({where: {name: {nlike: 'John'}}}, function(err, users) {
-        if (err) return done(err);
-        users.length.should.equal(5);
-        users[0].name.should.equal('Paul McCartney');
-        done();
-      });
-    });
-
-    itWhenIlikeSupported('should support "ilike" that is satisfied', function(done) {
-      User.find({where: {name: {ilike: 'john'}}}, function(err, users) {
-        if (err) return done(err);
-        users.length.should.equal(1);
-        users[0].name.should.equal('John Lennon');
-        done();
-      });
-    });
-
-    itWhenIlikeSupported('should support "ilike" that is not satisfied', function(done) {
-      User.find({where: {name: {ilike: 'bob'}}}, function(err, users) {
-        if (err) return done(err);
-        users.length.should.equal(0);
-        done();
-      });
-    });
-
-    itWhenNilikeSupported('should support "nilike" that is satisfied', function(done) {
-      User.find({where: {name: {nilike: 'john'}}}, function(err, users) {
-        if (err) return done(err);
-        users.length.should.equal(5);
-        users[0].name.should.equal('Paul McCartney');
-        done();
+      it('should support "nilike" that is satisfied', function(done) {
+        User.find({where: {name: {nilike: 'john'}}},
+          function(err, users) {
+            if (err) return done(err);
+            users.length.should.equal(5);
+            users[0].name.should.equal('Paul McCartney');
+            done();
+          });
       });
     });
 
@@ -838,8 +845,8 @@ describe('basic-querying', function() {
       });
     });
 
-    var describeWhenNestedSupported = connectorCapabilities.nestedProperty ? describe : describe.skip;
-    describeWhenNestedSupported('query with nested property', function() {
+    var describeWhenNestedSupported = connectorCapabilities.nestedProperty;
+    bdd.describeIf(describeWhenNestedSupported, 'query with nested property', function() {
       it('should support nested property in query', function(done) {
         User.find({where: {'address.city': 'San Jose'}}, function(err, users) {
           if (err) return done(err);
@@ -1030,6 +1037,7 @@ describe('basic-querying', function() {
   });
 });
 
+// FIXME: This should either be re-enabled or removed.
 describe.skip('queries', function() {
   var Todo;
 
