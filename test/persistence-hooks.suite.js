@@ -21,8 +21,9 @@ var HookMonitor = require('./helpers/hook-monitor');
 module.exports = function(dataSource, should, connectorCapabilities) {
   if (!connectorCapabilities) connectorCapabilities = {};
   if (connectorCapabilities.replaceOrCreateReportsNewInstance === undefined) {
-    console.warn('The connector does not support a recently added feature:' +
-      ' replaceOrCreateReportsNewInstance');
+    var warn = 'The connector does not support a recently added feature:' +
+      ' replaceOrCreateReportsNewInstance';
+    console.warn(warn);
   }
   describe('Persistence hooks', function() {
     var ctxRecorder, hookMonitor, expectedError;
