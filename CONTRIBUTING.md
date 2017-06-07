@@ -30,6 +30,14 @@ Contributing to `loopback-datasource-juggler` is easy. In a few simple steps:
 
   * Submit a pull request through Github.
 
+### How to rebase your branch ###
+
+Our code base is always getting updated and being able to successfully rebase your PR is very important. Here are some simple steps to rebase your code:
+- Checkout your branch which you are submitting the pull request against `git checkout <my_branch>`
+- Add an upstream remote from your fork `git remote add upstream https://github.com/strongloop/loopback-datasource-juggler.git`
+- Fetch the latest from the **_upstream_** remote `git fetch upstream`
+- Rebase your code using the interactive mode `git rebase -i upstream/master`
+- If you are happy with the changes and there are no merge conflicts, push the code to your remote branch `git push origin <my_branch>`
 
 ### Contributor License Agreement ###
 
