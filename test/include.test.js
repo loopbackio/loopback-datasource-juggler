@@ -84,42 +84,44 @@ describe('include', function() {
     });
   });
 
-  it('should not save in db included models, in query returned models', function(done) {
-    const originalStrict = User.definition.settings.strict;
-    User.definition.settings.strict = true; // Change to test regression for issue #1252
-    const finish = (err) => {
-      // Restore original user strict property
-      User.definition.settings.strict = originalStrict;
-      done(err);
-    };
-    User.findOne({where: {name: 'User A'}, include: 'posts'}, function(err, user) {
-      if (err) return finish(err);
-      if (!user) return finish(new Error('User Not found to check relation not saved'));
-      user.save(function(err) { // save the returned user
+  bdd.itIf(connectorCapabilities.cloudantCompatible !== false,
+  'should not save in db included models, in query returned models',
+    function(done) {
+      const originalStrict = User.definition.settings.strict;
+      User.definition.settings.strict = true; // Change to test regression for issue #1252
+      const finish = (err) => {
+        // Restore original user strict property
+        User.definition.settings.strict = originalStrict;
+        done(err);
+      };
+      User.findOne({where: {name: 'User A'}, include: 'posts'}, function(err, user) {
         if (err) return finish(err);
-        // should not store in db the posts
-        var dsName = User.dataSource.name;
-        if (dsName === 'memory') {
-          JSON.parse(User.dataSource.adapter.cache.User[1]).should.not.have.property('posts');
-          finish();
-        } else if (dsName === 'mongodb') { //  Check native mongodb connector
+        if (!user) return finish(new Error('User Not found to check relation not saved'));
+        user.save(function(err) { // save the returned user
+          if (err) return finish(err);
+          // should not store in db the posts
+          var dsName = User.dataSource.name;
+          if (dsName === 'memory') {
+            JSON.parse(User.dataSource.adapter.cache.User[1]).should.not.have.property('posts');
+            finish();
+          } else if (dsName === 'mongodb') { //  Check native mongodb connector
           // get hold of native mongodb collection
-          var dbCollection = User.dataSource.connector.collection(User.modelName);
-          dbCollection.findOne({_id: user.id})
-            .then(function(foundUser) {
-              if (!foundUser) {
-                finish(new Error('User not found to check posts not saved'));
-              }
-              foundUser.should.not.have.property('posts');
-              finish();
-            })
-            .catch(finish);
-        } else { // TODO make native checks for other connectors as well
-          finish();
-        }
+            var dbCollection = User.dataSource.connector.collection(User.modelName);
+            dbCollection.findOne({_id: user.id})
+              .then(function(foundUser) {
+                if (!foundUser) {
+                  finish(new Error('User not found to check posts not saved'));
+                }
+                foundUser.should.not.have.property('posts');
+                finish();
+              })
+              .catch(finish);
+          } else { // TODO make native checks for other connectors as well
+            finish();
+          }
+        });
       });
     });
-  });
 
   it('should fetch Passport - Owner - Posts', function(done) {
     Passport.find({include: {owner: 'posts'}}, function(err, passports) {
@@ -309,7 +311,7 @@ describe('include', function() {
     });
   });
 
-  bdd.itIf(connectorCapabilities.adhocSort === false,
+  bdd.itIf(connectorCapabilities.cloudantCompatible !== false,
   'should support limit - no sort', function(done) {
     Passport.find({
       include: {

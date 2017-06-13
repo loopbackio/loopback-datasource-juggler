@@ -175,6 +175,7 @@ describe('datatypes', function() {
   describe('model option persistUndefinedAsNull', function() {
     var TestModel, isStrict;
     before(function(done) {
+      db = getSchema();
       TestModel = db.define(
         'TestModel',
         {
