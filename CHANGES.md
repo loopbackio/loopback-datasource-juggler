@@ -1,3 +1,17 @@
+2017-06-13, Version 2.54.2
+==========================
+
+ * Fix assert as array does not guarantee order (Candy)
+
+ * Fixed empty objList in linkOneToMany fn (#1287) (somename85)
+
+ * remove equality value for user-defined id (#1292) (Matteo Padovano)
+
+ * override collection name for arangodb (#1274) (Matteo Padovano)
+
+ * fix missing findOrCreate error callback (Ryan Graham)
+
+
 2017-03-13, Version 2.54.1
 ==========================
 
