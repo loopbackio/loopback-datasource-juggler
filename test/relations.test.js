@@ -735,6 +735,7 @@ describe('relations', function() {
             should.exist(ch);
             ch.should.have.lengthOf(3);
             ch[0].name.should.eql('z');
+            ch[1].name.should.eql('c');
             ch[2].name.should.eql('a');
             done();
           });
@@ -765,12 +766,15 @@ describe('relations', function() {
         });
       });
       context('with filter include', function() {
-        it('returns physicians inluced in patient', function(done) {
+        it('returns physicians included in patient', function(done) {
           var includeFilter = {include: 'physicians'};
           physician.patients(includeFilter, function(err, ch) {
             should.not.exist(err);
             ch.should.have.lengthOf(3);
-            should.exist(ch[0].physicians);
+            var includedInstances = JSON.parse(JSON.stringify(ch[0]))
+              .physicians;
+            includedInstances.should.have.lengthOf(1);
+            includedInstances[0].id.should.equal(physician.id);
             done();
           });
         });
