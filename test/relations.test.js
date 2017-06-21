@@ -771,10 +771,9 @@ describe('relations', function() {
           physician.patients(includeFilter, function(err, ch) {
             should.not.exist(err);
             ch.should.have.lengthOf(3);
-            var includedInstances = JSON.parse(JSON.stringify(ch[0]))
-              .physicians;
+            var includedInstances = ch[0].toObject().physicians;
             includedInstances.should.have.lengthOf(1);
-            includedInstances[0].id.should.equal(physician.id);
+            includedInstances[0].id.should.eql(physician.id);
             done();
           });
         });
