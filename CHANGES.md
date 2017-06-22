@@ -1,3 +1,13 @@
+2017-06-22, Version 3.9.2
+=========================
+
+ * Fix the case where qWhere[idKey] is null (Tetsuo Seto)
+
+ * test/helpers: annotate skipped tests (Kevin Delisle)
+
+ * Fix mixins/validatable docs (ssh24)
+
+
 2017-06-01, Version 3.9.1
 =========================
 
