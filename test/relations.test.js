@@ -908,6 +908,71 @@ describe('relations', function() {
       };
     });
 
+    describe('find over related model with options', function() {
+      before(function() {
+        Physician.observe('access', beforeAccessFn);
+        Patient.observe('access', beforeAccessFn);
+
+        function beforeAccessFn(ctx, next) {
+          ctx.query.where.realm = ctx.options.realm;
+          next();
+        }
+      });
+      it('should find be filtered from option', function(done) {
+        var id;
+        Physician.create(function(err, physician) {
+          physician.patients.create({name: 'a', realm: 'test'}, function(err, ch) {
+            id = ch.id;
+            physician.patients.create({name: 'z', realm: 'test'}, function() {
+              physician.patients.create({name: 'c', realm: 'anotherRealm'}, function() {
+                verify(physician);
+              });
+            });
+          });
+        });
+
+        function verify(physician) {
+          physician.patients({}, {realm: 'test'}, function(err, records) {
+            if (err) return done(err);
+            should.exist(records);
+            records.length.should.eql(2);
+            records[0].realm.should.eql('test');
+            records[0].realm.should.eql('test');
+            done();
+          });
+        }
+      });
+
+      it('should find be filtered from option with promises', function(done) {
+        var id;
+        Physician.create()
+                 .then(function(physician) {
+                   return physician.patients.create({name: 'a', realm: 'test'})
+                                   .then(function(ch) {
+                                     id = ch.id;
+                                     return physician.patients.create({name: 'z', realm: 'test'});
+                                   })
+                                   .then(function() {
+                                     return physician.patients.create({name: 'c', realm: 'anotherRealm'});
+                                   })
+                                   .then(function() {
+                                     return verify(physician);
+                                   });
+                 }).catch(done);
+
+        function verify(physician) {
+          return physician.patients({}, {realm: 'test'}, function(err, records) {
+            if (err) return done(err);
+            should.exist(records);
+            records.length.should.eql(2);
+            records[0].realm.should.eql('test');
+            records[0].realm.should.eql('test');
+            done();
+          });
+        }
+      });
+    });
+
     it('should find scoped record', function(done) {
       var id;
       Physician.create(function(err, physician) {
