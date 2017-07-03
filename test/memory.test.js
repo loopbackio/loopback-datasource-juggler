@@ -369,7 +369,7 @@ describe('Memory connector', function() {
     });
 
     it('should count using date string', function(done) {
-      User.count({birthday: {lt: new Date(1990, 0).toISOString()}},
+      User.count({birthday: {lt: new Date(1990, 0)}},
         function(err, count) {
           should(count).be.equal(2);
           done();
