@@ -955,19 +955,19 @@ describe('relations', function() {
       it('should find be filtered from option with promises', function(done) {
         var id;
         Physician.create()
-                 .then(function(physician) {
-                   return physician.patients.create({name: 'a', realm: 'test'})
-                                   .then(function(ch) {
-                                     id = ch.id;
-                                     return physician.patients.create({name: 'z', realm: 'test'});
-                                   })
-                                   .then(function() {
-                                     return physician.patients.create({name: 'c', realm: 'anotherRealm'});
-                                   })
-                                   .then(function() {
-                                     return verify(physician);
-                                   });
-                 }).catch(done);
+          .then(function(physician) {
+            return physician.patients.create({name: 'a', realm: 'test'})
+              .then(function(ch) {
+                id = ch.id;
+                return physician.patients.create({name: 'z', realm: 'test'});
+              })
+              .then(function() {
+                return physician.patients.create({name: 'c', realm: 'anotherRealm'});
+              })
+              .then(function() {
+                return verify(physician);
+              });
+          }).catch(done);
 
         function verify(physician) {
           return physician.patients({}, {realm: 'test'}, function(err, records) {
