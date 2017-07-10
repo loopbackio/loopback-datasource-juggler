@@ -1,3 +1,9 @@
+2017-07-10, Version 2.55.0
+==========================
+
+ * Backport - Apply hasManyThrough filter on target model (#1404) (Janny)
+
+
 2017-06-13, Version 2.54.2
 ==========================
 
