@@ -398,6 +398,7 @@ describe('manipulation', function() {
     });
 
     it('should save existing object', function(done) {
+      // Cloudant could not guarantee findOne always return the same item
       Person.findOne(function(err, p) {
         if (err) return done(err);
         p.name = 'Hans';
@@ -414,6 +415,7 @@ describe('manipulation', function() {
     });
 
     it('should save existing object (promise variant)', function(done) {
+      // Cloudant could not guarantee findOne always return the same item
       Person.findOne()
         .then(function(p) {
           p.name = 'Fritz';

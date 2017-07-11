@@ -572,7 +572,8 @@ describe('relations', function() {
 
     before(function(done) {
       Physician = db.define('Physician', {name: String});
-      Patient = db.define('Patient', {name: String, age: Number, sequence: Number});
+      Patient = db.define('Patient', {name: String, age: Number,
+        sequence: {type: Number, index: true}});
       Appointment = db.define('Appointment', {date: {type: Date,
         default: function() {
           return new Date();
@@ -2933,26 +2934,27 @@ describe('relations', function() {
       });
     });
 
-    it('should find polymorphic items - article', function(done) {
-      if (!article) return done();
-      Article.findById(article.id, function(err, article) {
-        article.pictures(function(err, pics) {
-          // If deleteWithOtherThanId is not implemented, the above test is skipped and
-          // the remove did not take place.  Thus +1.
-          var expectedLength = connectorCapabilities.deleteWithOtherThanId !== false ?
+    bdd.itIf(connectorCapabilities.cloudantCompatible !== false,
+      'should find polymorphic items - article', function(done) {
+        if (!article) return done();
+        Article.findById(article.id, function(err, article) {
+          article.pictures(function(err, pics) {
+            // If deleteWithOtherThanId is not implemented, the above test is skipped and
+            // the remove did not take place.  Thus +1.
+            var expectedLength = connectorCapabilities.deleteWithOtherThanId !== false ?
             2 : 3;
-          pics.should.have.length(expectedLength);
+            pics.should.have.length(expectedLength);
 
-          const names = pics.map(p => p.name);
-          if (connectorCapabilities.adhocSort !== false) {
-            names.should.eql(['Article Pic 1', 'Article Pic 2']);
-          } else {
-            names.should.containDeep(['Article Pic 1', 'Article Pic 2', 'Example']);
-          }
-          done();
+            const names = pics.map(p => p.name);
+            if (connectorCapabilities.adhocSort !== false) {
+              names.should.eql(['Article Pic 1', 'Article Pic 2']);
+            } else {
+              names.should.containDeep(['Article Pic 1', 'Article Pic 2', 'Example']);
+            }
+            done();
+          });
         });
       });
-    });
 
     it('should check if polymorphic relation exists - article', function(done) {
       if (!article) return done();
@@ -3821,17 +3823,18 @@ describe('relations', function() {
       });
     });
 
-    it('should get the related item on scope - verify', function(done) {
-      Supplier.findById(supplierId, function(e, supplier) {
-        should.not.exist(e);
-        should.exist(supplier);
-        supplier.account(function(err, act) {
+    bdd.itIf(connectorCapabilities.cloudantCompatible !== false,
+      'should get the related item on scope - verify', function(done) {
+        Supplier.findById(supplierId, function(e, supplier) {
           should.not.exist(e);
-          should.not.exist(act);
-          done();
+          should.exist(supplier);
+          supplier.account(function(err, act) {
+            should.not.exist(e);
+            should.not.exist(act);
+            done();
+          });
         });
       });
-    });
 
     it('should have deleted related item', function(done) {
       Supplier.findById(supplierId, function(e, supplier) {
@@ -3874,7 +3877,7 @@ describe('relations', function() {
           companyBoardId = companyBoard.id;
           should.not.exist(e);
           should.exist(companyBoard);
-          companyBoard.boss.create({id: 'a01'}, function(err, account) {
+          companyBoard.boss.create({id: 'bossa01'}, function(err, account) {
             companyBoard.boss(function(e, boss) {
               bossId = boss.id;
               should.not.exist(e);

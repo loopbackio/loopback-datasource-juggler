@@ -51,7 +51,6 @@ describe('basic-querying', function() {
     connectorCapabilities.geoPoint = (db.adapter.name != 'dashdb') && (db.adapter.name != 'db2') &&
     (db.adapter.name != 'informix') && (db.adapter.name != 'cassandra');
     if (connectorCapabilities.geoPoint) userModelDef.addressLoc = {type: 'GeoPoint'};
-
     User = db.define('User', userModelDef);
     db.automigrate(done);
   });
@@ -387,15 +386,16 @@ describe('basic-querying', function() {
       });
     });
 
-    it('should support date "lt" that is satisfied', function(done) {
-      User.find({where: {birthday: {'lt': new Date('1980-12-07')},
-      }}, function(err, users) {
-        should.not.exist(err);
-        users.should.have.property('length', 1);
-        users[0].name.should.equal('Paul McCartney');
-        done();
+    bdd.itIf(connectorCapabilities.cloudantCompatible !== false,
+      'should support date "lt" that is satisfied', function(done) {
+        User.find({where: {birthday: {'lt': new Date('1980-12-07')},
+        }}, function(err, users) {
+          should.not.exist(err);
+          users.should.have.property('length', 1);
+          users[0].name.should.equal('Paul McCartney');
+          done();
+        });
       });
-    });
 
     it('should support number "gte" that is satisfied', function(done) {
       User.find({where: {order: {'gte': 3}}}, function(err, users) {
@@ -464,16 +464,17 @@ describe('basic-querying', function() {
       });
     });
 
-    it('should support string "gte" that is satisfied', function(done) {
-      User.find({where: {name: {'gte': 'Paul McCartney'}}}, function(err, users) {
-        should.not.exist(err);
-        users.should.have.property('length', 4);
-        for (var ix = 0; ix < users.length; ix++) {
-          users[ix].name.should.be.greaterThanOrEqual('Paul McCartney');
-        }
-        done();
+    bdd.itIf(connectorCapabilities.cloudantCompatible !== false,
+      'should support string "gte" that is satisfied', function(done) {
+        User.find({where: {name: {'gte': 'Paul McCartney'}}}, function(err, users) {
+          should.not.exist(err);
+          users.should.have.property('length', 4);
+          for (var ix = 0; ix < users.length; ix++) {
+            users[ix].name.should.be.greaterThanOrEqual('Paul McCartney');
+          }
+          done();
+        });
       });
-    });
 
     it('should support string "gt" that is not satisfied', function(done) {
       User.find({where: {name: {'gt': 'xyz'},
@@ -484,29 +485,31 @@ describe('basic-querying', function() {
       });
     });
 
-    it('should support string "gt" that is satisfied', function(done) {
-      User.find({where: {name: {'gt': 'Paul McCartney'},
-      }}, function(err, users) {
-        should.not.exist(err);
-        users.should.have.property('length', 3);
-        for (var ix = 0; ix < users.length; ix++) {
-          users[ix].name.should.be.greaterThan('Paul McCartney');
-        }
-        done();
+    bdd.itIf(connectorCapabilities.cloudantCompatible !== false,
+      'should support string "gt" that is satisfied', function(done) {
+        User.find({where: {name: {'gt': 'Paul McCartney'},
+        }}, function(err, users) {
+          should.not.exist(err);
+          users.should.have.property('length', 3);
+          for (var ix = 0; ix < users.length; ix++) {
+            users[ix].name.should.be.greaterThan('Paul McCartney');
+          }
+          done();
+        });
       });
-    });
 
-    it('should support string "lt" that is satisfied', function(done) {
-      User.find({where: {name: {'lt': 'Paul McCartney'},
-      }}, function(err, users) {
-        should.not.exist(err);
-        users.should.have.property('length', 2);
-        for (var ix = 0; ix < users.length; ix++) {
-          users[ix].name.should.be.lessThan('Paul McCartney');
-        }
-        done();
+    bdd.itIf(connectorCapabilities.cloudantCompatible !== false,
+      'should support string "lt" that is satisfied', function(done) {
+        User.find({where: {name: {'lt': 'Paul McCartney'},
+        }}, function(err, users) {
+          should.not.exist(err);
+          users.should.have.property('length', 2);
+          for (var ix = 0; ix < users.length; ix++) {
+            users[ix].name.should.be.lessThan('Paul McCartney');
+          }
+          done();
+        });
       });
-    });
 
     it('should support boolean "gte" that is satisfied', function(done) {
       User.find({where: {vip: {'gte': true},
@@ -880,8 +883,10 @@ describe('basic-querying', function() {
         });
       });
 
-      it('should support nested property for order in query', function(done) {
-        User.find({where: {'address.state': 'CA'}, order: 'address.city DESC'},
+      bdd.itIf(connectorCapabilities.adhocSort,
+        'should support nested property for order in query',
+        function(done) {
+          User.find({where: {'address.state': 'CA'}, order: 'address.city DESC'},
           function(err, users) {
             if (err) return done(err);
             users.length.should.be.equal(2);
@@ -889,7 +894,7 @@ describe('basic-querying', function() {
             users[1].address.city.should.be.eql('San Jose');
             done();
           });
-      });
+        });
 
       it('should support multi-level nested array property in query', function(done) {
         User.find({where: {'address.tags.tag': 'business'}}, function(err, users) {
@@ -937,16 +942,17 @@ describe('basic-querying', function() {
   describe('findOne', function() {
     before(seed);
 
-    it('should find first record (default sort by id)', function(done) {
-      User.all({order: 'id'}, function(err, users) {
-        User.findOne(function(e, u) {
-          should.not.exist(e);
-          should.exist(u);
-          u.id.toString().should.equal(users[0].id.toString());
-          done();
+    bdd.itIf(connectorCapabilities.cloudantCompatible !== false,
+      'should find first record (default sort by id)', function(done) {
+        User.all({order: 'id'}, function(err, users) {
+          User.findOne(function(e, u) {
+            should.not.exist(e);
+            should.exist(u);
+            u.id.toString().should.equal(users[0].id.toString());
+            done();
+          });
         });
       });
-    });
 
     bdd.itIf(connectorCapabilities.adhocSort, 'should find first record', function(done) {
       User.findOne({order: 'order'}, function(e, u) {
