@@ -1003,7 +1003,10 @@ describe('manipulation', function() {
       });
     });
 
-  if (!getSchema().connector.replaceById) {
+  var hasReplaceById = connectorCapabilities.cloudantCompatible !== false &&
+    !!getSchema().connector.replaceById;
+
+  if (!hasReplaceById) {
     describe.skip('replaceById - not implemented', function() {});
   } else {
     describe('replaceOrCreate', function() {
@@ -1226,8 +1229,6 @@ describe('manipulation', function() {
     });
   }
 
-  var hasReplaceById = !!getSchema().connector.replaceById;
-
   bdd.describeIf(hasReplaceById && connectorCapabilities.supportForceId !== false, 'replaceOrCreate ' +
   'when forceId is true', function() {
     var Post, unknownId;
@@ -1276,7 +1277,7 @@ describe('manipulation', function() {
     });
   });
 
-  if (!getSchema().connector.replaceById) {
+  if (!hasReplaceById) {
     describe.skip('replaceAttributes/replaceById - not implemented', function() {});
   } else {
     describe('replaceAttributes', function() {
@@ -1473,7 +1474,6 @@ describe('manipulation', function() {
     });
   }
 
-  hasReplaceById = !!getSchema().connector.replaceById;
   bdd.describeIf(hasReplaceById, 'replaceById', function() {
     var Post;
     before(function(done) {
