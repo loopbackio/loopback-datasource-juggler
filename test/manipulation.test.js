@@ -633,6 +633,20 @@ describe('manipulation', function() {
         });
       });
 
+    it('should remove unknown attributes when strict: filter',
+      function(done) {
+        Person.definition.settings.strict = 'filter';
+        Person.findById(person.id, function(err, p) {
+          if (err) return done(err);
+          p.updateAttributes({name: 'John', foo: 'bar'},
+            function(err, p) {
+              if (err) return done(err);
+              p.should.not.have.property('foo');
+              done();
+            });
+        });
+      });
+
     // Prior to version 3.0 `strict: true` used to silently remove unknown properties,
     // now return validationError upon unknown properties
     it('should return error on unknown attributes when strict: true',
