@@ -1374,6 +1374,11 @@ describe('DataAccessObject', function() {
       age: Number,
       vip: Boolean,
       date: Date,
+      sub: {
+        date: Date,
+        bool: Boolean,
+        number: Number,
+      },
       location: 'GeoPoint',
       scores: [Number],
     });
@@ -1431,6 +1436,27 @@ describe('DataAccessObject', function() {
 
     where = model._coerce({date: d.toISOString()});
     assert.deepEqual(where, {date: d});
+  });
+
+  it('coerces where clause for date types in nested properties', function() {
+    var d = new Date();
+    where = model._coerce({'sub.date': d});
+    assert.deepEqual(where, {'sub.date': d});
+
+    where = model._coerce({'sub.date': d.toISOString()});
+    assert.deepEqual(where, {'sub.date': d});
+  });
+
+  it('coerces where clause for Boolean types in nested properties', function() {
+    var bool = 'true';
+    where = model._coerce({'sub.bool': bool});
+    assert.strictEqual(where['sub.bool'], true);
+  });
+
+  it('coerces where clause for Number type in nested properties', function() {
+    var number = '123';
+    where = model._coerce({'sub.number': number});
+    assert.strictEqual(where['sub.number'], 123);
   });
 
   it('coerces where clause for boolean types', function() {
@@ -1518,8 +1544,7 @@ describe('DataAccessObject', function() {
 
   INVALID_CLAUSES.forEach(function(where) {
     var whereStr = JSON.stringify(where);
-    it('throws an error on malformed array-like object ' + whereStr,
-    function() {
+    it('throws an error on malformed array-like object ' + whereStr, function() {
       assert.throws(
         function() { model._coerce(where); },
         /property has invalid clause/);
@@ -1694,31 +1719,28 @@ describe('DataAccessObject', function() {
     assert.deepEqual(where, {date: undefined});
   });
 
-  it('does not coerce to a number for a simple value that produces NaN',
-    function() {
-      where = model._coerce({age: 'xyz'});
-      assert.deepEqual(where, {age: 'xyz'});
-    });
+  it('does not coerce to a number for a simple value that produces NaN', function() {
+    where = model._coerce({age: 'xyz'});
+    assert.deepEqual(where, {age: 'xyz'});
+  });
 
-  it('does not coerce to a number for a simple value in an array that produces NaN',
-    function() {
-      where = model._coerce({age: {inq: ['xyz', '12']}});
-      assert.deepEqual(where, {age: {inq: ['xyz', 12]}});
-    });
+  it('does not coerce to a number for a simple value in an array that produces NaN', function() {
+    where = model._coerce({age: {inq: ['xyz', '12']}});
+    assert.deepEqual(where, {age: {inq: ['xyz', 12]}});
+  });
 
   // settings
-  it('gets settings in priority',
-    function() {
-      ds.settings.test = 'test';
-      assert.equal(model._getSetting('test'), ds.settings.test, 'Should get datasource setting');
-      ds.settings.test = undefined;
+  it('gets settings in priority', function() {
+    ds.settings.test = 'test';
+    assert.equal(model._getSetting('test'), ds.settings.test, 'Should get datasource setting');
+    ds.settings.test = undefined;
 
-      model.settings.test = 'test';
-      assert.equal(model._getSetting('test'), model.settings.test, 'Should get model settings');
+    model.settings.test = 'test';
+    assert.equal(model._getSetting('test'), model.settings.test, 'Should get model settings');
 
-      ds.settings.test = 'willNotGet';
-      assert.notEqual(model._getSetting('test'), ds.settings.test, 'Should not get datasource setting');
-    });
+    ds.settings.test = 'willNotGet';
+    assert.notEqual(model._getSetting('test'), ds.settings.test, 'Should not get datasource setting');
+  });
 });
 
 describe('ModelBuilder processing json files', function() {
