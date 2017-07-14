@@ -397,39 +397,41 @@ describe('manipulation', function() {
         .catch(done);
     });
 
-    it('should save existing object', function(done) {
+    bdd.itIf(connectorCapabilities.cloudantCompatible !== false,
+      'should save existing object', function(done) {
       // Cloudant could not guarantee findOne always return the same item
-      Person.findOne(function(err, p) {
-        if (err) return done(err);
-        p.name = 'Hans';
-        p.save(function(err) {
+        Person.findOne(function(err, p) {
           if (err) return done(err);
-          p.name.should.equal('Hans');
-          Person.findOne(function(err, p) {
+          p.name = 'Hans';
+          p.save(function(err) {
             if (err) return done(err);
             p.name.should.equal('Hans');
-            done();
+            Person.findOne(function(err, p) {
+              if (err) return done(err);
+              p.name.should.equal('Hans');
+              done();
+            });
           });
         });
       });
-    });
 
-    it('should save existing object (promise variant)', function(done) {
+    bdd.itIf(connectorCapabilities.cloudantCompatible !== false,
+      'should save existing object (promise variant)', function(done) {
       // Cloudant could not guarantee findOne always return the same item
-      Person.findOne()
-        .then(function(p) {
-          p.name = 'Fritz';
-          return p.save()
-            .then(function() {
-              return Person.findOne()
-                .then(function(p) {
-                  p.name.should.equal('Fritz');
-                  done();
-                });
-            });
-        })
-        .catch(done);
-    });
+        Person.findOne()
+          .then(function(p) {
+            p.name = 'Fritz';
+            return p.save()
+              .then(function() {
+                return Person.findOne()
+                  .then(function(p) {
+                    p.name.should.equal('Fritz');
+                    done();
+                  });
+              });
+          })
+          .catch(done);
+      });
 
     it('should save invalid object (skipping validation)', function(done) {
       Person.findOne(function(err, p) {
@@ -577,7 +579,8 @@ describe('manipulation', function() {
         });
     });
 
-    it('should discard undefined values before strict validation',
+    bdd.itIf(connectorCapabilities.cloudantCompatible !== false,
+      'should discard undefined values before strict validation',
       function(done) {
         Person.definition.settings.strict = true;
         Person.findById(person.id, function(err, p) {
@@ -1822,6 +1825,11 @@ describe('manipulation', function() {
     });
 
     it('should allow delete(id) - success', function(done) {
+      // Suspect race condition happens somewhere
+      // Run it.only passes,
+      // remove only and debug, breakpoint on cloudant.js#L361,
+      // step into it run code slowly test passes, but remove the breakpoint
+      // it fails
       Person.findOne(function(e, p) {
         if (e) return done(e);
         p.delete(function(err, info) {
@@ -1837,6 +1845,7 @@ describe('manipulation', function() {
     });
 
     it('should allow delete(id) - fail', function(done) {
+      // Same reason, please check
       Person.settings.strictDelete = false;
       Person.findOne(function(e, p) {
         if (e) return done(e);
@@ -1860,24 +1869,26 @@ describe('manipulation', function() {
       });
     });
 
-    bdd.itIf(connectorCapabilities.supportStrictDelete !== false, 'should allow delete(id) - ' +
-    'fail with error', function(done) {
-      Person.settings.strictDelete = true;
-      Person.findOne(function(err, u) {
-        if (err) return done(err);
-        u.delete(function(err, info) {
+    bdd.itIf(connectorCapabilities.supportStrictDelete !== false &&
+      connectorCapabilities.cloudantCompatible,
+      'should allow delete(id) - ' + 'fail with error', function(done) {
+        // Please recover when the issue above get fixed
+        Person.settings.strictDelete = true;
+        Person.findOne(function(err, u) {
           if (err) return done(err);
-          info.should.have.property('count', 1);
-          u.delete(function(err) {
-            should.exist(err);
-            err.message.should.equal('No instance with id ' + u.id + ' found for Person');
-            err.should.have.property('code', 'NOT_FOUND');
-            err.should.have.property('statusCode', 404);
-            done();
+          u.delete(function(err, info) {
+            if (err) return done(err);
+            info.should.have.property('count', 1);
+            u.delete(function(err) {
+              should.exist(err);
+              err.message.should.equal('No instance with id ' + u.id + ' found for Person');
+              err.should.have.property('code', 'NOT_FOUND');
+              err.should.have.property('statusCode', 404);
+              done();
+            });
           });
         });
       });
-    });
   });
 
   describe('initialize', function() {
@@ -2202,26 +2213,27 @@ describe('manipulation', function() {
           });
         });
 
-    bdd.itIf(connectorCapabilities.updateWithoutId !== false, 'should update all instances when ' +
-    'the where condition is not provided', function(done) {
-      filterHarry = connectorCapabilities.deleteWithOtherThanId === false ?
-        {id: idHarry} : {name: 'Harry Hoe'};
-      filterBrett = connectorCapabilities.deleteWithOtherThanId === false ?
-        {id: idBrett} : {name: 'Brett Boe'};
-      Person.update(filterHarry, function(err, info) {
-        if (err) return done(err);
-        info.should.have.property('count', 5);
-        Person.find({where: filterBrett}, function(err, people) {
+    bdd.itIf(connectorCapabilities.updateWithoutId !== false &&
+      connectorCapabilities.cloudantCompatible,
+      'should update all instances when the where condition is not provided', function(done) {
+        filterHarry = connectorCapabilities.deleteWithOtherThanId === false ?
+          {id: idHarry} : {name: 'Harry Hoe'};
+        filterBrett = connectorCapabilities.deleteWithOtherThanId === false ?
+          {id: idBrett} : {name: 'Brett Boe'};
+        Person.update(filterHarry, function(err, info) {
           if (err) return done(err);
-          people.should.be.empty();
-          Person.find({where: filterHarry}, function(err, people) {
+          info.should.have.property('count', 5);
+          Person.find({where: filterBrett}, function(err, people) {
             if (err) return done(err);
-            people.should.have.length(5);
-            done();
+            people.should.be.empty();
+            Person.find({where: filterHarry}, function(err, people) {
+              if (err) return done(err);
+              people.should.have.length(5);
+              done();
+            });
           });
         });
       });
-    });
 
     bdd.itIf(connectorCapabilities.ignoreUndefinedConditionValue !== false, 'should ignore where ' +
     'conditions with undefined values', function(done) {
@@ -2248,9 +2260,9 @@ describe('manipulation', function() {
   });
 
   describe('upsertWithWhere', function() {
-    var ds = getSchema();
-    var Person;
+    var ds, Person;
     before('prepare "Person" model', function(done) {
+      ds = getSchema();
       Person = ds.define('Person', {
         id: {type: Number, id: true},
         name: {type: String},
