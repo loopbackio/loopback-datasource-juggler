@@ -1825,11 +1825,6 @@ describe('manipulation', function() {
     });
 
     it('should allow delete(id) - success', function(done) {
-      // Suspect race condition happens somewhere
-      // Run it.only passes,
-      // remove only and debug, breakpoint on cloudant.js#L361,
-      // step into it run code slowly test passes, but remove the breakpoint
-      // it fails
       Person.findOne(function(e, p) {
         if (e) return done(e);
         p.delete(function(err, info) {
@@ -1845,7 +1840,6 @@ describe('manipulation', function() {
     });
 
     it('should allow delete(id) - fail', function(done) {
-      // Same reason, please check
       Person.settings.strictDelete = false;
       Person.findOne(function(e, p) {
         if (e) return done(e);
@@ -1869,10 +1863,8 @@ describe('manipulation', function() {
       });
     });
 
-    bdd.itIf(connectorCapabilities.supportStrictDelete !== false &&
-      connectorCapabilities.cloudantCompatible !== false,
-      'should allow delete(id) - ' + 'fail with error', function(done) {
-        // Please recover when the issue above get fixed
+    bdd.itIf(connectorCapabilities.supportStrictDelete !== false, 'should allow delete(id) - ' +
+      'fail with error', function(done) {
         Person.settings.strictDelete = true;
         Person.findOne(function(err, u) {
           if (err) return done(err);
@@ -2213,8 +2205,7 @@ describe('manipulation', function() {
           });
         });
 
-    bdd.itIf(connectorCapabilities.updateWithoutId !== false &&
-      connectorCapabilities.cloudantCompatible !== false,
+    bdd.itIf(connectorCapabilities.updateWithoutId !== false,
       'should update all instances when the where condition is not provided', function(done) {
         filterHarry = connectorCapabilities.deleteWithOtherThanId === false ?
           {id: idHarry} : {name: 'Harry Hoe'};
