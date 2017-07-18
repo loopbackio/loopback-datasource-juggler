@@ -41,15 +41,15 @@ describe('datatypes', function() {
       done();
     });
 
-  it('should return 400 when property of type array is set to object value',
+  it('should not return error when property of type array is set to object value',
     function(done) {
       var myModel = db.define('myModel', {
         list: {type: ['object']},
       });
 
       (function() {
-        myModel.create({list: {key: 'This string will crash the server'}});
-      }).should.throw({statusCode: 400});
+        myModel.create({list: {key: 'This string wont crash the server'}});
+      }).should.not.throw({statusCode: 400});
 
       done();
     });
