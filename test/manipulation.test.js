@@ -1870,7 +1870,7 @@ describe('manipulation', function() {
     });
 
     bdd.itIf(connectorCapabilities.supportStrictDelete !== false &&
-      connectorCapabilities.cloudantCompatible,
+      connectorCapabilities.cloudantCompatible !== false,
       'should allow delete(id) - ' + 'fail with error', function(done) {
         // Please recover when the issue above get fixed
         Person.settings.strictDelete = true;
@@ -2214,7 +2214,7 @@ describe('manipulation', function() {
         });
 
     bdd.itIf(connectorCapabilities.updateWithoutId !== false &&
-      connectorCapabilities.cloudantCompatible,
+      connectorCapabilities.cloudantCompatible !== false,
       'should update all instances when the where condition is not provided', function(done) {
         filterHarry = connectorCapabilities.deleteWithOtherThanId === false ?
           {id: idHarry} : {name: 'Harry Hoe'};
