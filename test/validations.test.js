@@ -755,6 +755,25 @@ describe('validations', function() {
         done();
       });
     });
+
+    it('passes with an empty value when allowBlank option is true', function(done) {
+      User.validatesInclusionOf('gender', {in: ['male', 'female'], allowBlank: true});
+      User.create({gender: ''}, done);
+    });
+
+    it('fails with an empty value when allowBlank option is false', function(done) {
+      User.validatesInclusionOf('gender', {in: ['male', 'female'], allowBlank: false});
+      User.create({gender: ''}, function(err) {
+        err.should.be.instanceOf(ValidationError);
+        getErrorDetails(err)
+          .should.equal('`gender` is blank (value: "").');
+        done();
+      });
+    });
+
+    function getErrorDetails(err) {
+      return err.message.replace(/^.*Details: /, '');
+    }
   });
 
   describe('exclusion', function() {
