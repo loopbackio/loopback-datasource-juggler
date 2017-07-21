@@ -1,3 +1,15 @@
+2017-07-21, Version 2.55.1
+==========================
+
+ * Catch errors using cb (loay)
+
+ * Recursively cast props on fromDb for memory conn. (nVitius)
+
+ * Recursively coerce nested properties in dao (nVitius)
+
+ * Fix #1079 - Polymorphic hasMany inverse relation (#1296) (Janny)
+
+
 2017-07-10, Version 2.55.0
 ==========================
 
