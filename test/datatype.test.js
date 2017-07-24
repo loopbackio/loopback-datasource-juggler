@@ -34,11 +34,10 @@ describe('datatypes', function() {
         list: {type: ['object']},
       });
 
-      (function() {
-        myModel.create({list: 'This string will crash the server'});
-      }).should.throw({statusCode: 400});
-
-      done();
+      myModel.create({list: 'This string will crash the server'}, function(err) {
+        (err.statusCode).should.equal(400);
+        done();
+      });
     });
 
   it('should return 400 when property of type array is set to object value',
@@ -47,11 +46,10 @@ describe('datatypes', function() {
         list: {type: ['object']},
       });
 
-      (function() {
-        myModel.create({list: {key: 'This string will crash the server'}});
-      }).should.throw({statusCode: 400});
-
-      done();
+      myModel.create({list: {key: 'This string will crash the server'}}, function(err) {
+        (err.statusCode).should.equal(400);
+        done();
+      });
     });
 
   it('should keep types when get read data from db', function(done) {
