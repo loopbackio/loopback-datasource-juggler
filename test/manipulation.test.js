@@ -42,6 +42,7 @@ describe('manipulation', function() {
   before(function setupStubUserModel(done) {
     StubUser = db.createModel('StubUser', {password: String}, {forceId: true});
     StubUser.setter.password = function(plain) {
+      if (plain.length === 0) throw new Error('password cannot be empty');
       var hashed = false;
       if (!plain) return;
       var pos = plain.indexOf('-');
@@ -542,6 +543,22 @@ describe('manipulation', function() {
       });
     });
 
+    it('should reject created StubUser with empty password', function(done) {
+      StubUser.create({email: 'b@example.com', password: ''}, function(err, createdUser) {
+        (err.message).should.match(/password cannot be empty/);
+        done();
+      });
+    });
+
+    it('should reject updated empty password with updateAttribute', function(done) {
+      StubUser.create({password: 'abc123'}, function(err, createdUser) {
+        if (err) return done(err);
+        createdUser.updateAttribute('password', '', function(err, updatedUser) {
+          (err.message).should.match(/password cannot be empty/);
+          done();
+        });
+      });
+    });
     it('should update one attribute', function(done) {
       person.updateAttribute('name', 'Paul Graham', function(err, p) {
         if (err) return done(err);
