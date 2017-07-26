@@ -78,40 +78,40 @@ describe('validations', function() {
         User.validatesPresenceOf('pendingPeriod', {if: 'createdByAdmin'});
         var user = new User;
         user.createdByAdmin = true;
-        user.isValid().should.be.false;
+        user.isValid().should.be.false();
         user.errors.pendingPeriod.should.eql(['can\'t be blank']);
         user.pendingPeriod = 1;
-        user.isValid().should.be.true;
+        user.isValid().should.be.true();
       });
 
       it('should skip when `if` is NOT fulfilled', function() {
         User.validatesPresenceOf('pendingPeriod', {if: 'createdByAdmin'});
         var user = new User;
         user.createdByAdmin = false;
-        user.isValid().should.be.true;
-        user.errors.should.be.false;
+        user.isValid().should.be.true();
+        user.errors.should.be.false();
         user.pendingPeriod = 1;
-        user.isValid().should.be.true;
+        user.isValid().should.be.true();
       });
 
       it('should NOT skip when `unless` is fulfilled', function() {
         User.validatesPresenceOf('pendingPeriod', {unless: 'createdByAdmin'});
         var user = new User;
         user.createdByAdmin = false;
-        user.isValid().should.be.false;
+        user.isValid().should.be.false();
         user.errors.pendingPeriod.should.eql(['can\'t be blank']);
         user.pendingPeriod = 1;
-        user.isValid().should.be.true;
+        user.isValid().should.be.true();
       });
 
       it('should skip when `unless` is NOT fulfilled', function() {
         User.validatesPresenceOf('pendingPeriod', {unless: 'createdByAdmin'});
         var user = new User;
         user.createdByAdmin = true;
-        user.isValid().should.be.true;
-        user.errors.should.be.false;
+        user.isValid().should.be.true();
+        user.errors.should.be.false();
         user.pendingPeriod = 1;
-        user.isValid().should.be.true;
+        user.isValid().should.be.true();
       });
     });
 
@@ -124,8 +124,8 @@ describe('validations', function() {
         var user = new User;
         user.createdByAdmin = false;
         user.isValid(function(valid) {
-          valid.should.be.true;
-          user.errors.should.be.false;
+          valid.should.be.true();
+          user.errors.should.be.false();
           done();
         });
       });
@@ -138,7 +138,7 @@ describe('validations', function() {
         var user = new User;
         user.createdByAdmin = true;
         user.isValid(function(valid) {
-          valid.should.be.false;
+          valid.should.be.false();
           user.errors.pendingPeriod.should.eql(['can\'t be blank']);
           done();
         });
@@ -152,8 +152,8 @@ describe('validations', function() {
         var user = new User;
         user.createdByAdmin = true;
         user.isValid(function(valid) {
-          valid.should.be.true;
-          user.errors.should.be.false;
+          valid.should.be.true();
+          user.errors.should.be.false();
           done();
         });
       });
@@ -166,7 +166,7 @@ describe('validations', function() {
         var user = new User;
         user.createdByAdmin = false;
         user.isValid(function(valid) {
-          valid.should.be.false;
+          valid.should.be.false();
           user.errors.pendingPeriod.should.eql(['can\'t be blank']);
           done();
         });
@@ -362,43 +362,43 @@ describe('validations', function() {
       validations.email.should.eql([{validation: 'presence', options: {}}]);
 
       var u = new User;
-      u.isValid().should.not.be.true;
+      u.isValid().should.not.be.true();
       u.name = 1;
-      u.isValid().should.not.be.true;
+      u.isValid().should.not.be.true();
       u.email = 2;
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
     });
 
     it('should reject NaN value as a number', function() {
       User.validatesPresenceOf('age');
       var u = new User();
-      u.isValid().should.be.false;
+      u.isValid().should.be.false();
       u.age = NaN;
-      u.isValid().should.be.false;
+      u.isValid().should.be.false();
       u.age = 1;
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
     });
 
     it('should allow "NaN" value as a string', function() {
       User.validatesPresenceOf('name');
       var u = new User();
-      u.isValid().should.be.false;
+      u.isValid().should.be.false();
       u.name = 'NaN';
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
     });
 
     it('should skip validation by property (if/unless)', function() {
       User.validatesPresenceOf('domain', {unless: 'createdByScript'});
 
       var user = new User(getValidAttributes());
-      user.isValid().should.be.true;
+      user.isValid().should.be.true();
 
       user.createdByScript = false;
-      user.isValid().should.be.false;
+      user.isValid().should.be.false();
       user.errors.domain.should.eql(['can\'t be blank']);
 
       user.domain = 'domain';
-      user.isValid().should.be.true;
+      user.isValid().should.be.true();
     });
 
     describe('validate presence on update', function() {
@@ -452,11 +452,11 @@ describe('validations', function() {
     it('should validate absence', function() {
       User.validatesAbsenceOf('reserved', {if: 'locked'});
       var u = new User({reserved: 'foo', locked: true});
-      u.isValid().should.not.be.true;
+      u.isValid().should.not.be.true();
       u.reserved = null;
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
       u = new User({reserved: 'foo', locked: false});
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
     });
 
     describe('validate absence on update', function() {
@@ -512,26 +512,26 @@ describe('validations', function() {
       User.validatesUniquenessOf('email');
       var u = new User({email: 'hey'});
       Boolean(u.isValid(function(valid) {
-        valid.should.be.true;
+        valid.should.be.true();
         u.save(function() {
           var u2 = new User({email: 'hey'});
           u2.isValid(function(valid) {
-            valid.should.be.false;
+            valid.should.be.false();
             done();
           });
         });
-      })).should.be.false;
+      })).should.be.false();
     });
 
     it('should handle same object modification', function(done) {
       User.validatesUniquenessOf('email');
       var u = new User({email: 'hey'});
       Boolean(u.isValid(function(valid) {
-        valid.should.be.true;
+        valid.should.be.true();
         u.save(function() {
           u.name = 'Goghi';
           u.isValid(function(valid) {
-            valid.should.be.true;
+            valid.should.be.true();
             u.save(done);
           });
         });
@@ -563,7 +563,7 @@ describe('validations', function() {
         function validateDuplicateUser(user2, next) {
           var user3 = new SiteUser({siteId: 1, email: EMAIL});
           user3.isValid(function(valid) {
-            valid.should.be.false;
+            valid.should.be.false();
             next();
           });
         },
@@ -579,15 +579,15 @@ describe('validations', function() {
       User.validatesUniquenessOf('email');
       var u = new User({email: '  '});
       Boolean(u.isValid(function(valid) {
-        valid.should.be.true;
+        valid.should.be.true();
         u.save(function() {
           var u2 = new User({email: null});
           u2.isValid(function(valid) {
-            valid.should.be.true;
+            valid.should.be.true();
             done();
           });
         });
-      })).should.be.false;
+      })).should.be.false();
     });
 
     it('should work with if/unless', function(done) {
@@ -597,27 +597,27 @@ describe('validations', function() {
       });
       var u = new User({email: 'hello'});
       Boolean(u.isValid(function(valid) {
-        valid.should.be.true;
+        valid.should.be.true();
         done();
-      })).should.be.false;
+      })).should.be.false();
     });
 
     it('should work with id property on create', function(done) {
       Entry.create({id: 'entry'}, function(err, entry) {
         var e = new Entry({id: 'entry'});
         Boolean(e.isValid(function(valid) {
-          valid.should.be.false;
+          valid.should.be.false();
           done();
-        })).should.be.false;
+        })).should.be.false();
       });
     });
 
     it('should work with id property after create', function(done) {
       Entry.findById('entry', function(err, e) {
         Boolean(e.isValid(function(valid) {
-          valid.should.be.true;
+          valid.should.be.true();
           done();
-        })).should.be.false;
+        })).should.be.false();
       });
     });
 
@@ -1252,7 +1252,7 @@ describe('validations', function() {
         if (this.email === 'hello') err();
       }, {code: 'invalid-email'});
       var u = new User({email: 'hello'});
-      Boolean(u.isValid()).should.be.false;
+      Boolean(u.isValid()).should.be.false();
       u.errors.codes.should.eql({email: ['invalid-email']});
     });
 
@@ -1264,7 +1264,7 @@ describe('validations', function() {
         }
       });
       var u = new User({email: 'hello'});
-      Boolean(u.isValid()).should.be.false;
+      Boolean(u.isValid()).should.be.false();
       u.errors.should.eql({email: ['Cannot be `hello`']});
       u.errors.codes.should.eql({email: ['invalid-email']});
     });
@@ -1278,9 +1278,9 @@ describe('validations', function() {
       });
       var u = new User({email: 'hello'});
       Boolean(u.isValid(function(valid) {
-        valid.should.be.true;
+        valid.should.be.true();
         done();
-      })).should.be.false;
+      })).should.be.false();
     });
   });
 
@@ -1357,31 +1357,31 @@ describe('validations', function() {
     it('should validate a date object', function() {
       User.validatesDateOf('updatedAt');
       var u = new User({updatedAt: new Date()});
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
     });
 
     it('should validate a date string', function() {
       User.validatesDateOf('updatedAt');
       var u = new User({updatedAt: '2000-01-01'});
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
     });
 
     it('should validate a null date', function() {
       User.validatesDateOf('updatedAt');
       var u = new User({updatedAt: null});
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
     });
 
     it('should validate an undefined date', function() {
       User.validatesDateOf('updatedAt');
       var u = new User({updatedAt: undefined});
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
     });
 
     it('should validate an invalid date string', function() {
       User.validatesDateOf('updatedAt');
       var u = new User({updatedAt: 'invalid date string'});
-      u.isValid().should.not.be.true;
+      u.isValid().should.not.be.true();
       u.errors.should.eql({
         updatedAt: ['is not a valid date'],
         codes: {
@@ -1405,7 +1405,7 @@ describe('validations', function() {
         updatedAt: Date,
       });
       var u = new AnotherUser({updatedAt: 'invalid date string'});
-      u.isValid().should.not.be.true;
+      u.isValid().should.not.be.true();
       u.errors.should.eql({
         updatedAt: ['is not a valid date'],
         codes: {
@@ -1418,7 +1418,7 @@ describe('validations', function() {
       var CUSTOM_MESSAGE = 'custom validation message';
       User.validatesDateOf('updatedAt', {message: CUSTOM_MESSAGE});
       var u = new User({updatedAt: 'invalid date string'});
-      u.isValid().should.not.be.true;
+      u.isValid().should.not.be.true();
       u.errors.should.eql({
         updatedAt: [CUSTOM_MESSAGE],
         codes: {
