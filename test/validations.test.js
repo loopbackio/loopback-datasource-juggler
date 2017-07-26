@@ -765,31 +765,65 @@ describe('validations', function() {
   });
 
   describe('format', function() {
-    it('should validate format');
-    it('should overwrite default blank message with custom format message');
+    it('should validate the format of valid strings', function() {
+      User.validatesFormatOf('name', {with: /[a-z][A-Z]*$/});
+      var u = new User({name: 'valid name'});
+      u.isValid().should.be.true();
+    });
 
-    it('should skip missing values when allowing null', function() {
-      User.validatesFormatOf('email', {with: /^\S+@\S+\.\S+$/, allowNull: true});
+    it('should validate the format of invalid strings', function() {
+      User.validatesFormatOf('name', {with: /[a-z][A-Z]*$/});
+      var u = new User({name: 'invalid name!'});
+      u.isValid().should.be.false();
+    });
+
+    it('should validate the format of valid numbers', function() {
+      User.validatesFormatOf('age', {with: /^\d+$/});
+      var u = new User({age: 30});
+      u.isValid().should.be.true();
+    });
+
+    it('should validate the format of invalid numbers', function() {
+      User.validatesFormatOf('age', {with: /^\d+$/});
+      var u = new User({age: 'thirty'});
+      u.isValid().should.be.false();
+    });
+
+    it('should overwrite default blank message with custom format message', function() {
+      var CUSTOM_MESSAGE = 'custom validation message';
+      User.validatesFormatOf('name', {with: /[a-z][A-Z]*$/, message: CUSTOM_MESSAGE});
+      var u = new User({name: 'invalid name string 123'});
+      u.isValid().should.be.false();
+      u.errors.should.eql({
+        name: [CUSTOM_MESSAGE],
+        codes: {
+          name: ['format'],
+        },
+      });
+    });
+
+    it('should skip missing values when allowing blank', function() {
+      User.validatesFormatOf('email', {with: /^\S+@\S+\.\S+$/, allowBlank: true});
       var u = new User({});
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
     });
 
     it('should skip null values when allowing null', function() {
       User.validatesFormatOf('email', {with: /^\S+@\S+\.\S+$/, allowNull: true});
       var u = new User({email: null});
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
     });
 
     it('should not skip missing values', function() {
       User.validatesFormatOf('email', {with: /^\S+@\S+\.\S+$/});
       var u = new User({});
-      u.isValid().should.be.false;
+      u.isValid().should.be.false();
     });
 
     it('should not skip null values', function() {
       User.validatesFormatOf('email', {with: /^\S+@\S+\.\S+$/});
       var u = new User({email: null});
-      u.isValid().should.be.false;
+      u.isValid().should.be.false();
     });
 
     describe('validate format on update', function() {
