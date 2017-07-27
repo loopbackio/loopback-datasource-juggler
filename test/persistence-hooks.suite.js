@@ -17,10 +17,12 @@ var uid = require('./helpers/uid-generator');
 var getLastGeneratedUid = uid.last;
 
 var HookMonitor = require('./helpers/hook-monitor');
+var isNewInstanceFlag;
 
 module.exports = function(dataSource, should, connectorCapabilities) {
+  isNewInstanceFlag = connectorCapabilities.replaceOrCreateReportsNewInstance;
   if (!connectorCapabilities) connectorCapabilities = {};
-  if (connectorCapabilities.replaceOrCreateReportsNewInstance === undefined) {
+  if (isNewInstanceFlag === undefined) {
     var warn = 'The connector does not support a recently added feature:' +
       ' replaceOrCreateReportsNewInstance';
     console.warn(warn);
@@ -1219,7 +1221,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               name: existingInstance.name,
               extra: 'changed',
             },
-            isNewInstance: false,
+            isNewInstance: isNewInstanceFlag ? false : undefined,
             options: {throws: false, validate: true},
           }));
 
@@ -1260,7 +1262,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               name: 'changed',
               extra: undefined,
             },
-            isNewInstance: false,
+            isNewInstance: isNewInstanceFlag ? false : undefined,
             options: {throws: false, validate: true},
           }));
           done();
@@ -1285,7 +1287,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               name: 'created',
               extra: undefined,
             },
-            isNewInstance: true,
+            isNewInstance: isNewInstanceFlag ? true : undefined,
             options: {throws: false, validate: true},
           }));
           done();
@@ -2152,7 +2154,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             if (dataSource.connector.updateOrCreate) {
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
                 data: {id: 'new-id', name: 'a name'},
-                isNewInstance: true,
+                isNewInstance: isNewInstanceFlag ? true : undefined,
               }));
             } else {
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
@@ -2179,7 +2181,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 id: existingInstance.id,
                 name: 'updated name',
               },
-              isNewInstance: false,
+              isNewInstance: isNewInstanceFlag ? false : undefined,
             }));
             done();
           });
@@ -2208,7 +2210,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 name: 'updated name',
                 extra: undefined,
               },
-              isNewInstance: false,
+              isNewInstance: isNewInstanceFlag ? false : undefined,
             }));
             done();
           });
@@ -2238,7 +2240,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 name: 'a name',
                 extra: undefined,
               },
-              isNewInstance: true,
+              isNewInstance: isNewInstanceFlag ? true : undefined,
             }));
             done();
           });
@@ -2560,7 +2562,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               };
 
               expected.isNewInstance =
-                connectorCapabilities.replaceOrCreateReportsNewInstance ?
+                isNewInstanceFlag ?
                 true : undefined;
 
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, expected));
@@ -2584,7 +2586,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               };
 
               expected.isNewInstance =
-                connectorCapabilities.replaceOrCreateReportsNewInstance ?
+                isNewInstanceFlag ?
                 false : undefined;
 
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, expected));
@@ -2619,7 +2621,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               };
 
               expected.isNewInstance =
-                connectorCapabilities.replaceOrCreateReportsNewInstance ?
+                isNewInstanceFlag ?
                 false : undefined;
 
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, expected));
@@ -2643,7 +2645,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 },
               };
               expected.isNewInstance =
-                connectorCapabilities.replaceOrCreateReportsNewInstance ?
+                isNewInstanceFlag ?
                 true : undefined;
 
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, expected));
