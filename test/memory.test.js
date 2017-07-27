@@ -4,6 +4,7 @@
 // License text available at https://opensource.org/licenses/MIT
 'use strict';
 
+var g = require('strong-globalize')();
 var jdb = require('../');
 var DataSource = jdb.DataSource;
 var path = require('path');
@@ -888,6 +889,106 @@ describe('Memory connector', function() {
           done();
         });
     });
+  });
+
+  describe('_castPropertyValue', function() {
+    var mem = new Memory();
+    var ds = new DataSource({
+      connector: mem,
+    });
+
+    var Kwyjibo = ds.createModel('Kwyjibo', {
+      modelNumber: Number,
+      purpose: String,
+    });
+
+    testHappyPath('handles strings', 'name', 'foo', 'foo');
+    testHappyPath('handles numbers', 'age', '20', 20);
+    var hobbies = [
+      'swimming', 'biking', 'extreme bear fighting',
+    ];
+    testHappyPath('handles boolean values', 'isAwesome', 'true', true);
+    var now = new Date();
+    testHappyPath('handles Dates', 'createdAt', now.toISOString(),
+      new Date(now));
+    testHappyPath('handles arrays', 'hobbies', hobbies, hobbies);
+
+    it('handles ModelConstructors', function() {
+      var samoflange = {
+        modelNumber: 12345,
+        purpose: 'To annoy others',
+      };
+      var kwyjibo = new Kwyjibo();
+      for (var item in samoflange) {
+        kwyjibo[item] = samoflange[item];
+      }
+      var result = mem._castPropertyValue('samoflange', samoflange, kwyjibo);
+      should.exist(result);
+      should.deepEqual(result, kwyjibo.__data);
+    });
+
+    var nullUndef = 'Property definition "%s" was null or undefined!';
+    var noSubTypes = 'Property definition "%s" did not specify any sub-types!';
+    testUnhappyPath('throws on empty array property def', 'hobbies', hobbies,
+      g.f(noSubTypes, 'hobbies'));
+    testUnhappyPath('throws on empty object property def', 'age', 20,
+      g.f(nullUndef, 'age'));
+    testUnhappyPath('throws on null property def', 'name', 'foo',
+      g.f(nullUndef, 'name'));
+    testUnhappyPath('throws on undefined property def', 'title', 'peon',
+      g.f(nullUndef, 'title'));
+
+    function testHappyPath(testName, prop, val, expected) {
+      var props = {
+        name: {
+          type: String,
+        },
+        age: {
+          type: Number,
+        },
+        hobbies: {
+          type: [
+            String,
+          ],
+        },
+        isAwesome: {
+          type: Boolean,
+        },
+        createdAt: {
+          type: Date,
+        },
+        samoflange: {
+          type: Kwyjibo,
+        },
+      };
+
+      it(testName, function() {
+        var result = mem._castPropertyValue(prop, val, props);
+        result.should.deepEqual(expected);
+      });
+    }
+
+    function testUnhappyPath(testName, prop, val, expected) {
+      var props = {
+        name: {
+          type: null,
+        },
+        title: {
+          type: undefined,
+        },
+        age: {
+          type: {},
+        },
+        hobbies: {
+          type: [],
+        },
+      };
+      it(testName, function() {
+        (function() {
+          mem._castPropertyValue(prop, val, props);
+        }).should.throw(expected);
+      });
+    }
   });
 });
 
