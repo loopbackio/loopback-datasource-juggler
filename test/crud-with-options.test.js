@@ -20,6 +20,7 @@ describe('crud-with-options', function() {
       role: {type: String, index: true},
       order: {type: Number, index: true, sort: true},
       vip: {type: Boolean},
+      meta: {type: Object},
     });
     options = {};
     filter = {fields: ['name', 'id']};
@@ -255,6 +256,15 @@ describe('crud-with-options', function() {
         should.exists(users);
         should.not.exists(err);
         users.should.have.lengthOf(6);
+        done();
+      });
+    });
+
+    it('should not throw for nested properties for ANY or Object type', function(done) {
+      User.find({where: {'meta.thisPropertyNotDefined': true}}, function(err, users) {
+        should.not.exists(err);
+        should.exists(users);
+        users.should.have.lengthOf(0);
         done();
       });
     });
