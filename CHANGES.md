@@ -1,3 +1,11 @@
+2017-07-28, Version 2.55.2
+==========================
+
+ * Fix #1434 2.55.1 Throws when using where query against "JSON Object or ANY" Type (#1444) (Shing)
+
+ * castPropertyValue: throw on malformed types (Kevin Delisle)
+
+
 2017-07-21, Version 2.55.1
 ==========================
 
