@@ -260,7 +260,7 @@ describe('crud-with-options', function() {
       });
     });
 
-    it('should not throw for nested properties', function(done) {
+    it('should not throw for nested properties for ANY or Object type', function(done) {
       User.find({where: {'meta.thisPropertyNotDefined': true}}, function(err, users) {
         should.not.exists(err);
         should.exists(users);
