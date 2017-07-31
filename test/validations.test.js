@@ -26,7 +26,7 @@ function getValidAttributes() {
 }
 
 describe('validations', function() {
-  var User, Entry;
+  var User, Entry, Employee;
 
   before(function(done) {
     db = getSchema();
@@ -47,8 +47,16 @@ describe('validations', function() {
       id: {type: 'string', id: true, generated: false},
       name: {type: 'string'},
     });
+    Employee = db.define('Employee', {
+      id: {type: Number, id: true, generated: false},
+      name: {type: String},
+      age: {type: Number},
+    });
     Entry.validatesUniquenessOf('id');
-    db.automigrate(done);
+    db.automigrate(function(err) {
+      should.not.exist(err);
+      Employee.create(empData, done);
+    });
   });
 
   beforeEach(function(done) {
@@ -58,8 +66,8 @@ describe('validations', function() {
     });
   });
 
-  after(function() {
-    // db.disconnect();
+  after(function(done) {
+    Employee.destroyAll(done);
   });
 
   describe('commons', function() {
@@ -390,6 +398,51 @@ describe('validations', function() {
       user.domain = 'domain';
       user.isValid().should.be.true;
     });
+
+    describe('validate presence on update', function() {
+      before(function(done) {
+        Employee.destroyAll(function(err) {
+          should.not.exist(err);
+          delete Employee.validations;
+          db.automigrate('Employee', function(err) {
+            should.not.exist(err);
+            Employee.create(empData, function(err, inst) {
+              should.not.exist(err);
+              should.exist(inst);
+              Employee.validatesPresenceOf('name', 'age');
+              done();
+            });
+          });
+        });
+      });
+
+      it('succeeds when validate condition is met', function(done) {
+        var data = {name: 'Foo-new', age: 5};
+        Employee.updateAll({id: 1}, data,
+          function(err, emp) {
+            should.not.exist(err);
+            should.exist(emp);
+            should.equal(emp.count, 1);
+            Employee.find({where: {id: 1}}, function(err, emp) {
+              should.not.exist(err);
+              should.exist(emp);
+              data.id = 1;
+              should.deepEqual(data, emp[0].toObject());
+              done();
+            });
+          });
+      });
+
+      it('throws err when validate condition is not met', function(done) {
+        Employee.updateAll({where: {id: 1}}, {name: 'Foo-new'},
+          function(err, emp) {
+            should.exist(err);
+            should.equal(err.statusCode, 422);
+            should.equal(err.details.messages.age[0], 'can\'t be blank');
+            done();
+          });
+      });
+    });
   });
 
   describe('absence', function() {
@@ -401,6 +454,52 @@ describe('validations', function() {
       u.isValid().should.be.true;
       u = new User({reserved: 'foo', locked: false});
       u.isValid().should.be.true;
+    });
+
+    describe('validate absence on update', function() {
+      before(function(done) {
+        Employee.destroyAll(function(err) {
+          should.not.exist(err);
+          delete Employee.validations;
+          db.automigrate('Employee', function(err) {
+            should.not.exist(err);
+            Employee.create(empData, function(err, inst) {
+              should.not.exist(err);
+              should.exist(inst);
+              Employee.validatesAbsenceOf('name');
+              done();
+            });
+          });
+        });
+      });
+
+      it('succeeds when validate condition is met', function(done) {
+        var data = {age: 5};
+        Employee.updateAll({id: 1}, data,
+          function(err, emp) {
+            should.not.exist(err);
+            should.exist(emp);
+            should.equal(emp.count, 1);
+            Employee.find({where: {id: 1}}, function(err, emp) {
+              should.not.exist(err);
+              should.exist(emp);
+              data.id = 1;
+              data.name = 'Foo';
+              should.deepEqual(data, emp[0].toObject());
+              done();
+            });
+          });
+      });
+
+      it('throws err when validate condition is not met', function(done) {
+        Employee.updateAll({where: {id: 1}}, {name: 'Foo-new', age: 5},
+          function(err, emp) {
+            should.exist(err);
+            should.equal(err.statusCode, 422);
+            should.equal(err.details.messages.name[0], 'can\'t be set');
+            done();
+          });
+      });
     });
   });
 
@@ -613,6 +712,51 @@ describe('validations', function() {
         });
       })).should.be.false();
     });
+
+    describe('validate uniqueness on update', function() {
+      before(function(done) {
+        Employee.destroyAll(function(err) {
+          should.not.exist(err);
+          delete Employee.validations;
+          db.automigrate('Employee', function(err) {
+            should.not.exist(err);
+            Employee.create(empData, function(err, inst) {
+              should.not.exist(err);
+              should.exist(inst);
+              Employee.validatesUniquenessOf('name');
+              done();
+            });
+          });
+        });
+      });
+
+      it('succeeds when validate condition is met', function(done) {
+        var data = {name: 'Foo-new', age: 5};
+        Employee.updateAll({id: 1}, data,
+          function(err, emp) {
+            should.not.exist(err);
+            should.exist(emp);
+            should.equal(emp.count, 1);
+            Employee.find({where: {id: 1}}, function(err, emp) {
+              should.not.exist(err);
+              should.exist(emp);
+              data.id = 1;
+              should.deepEqual(data, emp[0].toObject());
+              done();
+            });
+          });
+      });
+
+      it('throws err when validate condition is not met', function(done) {
+        Employee.updateAll({where: {id: 1}}, {name: 'Bar', age: 5},
+          function(err, emp) {
+            should.exist(err);
+            should.equal(err.statusCode, 422);
+            should.equal(err.details.messages.name[0], 'is not unique');
+            done();
+          });
+      });
+    });
   });
 
   describe('format', function() {
@@ -641,6 +785,51 @@ describe('validations', function() {
       User.validatesFormatOf('email', {with: /^\S+@\S+\.\S+$/});
       var u = new User({email: null});
       u.isValid().should.be.false;
+    });
+
+    describe('validate format on update', function() {
+      before(function(done) {
+        Employee.destroyAll(function(err) {
+          should.not.exist(err);
+          delete Employee.validations;
+          db.automigrate('Employee', function(err) {
+            should.not.exist(err);
+            Employee.create(empData, function(err, inst) {
+              should.not.exist(err);
+              should.exist(inst);
+              Employee.validatesFormatOf('name', {with: /^\w+\s\w+$/, allowNull: false});
+              done();
+            });
+          });
+        });
+      });
+
+      it('succeeds when validate condition is met', function(done) {
+        var data = {name: 'Foo Mo', age: 5};
+        Employee.updateAll({id: 1}, data,
+          function(err, emp) {
+            should.not.exist(err);
+            should.exist(emp);
+            should.equal(emp.count, 1);
+            Employee.find({where: {id: 1}}, function(err, emp) {
+              should.not.exist(err);
+              should.exist(emp);
+              data.id = 1;
+              should.deepEqual(data, emp[0].toObject());
+              done();
+            });
+          });
+      });
+
+      it('throws err when validate condition is not met', function(done) {
+        Employee.updateAll({where: {id: 1}}, {name: '45foo', age: 5},
+          function(err, emp) {
+            should.exist(err);
+            should.equal(err.statusCode, 422);
+            should.equal(err.details.messages.name[0], 'is invalid');
+            done();
+          });
+      });
     });
   });
 
@@ -702,6 +891,51 @@ describe('validations', function() {
       var user = new User({age: 13.37});
       user.isValid().should.be.false();
       user.errors.should.match({age: /is not an integer/});
+    });
+
+    describe('validate numericality on update', function() {
+      before(function(done) {
+        Employee.destroyAll(function(err) {
+          should.not.exist(err);
+          delete Employee.validations;
+          db.automigrate('Employee', function(err) {
+            should.not.exist(err);
+            Employee.create(empData, function(err, inst) {
+              should.not.exist(err);
+              should.exist(inst);
+              Employee.validatesNumericalityOf('age');
+              done();
+            });
+          });
+        });
+      });
+
+      it('succeeds when validate condition is met', function(done) {
+        var data = {name: 'Foo-new', age: 5};
+        Employee.updateAll({id: 1}, data,
+          function(err, emp) {
+            should.not.exist(err);
+            should.exist(emp);
+            should.equal(emp.count, 1);
+            Employee.find({where: {id: 1}}, function(err, emp) {
+              should.not.exist(err);
+              should.exist(emp);
+              data.id = 1;
+              should.deepEqual(data, emp[0].toObject());
+              done();
+            });
+          });
+      });
+
+      it('throws err when validate condition is not met', function(done) {
+        Employee.updateAll({where: {id: 1}}, {age: {someAge: 5}},
+          function(err, emp) {
+            should.exist(err);
+            should.equal(err.statusCode, 422);
+            should.equal(err.details.messages.age[0], 'is not a number');
+            done();
+          });
+      });
     });
   });
 
@@ -774,6 +1008,52 @@ describe('validations', function() {
     function getErrorDetails(err) {
       return err.message.replace(/^.*Details: /, '');
     }
+
+    describe('validate inclusion on update', function() {
+      before(function(done) {
+        Employee.destroyAll(function(err) {
+          should.not.exist(err);
+          delete Employee.validations;
+          db.automigrate('Employee', function(err) {
+            should.not.exist(err);
+            Employee.create(empData, function(err, inst) {
+              should.not.exist(err);
+              should.exist(inst);
+              Employee.validatesInclusionOf('name', {in: ['Foo-new']});
+              done();
+            });
+          });
+        });
+      });
+
+      it('succeeds when validate condition is met', function(done) {
+        var data = {name: 'Foo-new', age: 5};
+        Employee.updateAll({id: 1}, data,
+          function(err, emp) {
+            should.not.exist(err);
+            should.exist(emp);
+            should.equal(emp.count, 1);
+            Employee.find({where: {id: 1}}, function(err, emp) {
+              should.not.exist(err);
+              should.exist(emp);
+              data.id = 1;
+              should.deepEqual(data, emp[0].toObject());
+              done();
+            });
+          });
+      });
+
+      it('throws err when validate condition is not met', function(done) {
+        Employee.updateAll({where: {id: 1}}, {name: 'Foo-new2', age: 5},
+          function(err, emp) {
+            should.exist(err);
+            should.equal(err.statusCode, 422);
+            should.equal(err.details.messages.name[0], 'is not included in ' +
+            'the list');
+            done();
+          });
+      });
+    });
   });
 
   describe('exclusion', function() {
@@ -826,10 +1106,100 @@ describe('validations', function() {
         done();
       });
     });
+
+    describe('validate exclusion on update', function() {
+      before(function(done) {
+        Employee.destroyAll(function(err) {
+          should.not.exist(err);
+          delete Employee.validations;
+          db.automigrate('Employee', function(err) {
+            should.not.exist(err);
+            Employee.create(empData, function(err, inst) {
+              should.not.exist(err);
+              should.exist(inst);
+              Employee.validatesExclusionOf('name', {in: ['Bob']});
+              done();
+            });
+          });
+        });
+      });
+
+      it('succeeds when validate condition is met', function(done) {
+        var data = {name: 'Foo-new', age: 5};
+        Employee.updateAll({id: 1}, data,
+          function(err, emp) {
+            should.not.exist(err);
+            should.exist(emp);
+            should.equal(emp.count, 1);
+            Employee.find({where: {id: 1}}, function(err, emp) {
+              should.not.exist(err);
+              should.exist(emp);
+              data.id = 1;
+              should.deepEqual(data, emp[0].toObject());
+              done();
+            });
+          });
+      });
+
+      it('throws err when validate condition is not met', function(done) {
+        Employee.updateAll({where: {id: 1}}, {name: 'Bob', age: 5},
+          function(err, emp) {
+            should.exist(err);
+            should.equal(err.statusCode, 422);
+            should.equal(err.details.messages.name[0], 'is reserved');
+            done();
+          });
+      });
+    });
   });
 
   describe('length', function() {
     it('should validate length');
+
+    describe('validate length on update', function() {
+      before(function(done) {
+        Employee.destroyAll(function(err) {
+          should.not.exist(err);
+          delete Employee.validations;
+          db.automigrate('Employee', function(err) {
+            should.not.exist(err);
+            Employee.create(empData, function(err, inst) {
+              should.not.exist(err);
+              should.exist(inst);
+              Employee.validatesLengthOf('name', {min: 5});
+              done();
+            });
+          });
+        });
+      });
+
+      it('succeeds when validate condition is met', function(done) {
+        var data = {name: 'Foo-new', age: 5};
+        Employee.updateAll({id: 1}, data,
+          function(err, emp) {
+            should.not.exist(err);
+            should.exist(emp);
+            should.equal(emp.count, 1);
+            Employee.find({where: {id: 1}}, function(err, emp) {
+              should.not.exist(err);
+              should.exist(emp);
+              data.id = 1;
+              should.deepEqual(data, emp[0].toObject());
+              done();
+            });
+          });
+      });
+
+      it('throws err when validate condition is not met', function(done) {
+        Employee.updateAll({where: {id: 1}}, {name: 'Bob', age: 5},
+          function(err, emp) {
+            should.exist(err);
+            should.equal(err.statusCode, 422);
+            should.equal(err.details.messages.name[0], 'too short');
+            done();
+          });
+      });
+    });
   });
 
   describe('custom', function() {
@@ -938,6 +1308,7 @@ describe('validations', function() {
       return err.message.replace(/^.*Details: /, '');
     }
   });
+
   describe('date', function() {
     it('should validate a date object', function() {
       User.validatesDateOf('updatedAt');
@@ -1013,3 +1384,17 @@ describe('validations', function() {
     });
   });
 });
+
+var empData = [{
+  id: 1,
+  name: 'Foo',
+  age: 1,
+}, {
+  id: 2,
+  name: 'Bar',
+  age: 2,
+}, {
+  id: 3,
+  name: 'Baz',
+  age: 3,
+}];
