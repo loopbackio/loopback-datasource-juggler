@@ -572,7 +572,7 @@ describe('relations', function() {
 
     before(function(done) {
       Physician = db.define('Physician', {name: String});
-      Patient = db.define('Patient', {name: String, age: Number,
+      Patient = db.define('Patient', {name: String, age: Number, realm: String,
         sequence: {type: Number, index: true}});
       Appointment = db.define('Appointment', {date: {type: Date,
         default: function() {
@@ -916,6 +916,51 @@ describe('relations', function() {
             });
         });
       };
+    });
+
+    describe('find over related model with options', function() {
+      after(function() {
+        Physician.clearObservers('access');
+        Patient.clearObservers('access');
+      });
+      before(function() {
+        Physician.observe('access', beforeAccessFn);
+        Patient.observe('access', beforeAccessFn);
+
+        function beforeAccessFn(ctx, next) {
+          ctx.query.where.realm = ctx.options.realm;
+          next();
+        }
+      });
+      it('should find be filtered from option', function(done) {
+        var id;
+        Physician.create(function(err, physician) {
+          if (err) return done(err);
+          physician.patients.create({name: 'a', realm: 'test'}, function(err, ch) {
+            if (err) return done(err);
+            id = ch.id;
+            physician.patients.create({name: 'z', realm: 'test'}, function(err) {
+              if (err) return done(err);
+              physician.patients.create({name: 'c', realm: 'anotherRealm'}, function(err) {
+                if (err) return done(err);
+                verify(physician);
+              });
+            });
+          });
+        });
+
+        function verify(physician) {
+          physician.patients({order: 'name ASC'}, {realm: 'test'}, function(err, records) {
+            if (err) return done(err);
+            should.exist(records);
+            records.length.should.eql(2);
+            const expected = ['a:test', 'z:test'];
+            const actual = records.map(function(r) { return r.name + ':' + r.realm; });
+            actual.should.eql(expected);
+            done();
+          });
+        }
+      });
     });
 
     it('should find scoped record', function(done) {
