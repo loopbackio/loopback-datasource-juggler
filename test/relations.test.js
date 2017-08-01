@@ -950,7 +950,7 @@ describe('relations', function() {
         });
 
         function verify(physician) {
-          physician.patients({}, {realm: 'test'}, function(err, records) {
+          physician.patients({order: 'name ASC'}, {realm: 'test'}, function(err, records) {
             if (err) return done(err);
             should.exist(records);
             records.length.should.eql(2);
