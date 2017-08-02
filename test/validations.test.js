@@ -437,6 +437,7 @@ describe('validations', function() {
         Employee.updateAll({where: {id: 1}}, {name: 'Foo-new'},
           function(err, emp) {
             should.exist(err);
+            should.not.exist(emp);
             should.equal(err.statusCode, 422);
             should.equal(err.details.messages.age[0], 'can\'t be blank');
             done();
@@ -495,6 +496,7 @@ describe('validations', function() {
         Employee.updateAll({where: {id: 1}}, {name: 'Foo-new', age: 5},
           function(err, emp) {
             should.exist(err);
+            should.not.exist(emp);
             should.equal(err.statusCode, 422);
             should.equal(err.details.messages.name[0], 'can\'t be set');
             done();
@@ -751,6 +753,7 @@ describe('validations', function() {
         Employee.updateAll({where: {id: 1}}, {name: 'Bar', age: 5},
           function(err, emp) {
             should.exist(err);
+            should.not.exist(emp);
             should.equal(err.statusCode, 422);
             should.equal(err.details.messages.name[0], 'is not unique');
             done();
@@ -825,6 +828,7 @@ describe('validations', function() {
         Employee.updateAll({where: {id: 1}}, {name: '45foo', age: 5},
           function(err, emp) {
             should.exist(err);
+            should.not.exist(emp);
             should.equal(err.statusCode, 422);
             should.equal(err.details.messages.name[0], 'is invalid');
             done();
@@ -931,6 +935,7 @@ describe('validations', function() {
         Employee.updateAll({where: {id: 1}}, {age: {someAge: 5}},
           function(err, emp) {
             should.exist(err);
+            should.not.exist(emp);
             should.equal(err.statusCode, 422);
             should.equal(err.details.messages.age[0], 'is not a number');
             done();
@@ -1047,6 +1052,7 @@ describe('validations', function() {
         Employee.updateAll({where: {id: 1}}, {name: 'Foo-new2', age: 5},
           function(err, emp) {
             should.exist(err);
+            should.not.exist(emp);
             should.equal(err.statusCode, 422);
             should.equal(err.details.messages.name[0], 'is not included in ' +
             'the list');
@@ -1145,6 +1151,7 @@ describe('validations', function() {
         Employee.updateAll({where: {id: 1}}, {name: 'Bob', age: 5},
           function(err, emp) {
             should.exist(err);
+            should.not.exist(emp);
             should.equal(err.statusCode, 422);
             should.equal(err.details.messages.name[0], 'is reserved');
             done();
@@ -1194,6 +1201,7 @@ describe('validations', function() {
         Employee.updateAll({where: {id: 1}}, {name: 'Bob', age: 5},
           function(err, emp) {
             should.exist(err);
+            should.not.exist(emp);
             should.equal(err.statusCode, 422);
             should.equal(err.details.messages.name[0], 'too short');
             done();
