@@ -2259,6 +2259,8 @@ describe('manipulation', function() {
     });
 
     it('should not coerce invalid values provided in where conditions', function(done) {
+      // remove the validations since update/updateAll validates the model
+      delete Person.validations;
       Person.update({name: 'Brett Boe'}, {dob: 'notadate'}, function(err) {
         should.exist(err);
         err.message.should.equal('Invalid date: notadate');
