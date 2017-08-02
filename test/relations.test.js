@@ -956,7 +956,7 @@ describe('relations', function() {
             records.length.should.eql(2);
             const expected = ['a:test', 'z:test'];
             const actual = records.map(function(r) { return r.name + ':' + r.realm; });
-            actual.should.eql(expected);
+            actual.sort().should.eql(expected.sort());
             done();
           });
         }
