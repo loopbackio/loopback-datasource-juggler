@@ -51,6 +51,8 @@ describe('validations', function() {
       id: {type: Number, id: true, generated: false},
       name: {type: String},
       age: {type: Number},
+    }, {
+      validateUpdate: true,
     });
     Entry.validatesUniquenessOf('id');
     db.automigrate(function(err) {
