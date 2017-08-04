@@ -545,7 +545,7 @@ describe('Memory connector', function() {
         User.updateOrCreate({id: paul.id, name: 'Sir Paul McCartney'},
           function(err, sirpaul) {
             should.not.exist(err);
-            sirpaul.birthday.should.be.instanceOf(Date);
+            sirpaul.birthday.should.be.instanceOf(Date); // TODO [rashmi] sync up with Miroslav. Original model is updated with properties {id: paul.id, name: 'Sir Paul McCartney'} removing preexistng properties like birthday, order etc
             sirpaul.order.should.be.instanceOf(Number);
             sirpaul.vip.should.be.instanceOf(Boolean);
             done();

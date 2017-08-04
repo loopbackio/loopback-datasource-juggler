@@ -207,7 +207,7 @@ describe('validations', function() {
         User.validatesPresenceOf('name');
         // It's important to pass an id value, otherwise DAO falls back
         // to regular create()
-        User.updateOrCreate({id: 999}, done);
+        User.updateOrCreate({id: 999}, done); // This fails with forceId set back to settings[] TODO [rashmi] Sync up with Miroslav.
       });
 
       it('should be skipped by upsert when disabled via settings', function(done) {
@@ -221,7 +221,7 @@ describe('validations', function() {
           Customer.settings.validateUpsert = false;
           // It's important to pass an id value, otherwise DAO falls back
           // to regular create()
-          Customer.updateOrCreate({id: 999}, done);
+          Customer.updateOrCreate({id: 999}, done); // This fails with forceId set back to settings[] TODO [rashmi] Sync up with Miroslav.
         });
       });
 
@@ -232,7 +232,7 @@ describe('validations', function() {
         // It's important to pass an id value, otherwise DAO falls back
         // to regular create()
         User.upsert({id: 999}, function(err, u) {
-          if (!err) return done(new Error('Validation should have failed.'));
+          if (!err) return done(new Error('Validation should have failed.')); // This fails with forceId set back to settings[] TODO [rashmi] Sync up with Miroslav.
           err.should.be.instanceOf(ValidationError);
           done();
         });

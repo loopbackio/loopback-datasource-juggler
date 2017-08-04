@@ -350,6 +350,9 @@ describe('DataSource define model', function() {
       published: {type: Boolean, default: false, index: true},
     });
 
+    // check if forceId is added as true in ModelClass's settings[] explicitly, if id a generated (default) and forceId
+    // in from the model is true(unspecified is 'true' which is the default).
+    Post.settings.should.have.property('forceId').eql(true);
 // simpler way to describe model
     var User = ds.define('User', {
       name: String,
@@ -645,7 +648,7 @@ describe('DataSource define model', function() {
 
     var User = ds.define('User', {});
     assert.deepEqual(User.definition.properties.id,
-      {type: Number, id: 1, generated: true});
+      {type: Number, id: 1, generated: true, updateOnly: true});
 
     done();
   });
