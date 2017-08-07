@@ -205,9 +205,12 @@ describe('validations', function() {
       it('should ignore errors on upsert by default', function(done) {
         delete User.validations;
         User.validatesPresenceOf('name');
-        // It's important to pass an id value, otherwise DAO falls back
-        // to regular create()
-        User.updateOrCreate({id: 999}, done); // This fails with forceId set back to settings[] TODO [rashmi] Sync up with Miroslav.
+        // It's important to pass an existing id value to updateOrCreate,
+        // otherwise DAO falls back to regular create()
+        User.create({name: 'a-name'}, (err, u) => {
+          if (err) return done(err);
+          User.updateOrCreate({id: u.id}, done);
+        });
       });
 
       it('should be skipped by upsert when disabled via settings', function(done) {
@@ -215,26 +218,33 @@ describe('validations', function() {
         Customer.attachTo(db);
         db.autoupdate(function(err) {
           if (err) return done(err);
-          Customer.prototype.isValid = function() {
-            throw new Error('isValid() should not be called at all');
-          };
-          Customer.settings.validateUpsert = false;
-          // It's important to pass an id value, otherwise DAO falls back
-          // to regular create()
-          Customer.updateOrCreate({id: 999}, done); // This fails with forceId set back to settings[] TODO [rashmi] Sync up with Miroslav.
+          // It's important to pass an existing id value,
+          // otherwise DAO falls back to regular create()
+          Customer.create({name: 'a-name'}, (err, u) => {
+            if (err) return done(err);
+
+            Customer.prototype.isValid = function() {
+              throw new Error('isValid() should not be called at all');
+            };
+            Customer.settings.validateUpsert = false;
+
+            Customer.updateOrCreate({id: u.id, name: ''}, done);
+          });
         });
       });
 
       it('should work on upsert when enabled via settings', function(done) {
-        delete User.validations;
         User.validatesPresenceOf('name');
         User.settings.validateUpsert = true;
-        // It's important to pass an id value, otherwise DAO falls back
-        // to regular create()
-        User.upsert({id: 999}, function(err, u) {
-          if (!err) return done(new Error('Validation should have failed.')); // This fails with forceId set back to settings[] TODO [rashmi] Sync up with Miroslav.
-          err.should.be.instanceOf(ValidationError);
-          done();
+        // It's important to pass an existing id value,
+        // otherwise DAO falls back to regular create()
+        User.create({name: 'a-name'}, (err, u) => {
+          if (err) return done(err);
+          User.upsert({id: u.id, name: ''}, function(err, u) {
+            if (!err) return done(new Error('Validation should have failed.'));
+            err.should.be.instanceOf(ValidationError);
+            done();
+          });
         });
       });
 
