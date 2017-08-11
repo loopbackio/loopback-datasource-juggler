@@ -683,13 +683,13 @@ describe('DataSource define model', function() {
 
     var User = builder.define('User', {id: {type: String, generated: true, id: true}});
     assert.deepEqual(User.definition.properties.id,
-      {type: String, id: 1, generated: true});
+      {type: String, id: 1, generated: true, updateOnly: true});
 
     var ds = new DataSource('memory');// define models
     User.attachTo(ds);
 
     assert.deepEqual(User.definition.properties.id,
-      {type: Number, id: 1, generated: true});
+      {type: Number, id: 1, generated: true, updateOnly: true});
 
     done();
   });

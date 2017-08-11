@@ -208,7 +208,7 @@ describe('default scope', function() {
       var data = {id: ids.productA, description: 'Anything...', kind: 'ingored'};
       Tool.updateOrCreate(data, function(err, p) {
         should.not.exist(err);
-        p.name.should.equal('Product A'); // TODO [rashmi] Sync up with Miroslav about this. propertyly setting the forceId back to settings has this side affect
+        p.name.should.equal('Product A');
         p.kind.should.equal('Tool');
         p.description.should.equal('Anything...');
         done();
