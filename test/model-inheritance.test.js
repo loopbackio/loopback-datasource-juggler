@@ -254,7 +254,6 @@ describe('Model class inheritance', function() {
           },
         },
         strict: false,
-        forceId: true,
       });
 
       assert.deepEqual(Customer.settings, {
@@ -282,7 +281,6 @@ describe('Model class inheritance', function() {
           },
         },
         strict: false,
-        forceId: true,
         base: User,
       });
 

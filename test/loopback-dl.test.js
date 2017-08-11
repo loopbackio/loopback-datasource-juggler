@@ -1931,3 +1931,61 @@ describe('ModelBuilder options.models', function() {
     assert.deepEqual(codes.number, ['unknown-property']);
   });
 });
+
+describe('updateOnly', function() {
+  it('verify forceId', function(done) {
+    var ds = new DataSource('memory');
+    var Post = ds.define('Post', {
+      title: {type: String, length: 255},
+      date: {type: Date, default: function() {
+        return new Date();
+      }},
+    });
+    // check if forceId is added as true in ModelClass's settings[] explicitly,
+    // if id a generated (default) and forceId in from the model is
+    // true(unspecified is 'true' which is the default).
+    Post.settings.should.have.property('forceId').eql(true);
+    done();
+  });
+
+  it('verify getUpdateOnlyProperties with forceId undefined', function(done) {
+    var ds = new DataSource('memory');
+    var Post = ds.define('Post', {
+      title: {type: String, length: 255},
+      date: {type: Date, default: function() {
+        return new Date();
+      }},
+    });
+    // check if method getUpdateOnlyProperties exist in ModelClass and check if
+    // the Post has 'id' in updateOnlyProperties list
+    Post.should.have.property('getUpdateOnlyProperties');
+    Post.getUpdateOnlyProperties().should.eql(['id']);
+    done();
+  });
+
+  it('verify getUpdateOnlyProperties with forceId = false', function(done) {
+    var ds = new DataSource('memory');
+    var Person = ds.define('Person', {
+      name: String,
+      gender: String,
+    }, {forceId: false});
+    // id should not be there in updateOnly properties list if forceId is set
+    // to false
+    Person.should.have.property('getUpdateOnlyProperties');
+    Person.getUpdateOnlyProperties().should.eql([]);
+    done();
+  });
+
+  it('verify getUpdateOnlyProperties with forceId = true', function(done) {
+    var ds = new DataSource('memory');
+    var Person = ds.define('Person', {
+      name: String,
+      gender: String,
+    }, {forceId: true});
+    // id should be there in updateOnly properties list if forceId is set
+    // to false
+    Person.should.have.property('getUpdateOnlyProperties');
+    Person.getUpdateOnlyProperties().should.eql(['id']);
+    done();
+  });
+});
