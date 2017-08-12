@@ -650,26 +650,6 @@ describe('DataSource define model', function() {
     done();
   });
 
-  it('check forceId and getUpdateOnlyProperties', function(done) {
-    var ds = new DataSource('memory');
-    var Post = ds.define('Post', {
-      title: {type: String, length: 255},
-      date: {type: Date, default: function() {
-        return new Date();
-      }},
-    });
-
-    // check if forceId is added as true in ModelClass's settings[] explicitly, if id a generated (default) and forceId
-    // in from the model is true(unspecified is 'true' which is the default).
-    Post.settings.should.have.property('forceId').eql(true);
-
-    // check if method getUpdateOnlyProperties exist in ModelClass and check if the Post has 'id' in updateOnlyProperties list
-    Post.should.have.property('getUpdateOnlyProperties');
-    var updateOnlyProps = Post.getUpdateOnlyProperties();
-    updateOnlyProps.should.containEql('id');
-    done();
-  });
-
   it('disables idInjection if the value is false', function(done) {
     var ds = new ModelBuilder();
 
