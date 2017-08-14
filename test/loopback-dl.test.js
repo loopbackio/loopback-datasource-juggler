@@ -1913,7 +1913,7 @@ describe('ModelBuilder options.models', function() {
 });
 
 describe('updateOnly', function() {
-  it('verify forceId', function(done) {
+  it('sets forceId to true when model id is generated', function(done) {
     var ds = new DataSource('memory');
     var Post = ds.define('Post', {
       title: {type: String, length: 255},
@@ -1928,7 +1928,7 @@ describe('updateOnly', function() {
     done();
   });
 
-  it('verify getUpdateOnlyProperties with forceId undefined', function(done) {
+  it('flags id as updateOnly when forceId is undefined', function(done) {
     var ds = new DataSource('memory');
     var Post = ds.define('Post', {
       title: {type: String, length: 255},
@@ -1943,7 +1943,7 @@ describe('updateOnly', function() {
     done();
   });
 
-  it('verify getUpdateOnlyProperties with forceId = false', function(done) {
+  it('does not flag id as updateOnly when forceId is false', function(done) {
     var ds = new DataSource('memory');
     var Person = ds.define('Person', {
       name: String,
@@ -1956,7 +1956,7 @@ describe('updateOnly', function() {
     done();
   });
 
-  it('verify getUpdateOnlyProperties with forceId = true', function(done) {
+  it('flags id as updateOnly when forceId is true', function(done) {
     var ds = new DataSource('memory');
     var Person = ds.define('Person', {
       name: String,
