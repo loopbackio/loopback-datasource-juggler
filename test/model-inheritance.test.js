@@ -239,6 +239,7 @@ describe('Model class inheritance', function() {
         );
 
       assert.deepEqual(User.settings, {
+        forceId: true,
         defaultPermission: 'ALLOW',
         acls: [
           {
@@ -257,6 +258,7 @@ describe('Model class inheritance', function() {
       });
 
       assert.deepEqual(Customer.settings, {
+        forceId: true,
         defaultPermission: 'DENY',
         acls: [
           {
