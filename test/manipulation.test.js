@@ -559,6 +559,7 @@ describe('manipulation', function() {
         });
       });
     });
+
     it('should update one attribute', function(done) {
       person.updateAttribute('name', 'Paul Graham', function(err, p) {
         if (err) return done(err);
@@ -840,6 +841,16 @@ describe('manipulation', function() {
           should.exist(data.content);
           data.content.should.equal('b');
 
+          done();
+        });
+      });
+    });
+
+    it('should reject updated empty password with updateOrCreate', function(done) {
+      StubUser.create({password: 'abc123'}, function(err, createdUser) {
+        if (err) return done(err);
+        StubUser.updateOrCreate({id: createdUser.id, 'password': ''}, function(err, updatedUser) {
+          (err.message).should.match(/password cannot be empty/);
           done();
         });
       });
@@ -1333,6 +1344,16 @@ describe('manipulation', function() {
               found.password.should.equal('test-TEST');
               done();
             });
+          });
+        });
+      });
+
+      it('should reject updated empty password with replaceAttributes', function(done) {
+        StubUser.create({password: 'abc123'}, function(err, createdUser) {
+          if (err) return done(err);
+          createdUser.replaceAttributes({'password': ''}, function(err, updatedUser) {
+            (err.message).should.match(/password cannot be empty/);
+            done();
           });
         });
       });
@@ -2221,6 +2242,16 @@ describe('manipulation', function() {
             });
           });
         });
+
+    it('should reject updated empty password with updateAll', function(done) {
+      StubUser.create({password: 'abc123'}, function(err, createdUser) {
+        if (err) return done(err);
+        StubUser.updateAll({where: {id: createdUser.id}}, {'password': ''}, function(err, updatedUser) {
+          (err.message).should.match(/password cannot be empty/);
+          done();
+        });
+      });
+    });
 
     bdd.itIf(connectorCapabilities.updateWithoutId !== false,
       'should update all instances when the where condition is not provided', function(done) {
