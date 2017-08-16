@@ -49,6 +49,19 @@ describe('include_util', function() {
       result.getKeys().should.have.lengthOf(2);  // no additional properties
     });
   });
+
+  describe('#buildOneToOneIdentityMapWithOrigKeys', function() {
+    it('should return an object with keys only if key exist on the object', function() {
+      var objs = [
+        {id: 11, 'fk_id': '11', letter: 'A'},
+        {id: 22, 'fk_id': null, letter: 'B'},
+      ];
+      var result = includeUtils.buildOneToOneIdentityMapWithOrigKeys(objs, 'fk_id');
+      result.get(11).should.be.ok;
+      result.getKeys().should.have.lengthOf(1);  // no additional properties
+    });
+  });
+
   describe('#buildOneToManyIdentityMap', function() {
     it('should return an object with keys', function() {
       var objs = [
@@ -72,6 +85,17 @@ describe('include_util', function() {
       result.get(11)[0]['letter'].should.equal('A');
       result.get(11)[1]['letter'].should.equal('HA!');
       result.get(33)[0]['letter'].should.equal('C');
+    });
+
+    it('should return an object with keys only if key exist on the object', function() {
+      var objs = [
+        {id: 11, 'fk_id': 11, letter: 'A'},
+        {id: 22, 'fk_id': null, letter: 'B'},
+      ];
+      var result = includeUtils.buildOneToManyIdentityMapWithOrigKeys(objs, 'fk_id');
+      result.exist(11).should.be.true;
+      result.exist(22).should.be.false;
+      result.getKeys().should.have.lengthOf(1);  // no additional properties
     });
   });
 });
