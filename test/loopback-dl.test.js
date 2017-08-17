@@ -1924,7 +1924,7 @@ describe('updateOnly', function() {
     // check if forceId is added as true in ModelClass's settings[] explicitly,
     // if id a generated (default) and forceId in from the model is
     // true(unspecified is 'true' which is the default).
-    Post.settings.should.have.property('forceId').eql(true);
+    Post.settings.should.have.property('forceId').eql('auto');
     done();
   });
 
