@@ -1963,7 +1963,7 @@ describe('updateOnly', function() {
       gender: String,
     }, {forceId: true});
     // id should be there in updateOnly properties list if forceId is set
-    // to false
+    // to true
     Person.should.have.property('getUpdateOnlyProperties');
     Person.getUpdateOnlyProperties().should.eql(['id']);
     done();
