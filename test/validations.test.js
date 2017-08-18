@@ -26,7 +26,7 @@ function getValidAttributes() {
 }
 
 describe('validations', function() {
-  var User, Entry;
+  var User, Entry, Employee;
 
   before(function(done) {
     db = getSchema();
@@ -47,8 +47,18 @@ describe('validations', function() {
       id: {type: 'string', id: true, generated: false},
       name: {type: 'string'},
     });
+    Employee = db.define('Employee', {
+      id: {type: Number, id: true, generated: false},
+      name: {type: String},
+      age: {type: Number},
+    }, {
+      validateUpdate: true,
+    });
     Entry.validatesUniquenessOf('id');
-    db.automigrate(done);
+    db.automigrate(function(err) {
+      should.not.exist(err);
+      Employee.create(empData, done);
+    });
   });
 
   beforeEach(function(done) {
@@ -58,8 +68,8 @@ describe('validations', function() {
     });
   });
 
-  after(function() {
-    // db.disconnect();
+  after(function(done) {
+    Employee.destroyAll(done);
   });
 
   describe('commons', function() {
@@ -68,40 +78,40 @@ describe('validations', function() {
         User.validatesPresenceOf('pendingPeriod', {if: 'createdByAdmin'});
         var user = new User;
         user.createdByAdmin = true;
-        user.isValid().should.be.false;
+        user.isValid().should.be.false();
         user.errors.pendingPeriod.should.eql(['can\'t be blank']);
         user.pendingPeriod = 1;
-        user.isValid().should.be.true;
+        user.isValid().should.be.true();
       });
 
       it('should skip when `if` is NOT fulfilled', function() {
         User.validatesPresenceOf('pendingPeriod', {if: 'createdByAdmin'});
         var user = new User;
         user.createdByAdmin = false;
-        user.isValid().should.be.true;
-        user.errors.should.be.false;
+        user.isValid().should.be.true();
+        user.errors.should.be.false();
         user.pendingPeriod = 1;
-        user.isValid().should.be.true;
+        user.isValid().should.be.true();
       });
 
       it('should NOT skip when `unless` is fulfilled', function() {
         User.validatesPresenceOf('pendingPeriod', {unless: 'createdByAdmin'});
         var user = new User;
         user.createdByAdmin = false;
-        user.isValid().should.be.false;
+        user.isValid().should.be.false();
         user.errors.pendingPeriod.should.eql(['can\'t be blank']);
         user.pendingPeriod = 1;
-        user.isValid().should.be.true;
+        user.isValid().should.be.true();
       });
 
       it('should skip when `unless` is NOT fulfilled', function() {
         User.validatesPresenceOf('pendingPeriod', {unless: 'createdByAdmin'});
         var user = new User;
         user.createdByAdmin = true;
-        user.isValid().should.be.true;
-        user.errors.should.be.false;
+        user.isValid().should.be.true();
+        user.errors.should.be.false();
         user.pendingPeriod = 1;
-        user.isValid().should.be.true;
+        user.isValid().should.be.true();
       });
     });
 
@@ -114,8 +124,8 @@ describe('validations', function() {
         var user = new User;
         user.createdByAdmin = false;
         user.isValid(function(valid) {
-          valid.should.be.true;
-          user.errors.should.be.false;
+          valid.should.be.true();
+          user.errors.should.be.false();
           done();
         });
       });
@@ -128,7 +138,7 @@ describe('validations', function() {
         var user = new User;
         user.createdByAdmin = true;
         user.isValid(function(valid) {
-          valid.should.be.false;
+          valid.should.be.false();
           user.errors.pendingPeriod.should.eql(['can\'t be blank']);
           done();
         });
@@ -142,8 +152,8 @@ describe('validations', function() {
         var user = new User;
         user.createdByAdmin = true;
         user.isValid(function(valid) {
-          valid.should.be.true;
-          user.errors.should.be.false;
+          valid.should.be.true();
+          user.errors.should.be.false();
           done();
         });
       });
@@ -156,7 +166,7 @@ describe('validations', function() {
         var user = new User;
         user.createdByAdmin = false;
         user.isValid(function(valid) {
-          valid.should.be.false;
+          valid.should.be.false();
           user.errors.pendingPeriod.should.eql(['can\'t be blank']);
           done();
         });
@@ -352,43 +362,89 @@ describe('validations', function() {
       validations.email.should.eql([{validation: 'presence', options: {}}]);
 
       var u = new User;
-      u.isValid().should.not.be.true;
+      u.isValid().should.not.be.true();
       u.name = 1;
-      u.isValid().should.not.be.true;
+      u.isValid().should.not.be.true();
       u.email = 2;
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
     });
 
     it('should reject NaN value as a number', function() {
       User.validatesPresenceOf('age');
       var u = new User();
-      u.isValid().should.be.false;
+      u.isValid().should.be.false();
       u.age = NaN;
-      u.isValid().should.be.false;
+      u.isValid().should.be.false();
       u.age = 1;
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
     });
 
     it('should allow "NaN" value as a string', function() {
       User.validatesPresenceOf('name');
       var u = new User();
-      u.isValid().should.be.false;
+      u.isValid().should.be.false();
       u.name = 'NaN';
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
     });
 
     it('should skip validation by property (if/unless)', function() {
       User.validatesPresenceOf('domain', {unless: 'createdByScript'});
 
       var user = new User(getValidAttributes());
-      user.isValid().should.be.true;
+      user.isValid().should.be.true();
 
       user.createdByScript = false;
-      user.isValid().should.be.false;
+      user.isValid().should.be.false();
       user.errors.domain.should.eql(['can\'t be blank']);
 
       user.domain = 'domain';
-      user.isValid().should.be.true;
+      user.isValid().should.be.true();
+    });
+
+    describe('validate presence on update', function() {
+      before(function(done) {
+        Employee.destroyAll(function(err) {
+          should.not.exist(err);
+          delete Employee.validations;
+          db.automigrate('Employee', function(err) {
+            should.not.exist(err);
+            Employee.create(empData, function(err, inst) {
+              should.not.exist(err);
+              should.exist(inst);
+              Employee.validatesPresenceOf('name', 'age');
+              done();
+            });
+          });
+        });
+      });
+
+      it('succeeds when validate condition is met', function(done) {
+        var data = {name: 'Foo-new', age: 5};
+        Employee.updateAll({id: 1}, data,
+          function(err, emp) {
+            should.not.exist(err);
+            should.exist(emp);
+            should.equal(emp.count, 1);
+            Employee.find({where: {id: 1}}, function(err, emp) {
+              should.not.exist(err);
+              should.exist(emp);
+              data.id = 1;
+              should.deepEqual(data, emp[0].toObject());
+              done();
+            });
+          });
+      });
+
+      it('throws err when validate condition is not met', function(done) {
+        Employee.updateAll({where: {id: 1}}, {name: 'Foo-new'},
+          function(err, emp) {
+            should.exist(err);
+            should.not.exist(emp);
+            should.equal(err.statusCode, 422);
+            should.equal(err.details.messages.age[0], 'can\'t be blank');
+            done();
+          });
+      });
     });
   });
 
@@ -396,11 +452,58 @@ describe('validations', function() {
     it('should validate absence', function() {
       User.validatesAbsenceOf('reserved', {if: 'locked'});
       var u = new User({reserved: 'foo', locked: true});
-      u.isValid().should.not.be.true;
+      u.isValid().should.not.be.true();
       u.reserved = null;
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
       u = new User({reserved: 'foo', locked: false});
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
+    });
+
+    describe('validate absence on update', function() {
+      before(function(done) {
+        Employee.destroyAll(function(err) {
+          should.not.exist(err);
+          delete Employee.validations;
+          db.automigrate('Employee', function(err) {
+            should.not.exist(err);
+            Employee.create(empData, function(err, inst) {
+              should.not.exist(err);
+              should.exist(inst);
+              Employee.validatesAbsenceOf('name');
+              done();
+            });
+          });
+        });
+      });
+
+      it('succeeds when validate condition is met', function(done) {
+        var data = {age: 5};
+        Employee.updateAll({id: 1}, data,
+          function(err, emp) {
+            should.not.exist(err);
+            should.exist(emp);
+            should.equal(emp.count, 1);
+            Employee.find({where: {id: 1}}, function(err, emp) {
+              should.not.exist(err);
+              should.exist(emp);
+              data.id = 1;
+              data.name = 'Foo';
+              should.deepEqual(data, emp[0].toObject());
+              done();
+            });
+          });
+      });
+
+      it('throws err when validate condition is not met', function(done) {
+        Employee.updateAll({where: {id: 1}}, {name: 'Foo-new', age: 5},
+          function(err, emp) {
+            should.exist(err);
+            should.not.exist(emp);
+            should.equal(err.statusCode, 422);
+            should.equal(err.details.messages.name[0], 'can\'t be set');
+            done();
+          });
+      });
     });
   });
 
@@ -409,26 +512,26 @@ describe('validations', function() {
       User.validatesUniquenessOf('email');
       var u = new User({email: 'hey'});
       Boolean(u.isValid(function(valid) {
-        valid.should.be.true;
+        valid.should.be.true();
         u.save(function() {
           var u2 = new User({email: 'hey'});
           u2.isValid(function(valid) {
-            valid.should.be.false;
+            valid.should.be.false();
             done();
           });
         });
-      })).should.be.false;
+      })).should.be.false();
     });
 
     it('should handle same object modification', function(done) {
       User.validatesUniquenessOf('email');
       var u = new User({email: 'hey'});
       Boolean(u.isValid(function(valid) {
-        valid.should.be.true;
+        valid.should.be.true();
         u.save(function() {
           u.name = 'Goghi';
           u.isValid(function(valid) {
-            valid.should.be.true;
+            valid.should.be.true();
             u.save(done);
           });
         });
@@ -460,7 +563,7 @@ describe('validations', function() {
         function validateDuplicateUser(user2, next) {
           var user3 = new SiteUser({siteId: 1, email: EMAIL});
           user3.isValid(function(valid) {
-            valid.should.be.false;
+            valid.should.be.false();
             next();
           });
         },
@@ -476,15 +579,15 @@ describe('validations', function() {
       User.validatesUniquenessOf('email');
       var u = new User({email: '  '});
       Boolean(u.isValid(function(valid) {
-        valid.should.be.true;
+        valid.should.be.true();
         u.save(function() {
           var u2 = new User({email: null});
           u2.isValid(function(valid) {
-            valid.should.be.true;
+            valid.should.be.true();
             done();
           });
         });
-      })).should.be.false;
+      })).should.be.false();
     });
 
     it('should work with if/unless', function(done) {
@@ -494,27 +597,27 @@ describe('validations', function() {
       });
       var u = new User({email: 'hello'});
       Boolean(u.isValid(function(valid) {
-        valid.should.be.true;
+        valid.should.be.true();
         done();
-      })).should.be.false;
+      })).should.be.false();
     });
 
     it('should work with id property on create', function(done) {
       Entry.create({id: 'entry'}, function(err, entry) {
         var e = new Entry({id: 'entry'});
         Boolean(e.isValid(function(valid) {
-          valid.should.be.false;
+          valid.should.be.false();
           done();
-        })).should.be.false;
+        })).should.be.false();
       });
     });
 
     it('should work with id property after create', function(done) {
       Entry.findById('entry', function(err, e) {
         Boolean(e.isValid(function(valid) {
-          valid.should.be.true;
+          valid.should.be.true();
           done();
-        })).should.be.false;
+        })).should.be.false();
       });
     });
 
@@ -613,34 +716,160 @@ describe('validations', function() {
         });
       })).should.be.false();
     });
+
+    describe('validate uniqueness on update', function() {
+      before(function(done) {
+        Employee.destroyAll(function(err) {
+          should.not.exist(err);
+          delete Employee.validations;
+          db.automigrate('Employee', function(err) {
+            should.not.exist(err);
+            Employee.create(empData, function(err, inst) {
+              should.not.exist(err);
+              should.exist(inst);
+              Employee.validatesUniquenessOf('name');
+              done();
+            });
+          });
+        });
+      });
+
+      it('succeeds when validate condition is met', function(done) {
+        var data = {name: 'Foo-new', age: 5};
+        Employee.updateAll({id: 1}, data,
+          function(err, emp) {
+            should.not.exist(err);
+            should.exist(emp);
+            should.equal(emp.count, 1);
+            Employee.find({where: {id: 1}}, function(err, emp) {
+              should.not.exist(err);
+              should.exist(emp);
+              data.id = 1;
+              should.deepEqual(data, emp[0].toObject());
+              done();
+            });
+          });
+      });
+
+      it('throws err when validate condition is not met', function(done) {
+        Employee.updateAll({where: {id: 1}}, {name: 'Bar', age: 5},
+          function(err, emp) {
+            should.exist(err);
+            should.not.exist(emp);
+            should.equal(err.statusCode, 422);
+            should.equal(err.details.messages.name[0], 'is not unique');
+            done();
+          });
+      });
+    });
   });
 
   describe('format', function() {
-    it('should validate format');
-    it('should overwrite default blank message with custom format message');
+    it('should validate the format of valid strings', function() {
+      User.validatesFormatOf('name', {with: /[a-z][A-Z]*$/});
+      var u = new User({name: 'valid name'});
+      u.isValid().should.be.true();
+    });
 
-    it('should skip missing values when allowing null', function() {
-      User.validatesFormatOf('email', {with: /^\S+@\S+\.\S+$/, allowNull: true});
+    it('should validate the format of invalid strings', function() {
+      User.validatesFormatOf('name', {with: /[a-z][A-Z]*$/});
+      var u = new User({name: 'invalid name!'});
+      u.isValid().should.be.false();
+    });
+
+    it('should validate the format of valid numbers', function() {
+      User.validatesFormatOf('age', {with: /^\d+$/});
+      var u = new User({age: 30});
+      u.isValid().should.be.true();
+    });
+
+    it('should validate the format of invalid numbers', function() {
+      User.validatesFormatOf('age', {with: /^\d+$/});
+      var u = new User({age: 'thirty'});
+      u.isValid().should.be.false();
+    });
+
+    it('should overwrite default blank message with custom format message', function() {
+      var CUSTOM_MESSAGE = 'custom validation message';
+      User.validatesFormatOf('name', {with: /[a-z][A-Z]*$/, message: CUSTOM_MESSAGE});
+      var u = new User({name: 'invalid name string 123'});
+      u.isValid().should.be.false();
+      u.errors.should.eql({
+        name: [CUSTOM_MESSAGE],
+        codes: {
+          name: ['format'],
+        },
+      });
+    });
+
+    it('should skip missing values when allowing blank', function() {
+      User.validatesFormatOf('email', {with: /^\S+@\S+\.\S+$/, allowBlank: true});
       var u = new User({});
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
     });
 
     it('should skip null values when allowing null', function() {
       User.validatesFormatOf('email', {with: /^\S+@\S+\.\S+$/, allowNull: true});
       var u = new User({email: null});
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
     });
 
     it('should not skip missing values', function() {
       User.validatesFormatOf('email', {with: /^\S+@\S+\.\S+$/});
       var u = new User({});
-      u.isValid().should.be.false;
+      u.isValid().should.be.false();
     });
 
     it('should not skip null values', function() {
       User.validatesFormatOf('email', {with: /^\S+@\S+\.\S+$/});
       var u = new User({email: null});
-      u.isValid().should.be.false;
+      u.isValid().should.be.false();
+    });
+
+    describe('validate format on update', function() {
+      before(function(done) {
+        Employee.destroyAll(function(err) {
+          should.not.exist(err);
+          delete Employee.validations;
+          db.automigrate('Employee', function(err) {
+            should.not.exist(err);
+            Employee.create(empData, function(err, inst) {
+              should.not.exist(err);
+              should.exist(inst);
+              Employee.validatesFormatOf('name', {with: /^\w+\s\w+$/, allowNull: false});
+              done();
+            });
+          });
+        });
+      });
+
+      it('succeeds when validate condition is met', function(done) {
+        var data = {name: 'Foo Mo', age: 5};
+        Employee.updateAll({id: 1}, data,
+          function(err, emp) {
+            should.not.exist(err);
+            should.exist(emp);
+            should.equal(emp.count, 1);
+            Employee.find({where: {id: 1}}, function(err, emp) {
+              should.not.exist(err);
+              should.exist(emp);
+              data.id = 1;
+              should.deepEqual(data, emp[0].toObject());
+              done();
+            });
+          });
+      });
+
+      it('throws err when validate condition is not met', function(done) {
+        Employee.updateAll({where: {id: 1}}, {name: '45foo', age: 5},
+          function(err, emp) {
+            should.exist(err);
+            should.not.exist(emp);
+            should.equal(err.statusCode, 422);
+            should.equal(err.details.messages.name[0], 'is invalid');
+            done();
+          });
+      });
     });
   });
 
@@ -703,6 +932,52 @@ describe('validations', function() {
       user.isValid().should.be.false();
       user.errors.should.match({age: /is not an integer/});
     });
+
+    describe('validate numericality on update', function() {
+      before(function(done) {
+        Employee.destroyAll(function(err) {
+          should.not.exist(err);
+          delete Employee.validations;
+          db.automigrate('Employee', function(err) {
+            should.not.exist(err);
+            Employee.create(empData, function(err, inst) {
+              should.not.exist(err);
+              should.exist(inst);
+              Employee.validatesNumericalityOf('age');
+              done();
+            });
+          });
+        });
+      });
+
+      it('succeeds when validate condition is met', function(done) {
+        var data = {name: 'Foo-new', age: 5};
+        Employee.updateAll({id: 1}, data,
+          function(err, emp) {
+            should.not.exist(err);
+            should.exist(emp);
+            should.equal(emp.count, 1);
+            Employee.find({where: {id: 1}}, function(err, emp) {
+              should.not.exist(err);
+              should.exist(emp);
+              data.id = 1;
+              should.deepEqual(data, emp[0].toObject());
+              done();
+            });
+          });
+      });
+
+      it('throws err when validate condition is not met', function(done) {
+        Employee.updateAll({where: {id: 1}}, {age: {someAge: 5}},
+          function(err, emp) {
+            should.exist(err);
+            should.not.exist(emp);
+            should.equal(err.statusCode, 422);
+            should.equal(err.details.messages.age[0], 'is not a number');
+            done();
+          });
+      });
+    });
   });
 
   describe('inclusion', function() {
@@ -753,6 +1028,72 @@ describe('validations', function() {
         err.should.be.instanceof(Error);
         err.details.messages.should.match({age: /is not included in the list/});
         done();
+      });
+    });
+
+    it('passes with an empty value when allowBlank option is true', function(done) {
+      User.validatesInclusionOf('gender', {in: ['male', 'female'], allowBlank: true});
+      User.create({gender: ''}, done);
+    });
+
+    it('fails with an empty value when allowBlank option is false', function(done) {
+      User.validatesInclusionOf('gender', {in: ['male', 'female'], allowBlank: false});
+      User.create({gender: ''}, function(err) {
+        err.should.be.instanceOf(ValidationError);
+        getErrorDetails(err)
+          .should.equal('`gender` is blank (value: "").');
+        done();
+      });
+    });
+
+    function getErrorDetails(err) {
+      return err.message.replace(/^.*Details: /, '');
+    }
+
+    describe('validate inclusion on update', function() {
+      before(function(done) {
+        Employee.destroyAll(function(err) {
+          should.not.exist(err);
+          delete Employee.validations;
+          db.automigrate('Employee', function(err) {
+            should.not.exist(err);
+            Employee.create(empData, function(err, inst) {
+              should.not.exist(err);
+              should.exist(inst);
+              Employee.validatesInclusionOf('name', {in: ['Foo-new']});
+              done();
+            });
+          });
+        });
+      });
+
+      it('succeeds when validate condition is met', function(done) {
+        var data = {name: 'Foo-new', age: 5};
+        Employee.updateAll({id: 1}, data,
+          function(err, emp) {
+            should.not.exist(err);
+            should.exist(emp);
+            should.equal(emp.count, 1);
+            Employee.find({where: {id: 1}}, function(err, emp) {
+              should.not.exist(err);
+              should.exist(emp);
+              data.id = 1;
+              should.deepEqual(data, emp[0].toObject());
+              done();
+            });
+          });
+      });
+
+      it('throws err when validate condition is not met', function(done) {
+        Employee.updateAll({where: {id: 1}}, {name: 'Foo-new2', age: 5},
+          function(err, emp) {
+            should.exist(err);
+            should.not.exist(emp);
+            should.equal(err.statusCode, 422);
+            should.equal(err.details.messages.name[0], 'is not included in ' +
+            'the list');
+            done();
+          });
       });
     });
   });
@@ -807,10 +1148,102 @@ describe('validations', function() {
         done();
       });
     });
+
+    describe('validate exclusion on update', function() {
+      before(function(done) {
+        Employee.destroyAll(function(err) {
+          should.not.exist(err);
+          delete Employee.validations;
+          db.automigrate('Employee', function(err) {
+            should.not.exist(err);
+            Employee.create(empData, function(err, inst) {
+              should.not.exist(err);
+              should.exist(inst);
+              Employee.validatesExclusionOf('name', {in: ['Bob']});
+              done();
+            });
+          });
+        });
+      });
+
+      it('succeeds when validate condition is met', function(done) {
+        var data = {name: 'Foo-new', age: 5};
+        Employee.updateAll({id: 1}, data,
+          function(err, emp) {
+            should.not.exist(err);
+            should.exist(emp);
+            should.equal(emp.count, 1);
+            Employee.find({where: {id: 1}}, function(err, emp) {
+              should.not.exist(err);
+              should.exist(emp);
+              data.id = 1;
+              should.deepEqual(data, emp[0].toObject());
+              done();
+            });
+          });
+      });
+
+      it('throws err when validate condition is not met', function(done) {
+        Employee.updateAll({where: {id: 1}}, {name: 'Bob', age: 5},
+          function(err, emp) {
+            should.exist(err);
+            should.not.exist(emp);
+            should.equal(err.statusCode, 422);
+            should.equal(err.details.messages.name[0], 'is reserved');
+            done();
+          });
+      });
+    });
   });
 
   describe('length', function() {
     it('should validate length');
+
+    describe('validate length on update', function() {
+      before(function(done) {
+        Employee.destroyAll(function(err) {
+          should.not.exist(err);
+          delete Employee.validations;
+          db.automigrate('Employee', function(err) {
+            should.not.exist(err);
+            Employee.create(empData, function(err, inst) {
+              should.not.exist(err);
+              should.exist(inst);
+              Employee.validatesLengthOf('name', {min: 5});
+              done();
+            });
+          });
+        });
+      });
+
+      it('succeeds when validate condition is met', function(done) {
+        var data = {name: 'Foo-new', age: 5};
+        Employee.updateAll({id: 1}, data,
+          function(err, emp) {
+            should.not.exist(err);
+            should.exist(emp);
+            should.equal(emp.count, 1);
+            Employee.find({where: {id: 1}}, function(err, emp) {
+              should.not.exist(err);
+              should.exist(emp);
+              data.id = 1;
+              should.deepEqual(data, emp[0].toObject());
+              done();
+            });
+          });
+      });
+
+      it('throws err when validate condition is not met', function(done) {
+        Employee.updateAll({where: {id: 1}}, {name: 'Bob', age: 5},
+          function(err, emp) {
+            should.exist(err);
+            should.not.exist(emp);
+            should.equal(err.statusCode, 422);
+            should.equal(err.details.messages.name[0], 'too short');
+            done();
+          });
+      });
+    });
   });
 
   describe('custom', function() {
@@ -819,7 +1252,7 @@ describe('validations', function() {
         if (this.email === 'hello') err();
       }, {code: 'invalid-email'});
       var u = new User({email: 'hello'});
-      Boolean(u.isValid()).should.be.false;
+      Boolean(u.isValid()).should.be.false();
       u.errors.codes.should.eql({email: ['invalid-email']});
     });
 
@@ -831,7 +1264,7 @@ describe('validations', function() {
         }
       });
       var u = new User({email: 'hello'});
-      Boolean(u.isValid()).should.be.false;
+      Boolean(u.isValid()).should.be.false();
       u.errors.should.eql({email: ['Cannot be `hello`']});
       u.errors.codes.should.eql({email: ['invalid-email']});
     });
@@ -845,9 +1278,9 @@ describe('validations', function() {
       });
       var u = new User({email: 'hello'});
       Boolean(u.isValid(function(valid) {
-        valid.should.be.true;
+        valid.should.be.true();
         done();
-      })).should.be.false;
+      })).should.be.false();
     });
   });
 
@@ -919,35 +1352,36 @@ describe('validations', function() {
       return err.message.replace(/^.*Details: /, '');
     }
   });
+
   describe('date', function() {
     it('should validate a date object', function() {
       User.validatesDateOf('updatedAt');
       var u = new User({updatedAt: new Date()});
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
     });
 
     it('should validate a date string', function() {
       User.validatesDateOf('updatedAt');
       var u = new User({updatedAt: '2000-01-01'});
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
     });
 
     it('should validate a null date', function() {
       User.validatesDateOf('updatedAt');
       var u = new User({updatedAt: null});
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
     });
 
     it('should validate an undefined date', function() {
       User.validatesDateOf('updatedAt');
       var u = new User({updatedAt: undefined});
-      u.isValid().should.be.true;
+      u.isValid().should.be.true();
     });
 
     it('should validate an invalid date string', function() {
       User.validatesDateOf('updatedAt');
       var u = new User({updatedAt: 'invalid date string'});
-      u.isValid().should.not.be.true;
+      u.isValid().should.not.be.true();
       u.errors.should.eql({
         updatedAt: ['is not a valid date'],
         codes: {
@@ -971,7 +1405,7 @@ describe('validations', function() {
         updatedAt: Date,
       });
       var u = new AnotherUser({updatedAt: 'invalid date string'});
-      u.isValid().should.not.be.true;
+      u.isValid().should.not.be.true();
       u.errors.should.eql({
         updatedAt: ['is not a valid date'],
         codes: {
@@ -984,7 +1418,7 @@ describe('validations', function() {
       var CUSTOM_MESSAGE = 'custom validation message';
       User.validatesDateOf('updatedAt', {message: CUSTOM_MESSAGE});
       var u = new User({updatedAt: 'invalid date string'});
-      u.isValid().should.not.be.true;
+      u.isValid().should.not.be.true();
       u.errors.should.eql({
         updatedAt: [CUSTOM_MESSAGE],
         codes: {
@@ -994,3 +1428,17 @@ describe('validations', function() {
     });
   });
 });
+
+var empData = [{
+  id: 1,
+  name: 'Foo',
+  age: 1,
+}, {
+  id: 2,
+  name: 'Bar',
+  age: 2,
+}, {
+  id: 3,
+  name: 'Baz',
+  age: 3,
+}];

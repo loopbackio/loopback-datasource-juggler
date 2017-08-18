@@ -1,3 +1,17 @@
+2017-07-26, Version 3.9.3
+=========================
+
+ * Catch errors using cb (loay)
+
+ * Rename getAsync() methods to find() and get() (Jürg Lehni)
+
+ * #1386 Allow empty values when allowBlank is true (Simo Moujami)
+
+ * Skip imcompatible tests (#1420) (Janny)
+
+ * Run juggler tests for Cloudant (#1414) (Janny)
+
+
 2017-06-22, Version 3.9.2
 =========================
 

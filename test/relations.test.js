@@ -194,13 +194,13 @@ describe('relations', function() {
         }).catch(done);
 
         function verify(book) {
-          return book.chapters.getAsync()
+          return book.chapters.find()
           .then(function(ch) {
             should.exist(ch);
             ch.should.have.lengthOf(3);
             var chapters = book.chapters();
             chapters.should.eql(ch);
-            return book.chapters.getAsync()
+            return book.chapters.find()
             .then(function(c) {
               should.exist(c);
               ch.should.have.lengthOf(3);
@@ -214,7 +214,7 @@ describe('relations', function() {
         }
       });
 
-      it('should fetch all scoped instances with getAsync with callback and condition', function(done) {
+      it('should fetch all scoped instances with find() with callback and condition', function(done) {
         Book.create(function(err, book) {
           book.chapters.create({name: 'a'}, function() {
             book.chapters.create({name: 'z'}, function() {
@@ -232,7 +232,7 @@ describe('relations', function() {
 
             var chapters = book.chapters();
             chapters.should.eql(ch);
-            book.chapters.getAsync(function(e, c) {
+            book.chapters.find(function(e, c) {
               should.not.exist(e);
               should.exist(c);
               ch.should.have.lengthOf(3);
@@ -246,7 +246,7 @@ describe('relations', function() {
         }
       });
 
-      it('should fetch all scoped instances with getAsync with callback and no condition', function(done) {
+      it('should fetch all scoped instances with find() with callback and no condition', function(done) {
         Book.create(function(err, book) {
           book.chapters.create({name: 'a'}, function() {
             book.chapters.create({name: 'z'}, function() {
@@ -265,7 +265,7 @@ describe('relations', function() {
             var chapters = book.chapters();
             chapters.should.eql(ch);
 
-            book.chapters.getAsync(function(e, c) {
+            book.chapters.find(function(e, c) {
               should.not.exist(e);
               should.exist(c);
               should.exist(c.length);
@@ -572,7 +572,7 @@ describe('relations', function() {
 
     before(function(done) {
       Physician = db.define('Physician', {name: String});
-      Patient = db.define('Patient', {name: String, age: Number,
+      Patient = db.define('Patient', {name: String, age: Number, realm: String,
         sequence: {type: Number, index: true}});
       Appointment = db.define('Appointment', {date: {type: Date,
         default: function() {
@@ -711,7 +711,7 @@ describe('relations', function() {
         });
       }).catch(done);
       function verify(physician) {
-        return physician.patients.getAsync()
+        return physician.patients.find()
         .then(function(ch) {
           var patients = physician.patients();
           should.equal(patients, ch);
@@ -918,6 +918,51 @@ describe('relations', function() {
       };
     });
 
+    describe('find over related model with options', function() {
+      after(function() {
+        Physician.clearObservers('access');
+        Patient.clearObservers('access');
+      });
+      before(function() {
+        Physician.observe('access', beforeAccessFn);
+        Patient.observe('access', beforeAccessFn);
+
+        function beforeAccessFn(ctx, next) {
+          ctx.query.where.realm = ctx.options.realm;
+          next();
+        }
+      });
+      it('should find be filtered from option', function(done) {
+        var id;
+        Physician.create(function(err, physician) {
+          if (err) return done(err);
+          physician.patients.create({name: 'a', realm: 'test'}, function(err, ch) {
+            if (err) return done(err);
+            id = ch.id;
+            physician.patients.create({name: 'z', realm: 'test'}, function(err) {
+              if (err) return done(err);
+              physician.patients.create({name: 'c', realm: 'anotherRealm'}, function(err) {
+                if (err) return done(err);
+                verify(physician);
+              });
+            });
+          });
+        });
+
+        function verify(physician) {
+          physician.patients({order: 'name ASC'}, {realm: 'test'}, function(err, records) {
+            if (err) return done(err);
+            should.exist(records);
+            records.length.should.eql(2);
+            const expected = ['a:test', 'z:test'];
+            const actual = records.map(function(r) { return r.name + ':' + r.realm; });
+            actual.sort().should.eql(expected.sort());
+            done();
+          });
+        }
+      });
+    });
+
     it('should find scoped record', function(done) {
       var id;
       Physician.create(function(err, physician) {
@@ -1012,7 +1057,7 @@ describe('relations', function() {
       }).catch(done);
 
       function verify(physician, addressId) {
-        return physician.patients.getAsync({include: 'address'})
+        return physician.patients.find({include: 'address'})
         .then(function(ch) {
           should.exist(ch);
           ch.should.have.lengthOf(1);
@@ -1646,7 +1691,7 @@ describe('relations', function() {
     it('should find records on scope with promises', function(done) {
       Category.findOne()
       .then(function(c) {
-        return c.jobs.getAsync();
+        return c.jobs.find();
       })
       .then(function(jobs) {
         jobs.should.have.length(2);
@@ -1670,7 +1715,7 @@ describe('relations', function() {
     it('should find record on scope with promises - filtered', function(done) {
       Category.findOne()
       .then(function(c) {
-        return c.jobs.getAsync({where: {type: 'book'}});
+        return c.jobs.find({where: {type: 'book'}});
       })
       .then(function(jobs) {
         jobs.should.have.length(1);
@@ -2051,7 +2096,7 @@ describe('relations', function() {
     it('should find polymorphic relation with promises - employee', function(done) {
       Employee.findOne()
       .then(function(employee) {
-        return employee.mugshot.getAsync()
+        return employee.mugshot.get()
         .then(function(pic) {
           pic.name.should.equal('Mugshot');
           pic.imageableId.toString().should.eql(employee.id.toString());
@@ -3140,7 +3185,7 @@ describe('relations', function() {
       });
     });
 
-    it('can be used to query data with getAsync with callback', function(done) {
+    it('can be used to query data with get() with callback', function(done) {
       List.hasMany('todos', {model: Item});
       db.automigrate(['List', 'Item', 'Fear', 'Find'], function() {
         List.create({name: 'List 1'}, function(e, list) {
@@ -3149,7 +3194,7 @@ describe('relations', function() {
           should.exist(list);
           list.todos.create({name: 'Item 1'}, function(err, todo) {
             itemId = todo.id;
-            todo.list.getAsync(function(e, l) {
+            todo.list.get(function(e, l) {
               should.not.exist(e);
               should.exist(l);
               l.should.be.an.instanceOf(List);
@@ -3173,7 +3218,7 @@ describe('relations', function() {
         })
         .then(function(todo) {
           itemId = todo.id;
-          return todo.list.getAsync()
+          return todo.list.get()
           .then(function(l) {
             should.exist(l);
             l.should.be.an.instanceOf(List);
@@ -3349,7 +3394,7 @@ describe('relations', function() {
           // the first row returned may or may not be the same
           p.personId.should.eql(personCreated.id);
         }
-        return p.person.getAsync();
+        return p.person.get();
       })
       .then(function(person) {
         person.name.should.equal('Fred');
@@ -3467,14 +3512,14 @@ describe('relations', function() {
       });
     });
 
-    it('can be used to query data with getAsync with callback', function(done) {
+    it('can be used to query data with get() with callback', function(done) {
       db.automigrate(['Supplier', 'Account'], function() {
         Supplier.create({name: 'Supplier 1'}, function(e, supplier) {
           supplierId = supplier.id;
           should.not.exist(e);
           should.exist(supplier);
           supplier.account.create({accountNo: 'a01'}, function(err, account) {
-            supplier.account.getAsync(function(e, act) {
+            supplier.account.get(function(e, act) {
               accountId = act.id;
               should.not.exist(e);
               should.exist(act);
@@ -3496,7 +3541,7 @@ describe('relations', function() {
           should.exist(supplier);
           return supplier.account.create({accountNo: 'a01'})
           .then(function(account) {
-            return supplier.account.getAsync();
+            return supplier.account.get();
           })
           .then(function(act) {
             accountId = act.id;
@@ -3575,7 +3620,7 @@ describe('relations', function() {
       Supplier.findById(supplierId)
       .then(function(supplier) {
         should.exist(supplier);
-        return supplier.account.getAsync();
+        return supplier.account.get();
       })
       .then(function(act) {
         should.exist(act);
@@ -3627,7 +3672,7 @@ describe('relations', function() {
       Supplier.findById(supplierId)
       .then(function(supplier) {
         should.exist(supplier);
-        return supplier.account.getAsync();
+        return supplier.account.get();
       })
       .then(function(act) {
         should.not.exist(act);
@@ -3723,7 +3768,7 @@ describe('relations', function() {
           should.exist(supplier);
           return supplier.account.create({accountNo: 'a01', block: false})
           .then(function(account) {
-            return supplier.account.getAsync();
+            return supplier.account.get();
           })
           .then(function(act) {
             accountId = act.id;
@@ -3747,7 +3792,7 @@ describe('relations', function() {
         return Supplier.findById(supplierId);
       })
       .then(function(supplier) {
-        return supplier.account.getAsync();
+        return supplier.account.get();
       })
       .then(function(account) {
         should.not.exist(account);
@@ -3963,7 +4008,7 @@ describe('relations', function() {
             return Employee.create({name: 'a01', companyId: COMPANY_ID})
               .then(function(employee) {
                 should.exist(employee);
-                return boss.employees.getAsync();
+                return boss.employees.find();
               }).then(function(employees) {
                 should.exists(employees);
                 employees.length.should.equal(1);
@@ -4000,7 +4045,7 @@ describe('relations', function() {
           })
           .then(function(employee) {
             should.exists(employee);
-            return employee.boss.getAsync();
+            return employee.boss.get();
           })
           .then(function(boss) {
             should.exists(boss);
@@ -4101,7 +4146,7 @@ describe('relations', function() {
     it('should allow to fetch scoped instances with promises', function(done) {
       Article.findOne()
       .then(function(article) {
-        return article.tagNames.getAsync()
+        return article.tagNames.find()
         .then(function(tags) {
           should.exist(tags);
           article.tagNames().should.eql(tags);
@@ -4132,13 +4177,13 @@ describe('relations', function() {
     'should allow to remove connection with instance with promises', function(done) {
       Article.findOne()
       .then(function(article) {
-        return article.tagNames.getAsync()
+        return article.tagNames.find()
         .then(function(tags) {
           var len = tags.length;
           tags.should.not.be.empty;
           return article.tagNames.remove(tags[0])
           .then(function() {
-            return article.tagNames.getAsync();
+            return article.tagNames.find();
           })
           .then(function(tags) {
             tags.should.have.lengthOf(len - 1);
@@ -5930,7 +5975,7 @@ describe('relations', function() {
       Category.findOne()
       .then(function(cat) {
         cat.jobIds.should.eql([job2.id]);
-        return cat.jobs.getAsync();
+        return cat.jobs.find();
       })
       .then(function(jobs) {
         var p = jobs[0];
@@ -5948,7 +5993,7 @@ describe('relations', function() {
       Category.findOne()
       .then(function(cat) {
         cat.jobIds[0].should.be.oneOf(theExpectedIds);
-        return cat.jobs.getAsync();
+        return cat.jobs.find();
       })
       .then(function(jobs) {
         var p = jobs[0];
@@ -6062,7 +6107,7 @@ describe('relations', function() {
       Category.findOne()
       .then(function(cat) {
         var filter = {where: {name: 'Job 1'}};
-        return cat.jobs.getAsync(filter);
+        return cat.jobs.find(filter);
       })
       .then(function(jobs) {
         jobs.should.have.length(1);
@@ -6095,7 +6140,7 @@ describe('relations', function() {
         var expected = [job2.id, job3.id];
         cat.jobIds.should.have.lengthOf(expected.length);
         cat.jobIds.should.containDeep(expected);
-        return cat.jobs.getAsync();
+        return cat.jobs.find();
       })
       .then(function(jobs) {
         jobs.should.have.length(2);
@@ -6111,7 +6156,7 @@ describe('relations', function() {
       Category.find()
       .then(function(categories) {
         categories.should.have.length(1);
-        return categories[0].jobs.getAsync({order: 'name DESC'});
+        return categories[0].jobs.find({order: 'name DESC'});
       })
       .then(function(jobs) {
         jobs.should.have.length(2);
@@ -6180,7 +6225,7 @@ describe('relations', function() {
         var expected = [job3.id];
         cat.jobIds.should.have.lengthOf(expected.length);
         cat.jobIds.should.containDeep(expected);
-        return cat.jobs.getAsync();
+        return cat.jobs.find();
       })
       .then(function(jobs) {
         jobs.should.have.length(1);

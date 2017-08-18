@@ -42,6 +42,7 @@ describe('manipulation', function() {
   before(function setupStubUserModel(done) {
     StubUser = db.createModel('StubUser', {password: String}, {forceId: true});
     StubUser.setter.password = function(plain) {
+      if (plain.length === 0) throw new Error('password cannot be empty');
       var hashed = false;
       if (!plain) return;
       var pos = plain.indexOf('-');
@@ -397,39 +398,41 @@ describe('manipulation', function() {
         .catch(done);
     });
 
-    it('should save existing object', function(done) {
+    bdd.itIf(connectorCapabilities.cloudantCompatible !== false,
+      'should save existing object', function(done) {
       // Cloudant could not guarantee findOne always return the same item
-      Person.findOne(function(err, p) {
-        if (err) return done(err);
-        p.name = 'Hans';
-        p.save(function(err) {
+        Person.findOne(function(err, p) {
           if (err) return done(err);
-          p.name.should.equal('Hans');
-          Person.findOne(function(err, p) {
+          p.name = 'Hans';
+          p.save(function(err) {
             if (err) return done(err);
             p.name.should.equal('Hans');
-            done();
+            Person.findOne(function(err, p) {
+              if (err) return done(err);
+              p.name.should.equal('Hans');
+              done();
+            });
           });
         });
       });
-    });
 
-    it('should save existing object (promise variant)', function(done) {
+    bdd.itIf(connectorCapabilities.cloudantCompatible !== false,
+      'should save existing object (promise variant)', function(done) {
       // Cloudant could not guarantee findOne always return the same item
-      Person.findOne()
-        .then(function(p) {
-          p.name = 'Fritz';
-          return p.save()
-            .then(function() {
-              return Person.findOne()
-                .then(function(p) {
-                  p.name.should.equal('Fritz');
-                  done();
-                });
-            });
-        })
-        .catch(done);
-    });
+        Person.findOne()
+          .then(function(p) {
+            p.name = 'Fritz';
+            return p.save()
+              .then(function() {
+                return Person.findOne()
+                  .then(function(p) {
+                    p.name.should.equal('Fritz');
+                    done();
+                  });
+              });
+          })
+          .catch(done);
+      });
 
     it('should save invalid object (skipping validation)', function(done) {
       Person.findOne(function(err, p) {
@@ -540,6 +543,23 @@ describe('manipulation', function() {
       });
     });
 
+    it('should reject created StubUser with empty password', function(done) {
+      StubUser.create({email: 'b@example.com', password: ''}, function(err, createdUser) {
+        (err.message).should.match(/password cannot be empty/);
+        done();
+      });
+    });
+
+    it('should reject updated empty password with updateAttribute', function(done) {
+      StubUser.create({password: 'abc123'}, function(err, createdUser) {
+        if (err) return done(err);
+        createdUser.updateAttribute('password', '', function(err, updatedUser) {
+          (err.message).should.match(/password cannot be empty/);
+          done();
+        });
+      });
+    });
+
     it('should update one attribute', function(done) {
       person.updateAttribute('name', 'Paul Graham', function(err, p) {
         if (err) return done(err);
@@ -577,7 +597,8 @@ describe('manipulation', function() {
         });
     });
 
-    it('should discard undefined values before strict validation',
+    bdd.itIf(connectorCapabilities.cloudantCompatible !== false,
+      'should discard undefined values before strict validation',
       function(done) {
         Person.definition.settings.strict = true;
         Person.findById(person.id, function(err, p) {
@@ -825,6 +846,16 @@ describe('manipulation', function() {
       });
     });
 
+    it('should reject updated empty password with updateOrCreate', function(done) {
+      StubUser.create({password: 'abc123'}, function(err, createdUser) {
+        if (err) return done(err);
+        StubUser.updateOrCreate({id: createdUser.id, 'password': ''}, function(err, updatedUser) {
+          (err.message).should.match(/password cannot be empty/);
+          done();
+        });
+      });
+    });
+
     it('throws error for queries with array input', function(done) {
       Todo.updateOrCreate([{content: 'a'}], function(err, data) {
         should.exist(err);
@@ -1000,7 +1031,10 @@ describe('manipulation', function() {
       });
     });
 
-  if (!getSchema().connector.replaceById) {
+  var hasReplaceById = connectorCapabilities.cloudantCompatible !== false &&
+    !!getSchema().connector.replaceById;
+
+  if (!hasReplaceById) {
     describe.skip('replaceById - not implemented', function() {});
   } else {
     describe('replaceOrCreate', function() {
@@ -1223,8 +1257,6 @@ describe('manipulation', function() {
     });
   }
 
-  var hasReplaceById = !!getSchema().connector.replaceById;
-
   bdd.describeIf(hasReplaceById && connectorCapabilities.supportForceId !== false, 'replaceOrCreate ' +
   'when forceId is true', function() {
     var Post, unknownId;
@@ -1273,7 +1305,7 @@ describe('manipulation', function() {
     });
   });
 
-  if (!getSchema().connector.replaceById) {
+  if (!hasReplaceById) {
     describe.skip('replaceAttributes/replaceById - not implemented', function() {});
   } else {
     describe('replaceAttributes', function() {
@@ -1312,6 +1344,16 @@ describe('manipulation', function() {
               found.password.should.equal('test-TEST');
               done();
             });
+          });
+        });
+      });
+
+      it('should reject updated empty password with replaceAttributes', function(done) {
+        StubUser.create({password: 'abc123'}, function(err, createdUser) {
+          if (err) return done(err);
+          createdUser.replaceAttributes({'password': ''}, function(err, updatedUser) {
+            (err.message).should.match(/password cannot be empty/);
+            done();
           });
         });
       });
@@ -1470,7 +1512,6 @@ describe('manipulation', function() {
     });
   }
 
-  hasReplaceById = !!getSchema().connector.replaceById;
   bdd.describeIf(hasReplaceById, 'replaceById', function() {
     var Post;
     before(function(done) {
@@ -1861,23 +1902,23 @@ describe('manipulation', function() {
     });
 
     bdd.itIf(connectorCapabilities.supportStrictDelete !== false, 'should allow delete(id) - ' +
-    'fail with error', function(done) {
-      Person.settings.strictDelete = true;
-      Person.findOne(function(err, u) {
-        if (err) return done(err);
-        u.delete(function(err, info) {
+      'fail with error', function(done) {
+        Person.settings.strictDelete = true;
+        Person.findOne(function(err, u) {
           if (err) return done(err);
-          info.should.have.property('count', 1);
-          u.delete(function(err) {
-            should.exist(err);
-            err.message.should.equal('No instance with id ' + u.id + ' found for Person');
-            err.should.have.property('code', 'NOT_FOUND');
-            err.should.have.property('statusCode', 404);
-            done();
+          u.delete(function(err, info) {
+            if (err) return done(err);
+            info.should.have.property('count', 1);
+            u.delete(function(err) {
+              should.exist(err);
+              err.message.should.equal('No instance with id ' + u.id + ' found for Person');
+              err.should.have.property('code', 'NOT_FOUND');
+              err.should.have.property('statusCode', 404);
+              done();
+            });
           });
         });
       });
-    });
   });
 
   describe('initialize', function() {
@@ -2202,26 +2243,36 @@ describe('manipulation', function() {
           });
         });
 
-    bdd.itIf(connectorCapabilities.updateWithoutId !== false, 'should update all instances when ' +
-    'the where condition is not provided', function(done) {
-      filterHarry = connectorCapabilities.deleteWithOtherThanId === false ?
-        {id: idHarry} : {name: 'Harry Hoe'};
-      filterBrett = connectorCapabilities.deleteWithOtherThanId === false ?
-        {id: idBrett} : {name: 'Brett Boe'};
-      Person.update(filterHarry, function(err, info) {
+    it('should reject updated empty password with updateAll', function(done) {
+      StubUser.create({password: 'abc123'}, function(err, createdUser) {
         if (err) return done(err);
-        info.should.have.property('count', 5);
-        Person.find({where: filterBrett}, function(err, people) {
-          if (err) return done(err);
-          people.should.be.empty();
-          Person.find({where: filterHarry}, function(err, people) {
-            if (err) return done(err);
-            people.should.have.length(5);
-            done();
-          });
+        StubUser.updateAll({where: {id: createdUser.id}}, {'password': ''}, function(err, updatedUser) {
+          (err.message).should.match(/password cannot be empty/);
+          done();
         });
       });
     });
+
+    bdd.itIf(connectorCapabilities.updateWithoutId !== false,
+      'should update all instances when the where condition is not provided', function(done) {
+        filterHarry = connectorCapabilities.deleteWithOtherThanId === false ?
+          {id: idHarry} : {name: 'Harry Hoe'};
+        filterBrett = connectorCapabilities.deleteWithOtherThanId === false ?
+          {id: idBrett} : {name: 'Brett Boe'};
+        Person.update(filterHarry, function(err, info) {
+          if (err) return done(err);
+          info.should.have.property('count', 5);
+          Person.find({where: filterBrett}, function(err, people) {
+            if (err) return done(err);
+            people.should.be.empty();
+            Person.find({where: filterHarry}, function(err, people) {
+              if (err) return done(err);
+              people.should.have.length(5);
+              done();
+            });
+          });
+        });
+      });
 
     bdd.itIf(connectorCapabilities.ignoreUndefinedConditionValue !== false, 'should ignore where ' +
     'conditions with undefined values', function(done) {
@@ -2248,9 +2299,9 @@ describe('manipulation', function() {
   });
 
   describe('upsertWithWhere', function() {
-    var ds = getSchema();
-    var Person;
+    var ds, Person;
     before('prepare "Person" model', function(done) {
+      ds = getSchema();
       Person = ds.define('Person', {
         id: {type: Number, id: true},
         name: {type: String},
