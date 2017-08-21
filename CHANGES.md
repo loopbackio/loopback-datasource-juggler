@@ -1,3 +1,35 @@
+2017-08-21, Version 3.10.0
+==========================
+
+ * Catch err using Callback (loay)
+
+ * Update Issue and PR Templates (#1462) (Sakib Hasan)
+
+ * Update translated strings Q3 2017 (Allen Boone)
+
+ * test: call true/false in isValid checks (Tom Kirkpatrick)
+
+ * fix: support numbers in validatesFormatOf (Tom Kirkpatrick)
+
+ * Fix undefined properties in where (Raymond Feng)
+
+ * Honor backwards compatability with validate update (ssh24)
+
+ * Fix update validation callback (ssh24)
+
+ * Validate updateAll (ssh24)
+
+ * Sort arrays before testing (ssh24)
+
+ * update translation file (Diana Lau)
+
+ * Missing the option argument (#1426) (dmellonch)
+
+ * Add CODEOWNER file (Diana Lau)
+
+ * use connector flag throughout tests (biniam)
+
+
 2017-07-26, Version 3.9.3
 =========================
 
