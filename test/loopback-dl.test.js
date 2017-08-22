@@ -645,7 +645,7 @@ describe('DataSource define model', function() {
 
     var User = ds.define('User', {});
     assert.deepEqual(User.definition.properties.id,
-      {type: Number, id: 1, generated: true});
+      {type: Number, id: 1, generated: true, updateOnly: true});
 
     done();
   });
@@ -663,13 +663,13 @@ describe('DataSource define model', function() {
 
     var User = builder.define('User', {id: {type: String, generated: true, id: true}});
     assert.deepEqual(User.definition.properties.id,
-      {type: String, id: 1, generated: true});
+      {type: String, id: 1, generated: true, updateOnly: true});
 
     var ds = new DataSource('memory');// define models
     User.attachTo(ds);
 
     assert.deepEqual(User.definition.properties.id,
-      {type: Number, id: 1, generated: true});
+      {type: Number, id: 1, generated: true, updateOnly: true});
 
     done();
   });
@@ -1909,5 +1909,63 @@ describe('ModelBuilder options.models', function() {
     assert.equal(m1.address.isValid(), false, 'm1 address should not validate with extra property');
     var codes = m1.address.errors && m1.address.errors.codes || {};
     assert.deepEqual(codes.number, ['unknown-property']);
+  });
+});
+
+describe('updateOnly', function() {
+  it('sets forceId to true when model id is generated', function(done) {
+    var ds = new DataSource('memory');
+    var Post = ds.define('Post', {
+      title: {type: String, length: 255},
+      date: {type: Date, default: function() {
+        return new Date();
+      }},
+    });
+    // check if forceId is added as true in ModelClass's settings[] explicitly,
+    // if id a generated (default) and forceId in from the model is
+    // true(unspecified is 'true' which is the default).
+    Post.settings.should.have.property('forceId').eql('auto');
+    done();
+  });
+
+  it('flags id as updateOnly when forceId is undefined', function(done) {
+    var ds = new DataSource('memory');
+    var Post = ds.define('Post', {
+      title: {type: String, length: 255},
+      date: {type: Date, default: function() {
+        return new Date();
+      }},
+    });
+    // check if method getUpdateOnlyProperties exist in ModelClass and check if
+    // the Post has 'id' in updateOnlyProperties list
+    Post.should.have.property('getUpdateOnlyProperties');
+    Post.getUpdateOnlyProperties().should.eql(['id']);
+    done();
+  });
+
+  it('does not flag id as updateOnly when forceId is false', function(done) {
+    var ds = new DataSource('memory');
+    var Person = ds.define('Person', {
+      name: String,
+      gender: String,
+    }, {forceId: false});
+    // id should not be there in updateOnly properties list if forceId is set
+    // to false
+    Person.should.have.property('getUpdateOnlyProperties');
+    Person.getUpdateOnlyProperties().should.eql([]);
+    done();
+  });
+
+  it('flags id as updateOnly when forceId is true', function(done) {
+    var ds = new DataSource('memory');
+    var Person = ds.define('Person', {
+      name: String,
+      gender: String,
+    }, {forceId: true});
+    // id should be there in updateOnly properties list if forceId is set
+    // to true
+    Person.should.have.property('getUpdateOnlyProperties');
+    Person.getUpdateOnlyProperties().should.eql(['id']);
+    done();
   });
 });

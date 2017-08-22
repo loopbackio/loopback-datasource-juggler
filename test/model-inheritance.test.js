@@ -239,6 +239,8 @@ describe('Model class inheritance', function() {
         );
 
       assert.deepEqual(User.settings, {
+        // forceId is set to 'auto' in memory if idProp.generated && forceId !== false
+        forceId: 'auto',
         defaultPermission: 'ALLOW',
         acls: [
           {
@@ -257,6 +259,7 @@ describe('Model class inheritance', function() {
       });
 
       assert.deepEqual(Customer.settings, {
+        forceId: false,
         defaultPermission: 'DENY',
         acls: [
           {
