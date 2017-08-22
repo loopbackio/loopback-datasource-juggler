@@ -1,3 +1,11 @@
+2017-08-22, Version 3.11.0
+==========================
+
+ * Flag id as updateOnly when forceId is in effect (#1453) (Rashmi Hunt)
+
+ * Add stalebot configuration (Kevin Delisle)
+
+
 2017-08-21, Version 3.10.0
 ==========================
 
