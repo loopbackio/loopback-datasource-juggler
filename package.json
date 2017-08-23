@@ -47,7 +47,7 @@
     "lodash": "^4.17.4",
     "loopback-connector": "^4.0.0",
     "minimatch": "^3.0.3",
-    "qs": "^6.3.0",
+    "qs": "^6.5.0",
     "shortid": "^2.2.6",
     "strong-globalize": "^2.6.2",
     "traverse": "^0.6.6",
