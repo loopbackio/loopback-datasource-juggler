@@ -190,6 +190,7 @@ describe('Memory connector with mocked discovery', function() {
         },
         properties: {
           available: {
+            generated: undefined,
             length: null,
             memory: {
               columnName: 'AVAILABLE',
@@ -205,6 +206,7 @@ describe('Memory connector with mocked discovery', function() {
             type: undefined,
           },
           locationId: {
+            generated: undefined,
             length: 20,
             memory: {
               columnName: 'LOCATION_ID',
@@ -220,6 +222,7 @@ describe('Memory connector with mocked discovery', function() {
             type: undefined,
           },
           productId: {
+            generated: undefined,
             length: 20,
             memory: {
               columnName: 'PRODUCT_ID',
@@ -235,6 +238,7 @@ describe('Memory connector with mocked discovery', function() {
             type: undefined,
           },
           total: {
+            generated: undefined,
             length: null,
             memory: {
               columnName: 'TOTAL',
