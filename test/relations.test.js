@@ -4092,6 +4092,24 @@ describe('relations', function() {
       });
     });
 
+    bdd.itIf(connectorCapabilities.deleteWithOtherThanId !== false,
+    'should destroy all related instances', function(done) {
+      Article.create(function(err, article) {
+        if (err) return done(err);
+        article.tagNames.create({name: 'popular'}, function(err, t) {
+          if (err) return done(err);
+          article.tagNames.destroyAll(function(err) {
+            if (err) return done(err);
+            article.tagNames(true, function(err, list) {
+              if (err) return done(err);
+              list.should.have.length(0);
+              done();
+            });
+          });
+        });
+      });
+    });
+
     it('should allow to add connection with instance', function(done) {
       Article.findOne(function(e, article) {
         TagName.create({name: 'awesome'}, function(e, tag) {
