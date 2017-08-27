@@ -836,6 +836,40 @@ describe('validations', function() {
       u.isValid().should.be.false();
     });
 
+    describe('validate format correctly on bulk creation with global flag enabled in RegExp', function() {
+      before(function(done) {
+        Employee.destroyAll(function(err) {
+          should.not.exist(err);
+          delete Employee.validations;
+          db.automigrate('Employee', function(err) {
+            should.not.exist(err);
+            Employee.create(empData, function(err, inst) {
+              should.not.exist(err);
+              should.exist(inst);
+              Employee.validatesFormatOf('name', {with: /^[a-z]+$/g, allowNull: false});
+              done();
+            });
+          });
+        });
+      });
+
+      it('succeeds when validate condition is met for all items', function(done) {
+        Employee.create([
+          {name: 'test'},
+          {name: 'test'},
+          {name: 'test'},
+          {name: 'test'},
+          {name: 'test'},
+          {name: 'test'},
+        ], (err, instances) => {
+          should.not.exist(err);
+          should.exist(instances);
+          instances.should.have.lengthOf(6);
+          done();
+        });
+      });
+    });
+
     describe('validate format on update', function() {
       before(function(done) {
         Employee.destroyAll(function(err) {
