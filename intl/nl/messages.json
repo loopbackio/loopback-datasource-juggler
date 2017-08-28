@@ -6,7 +6,7 @@
   "0bd753a8944ad0af85a939bb25273887": "Onbekende sleutel {0} kan niet vervallen",
   "0c0b867aca0973ba26e887d3337cc4ec": "Model {{Polymorphic}} is niet gevonden: '{0}' niet ingesteld",
   "0c4eb8b6c2ff6e51d7e195eee346ced9": "Tabel '{0}' bestaat niet.",
-  "0ff31abb394afb555df162e74ff1a0a0": "{{id}} kan niet worden bijgewerkt van {0} naar {1} zo lang {{forceId}} is ingesteld op true",
+  "0ff31abb394afb555df162e74ff1a0a0": "{{id}} kan niet worden bijgewerkt van {0} naar {1} zolang {{forceId}} is ingesteld op true",
   "1ae7d3e0be381efb32bfd1ba652f5172": "WAARSCHUWING: {{polymorphic}} {0} relatie: {1} gebruikt trefwoord `polymorphic.as`. Dit wordt in LoopBack.next gedeprecieerd. Raadpleeg dit document voor vervangende oplossingen: (https://loopback.io/doc/en/lb3/Polymorphic-relations.html#deprecated-polymorphic-as)",
   "21095484501dbff31af6556fa6039182": "De {{offset/skip}}-parameter {0} is niet geldig",
   "280f4550f90e133118955ec6f6f72830": "Discriminatortype {0} opgegeven, maar er bestaat geen model met deze naam",
