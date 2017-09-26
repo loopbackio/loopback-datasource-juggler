@@ -6,11 +6,11 @@ initially forked from [JugglingDB](https://github.com/1602/jugglingdb).
 
 **For full documentation, see the official StrongLoop documentation**:
  [Connecting models to data sources](http://docs.strongloop.com/display/LB/Connecting+models+to+data+sources)
- 
-For information on creating data sources programmatically, see [Advanced topics: data sources](http://docs.strongloop.com/display/LB/Advanced+topics%3A+data+sources). 
+
+For information on creating data sources programmatically, see [Advanced topics: data sources](http://docs.strongloop.com/display/LB/Advanced+topics%3A+data+sources).
 
 ## Installation
-
+//
     npm install loopback-datasource-juggler
 
 Also install the appropriated connector, for example for mongodb:
