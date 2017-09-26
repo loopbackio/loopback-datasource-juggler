@@ -1,3 +1,11 @@
+2017-09-26, Version 2.55.3
+==========================
+
+ * fix(model-builder): __data may be null. (#1415) (Samuel Reed)
+
+ * package: use qs@6.5.0 (#1470) (Kevin Delisle)
+
+
 2017-07-28, Version 2.55.2
 ==========================
 
