@@ -810,12 +810,13 @@ describe('relations', function() {
         });
       });
       context('with filter where', function() {
-        it('returns patient where name equal to a', function(done) {
+        it('returns patient where name equal to samplePatient name', function(done) {
           var whereFilter = {where: {name: 'a'}};
           physician.patients(whereFilter, function(err, ch) {
             if (err) return done(err);
             should.exist(ch);
             ch.should.have.lengthOf(1);
+            ch[0].id.should.eql(samplePatientId);
             ch[0].name.should.eql('a');
             done();
           });
