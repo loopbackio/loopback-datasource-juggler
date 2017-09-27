@@ -1,3 +1,25 @@
+2017-09-07, Version 3.12.0
+==========================
+
+ * Add a better way to handle transactions (Jürg Lehni)
+
+ * validations: use new regex per evaluation (#1479) (Joost de Bruijn)
+
+ * Transaction: Bind timeout to tx instance (#1484) (Jürg Lehni)
+
+ * CODEOWNERS: add lehni (#1483) (Miroslav Bajtoš)
+
+ * Add node8 support for travis (loay)
+
+ * Add nyc coverage, report data to coveralls.io (Miroslav Bajtoš)
+
+ * Update translations from TVT (Allen Boone)
+
+ * Add test coverage for hasAndBelongsToMany (loay)
+
+ * package: use qs@6.5.0 (#1471) (Kevin Delisle)
+
+
 2017-08-22, Version 3.11.0
 ==========================
 
