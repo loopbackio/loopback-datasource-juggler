@@ -831,7 +831,7 @@ describe('relations', function() {
             done();
           });
         });
-        it('returns empty result when filtering with wrong id key', function(done) {
+        it.skip('returns empty result when filtering with wrong id key', function(done) {
           var wrongWhereFilter = {where: {wrongIdKey: samplePatientId}};
           physician.patients(wrongWhereFilter, function(err, ch) {
             if (err) return done(err);
