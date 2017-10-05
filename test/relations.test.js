@@ -811,7 +811,7 @@ describe('relations', function() {
       });
       context('with filter where', function() {
         it('returns patient where id equal to samplePatientId', function(done) {
-          var whereFilter = {where: {id: 'samplePatientId'}};
+          var whereFilter = {where: {id: samplePatientId}};
           physician.patients(whereFilter, function(err, ch) {
             if (err) return done(err);
             should.exist(ch);
