@@ -2079,6 +2079,27 @@ describe('manipulation', function() {
       }
     });
 
+    describe('nanoid defaultFn', function() {
+      var ModelWithNanoId;
+      before(createModelWithNanoId);
+
+      it('should generate a new id when "defaultFn" is "shortid"', function(done) {
+        var NANOID_REGEXP = /^[0-9a-zA-Z_\~]{22}$/i;
+        ModelWithNanoId.create(function(err, ModelWithNanoId) {
+          if (err) return done(err);
+          ModelWithNanoId.nanoid.should.match(NANOID_REGEXP);
+          done();
+        });
+      });
+
+      function createModelWithNanoId(cb) {
+        ModelWithNanoId = db.define('ModelWithNanoId', {
+          nanoid: {type: String, defaultFn: 'nanoid'},
+        });
+        db.automigrate('ModelWithNanoId', cb);
+      }
+    });
+
     // it('should work when constructor called as function', function() {
     //     var p = Person({name: 'John Resig'});
     //     p.should.be.an.instanceOf(Person);
