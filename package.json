@@ -39,6 +39,7 @@
     "eslint-config-loopback": "^8.0.0",
     "loopback-connector-throwing": "file:./test/fixtures/loopback-connector-throwing",
     "mocha": "^3.2.0",
+    "nanoid": "^0.2.2",
     "nyc": "^11.1.0",
     "should": "^8.4.0"
   },

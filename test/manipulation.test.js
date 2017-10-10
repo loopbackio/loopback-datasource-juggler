@@ -11,6 +11,7 @@ var async = require('async');
 var bdd = require('./helpers/bdd-if');
 var should = require('./init.js');
 var uid = require('./helpers/uid-generator');
+var nanoid = require('nanoid');
 
 var db, Person;
 var ValidationError = require('..').ValidationError;
@@ -2076,6 +2077,40 @@ describe('manipulation', function() {
           shortid: {type: String, defaultFn: 'shortid'},
         });
         db.automigrate('ModelWithShortId', cb);
+      }
+    });
+
+    describe('custom value providers', function() {
+      var ModelWithCustomProvider, modelInstance;
+      before(createModelWithCustomValueProvider);
+
+      it('uses user-registered value providers', function() {
+        var NANOID_REGEXP = /^[0-9a-zA-Z_\~]{22}$/i;
+        modelInstance.nanoId.should.match(NANOID_REGEXP);
+      });
+
+      it('passes the model instance into the value provider', function() {
+        modelInstance.slugId.should.eql('test-instance');
+      });
+
+      function createModelWithCustomValueProvider(cb) {
+        ModelWithCustomProvider = db.define('ModelWithCustomProvider', {
+          name: {type: String},
+          nanoId: {type: String, defaultFn: 'nanoid'},
+          slugId: {type: String, defaultFn: 'slug'},
+        });
+        ModelWithCustomProvider.registerValueProvider('nanoid', () => nanoid());
+        ModelWithCustomProvider.registerValueProvider('slug', (instance) => {
+          return instance.name.toLowerCase().replace(/ /g, '-');
+        });
+        db.automigrate('ModelWithCustomProvider', function(err) {
+          if (err) return cb(err);
+          ModelWithCustomProvider.create({name: 'Test Instance'}, function(err, instance) {
+            if (err) return cb(err);
+            modelInstance = instance;
+            cb();
+          });
+        });
       }
     });
 
