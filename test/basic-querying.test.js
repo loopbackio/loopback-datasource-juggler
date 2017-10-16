@@ -52,7 +52,7 @@ describe('basic-querying', function() {
     (db.adapter.name != 'informix') && (db.adapter.name != 'cassandra');
     if (connectorCapabilities.geoPoint) userModelDef.addressLoc = {type: 'GeoPoint'};
     User = db.define('User', userModelDef);
-    db.automigrate(['User'], done);
+    db.automigrate(done);
   });
 
   describe('ping', function() {
