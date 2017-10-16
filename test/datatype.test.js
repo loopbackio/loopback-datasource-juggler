@@ -172,10 +172,10 @@ describe('datatypes', function() {
 
   it('handles null data', (done) => {
     db = getSchema();
-    Model = db.define('MyModel', {
+    Model = db.define('HandleNullModel', {
       data: {type: 'string'},
     });
-    db.automigrate(['Model'], function() {
+    db.automigrate(['HandleNullModel'], function() {
       let a = new Model(null);
       done();
     });
