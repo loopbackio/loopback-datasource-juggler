@@ -44,11 +44,11 @@
   "dependencies": {
     "async": "~2.1.4",
     "bluebird": "^3.1.1",
-    "debug": "^2.1.1",
+    "debug": "^3.1.0",
     "depd": "^1.0.0",
     "inflection": "^1.6.0",
     "lodash": "^4.17.4",
-    "loopback-connector": "^4.3.0",
+    "loopback-connector": "^4.4.0",
     "minimatch": "^3.0.3",
     "qs": "^6.5.0",
     "shortid": "^2.2.6",
