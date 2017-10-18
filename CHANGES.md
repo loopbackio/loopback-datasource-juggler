@@ -1,3 +1,19 @@
+2017-10-18, Version 3.13.0
+==========================
+
+ * update strong-globalize to 3.1.0 (#1505) (Kyusung Shim)
+
+ * Fix basic-querying (#1509) (Janny)
+
+ * translation return for Q4 drop1 (tangyinb)
+
+ * Allow passing null to base model ctor (Zak Barbuto)
+
+ * CODEOWNERS: add zbarbuto (Miroslav Bajtoš)
+
+ * update globalize string (Diana Lau)
+
+
 2017-09-07, Version 3.12.0
 ==========================
 
