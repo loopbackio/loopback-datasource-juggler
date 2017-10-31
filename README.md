@@ -8,7 +8,7 @@ Current|Long Term Support
 :-:|:-:
 3.x|2.x
 
-Learn more about our LTS plan in the [LoopBack documenation](http://loopback.io/doc/en/contrib/Long-term-support.html).
+Learn more about our LTS plan in the [LoopBack documentation](http://loopback.io/doc/en/contrib/Long-term-support.html).
 
 ## Usage
 
