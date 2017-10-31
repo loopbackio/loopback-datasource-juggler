@@ -4283,13 +4283,20 @@ describe('relations', function() {
       );
       Address = tmp.define('Address', {street: String}, {idInjection: false});
       Other = db.define('Other', {name: String});
-    });
-
-    it('can be declared using embedsOne method', function(done) {
       Person.embedsOne(Passport, {
         default: {name: 'Anonymous'}, // a bit contrived
         methods: {check: function() { return true; }},
+        options: {
+          property: {
+            postgresql: {
+              columnName: 'passport_item',
+            },
+          },
+        },
       });
+    });
+
+    it('can be declared using embedsOne method', function(done) {
       Person.embedsOne(Address); // all by default
       db.automigrate(['Person'], done);
     });
@@ -4301,6 +4308,11 @@ describe('relations', function() {
       p.passportItem.create.should.be.a.function;
       p.passportItem.build.should.be.a.function;
       p.passportItem.destroy.should.be.a.function;
+    });
+
+    it('respects property options on the embedded property', function() {
+      Person.definition.properties.passport.should.have.property('postgresql');
+      Person.definition.properties.passport.postgresql.should.eql({columnName: 'passport_item'});
     });
 
     it('should setup a custom method on accessor', function() {
@@ -4704,7 +4716,15 @@ describe('relations', function() {
     });
 
     it('can be declared', function(done) {
-      Person.embedsMany(Address);
+      Person.embedsMany(Address, {
+        options: {
+          property: {
+            postgresql: {
+              dataType: 'json',
+            },
+          },
+        },
+      });
       db.automigrate(['Person'], done);
     });
 
@@ -4731,6 +4751,11 @@ describe('relations', function() {
           done();
         });
       });
+    });
+
+    it('respects property options on the embedded property', function() {
+      Person.definition.properties.addresses.should.have.property('postgresql');
+      Person.definition.properties.addresses.postgresql.should.eql({dataType: 'json'});
     });
 
     it('should create embedded items on scope', function(done) {
