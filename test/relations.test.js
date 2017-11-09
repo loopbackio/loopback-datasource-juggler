@@ -820,12 +820,13 @@ describe('relations', function() {
             done();
           });
         });
-        it('returns empty result when filtering with wrong id key', function(done) {
-          var wrongWhereFilter = {where: {wrongIdKey: samplePatientId}};
-          physician.patients(wrongWhereFilter, function(err, ch) {
+        it('returns patient where name equal to samplePatient name', function(done) {
+          var whereFilter = {where: {name: 'a'}};
+          physician.patients(whereFilter, function(err, ch) {
             if (err) return done(err);
             should.exist(ch);
-            ch.should.have.lengthOf(0);
+            ch.should.have.lengthOf(1);
+            ch[0].name.should.eql('a');
             done();
           });
         });
@@ -849,6 +850,20 @@ describe('relations', function() {
                 idArr.indexOf(ch[0].id).should.not.equal(-1);
                 idArr.indexOf(ch[1].id).should.not.equal(-1);
               }
+              done();
+            });
+          });
+        });
+        it('returns empty result when patientId does not belongs to physician', function(done) {
+          Patient.create({name: 'x'}, function(err, p) {
+            if (err) return done(err);
+            should.exist(p);
+
+            var wrongWhereFilter = {where: {id: p.id}};
+            physician.patients(wrongWhereFilter, function(err, ch) {
+              if (err) return done(err);
+              should.exist(ch);
+              ch.should.have.lengthOf(0);
               done();
             });
           });
