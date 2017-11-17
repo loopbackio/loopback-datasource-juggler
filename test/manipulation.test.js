@@ -272,7 +272,7 @@ describe('manipulation', function() {
 
           should.exist(persons);
           persons.should.have.lengthOf(batch.length);
-          persons[0].errors.should.be.false;
+          persons[0].__errors.should.be.false;
           done();
         });
       });
@@ -300,7 +300,7 @@ describe('manipulation', function() {
 
           should.exist(persons);
           persons.should.have.lengthOf(batch.length);
-          persons[0].errors.should.be.false;
+          persons[0].__errors.should.be.false;
           done();
         });
       });
