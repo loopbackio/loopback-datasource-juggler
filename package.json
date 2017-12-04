@@ -33,6 +33,7 @@
   },
   "devDependencies": {
     "async-iterators": "^0.2.2",
+    "bson": "^1.0.4",
     "coveralls": "^2.13.1",
     "eslint": "^3.12.2",
     "eslint-config-loopback": "^8.0.0",
