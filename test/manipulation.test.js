@@ -11,7 +11,6 @@ var async = require('async');
 var bdd = require('./helpers/bdd-if');
 var should = require('./init.js');
 var uid = require('./helpers/uid-generator');
-var nanoid = require('nanoid');
 
 var db, Person;
 var ValidationError = require('..').ValidationError;
@@ -2085,8 +2084,8 @@ describe('manipulation', function() {
       before(createModelWithCustomValueProvider);
 
       it('uses user-registered value providers', function() {
-        var NANOID_REGEXP = /^[0-9a-zA-Z_\~]{22}$/i;
-        modelInstance.nanoId.should.match(NANOID_REGEXP);
+        var RAND_REGEXP = /^[0-9a-f]+$/i;
+        modelInstance.rand.should.match(RAND_REGEXP);
       });
 
       it('passes the model instance into the value provider', function() {
@@ -2096,10 +2095,10 @@ describe('manipulation', function() {
       function createModelWithCustomValueProvider(cb) {
         ModelWithCustomProvider = db.define('ModelWithCustomProvider', {
           name: {type: String},
-          nanoId: {type: String, defaultFn: 'nanoid'},
+          rand: {type: String, defaultFn: 'rand'},
           slugId: {type: String, defaultFn: 'slug'},
         });
-        ModelWithCustomProvider.registerValueProvider('nanoid', () => nanoid());
+        ModelWithCustomProvider.registerValueProvider('rand', () => Math.random().toString(16).slice(2));
         ModelWithCustomProvider.registerValueProvider('slug', (instance) => {
           return instance.name.toLowerCase().replace(/ /g, '-');
         });
