@@ -2080,7 +2080,7 @@ describe('manipulation', function() {
     });
 
     describe('custom value providers', function() {
-      var ModelWithCustomProvider, modelInstance;
+      var CustomProviderModel, modelInstance;
       before(modelWithValueProvider);
 
       it('uses user-registered value providers', function() {
@@ -2093,18 +2093,18 @@ describe('manipulation', function() {
       });
 
       function modelWithValueProvider(cb) {
-        ModelWithCustomProvider = db.define('ModelWithCustomProvider', {
+        CustomProviderModel = db.define('CustomProviderModel', {
           name: {type: String},
           rand: {type: String, defaultFn: 'rand'},
           slugId: {type: String, defaultFn: 'slug'},
         });
-        ModelWithCustomProvider.registerValueProvider('rand', () => Math.random().toString(16).slice(2));
-        ModelWithCustomProvider.registerValueProvider('slug', (instance) => {
+        CustomProviderModel.registerValueProvider('rand', () => Math.random().toString(16).slice(2));
+        CustomProviderModel.registerValueProvider('slug', (instance) => {
           return instance.name.toLowerCase().replace(/ /g, '-');
         });
-        db.automigrate('ModelWithCustomProvider', function(err) {
+        db.automigrate('CustomProviderModel', function(err) {
           if (err) return cb(err);
-          ModelWithCustomProvider.create({name: 'Test Instance'}, function(err, instance) {
+          CustomProviderModel.create({name: 'Test Instance'}, function(err, instance) {
             if (err) return cb(err);
             modelInstance = instance;
             cb();
