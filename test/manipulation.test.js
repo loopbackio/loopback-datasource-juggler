@@ -2081,7 +2081,7 @@ describe('manipulation', function() {
 
     describe('custom value providers', function() {
       var ModelWithCustomProvider, modelInstance;
-      before(createModelWithCustomValueProvider);
+      before(modelWithValueProvider);
 
       it('uses user-registered value providers', function() {
         var RAND_REGEXP = /^[0-9a-f]+$/i;
@@ -2092,7 +2092,7 @@ describe('manipulation', function() {
         modelInstance.slugId.should.eql('test-instance');
       });
 
-      function createModelWithCustomValueProvider(cb) {
+      function modelWithValueProvider(cb) {
         ModelWithCustomProvider = db.define('ModelWithCustomProvider', {
           name: {type: String},
           rand: {type: String, defaultFn: 'rand'},
