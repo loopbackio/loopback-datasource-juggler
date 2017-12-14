@@ -1,4 +1,22 @@
-2017-10-18, Version 3.13.0
+2017-12-14, Version 3.14.0
+==========================
+
+ * Allow new transaction method in postgresql (#1493) (zbarbuto)
+
+ * Fix bug in utils uniq function (#1526) (Peter Bouda)
+
+ * Fix query for related models (#1522) (Joost de Bruijn)
+
+ * chore:update license (#1521) (Diana Lau)
+
+ * Allow customizing embedded relation property (#1513) (zbarbuto)
+
+ * :book: Typo on README.md (#1517) (JP Ventura)
+
+ * CODEOWNERS: move @lehni to Alumni section (Miroslav Bajtoš)
+
+
+2017-10-17, Version 3.13.0
 ==========================
 
  * update strong-globalize to 3.1.0 (#1505) (Kyusung Shim)
