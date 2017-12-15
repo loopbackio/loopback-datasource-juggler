@@ -1489,6 +1489,16 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         });
       });
 
+      it('emits error when `persist` hook fails', function(done) {
+        TestModel.observe('persist', nextWithError(expectedError));
+
+        TestModel.settings.updateOnLoad = true;
+        existingInstance.updateAttributes({name: 'test'}, function(err, instance) {
+          [err].should.eql([expectedError]);
+          done();
+        });
+      });
+
       it('triggers `loaded` hook', function(done) {
         TestModel.observe('loaded', ctxRecorder.recordAndNext());
         existingInstance.updateAttributes({name: 'changed'}, function(err) {
