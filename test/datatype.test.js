@@ -170,6 +170,17 @@ describe('datatypes', function() {
     });
   });
 
+  it('handles null data', (done) => {
+    db = getSchema();
+    Model = db.define('HandleNullModel', {
+      data: {type: 'string'},
+    });
+    db.automigrate(['HandleNullModel'], function() {
+      let a = new Model(null);
+      done();
+    });
+  });
+
   describe('model option persistUndefinedAsNull', function() {
     var TestModel, isStrict;
     before(function(done) {

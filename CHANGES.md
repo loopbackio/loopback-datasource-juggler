@@ -1,3 +1,99 @@
+2017-12-14, Version 3.14.0
+==========================
+
+ * Allow new transaction method in postgresql (#1493) (zbarbuto)
+
+ * Fix bug in utils uniq function (#1526) (Peter Bouda)
+
+ * Fix query for related models (#1522) (Joost de Bruijn)
+
+ * chore:update license (#1521) (Diana Lau)
+
+ * Allow customizing embedded relation property (#1513) (zbarbuto)
+
+ * :book: Typo on README.md (#1517) (JP Ventura)
+
+ * CODEOWNERS: move @lehni to Alumni section (Miroslav Bajtoš)
+
+
+2017-10-17, Version 3.13.0
+==========================
+
+ * update strong-globalize to 3.1.0 (#1505) (Kyusung Shim)
+
+ * Fix basic-querying (#1509) (Janny)
+
+ * translation return for Q4 drop1 (tangyinb)
+
+ * Allow passing null to base model ctor (Zak Barbuto)
+
+ * CODEOWNERS: add zbarbuto (Miroslav Bajtoš)
+
+ * update globalize string (Diana Lau)
+
+
+2017-09-07, Version 3.12.0
+==========================
+
+ * Add a better way to handle transactions (Jürg Lehni)
+
+ * validations: use new regex per evaluation (#1479) (Joost de Bruijn)
+
+ * Transaction: Bind timeout to tx instance (#1484) (Jürg Lehni)
+
+ * CODEOWNERS: add lehni (#1483) (Miroslav Bajtoš)
+
+ * Add node8 support for travis (loay)
+
+ * Add nyc coverage, report data to coveralls.io (Miroslav Bajtoš)
+
+ * Update translations from TVT (Allen Boone)
+
+ * Add test coverage for hasAndBelongsToMany (loay)
+
+ * package: use qs@6.5.0 (#1471) (Kevin Delisle)
+
+
+2017-08-22, Version 3.11.0
+==========================
+
+ * Flag id as updateOnly when forceId is in effect (#1453) (Rashmi Hunt)
+
+ * Add stalebot configuration (Kevin Delisle)
+
+
+2017-08-21, Version 3.10.0
+==========================
+
+ * Catch err using Callback (loay)
+
+ * Update Issue and PR Templates (#1462) (Sakib Hasan)
+
+ * Update translated strings Q3 2017 (Allen Boone)
+
+ * test: call true/false in isValid checks (Tom Kirkpatrick)
+
+ * fix: support numbers in validatesFormatOf (Tom Kirkpatrick)
+
+ * Fix undefined properties in where (Raymond Feng)
+
+ * Honor backwards compatability with validate update (ssh24)
+
+ * Fix update validation callback (ssh24)
+
+ * Validate updateAll (ssh24)
+
+ * Sort arrays before testing (ssh24)
+
+ * update translation file (Diana Lau)
+
+ * Missing the option argument (#1426) (dmellonch)
+
+ * Add CODEOWNER file (Diana Lau)
+
+ * use connector flag throughout tests (biniam)
+
+
 2017-07-26, Version 3.9.3
 =========================
 

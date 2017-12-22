@@ -205,9 +205,12 @@ describe('validations', function() {
       it('should ignore errors on upsert by default', function(done) {
         delete User.validations;
         User.validatesPresenceOf('name');
-        // It's important to pass an id value, otherwise DAO falls back
-        // to regular create()
-        User.updateOrCreate({id: 999}, done);
+        // It's important to pass an existing id value to updateOrCreate,
+        // otherwise DAO falls back to regular create()
+        User.create({name: 'a-name'}, (err, u) => {
+          if (err) return done(err);
+          User.updateOrCreate({id: u.id}, done);
+        });
       });
 
       it('should be skipped by upsert when disabled via settings', function(done) {
@@ -215,26 +218,33 @@ describe('validations', function() {
         Customer.attachTo(db);
         db.autoupdate(function(err) {
           if (err) return done(err);
-          Customer.prototype.isValid = function() {
-            throw new Error('isValid() should not be called at all');
-          };
-          Customer.settings.validateUpsert = false;
-          // It's important to pass an id value, otherwise DAO falls back
-          // to regular create()
-          Customer.updateOrCreate({id: 999}, done);
+          // It's important to pass an existing id value,
+          // otherwise DAO falls back to regular create()
+          Customer.create({name: 'a-name'}, (err, u) => {
+            if (err) return done(err);
+
+            Customer.prototype.isValid = function() {
+              throw new Error('isValid() should not be called at all');
+            };
+            Customer.settings.validateUpsert = false;
+
+            Customer.updateOrCreate({id: u.id, name: ''}, done);
+          });
         });
       });
 
       it('should work on upsert when enabled via settings', function(done) {
-        delete User.validations;
         User.validatesPresenceOf('name');
         User.settings.validateUpsert = true;
-        // It's important to pass an id value, otherwise DAO falls back
-        // to regular create()
-        User.upsert({id: 999}, function(err, u) {
-          if (!err) return done(new Error('Validation should have failed.'));
-          err.should.be.instanceOf(ValidationError);
-          done();
+        // It's important to pass an existing id value,
+        // otherwise DAO falls back to regular create()
+        User.create({name: 'a-name'}, (err, u) => {
+          if (err) return done(err);
+          User.upsert({id: u.id, name: ''}, function(err, u) {
+            if (!err) return done(new Error('Validation should have failed.'));
+            err.should.be.instanceOf(ValidationError);
+            done();
+          });
         });
       });
 
@@ -824,6 +834,40 @@ describe('validations', function() {
       User.validatesFormatOf('email', {with: /^\S+@\S+\.\S+$/});
       var u = new User({email: null});
       u.isValid().should.be.false();
+    });
+
+    describe('validate format correctly on bulk creation with global flag enabled in RegExp', function() {
+      before(function(done) {
+        Employee.destroyAll(function(err) {
+          should.not.exist(err);
+          delete Employee.validations;
+          db.automigrate('Employee', function(err) {
+            should.not.exist(err);
+            Employee.create(empData, function(err, inst) {
+              should.not.exist(err);
+              should.exist(inst);
+              Employee.validatesFormatOf('name', {with: /^[a-z]+$/g, allowNull: false});
+              done();
+            });
+          });
+        });
+      });
+
+      it('succeeds when validate condition is met for all items', function(done) {
+        Employee.create([
+          {name: 'test'},
+          {name: 'test'},
+          {name: 'test'},
+          {name: 'test'},
+          {name: 'test'},
+          {name: 'test'},
+        ], (err, instances) => {
+          should.not.exist(err);
+          should.exist(instances);
+          instances.should.have.lengthOf(6);
+          done();
+        });
+      });
     });
 
     describe('validate format on update', function() {

@@ -820,12 +820,13 @@ describe('relations', function() {
             done();
           });
         });
-        it('returns empty result when filtering with wrong id key', function(done) {
-          var wrongWhereFilter = {where: {wrongIdKey: samplePatientId}};
-          physician.patients(wrongWhereFilter, function(err, ch) {
+        it('returns patient where name equal to samplePatient name', function(done) {
+          var whereFilter = {where: {name: 'a'}};
+          physician.patients(whereFilter, function(err, ch) {
             if (err) return done(err);
             should.exist(ch);
-            ch.should.have.lengthOf(0);
+            ch.should.have.lengthOf(1);
+            ch[0].name.should.eql('a');
             done();
           });
         });
@@ -849,6 +850,20 @@ describe('relations', function() {
                 idArr.indexOf(ch[0].id).should.not.equal(-1);
                 idArr.indexOf(ch[1].id).should.not.equal(-1);
               }
+              done();
+            });
+          });
+        });
+        it('returns empty result when patientId does not belongs to physician', function(done) {
+          Patient.create({name: 'x'}, function(err, p) {
+            if (err) return done(err);
+            should.exist(p);
+
+            var wrongWhereFilter = {where: {id: p.id}};
+            physician.patients(wrongWhereFilter, function(err, ch) {
+              if (err) return done(err);
+              should.exist(ch);
+              ch.should.have.lengthOf(0);
               done();
             });
           });
@@ -4092,6 +4107,24 @@ describe('relations', function() {
       });
     });
 
+    bdd.itIf(connectorCapabilities.deleteWithOtherThanId !== false,
+    'should destroy all related instances', function(done) {
+      Article.create(function(err, article) {
+        if (err) return done(err);
+        article.tagNames.create({name: 'popular'}, function(err, t) {
+          if (err) return done(err);
+          article.tagNames.destroyAll(function(err) {
+            if (err) return done(err);
+            article.tagNames(true, function(err, list) {
+              if (err) return done(err);
+              list.should.have.length(0);
+              done();
+            });
+          });
+        });
+      });
+    });
+
     it('should allow to add connection with instance', function(done) {
       Article.findOne(function(e, article) {
         TagName.create({name: 'awesome'}, function(e, tag) {
@@ -4265,13 +4298,20 @@ describe('relations', function() {
       );
       Address = tmp.define('Address', {street: String}, {idInjection: false});
       Other = db.define('Other', {name: String});
-    });
-
-    it('can be declared using embedsOne method', function(done) {
       Person.embedsOne(Passport, {
         default: {name: 'Anonymous'}, // a bit contrived
         methods: {check: function() { return true; }},
+        options: {
+          property: {
+            postgresql: {
+              columnName: 'passport_item',
+            },
+          },
+        },
       });
+    });
+
+    it('can be declared using embedsOne method', function(done) {
       Person.embedsOne(Address); // all by default
       db.automigrate(['Person'], done);
     });
@@ -4283,6 +4323,11 @@ describe('relations', function() {
       p.passportItem.create.should.be.a.function;
       p.passportItem.build.should.be.a.function;
       p.passportItem.destroy.should.be.a.function;
+    });
+
+    it('respects property options on the embedded property', function() {
+      Person.definition.properties.passport.should.have.property('postgresql');
+      Person.definition.properties.passport.postgresql.should.eql({columnName: 'passport_item'});
     });
 
     it('should setup a custom method on accessor', function() {
@@ -4686,7 +4731,15 @@ describe('relations', function() {
     });
 
     it('can be declared', function(done) {
-      Person.embedsMany(Address);
+      Person.embedsMany(Address, {
+        options: {
+          property: {
+            postgresql: {
+              dataType: 'json',
+            },
+          },
+        },
+      });
       db.automigrate(['Person'], done);
     });
 
@@ -4713,6 +4766,11 @@ describe('relations', function() {
           done();
         });
       });
+    });
+
+    it('respects property options on the embedded property', function() {
+      Person.definition.properties.addresses.should.have.property('postgresql');
+      Person.definition.properties.addresses.postgresql.should.eql({dataType: 'json'});
     });
 
     it('should create embedded items on scope', function(done) {
