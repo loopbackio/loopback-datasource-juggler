@@ -88,6 +88,22 @@ describe('relations', function() {
         });
       });
 
+      it('should not update FK', function(done) {
+        Book.create(function(err, book) {
+          book.chapters.create({name: 'chapter 1'}, function(err, c) {
+            if (err) return done(err);
+            should.exist(c);
+            c.bookId.should.eql(book.id);
+            c.name.should.eql('chapter 1');
+            book.chapters.updateById(c.id, {name: 'chapter 0', bookId: 10}, function(err, cc) {
+              should.exist(err);
+              err.message.should.startWith('Cannot override foreign key');
+              done();
+            });
+          });
+        });
+      });
+
       it('should create record on scope with promises', function(done) {
         Book.create()
         .then (function(book) {
@@ -2607,6 +2623,17 @@ describe('relations', function() {
       });
     });
 
+    it('should not update related item FK on scope', function(done) {
+      Item.findById(itemId, function(e, todo) {
+        if (e) return done(e);
+        todo.list.update({id: 10}, function(err, list) {
+          should.exist(err);
+          err.message.should.startWith('Cannot override foreign key');
+          done();
+        });
+      });
+    });
+
     it('should get related item on scope', function(done) {
       Item.findById(itemId, function(e, todo) {
         todo.list(function(err, list) {
@@ -2919,6 +2946,18 @@ describe('relations', function() {
       });
     });
 
+    it('should not update the related item FK on scope', function(done) {
+      Supplier.findById(supplierId, function(err, supplier) {
+        if (err) return done(err);
+        should.exist(supplier);
+        supplier.account.update({supplierName: 'Supplier A', supplierId: 10}, function(err, acct) {
+          should.exist(err);
+          err.message.should.containEql('Cannot override foreign key');
+          done();
+        });
+      });
+    });
+
     it('should update the related item on scope with promises', function(done) {
       Supplier.findById(supplierId)
       .then(function(supplier) {
@@ -2932,7 +2971,7 @@ describe('relations', function() {
       .catch(done);
     });
 
-    it('should ignore the foreign key in the update', function(done) {
+    it('should error tring to change the foreign key in the update', function(done) {
       Supplier.create({name: 'Supplier 2'}, function(e, supplier) {
         var sid = supplier.id;
         Supplier.findById(supplierId, function(e, supplier) {
@@ -2941,7 +2980,23 @@ describe('relations', function() {
           supplier.account.update({supplierName: 'Supplier A',
               supplierId: sid},
             function(err, act) {
-              should.not.exist(e);
+              should.exist(err);
+              err.message.should.startWith('Cannot override foreign key');
+              done();
+            });
+        });
+      });
+    });
+
+    it('should update the related item on scope with same foreign key', function(done) {
+      Supplier.create({name: 'Supplier 2'}, function(e, supplier) {
+        Supplier.findById(supplierId, function(e, supplier) {
+          should.not.exist(e);
+          should.exist(supplier);
+          supplier.account.update({supplierName: 'Supplier A',
+            supplierId: supplierId},
+            function(err, act) {
+              should.not.exist(err);
               act.supplierName.should.equal('Supplier A');
               act.supplierId.should.eql(supplierId);
               done();
