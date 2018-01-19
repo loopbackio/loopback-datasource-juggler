@@ -1,3 +1,11 @@
+2018-01-19, Version 2.56.0
+==========================
+
+ * fix unauthorized fk change (#1540) (Taranveer Virk)
+
+ * drop support for node 0.10 / 0.12 (#1541) (Taranveer Virk)
+
+
 2017-09-26, Version 2.55.3
 ==========================
 
