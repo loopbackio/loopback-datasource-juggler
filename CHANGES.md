@@ -1,3 +1,11 @@
+2018-01-19, Version 3.15.0
+==========================
+
+ * fix unauthorized fk change (#1538) (Taranveer Virk)
+
+ * Set model constructor name to model name (Miroslav Bajtoš)
+
+
 2017-12-14, Version 3.14.0
 ==========================
 
