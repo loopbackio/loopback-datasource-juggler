@@ -283,6 +283,58 @@ describe('relations', function() {
         }
       });
 
+      it('should fetch all scoped instances with getAsync with callback and options', function(done) {
+        Book.create(function(err, book) {
+          book.chapters.create({name: 'a'}, function() {
+            book.chapters.create({name: 'z'}, function() {
+              book.chapters.create({name: 'c'}, function() {
+                verify(book);
+              });
+            });
+          });
+        });
+        function verify(book) {
+          book.chapters({}, {options: 'options'}, function(err, ch) {
+            should.not.exist(err);
+            should.exist(ch);
+            ch.should.have.lengthOf(3);
+
+            book.chapters.getAsync({}, {options: 'options'}, function(e, c) {
+              should.not.exist(e);
+              should.exist(c);
+
+              done();
+            });
+          });
+        }
+      });
+
+      it('should fetch all scoped instances with getAsync with callback and no options', function(done) {
+        Book.create(function(err, book) {
+          book.chapters.create({name: 'a'}, function() {
+            book.chapters.create({name: 'z'}, function() {
+              book.chapters.create({name: 'c'}, function() {
+                verify(book);
+              });
+            });
+          });
+        });
+        function verify(book) {
+          book.chapters(function(err, ch) {
+            should.not.exist(err);
+            should.exist(ch);
+            ch.should.have.lengthOf(3);
+
+            book.chapters.getAsync(function(e, c) {
+              should.not.exist(e);
+              should.exist(c);
+
+              done();
+            });
+          });
+        }
+      });
+
       it('should find scoped record', function(done) {
         var id;
         Book.create(function(err, book) {
