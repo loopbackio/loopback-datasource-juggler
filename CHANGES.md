@@ -1,3 +1,11 @@
+2018-02-06, Version 3.15.1
+==========================
+
+ * Added error handling for persist operation hook (#1531) (Kevin Scroggins)
+
+ * Add warning for datasources with mismatched names (Kevin Scroggins)
+
+
 2018-01-19, Version 3.15.0
 ==========================
 
