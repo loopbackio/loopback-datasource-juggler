@@ -45,4 +45,16 @@ describe('DataSource', function() {
       });
     }).should.throw(/expected test error/);
   });
+
+  it('should set the correct name for datasource', function() {
+    var ds1 = new DataSource({name: 'dsname1', connector: 'memory'});
+    should(ds1.name).equal('dsname1');
+    var ds2 = new DataSource('memory', {name: 'dsname2', connector: 'memory'});
+    should(ds2.name).equal('dsname2');
+  });
+
+  it('should use connector name as a fallback', function() {
+    var ds = new DataSource({connector: 'memory'});
+    should(ds.name).equal('memory');
+  });
 });
