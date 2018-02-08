@@ -45,4 +45,38 @@ describe('DataSource', function() {
       });
     }).should.throw(/expected test error/);
   });
+
+  it('should retain the name assigned to it', function() {
+    var dataSource = new DataSource('ram', {
+      connector: 'memory',
+    });
+
+    dataSource.name.should.equal('ram');
+  });
+
+  it('should allow the name assigned to it to take precedence over the settings name', function() {
+    var dataSource = new DataSource('ram', {
+      name: 'temp',
+      connector: 'memory',
+    });
+
+    dataSource.name.should.equal('ram');
+  });
+
+  it('should retain the name from the settings if no name is assigned', function() {
+    var dataSource = new DataSource({
+      name: 'temp',
+      connector: 'memory',
+    });
+
+    dataSource.name.should.equal('temp');
+  });
+
+  it('should use the connector name if no name is provided', function() {
+    var dataSource = new DataSource({
+      connector: 'memory',
+    });
+
+    dataSource.name.should.equal('memory');
+  });
 });
