@@ -1,3 +1,11 @@
+2018-02-08, Version 3.15.2
+==========================
+
+ * feat(datasource): seperate name and connector  name (Nguyen Truong Minh)
+
+ * Fix datasource not correctly retaining name value (Kevin Scroggins)
+
+
 2018-02-06, Version 3.15.1
 ==========================
 
