@@ -1,4 +1,10 @@
-2018-02-08, Version 3.15.2
+2018-02-09, Version 3.15.3
+==========================
+
+ * fix: add more tests to verify new DataSource() (Raymond Feng)
+
+
+2018-02-07, Version 3.15.2
 ==========================
 
  * feat(datasource): seperate name and connector  name (Nguyen Truong Minh)
