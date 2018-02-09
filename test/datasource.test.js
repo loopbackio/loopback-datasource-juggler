@@ -46,37 +46,95 @@ describe('DataSource', function() {
     }).should.throw(/expected test error/);
   });
 
+  /**
+   * new DataSource(dsName, settings) without settings.name
+   */
   it('should retain the name assigned to it', function() {
-    var dataSource = new DataSource('ram', {
+    var dataSource = new DataSource('myDataSource', {
       connector: 'memory',
     });
 
-    dataSource.name.should.equal('ram');
+    dataSource.name.should.equal('myDataSource');
   });
 
+  /**
+   * new DataSource(dsName, settings)
+   */
   it('should allow the name assigned to it to take precedence over the settings name', function() {
-    var dataSource = new DataSource('ram', {
-      name: 'temp',
+    var dataSource = new DataSource('myDataSource', {
+      name: 'defaultDataSource',
       connector: 'memory',
     });
 
-    dataSource.name.should.equal('ram');
+    dataSource.name.should.equal('myDataSource');
   });
 
+  /**
+   * new DataSource(settings) with settings.name
+   */
   it('should retain the name from the settings if no name is assigned', function() {
     var dataSource = new DataSource({
-      name: 'temp',
+      name: 'defaultDataSource',
       connector: 'memory',
     });
 
-    dataSource.name.should.equal('temp');
+    dataSource.name.should.equal('defaultDataSource');
   });
 
+  /**
+   * new DataSource(undefined, settings)
+   */
+  it('should retain the name from the settings if name is undefined', function() {
+    var dataSource = new DataSource(undefined, {
+      name: 'defaultDataSource',
+      connector: 'memory',
+    });
+
+    dataSource.name.should.equal('defaultDataSource');
+  });
+
+  /**
+   * new DataSource(settings) without settings.name
+   */
   it('should use the connector name if no name is provided', function() {
     var dataSource = new DataSource({
       connector: 'memory',
     });
 
     dataSource.name.should.equal('memory');
+  });
+
+  /**
+   * new DataSource(connectorInstance)
+   */
+  it('should accept resolved connector', function() {
+    var mockConnector = {
+      name: 'loopback-connector-mock',
+      initialize: function(ds, cb) {
+        ds.connector = mockConnector;
+        return cb(null);
+      },
+    };
+    var dataSource = new DataSource(mockConnector);
+
+    dataSource.name.should.equal('loopback-connector-mock');
+    dataSource.connector.should.equal(mockConnector);
+  });
+
+  /**
+   * new DataSource(dsName, connectorInstance)
+   */
+  it('should accept resolved connector', function() {
+    var mockConnector = {
+      name: 'loopback-connector-mock',
+      initialize: function(ds, cb) {
+        ds.connector = mockConnector;
+        return cb(null);
+      },
+    };
+    var dataSource = new DataSource('myDataSource', mockConnector);
+
+    dataSource.name.should.equal('myDataSource');
+    dataSource.connector.should.equal(mockConnector);
   });
 });
