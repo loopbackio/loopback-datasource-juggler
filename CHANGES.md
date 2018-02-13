@@ -1,3 +1,9 @@
+2018-02-13, Version 3.15.4
+==========================
+
+ * fix: allow `new DataSource(connector, settings)` (Raymond Feng)
+
+
 2018-02-09, Version 3.15.3
 ==========================
 
