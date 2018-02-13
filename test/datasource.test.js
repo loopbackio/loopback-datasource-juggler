@@ -137,4 +137,21 @@ describe('DataSource', function() {
     dataSource.name.should.equal('myDataSource');
     dataSource.connector.should.equal(mockConnector);
   });
+
+  /**
+   * new DataSource(connectorInstance, settings)
+   */
+  it('should accept resolved connector and settings', function() {
+    var mockConnector = {
+      name: 'loopback-connector-mock',
+      initialize: function(ds, cb) {
+        ds.connector = mockConnector;
+        return cb(null);
+      },
+    };
+    var dataSource = new DataSource(mockConnector, {name: 'myDataSource'});
+
+    dataSource.name.should.equal('myDataSource');
+    dataSource.connector.should.equal(mockConnector);
+  });
 });
