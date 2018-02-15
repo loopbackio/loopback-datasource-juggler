@@ -1668,6 +1668,14 @@ describe('DataAccessObject', function() {
     (function() { model._normalize({filter: {x: undefined}}); }).should.throw(/`undefined` in query/);
   });
 
+  it('should correctly handle multiple operators on single property', function() {
+    const date1 = new Date(Date.now() - 10);
+    const date2 = new Date(Date.now());
+    filter = model._normalize({where: {date: {gte: date1.toISOString(), lte: date2.toISOString()}}});
+    // Check both operators kept and converted to date types
+    assert.deepEqual(filter, {where: {date: {gte: date1, lte: date2}}});
+  });
+
   it('does not coerce GeoPoint', function() {
     where = model._coerce({location: {near: {lng: 10, lat: 20}, maxDistance: 20}});
     assert.deepEqual(where, {location: {near: {lng: 10, lat: 20}, maxDistance: 20}});
