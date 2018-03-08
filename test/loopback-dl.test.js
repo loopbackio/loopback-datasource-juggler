@@ -1669,8 +1669,8 @@ describe('DataAccessObject', function() {
   });
 
   it('should correctly handle multiple operators on single property', function() {
-    const date1 = new Date(Date.now() - 10);
-    const date2 = new Date(Date.now());
+    var date1 = new Date(Date.now() - 10);
+    var date2 = new Date(Date.now());
     filter = model._normalize({where: {date: {gte: date1.toISOString(), lte: date2.toISOString()}}});
     // Check both operators kept and converted to date types
     assert.deepEqual(filter, {where: {date: {gte: date1, lte: date2}}});
