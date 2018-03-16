@@ -1,3 +1,11 @@
+2018-03-16, Version 3.15.5
+==========================
+
+ * Exclude .nyc_output from being published (Raymond Feng)
+
+ * CODEOWNERS: add nitro404 (Miroslav Bajtoš)
+
+
 2018-02-13, Version 3.15.4
 ==========================
 
