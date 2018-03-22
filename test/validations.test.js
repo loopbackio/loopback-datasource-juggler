@@ -314,8 +314,52 @@ describe('validations', function() {
           should.exist(e);
           e.should.be.instanceOf(Error);
           e.should.be.instanceOf(ValidationError);
-          d.updateAttribute('name', 'Vasiliy', {options: 'options'}, function(e) {
-            should.not.exist(e);
+          d.updateAttribute('name', 'Vasiliy', {options: 'options'}, err => {
+            if (err) return done(err);
+            // test passed
+            done();
+          });
+        });
+      });
+    });
+
+    it('passes options to custom sync validator', done => {
+      delete User.validations;
+      User.validate('name', function(err, options) {
+        if (options.testFlag !== 'someValue') err();
+      });
+      User.create({name: 'Valid'}, {testFlag: 'someValue'}, function(e, d) {
+        d.updateAttribute('name', null, {testFlag: 'otherValue'}, function(e) {
+          should.exist(e);
+          e.should.be.instanceOf(ValidationError);
+          d.updateAttribute('name', 'Vasiliy', {testFlag: 'someValue'}, err => {
+            if (err) return done(err);
+            // test passed
+            done();
+          });
+        });
+      });
+    });
+
+    it('passes options to async validator', done => {
+      delete User.validations;
+      User.validateAsync('name', function(err, options, done) {
+        if (options.testFlag !== 'someValue') {
+          console.error(
+            'Unexpected validation options: %j Expected %j',
+            options, {testFlag: 'someValue'});
+          err();
+        }
+        process.nextTick(function() { done(); });
+      });
+      User.create({name: 'Valid'}, {testFlag: 'someValue'}, function(e, d) {
+        if (e) return done(e);
+        d.updateAttribute('name', null, {testFlag: 'otherValue'}, function(e) {
+          should.exist(e);
+          e.should.be.instanceOf(ValidationError);
+          d.updateAttribute('name', 'Vasiliy', {testFlag: 'someValue'}, err => {
+            if (err) return done(err);
+            // test passed
             done();
           });
         });
