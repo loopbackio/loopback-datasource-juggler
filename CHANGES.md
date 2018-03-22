@@ -1,3 +1,11 @@
+2018-03-22, Version 3.16.0
+==========================
+
+ * Pass options argument to custom validators (bmatson)
+
+ * chore: update CODEOWNERS (#1566) (Diana Lau)
+
+
 2018-03-16, Version 3.15.5
 ==========================
 
