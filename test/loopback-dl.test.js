@@ -1865,7 +1865,7 @@ describe('ModelBuilder processing json files', function() {
         count++;
       }
     }
-    assert.equal(count, 7); // Please note there is an injected id from User prototype
+    assert.equal(count, 6); // Please note that customerId replaces an injected id
     assert.equal(Object.keys(customer.toObject()).filter(function(k) {
       // Remove internal properties
       return k.indexOf('__') === -1;
