@@ -5069,9 +5069,7 @@ describe('relations', function() {
         p.addressList.build({id: 'home', street: 'Home'});
         p.addressList.build({id: 'work', street: 'Work'});
         p.addresses.should.have.length(3);
-        p.save(function(err, p) {
-          done();
-        });
+        done();
       });
     });
 
