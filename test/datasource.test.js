@@ -154,4 +154,36 @@ describe('DataSource', function() {
     dataSource.name.should.equal('myDataSource');
     dataSource.connector.should.equal(mockConnector);
   });
+
+  describe('deleteModelByName()', () => {
+    it('removes the model from ModelBuilder registry', () => {
+      const ds = new DataSource('ds', {connector: 'memory'});
+
+      ds.createModel('TestModel');
+      Object.keys(ds.modelBuilder.models)
+        .should.containEql('TestModel');
+      Object.keys(ds.modelBuilder.definitions)
+        .should.containEql('TestModel');
+
+      ds.deleteModelByName('TestModel');
+
+      Object.keys(ds.modelBuilder.models)
+        .should.not.containEql('TestModel');
+      Object.keys(ds.modelBuilder.definitions)
+        .should.not.containEql('TestModel');
+    });
+
+    it('removes the model from connector registry', () => {
+      const ds = new DataSource('ds', {connector: 'memory'});
+
+      ds.createModel('TestModel');
+      Object.keys(ds.connector._models)
+        .should.containEql('TestModel');
+
+      ds.deleteModelByName('TestModel');
+
+      Object.keys(ds.connector._models)
+        .should.not.containEql('TestModel');
+    });
+  });
 });
