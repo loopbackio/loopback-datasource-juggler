@@ -1,3 +1,9 @@
+2018-04-17, Version 3.18.0
+==========================
+
+ * feat: remove a Model from all registries (Miroslav Bajtoš)
+
+
 2018-04-16, Version 3.17.0
 ==========================
 
