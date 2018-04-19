@@ -1,3 +1,9 @@
+2018-04-19, Version 3.18.1
+==========================
+
+ * Polyfill Number.isFinite() to support PhantomJS (Miroslav Bajtoš)
+
+
 2018-04-17, Version 3.18.0
 ==========================
 
