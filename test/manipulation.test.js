@@ -2079,6 +2079,40 @@ describe('manipulation', function() {
       }
     });
 
+    describe('custom value providers', function() {
+      var CustomProviderModel, modelInstance;
+      before(modelWithValueProvider);
+
+      it('uses user-registered value providers', function() {
+        var RAND_REGEXP = /^[0-9a-f]+$/i;
+        modelInstance.rand.should.match(RAND_REGEXP);
+      });
+
+      it('passes the model instance into the value provider', function() {
+        modelInstance.slugId.should.eql('test-instance');
+      });
+
+      function modelWithValueProvider(cb) {
+        CustomProviderModel = db.define('CustomProviderModel', {
+          name: {type: String},
+          rand: {type: String, defaultFn: 'rand'},
+          slugId: {type: String, defaultFn: 'slug'},
+        });
+        CustomProviderModel.registerValueProvider('rand', () => Math.random().toString(16).slice(2));
+        CustomProviderModel.registerValueProvider('slug', (instance) => {
+          return instance.name.toLowerCase().replace(/ /g, '-');
+        });
+        db.automigrate('CustomProviderModel', function(err) {
+          if (err) return cb(err);
+          CustomProviderModel.create({name: 'Test Instance'}, function(err, instance) {
+            if (err) return cb(err);
+            modelInstance = instance;
+            cb();
+          });
+        });
+      }
+    });
+
     // it('should work when constructor called as function', function() {
     //     var p = Person({name: 'John Resig'});
     //     p.should.be.an.instanceOf(Person);
