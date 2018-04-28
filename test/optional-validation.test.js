@@ -136,6 +136,21 @@ describe('optional-validation', function() {
         });
       });
     });
+    context('create', function() {
+      it('should fail with a null id', function(done) {
+        ModelWithForceId.create({id: null}, function(err, created) {
+          should.exist(err);
+          done();
+        });
+      });
+
+      it('should fail with an empty id', function(done) {
+        ModelWithForceId.create({id: ''}, function(err, created) {
+          should.exist(err);
+          done();
+        });
+      });
+    });
   });
 
   describe('no model setting', function() {
