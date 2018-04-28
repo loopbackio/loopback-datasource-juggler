@@ -513,6 +513,30 @@ describe('validations', function() {
       u.isValid().should.be.true();
     });
 
+    it('should validate absence with allowBlank set to true', function() {
+      User.validatesAbsenceOf('foo', {allowBlank: true});
+      var u = new User({foo: ''});
+      u.isValid().should.be.true();
+    });
+
+    it('should validate absence with allowBlank set to false', function() {
+      User.validatesAbsenceOf('foo', {allowBlank: false});
+      var u = new User({foo: ''});
+      u.isValid().should.be.false();
+    });
+
+    it('should validate absence with allowNull set to true', function() {
+      User.validatesAbsenceOf('foo', {allowNull: true});
+      var u = new User({foo: null});
+      u.isValid().should.be.true();
+    });
+
+    it('should validate absence with allowNull set to true', function() {
+      User.validatesAbsenceOf('foo', {allowNull: false});
+      var u = new User({foo: null});
+      u.isValid().should.be.false();
+    });
+
     describe('validate absence on update', function() {
       before(function(done) {
         Employee.destroyAll(function(err) {
