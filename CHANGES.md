@@ -1,3 +1,11 @@
+2018-05-10, Version 3.19.0
+==========================
+
+ * Add typescript type definitions (Raymond Feng)
+
+ * Tidy up datasource (Raymond Feng)
+
+
 2018-04-19, Version 3.18.1
 ==========================
 
