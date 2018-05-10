@@ -1,3 +1,11 @@
+2018-05-10, Version 3.20.0
+==========================
+
+ * Fix typescript definitions to be compatible with LB4 (Raymond Feng)
+
+ * Allow toObject() to accept an 'options' argument (Raymond Feng)
+
+
 2018-05-10, Version 3.19.0
 ==========================
 
