@@ -133,8 +133,8 @@ describe('ModelBuilder', function() {
 
     // Predefined property bio should be kept
     user.toObject().should.have.property('bio', 'me');
-    user.toObject(true).should.have.property('bio', 'me');
-    user.toObject(false).should.have.property('bio', 'me');
+    user.toObject({onlySchema: true}).should.have.property('bio', 'me');
+    user.toObject({onlySchema: false}).should.have.property('bio', 'me');
 
     done(null, User);
   });
