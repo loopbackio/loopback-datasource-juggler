@@ -11,4 +11,5 @@ docs/html
 npm-debug.log
 .travis.yml
 .nyc_output
+dist
 

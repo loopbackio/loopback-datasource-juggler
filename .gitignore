@@ -13,5 +13,5 @@ npm-debug.log
 .project
 test/memory.json
 .nyc_output
-
+dist
 
