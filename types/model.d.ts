@@ -92,7 +92,7 @@ export declare class ModelDefinition extends EventEmitter implements Schema {
 }
 
 /**
- * Base model class
+ * Base class for LoopBack 3.x models
  */
 export declare class ModelBase {
   static dataSource?: DataSource;
@@ -135,15 +135,16 @@ export declare class ModelBase {
   static getUpdateOnlyProperties(): string[];
 
   /**
-   * Model class: base class for all persistent objects.
+   * Constructor for ModelBase
    *
-   * `ModelBaseClass` mixes `Validatable` and `Hookable` classes methods
+   * NOTE: We have to use `constructor(...args: any[]);` so that it can be used
+   * for `return class extends superClass`.
    *
-   * @class
    * @param {AnyObject} data Initial object data
    * @param {Options} options An object to control the instantiation
    */
-  constructor(data: AnyObject, options?: Options);
+  constructor(...args: any[]);
+  // constructor(data: AnyObject, options?: Options);
 
   /**
    * Convert the model instance to a plain json object
@@ -160,20 +161,17 @@ export declare class ModelBase {
    * Convert model instance to a plain JSON object.
    * Returns a canonical object representation (no getters and setters).
    *
-   * @param {boolean} onlySchema Restrict properties to dataSource only.
+   * @param options Options for the conversion
+   * @property {boolean} onlySchema Restrict properties to dataSource only.
    * Default is false.  If true, the function returns only properties defined
    * in the schema;  Otherwise it returns all enumerable properties.
-   * @param {boolean} removeHidden Boolean flag as part of the transformation.
+   * @property {boolean} removeHidden Boolean flag as part of the transformation.
    * If true, then hidden properties should not be brought out.
-   * @param {boolean} removeProtected Boolean flag as part of the transformation.
+   * @property {boolean} removeProtected Boolean flag as part of the transformation.
    * If true, then protected properties should not be brought out.
    * @returns {object} returns Plain JSON object
    */
-  toObject(
-    onlySchema?: boolean,
-    removeHidden?: boolean,
-    removeProtected?: boolean,
-  ): AnyObject;
+  toObject(options?: Options): AnyObject;
 
   /**
    * Define a property on the model.
