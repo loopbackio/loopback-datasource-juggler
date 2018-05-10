@@ -83,7 +83,9 @@ export declare class DataSource {
 
   DataAccessObject: AnyObject & {prototype: AnyObject};
 
-  constructor(name?: string, settings?: Options, modelBuilder?: ModelBuilder);
+  constructor(name: string, settings?: Options, modelBuilder?: ModelBuilder);
+
+  constructor(settings?: Options, modelBuilder?: ModelBuilder);
 
   constructor(
     connectorModule: Connector,
