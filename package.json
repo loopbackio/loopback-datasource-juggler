@@ -34,6 +34,7 @@
     "posttest": "npm run tsc && npm run lint"
   },
   "devDependencies": {
+    "@types/node": "^10.0.8",
     "async-iterators": "^0.2.2",
     "bson": "^1.0.4",
     "coveralls": "^2.13.1",
@@ -46,8 +47,7 @@
     "typescript": "^2.8.3"
   },
   "dependencies": {
-    "@types/node": "^10.0.3",
-    "async": "~2.1.4",
+    "async": "^2.6.0",
     "bluebird": "^3.1.1",
     "debug": "^3.1.0",
     "depd": "^1.0.0",
