@@ -3,8 +3,6 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-/// <reference types="node" />
-
 import {EventEmitter} from 'events';
 import {AnyObject, Options} from './common';
 import {DataSource} from './datasource';
