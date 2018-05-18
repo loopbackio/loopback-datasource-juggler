@@ -1,3 +1,9 @@
+2018-05-18, Version 2.57.0
+==========================
+
+ * Add support for Node.js 8.x and 10.x, drop 4.x (Miroslav Bajtoš)
+
+
 2018-01-19, Version 2.56.0
 ==========================
 
