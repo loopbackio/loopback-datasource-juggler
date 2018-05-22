@@ -76,6 +76,7 @@ export declare class DataSource {
   name: string;
   settings: Options;
 
+  initialized?: boolean;
   connected?: boolean;
   connecting?: boolean;
 

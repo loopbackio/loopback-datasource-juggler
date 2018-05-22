@@ -155,6 +155,172 @@ describe('DataSource', function() {
     dataSource.connector.should.equal(mockConnector);
   });
 
+  it('should set states correctly with eager connect', function(done) {
+    var mockConnector = {
+      name: 'loopback-connector-mock',
+      initialize: function(ds, cb) {
+        ds.connector = mockConnector;
+        this.connect(cb);
+      },
+
+      connect: function(cb) {
+        process.nextTick(function() {
+          cb(null);
+        });
+      },
+    };
+    var dataSource = new DataSource(mockConnector);
+    // DataSource is instantiated
+    // connected: false, connecting: false, initialized: false
+    dataSource.connected.should.be.false();
+    dataSource.connecting.should.be.false();
+    dataSource.initialized.should.be.false();
+
+    dataSource.on('initialized', function() {
+      // DataSource is initialized with lazyConnect
+      // connected: false, connecting: false, initialized: true
+      dataSource.connected.should.be.false();
+      dataSource.connecting.should.be.false();
+      dataSource.initialized.should.be.true();
+    });
+
+    dataSource.on('connected', function() {
+      // DataSource is now connected
+      // connected: true, connecting: false
+      dataSource.connected.should.be.true();
+      dataSource.connecting.should.be.false();
+    });
+
+    // Call connect() in next tick so that we'll receive initialized event
+    // first
+    process.nextTick(function() {
+      // At this point, the datasource is already connected by
+      // connector's (mockConnector) initialize function
+      dataSource.connect(function() {
+        // DataSource is now connected
+        // connected: true, connecting: false
+        dataSource.connected.should.be.true();
+        dataSource.connecting.should.be.false();
+        done();
+      });
+      // As the datasource is already connected, no connecting will happen
+      // connected: true, connecting: false
+      dataSource.connected.should.be.true();
+      dataSource.connecting.should.be.false();
+    });
+  });
+
+  it('should set states correctly with deferred connect', function(done) {
+    var mockConnector = {
+      name: 'loopback-connector-mock',
+      initialize: function(ds, cb) {
+        ds.connector = mockConnector;
+        // Explicitly call back with false to denote connection is not ready
+        process.nextTick(function() {
+          cb(null, false);
+        });
+      },
+
+      connect: function(cb) {
+        process.nextTick(function() {
+          cb(null);
+        });
+      },
+    };
+    var dataSource = new DataSource(mockConnector);
+    // DataSource is instantiated
+    // connected: false, connecting: false, initialized: false
+    dataSource.connected.should.be.false();
+    dataSource.connecting.should.be.false();
+    dataSource.initialized.should.be.false();
+
+    dataSource.on('initialized', function() {
+      // DataSource is initialized with lazyConnect
+      // connected: false, connecting: false, initialized: true
+      dataSource.connected.should.be.false();
+      dataSource.connecting.should.be.false();
+      dataSource.initialized.should.be.true();
+    });
+
+    dataSource.on('connected', function() {
+      // DataSource is now connected
+      // connected: true, connecting: false
+      dataSource.connected.should.be.true();
+      dataSource.connecting.should.be.false();
+    });
+
+    // Call connect() in next tick so that we'll receive initialized event
+    // first
+    process.nextTick(function() {
+      dataSource.connect(function() {
+        // DataSource is now connected
+        // connected: true, connecting: false
+        dataSource.connected.should.be.true();
+        dataSource.connecting.should.be.false();
+        done();
+      });
+      // As the datasource is not connected, connecting will happen
+      // connected: false, connecting: true
+      dataSource.connected.should.be.false();
+      dataSource.connecting.should.be.true();
+    });
+  });
+
+  it('should set states correctly with lazyConnect = true', function(done) {
+    var mockConnector = {
+      name: 'loopback-connector-mock',
+      initialize: function(ds, cb) {
+        ds.connector = mockConnector;
+        process.nextTick(function() {
+          cb(null);
+        });
+      },
+
+      connect: function(cb) {
+        process.nextTick(function() {
+          cb(null);
+        });
+      },
+    };
+    var dataSource = new DataSource(mockConnector, {lazyConnect: true});
+    // DataSource is instantiated
+    // connected: false, connecting: false, initialized: false
+    dataSource.connected.should.be.false();
+    dataSource.connecting.should.be.false();
+    dataSource.initialized.should.be.false();
+
+    dataSource.on('initialized', function() {
+      // DataSource is initialized with lazyConnect
+      // connected: false, connecting: false, initialized: true
+      dataSource.connected.should.be.false();
+      dataSource.connecting.should.be.false();
+      dataSource.initialized.should.be.true();
+    });
+
+    dataSource.on('connected', function() {
+      // DataSource is now connected
+      // connected: true, connecting: false
+      dataSource.connected.should.be.true();
+      dataSource.connecting.should.be.false();
+    });
+
+    // Call connect() in next tick so that we'll receive initialized event
+    // first
+    process.nextTick(function() {
+      dataSource.connect(function() {
+        // DataSource is now connected
+        // connected: true, connecting: false
+        dataSource.connected.should.be.true();
+        dataSource.connecting.should.be.false();
+        done();
+      });
+      // DataSource is now connecting
+      // connected: false, connecting: true
+      dataSource.connected.should.be.false();
+      dataSource.connecting.should.be.true();
+    });
+  });
+
   describe('deleteModelByName()', () => {
     it('removes the model from ModelBuilder registry', () => {
       const ds = new DataSource('ds', {connector: 'memory'});
