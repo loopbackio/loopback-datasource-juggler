@@ -1,3 +1,9 @@
+2018-05-22, Version 3.21.0
+==========================
+
+ * Fix datasource state management (Raymond Feng)
+
+
 2018-05-11, Version 3.20.2
 ==========================
 
