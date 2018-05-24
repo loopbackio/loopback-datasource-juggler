@@ -848,7 +848,7 @@ describe('validations', function() {
       User.validatesFormatOf('name', {with: /[a-z][A-Z]*$/, message: CUSTOM_MESSAGE});
       var u = new User({name: 'invalid name string 123'});
       u.isValid().should.be.false();
-      u.errors.should.eql({
+      u.errors.should.containEql({
         name: [CUSTOM_MESSAGE],
         codes: {
           name: ['format'],
@@ -972,14 +972,14 @@ describe('validations', function() {
       User.validatesNumericalityOf('age');
       var user = new User({age: 'notanumber'});
       user.isValid().should.be.false();
-      user.errors.should.eql({age: ['is not a number']});
+      user.errors.should.containEql({age: ['is not a number']});
     });
 
     it('fails when given undefined values', function() {
       User.validatesNumericalityOf('age');
       var user = new User({});
       user.isValid().should.be.false();
-      user.errors.should.eql({age: ['is blank']});
+      user.errors.should.containEql({age: ['is blank']});
     });
 
     it('skips undefined values when allowBlank option is true', function() {
@@ -992,14 +992,14 @@ describe('validations', function() {
       User.validatesNumericalityOf('age', {allowBlank: true});
       var user = new User({age: 'test'});
       user.isValid().should.be.false();
-      user.errors.should.eql({age: ['is not a number']});
+      user.errors.should.containEql({age: ['is not a number']});
     });
 
     it('fails when given null values', function() {
       User.validatesNumericalityOf('age');
       var user = new User({age: null});
       user.isValid().should.be.false();
-      user.errors.should.eql({age: ['is null']});
+      user.errors.should.containEql({age: ['is null']});
     });
 
     it('passes when given null values when allowNull option is true', function() {
@@ -1353,7 +1353,7 @@ describe('validations', function() {
       });
       var u = new User({email: 'hello'});
       Boolean(u.isValid()).should.be.false();
-      u.errors.should.eql({email: ['Cannot be `hello`']});
+      u.errors.should.containEql({email: ['Cannot be `hello`']});
       u.errors.codes.should.eql({email: ['invalid-email']});
     });
 
@@ -1470,7 +1470,7 @@ describe('validations', function() {
       User.validatesDateOf('updatedAt');
       var u = new User({updatedAt: 'invalid date string'});
       u.isValid().should.not.be.true();
-      u.errors.should.eql({
+      u.errors.should.containEql({
         updatedAt: ['is not a valid date'],
         codes: {
           updatedAt: ['date'],
@@ -1494,7 +1494,7 @@ describe('validations', function() {
       });
       var u = new AnotherUser({updatedAt: 'invalid date string'});
       u.isValid().should.not.be.true();
-      u.errors.should.eql({
+      u.errors.should.containEql({
         updatedAt: ['is not a valid date'],
         codes: {
           updatedAt: ['date'],
@@ -1507,7 +1507,7 @@ describe('validations', function() {
       User.validatesDateOf('updatedAt', {message: CUSTOM_MESSAGE});
       var u = new User({updatedAt: 'invalid date string'});
       u.isValid().should.not.be.true();
-      u.errors.should.eql({
+      u.errors.should.containEql({
         updatedAt: [CUSTOM_MESSAGE],
         codes: {
           updatedAt: ['date'],

@@ -4418,7 +4418,7 @@ describe('relations', function() {
       p.passport.toObject().should.eql({name: 'Anonymous'});
       p.passportItem().should.equal(p.passport);
       p.passportItem(function(err, passport) {
-        err.should.not.exist();
+        should.not.exist(err);
         passport.should.equal(p.passport);
       });
     });
@@ -6040,8 +6040,8 @@ describe('relations', function() {
       Category.findOne(function(err, cat) {
         cat.jobs.reverse(function(err, ids) {
           var expected = [job3.id, job2.id];
-          ids.should.eql(expected);
-          cat.jobIds.should.eql(expected);
+          ids.toArray().should.eql(expected);
+          cat.jobIds.toArray().should.eql(expected);
           done();
         });
       });
@@ -6152,7 +6152,7 @@ describe('relations', function() {
     'should find items on scope with promises', function(done) {
       Category.findOne()
       .then(function(cat) {
-        cat.jobIds.should.eql([job2.id]);
+        cat.jobIds.toArray().should.eql([job2.id]);
         return cat.jobs.find();
       })
       .then(function(jobs) {
@@ -6352,8 +6352,8 @@ describe('relations', function() {
         return cat.jobs.reverse()
         .then(function(ids) {
           var expected = [job3.id, job2.id];
-          ids.should.eql(expected);
-          cat.jobIds.should.eql(expected);
+          ids.toArray().should.eql(expected);
+          cat.jobIds.toArray().should.eql(expected);
           done();
         });
       })
@@ -6382,9 +6382,9 @@ describe('relations', function() {
         .then(function() {
           var expected = [job3.id];
           if (connectorCapabilities.adhocSort !== false) {
-            cat.jobIds.should.eql(expected);
+            cat.jobIds.toArray().should.eql(expected);
           } else {
-            cat.jobIds.should.containDeep(expected);
+            cat.jobIds.toArray().should.containDeep(expected);
           }
           return Job.exists(job2.id);
         })
