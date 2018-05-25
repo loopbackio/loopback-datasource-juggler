@@ -1,3 +1,9 @@
+2018-05-25, Version 3.21.1
+==========================
+
+ * Fix tests to ensure compatibility w/ should@10 (Raymond Feng)
+
+
 2018-05-22, Version 3.21.0
 ==========================
 
