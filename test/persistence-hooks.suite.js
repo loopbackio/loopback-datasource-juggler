@@ -1505,7 +1505,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           if (err) return done(err);
 
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-            data: {name: 'changed'},
+            data: {id: existingInstance.id, name: 'changed'},
             isNewInstance: false,
           }));
 
@@ -2556,6 +2556,45 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             });
         });
 
+        it('applies updates from `persist` hook on create', function(done) {
+          TestModel.observe('persist', ctxRecorder.recordAndNext(function(ctx) {
+            ctx.data.extra = 'hook data';
+          }));
+
+          // By default, the instance passed to updateAttributes callback is NOT updated
+          // with the changes made through persist/loaded hooks. To preserve
+          // backwards compatibility, we introduced a new setting updateOnLoad,
+          // which if set, will apply these changes to the model instance too.
+          TestModel.settings.forceId = true;
+          TestModel.settings.updateOnLoad = true;
+          TestModel.replaceOrCreate(
+            {name: 'a name'}, function(err, instance) {
+            if (err) return done(err);
+            instance.should.have.property('extra', 'hook data');
+            TestModel.settings.updateOnLoad = false;
+            done();
+          });
+        });
+
+        it('applies updates from `persist` hook on update', function(done) {
+          TestModel.observe('persist', ctxRecorder.recordAndNext(function(ctx) {
+            ctx.data.extra = 'hook data';
+          }));
+
+          // By default, the instance passed to updateAttributes callback is NOT updated
+          // with the changes made through persist/loaded hooks. To preserve
+          // backwards compatibility, we introduced a new setting updateOnLoad,
+          // which if set, will apply these changes to the model instance too.
+          TestModel.settings.forceId = true;
+          TestModel.settings.updateOnLoad = true;
+          TestModel.replaceOrCreate({id: existingInstance.id, name: 'changed'}, function(err, instance) {
+            if (err) return done(err);
+            instance.should.have.property('extra', 'hook data');
+            TestModel.settings.updateOnLoad = false;
+            done();
+          });
+        });
+
         it('triggers `loaded` hook on create', function(done) {
           TestModel.observe('loaded', ctxRecorder.recordAndNext());
 
@@ -2662,6 +2701,63 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               done();
             });
         });
+      });
+    }
+
+    if (!dataSource.connector.replaceById) {
+      describe.skip('replaceById - not implemented', function() {});
+    } else {
+      describe('PersistedModel.replaceById', function() {
+
+        it('triggers `persist` hook on replace', function(done) {
+          TestModel.observe('persist', ctxRecorder.recordAndNext());
+
+          TestModel.replaceById(
+            existingInstance.id,
+            {name: 'replaced name'},
+            function(err, instance) {
+              if (err) return done(err);
+
+              var expected = {
+                where: {id: existingInstance.id},
+                data: {
+                  id: existingInstance.id,
+                  name: 'replaced name',
+                },
+                currentInstance: {
+                  id: existingInstance.id,
+                  name: 'replaced name',
+                  extra: undefined,
+                }
+              };
+
+              var expectedContext = aCtxForModel(TestModel, expected);
+              expectedContext.isNewInstance = false;
+
+              ctxRecorder.records.should.eql(expectedContext);
+              done();
+            });
+        });
+
+        it('applies updates from `persist` hook on replace', function(done) {
+          TestModel.observe('persist', ctxRecorder.recordAndNext(function(ctx) {
+            ctx.data.extra = 'hook data';
+          }));
+
+          // By default, the instance passed to updateAttributes callback is NOT updated
+          // with the changes made through persist/loaded hooks. To preserve
+          // backwards compatibility, we introduced a new setting updateOnLoad,
+          // which if set, will apply these changes to the model instance too.
+          TestModel.settings.forceId = true;
+          TestModel.settings.updateOnLoad = true;
+          TestModel.replaceById(existingInstance.id, {name: 'changed'}, function(err, instance) {
+            if (err) return done(err);
+            instance.should.have.property('extra', 'hook data');
+            TestModel.settings.updateOnLoad = false;
+            done();
+          });
+        });
+
       });
     }
 
