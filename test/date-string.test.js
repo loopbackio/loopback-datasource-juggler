@@ -25,6 +25,16 @@ describe('DateString', function() {
       date.toString().should.eql(theDate);
     });
 
+    it('should support a previous DateString object', function() {
+      var theDate = '2015-01-01';
+      var oldInstance = new DateString(theDate);
+      var newInstance = new DateString(oldInstance);
+      oldInstance.should.not.equal(newInstance);
+      newInstance.should.not.eql(null);
+      newInstance.when.should.eql(theDate);
+      newInstance.toString().should.eql(theDate);
+    });
+
     testValidInput('should allow date with time', '2015-01-01 02:00:00');
     testValidInput('should allow full UTC datetime', '2015-06-30T20:00:00.000Z');
     testValidInput('should allow date with UTC offset', '2015-01-01 20:00:00 GMT-5');
