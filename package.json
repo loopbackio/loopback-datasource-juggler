@@ -57,7 +57,7 @@
     "minimatch": "^3.0.3",
     "qs": "^6.5.0",
     "shortid": "^2.2.6",
-    "strong-globalize": "^3.1.0",
+    "strong-globalize": "^4.1.1",
     "traverse": "^0.6.6",
     "uuid": "^3.0.1"
   },
