@@ -162,20 +162,20 @@ describe('Memory connector with mocked discovery', function() {
     function(done) {
       ds.connector.discoverSchemas = null;
       ds.discoverSchemas('INVENTORY', {})
-      .then(function(schemas) {
-        schemas.should.have.property('STRONGLOOP.INVENTORY');
+        .then(function(schemas) {
+          schemas.should.have.property('STRONGLOOP.INVENTORY');
 
-        var s = schemas['STRONGLOOP.INVENTORY'];
-        s.name.should.be.eql('Inventory');
+          var s = schemas['STRONGLOOP.INVENTORY'];
+          s.name.should.be.eql('Inventory');
 
-        Object.keys(s.properties).should.be.eql(
-          ['productId', 'locationId', 'available', 'total']
-        );
-        done();
-      })
-      .catch(function(err) {
-        done(err);
-      });
+          Object.keys(s.properties).should.be.eql(
+            ['productId', 'locationId', 'available', 'total']
+          );
+          done();
+        })
+        .catch(function(err) {
+          done(err);
+        });
     });
 
   describe('discoverSchema', function() {
@@ -344,9 +344,9 @@ describe('discoverModelDefinitions', function() {
         );
         done();
       })
-    .catch(function(err) {
-      done(err);
-    });
+      .catch(function(err) {
+        done(err);
+      });
   });
 });
 
@@ -430,9 +430,9 @@ describe('discoverModelProperties', function() {
         schemas.should.be.eql(modelProperties);
         done();
       })
-    .catch(function(err) {
-      done(err);
-    });
+      .catch(function(err) {
+        done(err);
+      });
   });
 });
 
@@ -599,16 +599,16 @@ describe('discoverExportedForeignKeys', function() {
   });
 
   it('should discover foreign key definitions using `discoverExportedForeignKeys` - promise variant',
-  function(done) {
-    ds.discoverExportedForeignKeys('INVENTORY', {})
-      .then(function(modelForeignKeys) {
-        modelForeignKeys.should.be.eql(exportedForeignKeys);
-        done();
-      })
-      .catch(function(err) {
-        done(err);
-      });
-  });
+    function(done) {
+      ds.discoverExportedForeignKeys('INVENTORY', {})
+        .then(function(modelForeignKeys) {
+          modelForeignKeys.should.be.eql(exportedForeignKeys);
+          done();
+        })
+        .catch(function(err) {
+          done(err);
+        });
+    });
 });
 
 describe('Mock connector', function() {

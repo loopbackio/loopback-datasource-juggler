@@ -113,14 +113,14 @@ describe('relations', function() {
 
       it('should create record on scope with promises', function(done) {
         Book.create()
-        .then(function(book) {
-          return book.chapters.create()
-          .then(function(c) {
-            should.exist(c);
-            c.bookId.should.eql(book.id);
-            done();
-          });
-        }).catch(done);
+          .then(function(book) {
+            return book.chapters.create()
+              .then(function(c) {
+                should.exist(c);
+                c.bookId.should.eql(book.id);
+                done();
+              });
+          }).catch(done);
       });
 
       it('should create a batch of records on scope', function(done) {
@@ -150,14 +150,14 @@ describe('relations', function() {
         ];
         Book.create(function(err, book) {
           book.chapters.create(chapters)
-          .then(function(chs) {
-            should.exist(chs);
-            chs.should.have.lengthOf(chapters.length);
-            chs.forEach(function(c) {
-              c.bookId.should.eql(book.id);
-            });
-            done();
-          }).catch(done);
+            .then(function(chs) {
+              should.exist(chs);
+              chs.should.have.lengthOf(chapters.length);
+              chs.forEach(function(c) {
+                c.bookId.should.eql(book.id);
+              });
+              done();
+            }).catch(done);
         });
       });
 
@@ -196,37 +196,37 @@ describe('relations', function() {
 
       it('should fetch all scoped instances with promises', function(done) {
         Book.create()
-        .then(function(book) {
-          return book.chapters.create({name: 'a'})
-          .then(function() {
-            return book.chapters.create({name: 'z'});
-          })
-          .then(function() {
-            return book.chapters.create({name: 'c'});
-          })
-          .then(function() {
-            return verify(book);
-          });
-        }).catch(done);
+          .then(function(book) {
+            return book.chapters.create({name: 'a'})
+              .then(function() {
+                return book.chapters.create({name: 'z'});
+              })
+              .then(function() {
+                return book.chapters.create({name: 'c'});
+              })
+              .then(function() {
+                return verify(book);
+              });
+          }).catch(done);
 
         function verify(book) {
           return book.chapters.find()
-          .then(function(ch) {
-            should.exist(ch);
-            ch.should.have.lengthOf(3);
-            var chapters = book.chapters();
-            chapters.should.eql(ch);
-            return book.chapters.find()
-            .then(function(c) {
-              should.exist(c);
+            .then(function(ch) {
+              should.exist(ch);
               ch.should.have.lengthOf(3);
-              var acz = ['a', 'c', 'z'];
-              acz.should.containEql(c[0].name);
-              acz.should.containEql(c[1].name);
-              acz.should.containEql(c[2].name);
-              done();
+              var chapters = book.chapters();
+              chapters.should.eql(ch);
+              return book.chapters.find()
+                .then(function(c) {
+                  should.exist(c);
+                  ch.should.have.lengthOf(3);
+                  var acz = ['a', 'c', 'z'];
+                  acz.should.containEql(c[0].name);
+                  acz.should.containEql(c[1].name);
+                  acz.should.containEql(c[2].name);
+                  done();
+                });
             });
-          });
         }
       });
 
@@ -322,27 +322,27 @@ describe('relations', function() {
       it('should find scoped record with promises', function(done) {
         var id;
         Book.create()
-        .then(function(book) {
-          return book.chapters.create({name: 'a'})
-          .then(function(ch) {
-            id = ch.id;
-            return book.chapters.create({name: 'z'});
-          })
-          .then(function() {
-            return book.chapters.create({name: 'c'});
-          })
-          .then(function() {
-            return verify(book);
-          });
-        }).catch(done);
+          .then(function(book) {
+            return book.chapters.create({name: 'a'})
+              .then(function(ch) {
+                id = ch.id;
+                return book.chapters.create({name: 'z'});
+              })
+              .then(function() {
+                return book.chapters.create({name: 'c'});
+              })
+              .then(function() {
+                return verify(book);
+              });
+          }).catch(done);
 
         function verify(book) {
           return book.chapters.findById(id)
-          .then(function(ch) {
-            should.exist(ch);
-            ch.id.should.eql(id);
-            done();
-          });
+            .then(function(ch) {
+              should.exist(ch);
+              ch.id.should.eql(id);
+              done();
+            });
         }
       });
 
@@ -372,29 +372,29 @@ describe('relations', function() {
 
       it('should count scoped records - all and filtered with promises', function(done) {
         Book.create()
-        .then(function(book) {
-          book.chapters.create({name: 'a'})
-          .then(function() {
-            return book.chapters.create({name: 'b'});
-          })
-          .then(function() {
-            return book.chapters.create({name: 'c'});
-          })
-          .then(function() {
-            return verify(book);
-          });
-        }).catch(done);
+          .then(function(book) {
+            book.chapters.create({name: 'a'})
+              .then(function() {
+                return book.chapters.create({name: 'b'});
+              })
+              .then(function() {
+                return book.chapters.create({name: 'c'});
+              })
+              .then(function() {
+                return verify(book);
+              });
+          }).catch(done);
 
         function verify(book) {
           return book.chapters.count()
-          .then(function(count) {
-            count.should.equal(3);
-            return book.chapters.count({name: 'b'});
-          })
-          .then(function(count) {
-            count.should.equal(1);
-            done();
-          });
+            .then(function(count) {
+              count.should.equal(3);
+              return book.chapters.count({name: 'b'});
+            })
+            .then(function(count) {
+              count.should.equal(1);
+              done();
+            });
         }
       });
 
@@ -427,26 +427,26 @@ describe('relations', function() {
       it('should update scoped record with promises', function(done) {
         var id;
         Book.create()
-        .then(function(book) {
-          return book.chapters.create({name: 'a'})
-          .then(function(ch) {
-            id = ch.id;
-            return book.chapters.updateById(id, {name: 'aa'});
+          .then(function(book) {
+            return book.chapters.create({name: 'a'})
+              .then(function(ch) {
+                id = ch.id;
+                return book.chapters.updateById(id, {name: 'aa'});
+              })
+              .then(function(ch) {
+                return verify(book);
+              });
           })
-          .then(function(ch) {
-            return verify(book);
-          });
-        })
-        .catch(done);
+          .catch(done);
 
         function verify(book) {
           return book.chapters.findById(id)
-          .then(function(ch) {
-            should.exist(ch);
-            ch.id.should.eql(id);
-            ch.name.should.equal('aa');
-            done();
-          });
+            .then(function(ch) {
+              should.exist(ch);
+              ch.id.should.eql(id);
+              ch.name.should.equal('aa');
+              done();
+            });
         }
       });
 
@@ -472,24 +472,24 @@ describe('relations', function() {
       it('should destroy scoped record with promises', function(done) {
         var id;
         Book.create()
-        .then(function(book) {
-          return book.chapters.create({name: 'a'})
-          .then(function(ch) {
-            id = ch.id;
-            return book.chapters.destroy(id);
+          .then(function(book) {
+            return book.chapters.create({name: 'a'})
+              .then(function(ch) {
+                id = ch.id;
+                return book.chapters.destroy(id);
+              })
+              .then(function(ch) {
+                return verify(book);
+              });
           })
-          .then(function(ch) {
-            return verify(book);
-          });
-        })
-        .catch(done);
+          .catch(done);
 
         function verify(book) {
           return book.chapters.findById(id)
-          .catch(function(err) {
-            should.exist(err);
-            done();
-          });
+            .catch(function(err) {
+              should.exist(err);
+              done();
+            });
         }
       });
 
@@ -518,26 +518,26 @@ describe('relations', function() {
       it('should check existence of a scoped record with promises', function(done) {
         var id;
         Book.create()
-        .then(function(book) {
-          return book.chapters.create({name: 'a'})
-          .then(function(ch) {
-            id = ch.id;
-            return book.chapters.create({name: 'z'});
-          })
-          .then(function() {
-            return book.chapters.create({name: 'c'});
-          })
-          .then(function() {
-            return verify(book);
-          });
-        }).catch(done);
+          .then(function(book) {
+            return book.chapters.create({name: 'a'})
+              .then(function(ch) {
+                id = ch.id;
+                return book.chapters.create({name: 'z'});
+              })
+              .then(function() {
+                return book.chapters.create({name: 'c'});
+              })
+              .then(function() {
+                return verify(book);
+              });
+          }).catch(done);
 
         function verify(book) {
           return book.chapters.exists(id)
-          .then(function(flag) {
-            flag.should.be.eql(true);
-            done();
-          });
+            .then(function(flag) {
+              flag.should.be.eql(true);
+              done();
+            });
         }
       });
 
@@ -553,12 +553,12 @@ describe('relations', function() {
 
       it('should check ignore related data on creation with promises - array', function(done) {
         Book.create({chapters: []})
-        .then(function(book) {
-          book.chapters.should.be.a.function;
-          var obj = book.toObject();
-          should.not.exist(obj.chapters);
-          done();
-        }).catch(done);
+          .then(function(book) {
+            book.chapters.should.be.a.function;
+            var obj = book.toObject();
+            should.not.exist(obj.chapters);
+            done();
+          }).catch(done);
       });
 
       it('should check ignore related data on creation - object', function(done) {
@@ -573,12 +573,12 @@ describe('relations', function() {
 
       it('should check ignore related data on creation with promises - object', function(done) {
         Book.create({chapters: {}})
-        .then(function(book) {
-          book.chapters.should.be.a.function;
-          var obj = book.toObject();
-          should.not.exist(obj.chapters);
-          done();
-        }).catch(done);
+          .then(function(book) {
+            book.chapters.should.be.a.function;
+            var obj = book.toObject();
+            should.not.exist(obj.chapters);
+            done();
+          }).catch(done);
       });
     });
   });
@@ -630,17 +630,17 @@ describe('relations', function() {
 
     it('should create record on scope with promises', function(done) {
       Physician.create()
-      .then(function(physician) {
-        return physician.patients.create()
-        .then(function(patient) {
-          should.exist(patient);
-          return Appointment.find({where: {physicianId: physician.id, patientId: patient.id}})
-          .then(function(apps) {
-            apps.should.have.lengthOf(1);
-            done();
-          });
-        });
-      }).catch(done);
+        .then(function(physician) {
+          return physician.patients.create()
+            .then(function(patient) {
+              should.exist(patient);
+              return Appointment.find({where: {physicianId: physician.id, patientId: patient.id}})
+                .then(function(apps) {
+                  apps.should.have.lengthOf(1);
+                  done();
+                });
+            });
+        }).catch(done);
     });
 
     it('should create multiple records on scope', function(done) {
@@ -655,11 +655,11 @@ describe('relations', function() {
               physicianId: physician.id,
               patientId: patient.id,
             }},
-              function(err, apps) {
-                if (err) return done(err);
-                apps.should.have.lengthOf(1);
-                next();
-              });
+            function(err, apps) {
+              if (err) return done(err);
+              apps.should.have.lengthOf(1);
+              next();
+            });
           }
           async.forEach(patients, verifyPatient, done);
         });
@@ -669,24 +669,24 @@ describe('relations', function() {
     it('should create multiple records on scope with promises', function(done) {
       var async = require('async');
       Physician.create()
-      .then(function(physician) {
-        return physician.patients.create([{}, {}])
-        .then(function(patients) {
-          should.exist(patients);
-          patients.should.have.lengthOf(2);
-          function verifyPatient(patient, next) {
-            Appointment.find({where: {
-              physicianId: physician.id,
-              patientId: patient.id,
-            }})
-            .then(function(apps) {
-              apps.should.have.lengthOf(1);
-              next();
+        .then(function(physician) {
+          return physician.patients.create([{}, {}])
+            .then(function(patients) {
+              should.exist(patients);
+              patients.should.have.lengthOf(2);
+              function verifyPatient(patient, next) {
+                Appointment.find({where: {
+                  physicianId: physician.id,
+                  patientId: patient.id,
+                }})
+                  .then(function(apps) {
+                    apps.should.have.lengthOf(1);
+                    next();
+                  });
+              }
+              async.forEach(patients, verifyPatient, done);
             });
-          }
-          async.forEach(patients, verifyPatient, done);
-        });
-      }).catch(done);
+        }).catch(done);
     });
 
     it('should fetch all scoped instances', function(done) {
@@ -714,28 +714,28 @@ describe('relations', function() {
 
     it('should fetch all scoped instances with promises', function(done) {
       Physician.create()
-      .then(function(physician) {
-        return physician.patients.create({name: 'a'})
-        .then(function() {
-          return physician.patients.create({name: 'z'});
-        })
-        .then(function() {
-          return physician.patients.create({name: 'c'});
-        })
-        .then(function() {
-          return verify(physician);
-        });
-      }).catch(done);
+        .then(function(physician) {
+          return physician.patients.create({name: 'a'})
+            .then(function() {
+              return physician.patients.create({name: 'z'});
+            })
+            .then(function() {
+              return physician.patients.create({name: 'c'});
+            })
+            .then(function() {
+              return verify(physician);
+            });
+        }).catch(done);
       function verify(physician) {
         return physician.patients.find()
-        .then(function(ch) {
-          var patients = physician.patients();
-          should.equal(patients, ch);
+          .then(function(ch) {
+            var patients = physician.patients();
+            should.equal(patients, ch);
 
-          should.exist(ch);
-          ch.should.have.lengthOf(3);
-          done();
-        });
+            should.exist(ch);
+            ch.should.have.lengthOf(3);
+            done();
+          });
       }
     });
 
@@ -747,16 +747,16 @@ describe('relations', function() {
 
       context('with filter skip', function() {
         bdd.itIf(connectorCapabilities.supportPagination !== false,
-        'skips the first patient', function(done) {
-          physician.patients({skip: 1, order: 'sequence'}, function(err, ch) {
-            if (err) return done(err);
-            should.exist(ch);
-            ch.should.have.lengthOf(2);
-            ch[0].name.should.eql('z');
-            ch[1].name.should.eql('c');
-            done();
+          'skips the first patient', function(done) {
+            physician.patients({skip: 1, order: 'sequence'}, function(err, ch) {
+              if (err) return done(err);
+              should.exist(ch);
+              ch.should.have.lengthOf(2);
+              ch[0].name.should.eql('z');
+              ch[1].name.should.eql('c');
+              done();
+            });
           });
-        });
       });
       context('with filter order', function() {
         it('orders the result by patient name', function(done) {
@@ -1020,19 +1020,19 @@ describe('relations', function() {
     it('should find scoped record with promises', function(done) {
       var id;
       Physician.create()
-      .then(function(physician) {
-        return physician.patients.create({name: 'a'})
-        .then(function(ch) {
-          id = ch.id;
-          return physician.patients.create({name: 'z'});
-        })
-        .then(function() {
-          return physician.patients.create({name: 'c'});
-        })
-        .then(function() {
-          return verify(physician);
-        });
-      }).catch(done);
+        .then(function(physician) {
+          return physician.patients.create({name: 'a'})
+            .then(function(ch) {
+              id = ch.id;
+              return physician.patients.create({name: 'z'});
+            })
+            .then(function() {
+              return physician.patients.create({name: 'c'});
+            })
+            .then(function() {
+              return verify(physician);
+            });
+        }).catch(done);
 
       function verify(physician) {
         return physician.patients.findById(id, function(err, ch) {
@@ -1073,32 +1073,32 @@ describe('relations', function() {
 
     it('should allow to use include syntax on related data with promises', function(done) {
       Physician.create()
-      .then(function(physician) {
-        return physician.patients.create({name: 'a'})
-        .then(function(patient) {
-          return Address.create({name: 'z'})
-          .then(function(address) {
-            patient.address(address);
-            return patient.save()
-            .then(function() {
-              return verify(physician, address.id);
+        .then(function(physician) {
+          return physician.patients.create({name: 'a'})
+            .then(function(patient) {
+              return Address.create({name: 'z'})
+                .then(function(address) {
+                  patient.address(address);
+                  return patient.save()
+                    .then(function() {
+                      return verify(physician, address.id);
+                    });
+                });
             });
-          });
-        });
-      }).catch(done);
+        }).catch(done);
 
       function verify(physician, addressId) {
         return physician.patients.find({include: 'address'})
-        .then(function(ch) {
-          should.exist(ch);
-          ch.should.have.lengthOf(1);
-          ch[0].addressId.toString().should.eql(addressId.toString());
-          var address = ch[0].address();
-          should.exist(address);
-          address.should.be.an.instanceof(Address);
-          address.name.should.equal('z');
-          done();
-        });
+          .then(function(ch) {
+            should.exist(ch);
+            ch.should.have.lengthOf(1);
+            ch[0].addressId.toString().should.eql(addressId.toString());
+            var address = ch[0].address();
+            should.exist(address);
+            address.should.be.an.instanceof(Address);
+            address.name.should.equal('z');
+            done();
+          });
       }
     });
 
@@ -1131,75 +1131,75 @@ describe('relations', function() {
     it('should update scoped record with promises', function(done) {
       var id;
       Physician.create()
-      .then(function(physician) {
-        return physician.patients.create({name: 'a'})
-        .then(function(ch) {
-          id = ch.id;
-          return physician.patients.updateById(id, {name: 'aa'})
-          .then(function(ch) {
-            return verify(physician);
-          });
-        });
-      }).catch(done);
+        .then(function(physician) {
+          return physician.patients.create({name: 'a'})
+            .then(function(ch) {
+              id = ch.id;
+              return physician.patients.updateById(id, {name: 'aa'})
+                .then(function(ch) {
+                  return verify(physician);
+                });
+            });
+        }).catch(done);
 
       function verify(physician) {
         return physician.patients.findById(id)
-        .then(function(ch) {
-          should.exist(ch);
-          ch.id.should.eql(id);
-          ch.name.should.equal('aa');
-          done();
-        });
+          .then(function(ch) {
+            should.exist(ch);
+            ch.id.should.eql(id);
+            ch.name.should.equal('aa');
+            done();
+          });
       }
     });
 
     bdd.itIf(connectorCapabilities.deleteWithOtherThanId !== false,
-    'should destroy scoped record', function(done) {
-      var id;
-      Physician.create(function(err, physician) {
-        physician.patients.create({name: 'a'}, function(err, ch) {
-          id = ch.id;
-          physician.patients.destroy(id, function(err, ch) {
-            verify(physician);
+      'should destroy scoped record', function(done) {
+        var id;
+        Physician.create(function(err, physician) {
+          physician.patients.create({name: 'a'}, function(err, ch) {
+            id = ch.id;
+            physician.patients.destroy(id, function(err, ch) {
+              verify(physician);
+            });
           });
         });
+
+        function verify(physician) {
+          physician.patients.findById(id, function(err, ch) {
+            should.exist(err);
+            done();
+          });
+        }
       });
 
-      function verify(physician) {
-        physician.patients.findById(id, function(err, ch) {
-          should.exist(err);
-          done();
-        });
-      }
-    });
-
     bdd.itIf(connectorCapabilities.deleteWithOtherThanId !== false,
-    'should destroy scoped record with promises', function(done) {
-      var id;
-      Physician.create()
-      .then(function(physician) {
-        return physician.patients.create({name: 'a'})
-        .then(function(ch) {
-          id = ch.id;
-          return physician.patients.destroy(id)
-          .then(function(ch) {
-            return verify(physician);
-          });
-        });
-      }).catch(done);
+      'should destroy scoped record with promises', function(done) {
+        var id;
+        Physician.create()
+          .then(function(physician) {
+            return physician.patients.create({name: 'a'})
+              .then(function(ch) {
+                id = ch.id;
+                return physician.patients.destroy(id)
+                  .then(function(ch) {
+                    return verify(physician);
+                  });
+              });
+          }).catch(done);
 
-      function verify(physician) {
-        return physician.patients.findById(id)
-        .then(function(ch) {
-          should.not.exist(ch);
-          done();
-        })
-        .catch(function(err) {
-          should.exist(err);
-          done();
-        });
-      }
-    });
+        function verify(physician) {
+          return physician.patients.findById(id)
+            .then(function(ch) {
+              should.not.exist(ch);
+              done();
+            })
+            .catch(function(err) {
+              should.exist(err);
+              done();
+            });
+        }
+      });
 
     it('should check existence of a scoped record', function(done) {
       var id;
@@ -1227,26 +1227,26 @@ describe('relations', function() {
     it('should check existence of a scoped record with promises', function(done) {
       var id;
       Physician.create()
-      .then(function(physician) {
-        return physician.patients.create({name: 'a'})
-        .then(function(ch) {
-          id = ch.id;
-          return physician.patients.create({name: 'z'});
-        })
-        .then(function() {
-          return physician.patients.create({name: 'c'});
-        })
-        .then(function() {
-          return verify(physician);
-        });
-      }).catch(done);
+        .then(function(physician) {
+          return physician.patients.create({name: 'a'})
+            .then(function(ch) {
+              id = ch.id;
+              return physician.patients.create({name: 'z'});
+            })
+            .then(function() {
+              return physician.patients.create({name: 'c'});
+            })
+            .then(function() {
+              return verify(physician);
+            });
+        }).catch(done);
 
       function verify(physician) {
         return physician.patients.exists(id)
-        .then(function(flag) {
-          flag.should.be.eql(true);
-          done();
-        });
+          .then(function(flag) {
+            flag.should.be.eql(true);
+            done();
+          });
       }
     });
 
@@ -1267,19 +1267,19 @@ describe('relations', function() {
 
     it('should allow to add connection with instance with promises', function(done) {
       Physician.create({name: 'ph1'})
-      .then(function(physician) {
-        return Patient.create({name: 'pa1'})
-        .then(function(patient) {
-          return physician.patients.add(patient)
-          .then(function(app) {
-            should.exist(app);
-            app.should.be.an.instanceOf(Appointment);
-            app.physicianId.should.eql(physician.id);
-            app.patientId.should.eql(patient.id);
-            done();
-          });
-        });
-      }).catch(done);
+        .then(function(physician) {
+          return Patient.create({name: 'pa1'})
+            .then(function(patient) {
+              return physician.patients.add(patient)
+                .then(function(app) {
+                  should.exist(app);
+                  app.should.be.an.instanceOf(Appointment);
+                  app.physicianId.should.eql(physician.id);
+                  app.patientId.should.eql(patient.id);
+                  done();
+                });
+            });
+        }).catch(done);
     });
 
     it('should allow to add connection with through data', function(done) {
@@ -1302,68 +1302,68 @@ describe('relations', function() {
 
     it('should allow to add connection with through data with promises', function(done) {
       Physician.create({name: 'ph1'})
-      .then(function(physician) {
-        return Patient.create({name: 'pa1'})
-        .then(function(patient) {
-          var now = Date.now();
-          return physician.patients.add(patient, {date: new Date(now)})
-          .then(function(app) {
-            should.exist(app);
-            app.should.be.an.instanceOf(Appointment);
-            app.physicianId.should.eql(physician.id);
-            app.patientId.should.eql(patient.id);
-            app.patientId.should.eql(patient.id);
-            app.date.getTime().should.equal(now);
+        .then(function(physician) {
+          return Patient.create({name: 'pa1'})
+            .then(function(patient) {
+              var now = Date.now();
+              return physician.patients.add(patient, {date: new Date(now)})
+                .then(function(app) {
+                  should.exist(app);
+                  app.should.be.an.instanceOf(Appointment);
+                  app.physicianId.should.eql(physician.id);
+                  app.patientId.should.eql(patient.id);
+                  app.patientId.should.eql(patient.id);
+                  app.date.getTime().should.equal(now);
+                  done();
+                });
+            });
+        }).catch(done);
+    });
+
+    bdd.itIf(connectorCapabilities.deleteWithOtherThanId !== false,
+      'should allow to remove connection with instance', function(done) {
+        var id;
+        Physician.create(function(err, physician) {
+          physician.patients.create({name: 'a'}, function(err, patient) {
+            id = patient.id;
+            physician.patients.remove(id, function(err, ch) {
+              verify(physician);
+            });
+          });
+        });
+
+        function verify(physician) {
+          physician.patients.exists(id, function(err, flag) {
+            if (err) return done(err);
+            flag.should.be.eql(false);
             done();
           });
-        });
-      }).catch(done);
-    });
-
-    bdd.itIf(connectorCapabilities.deleteWithOtherThanId !== false,
-    'should allow to remove connection with instance', function(done) {
-      var id;
-      Physician.create(function(err, physician) {
-        physician.patients.create({name: 'a'}, function(err, patient) {
-          id = patient.id;
-          physician.patients.remove(id, function(err, ch) {
-            verify(physician);
-          });
-        });
+        }
       });
 
-      function verify(physician) {
-        physician.patients.exists(id, function(err, flag) {
-          if (err) return done(err);
-          flag.should.be.eql(false);
-          done();
-        });
-      }
-    });
-
     bdd.itIf(connectorCapabilities.deleteWithOtherThanId !== false,
-    'should allow to remove connection with instance with promises', function(done) {
-      var id;
-      Physician.create()
-      .then(function(physician) {
-        return physician.patients.create({name: 'a'})
-        .then(function(patient) {
-          id = patient.id;
-          return physician.patients.remove(id)
-          .then(function(ch) {
-            return verify(physician);
-          });
-        });
-      }).catch(done);
+      'should allow to remove connection with instance with promises', function(done) {
+        var id;
+        Physician.create()
+          .then(function(physician) {
+            return physician.patients.create({name: 'a'})
+              .then(function(patient) {
+                id = patient.id;
+                return physician.patients.remove(id)
+                  .then(function(ch) {
+                    return verify(physician);
+                  });
+              });
+          }).catch(done);
 
-      function verify(physician) {
-        return physician.patients.exists(id)
-        .then(function(flag) {
-          flag.should.be.eql(false);
-          done();
-        });
-      }
-    });
+        function verify(physician) {
+          return physician.patients.exists(id)
+            .then(function(flag) {
+              flag.should.be.eql(false);
+              done();
+            });
+        }
+      });
 
     beforeEach(function(done) {
       Appointment.destroyAll(function(err) {
@@ -1644,15 +1644,15 @@ describe('relations', function() {
 
     it('should create record on scope with promises', function(done) {
       Book.create({type: 'fiction'})
-      .then(function(book) {
-        return book.chapters.create()
-        .then(function(c) {
-          should.exist(c);
-          c.bookId.should.eql(book.id);
-          c.bookType.should.equal('fiction');
-          done();
-        });
-      }).catch(done);
+        .then(function(book) {
+          return book.chapters.create()
+            .then(function(c) {
+              should.exist(c);
+              c.bookId.should.eql(book.id);
+              c.bookType.should.equal('fiction');
+              done();
+            });
+        }).catch(done);
     });
   });
 
@@ -1693,19 +1693,19 @@ describe('relations', function() {
 
     it('should create record on scope with promises', function(done) {
       Category.create()
-      .then(function(c) {
-        return c.jobs.create({type: 'book'})
-        .then(function(p) {
-          p.categoryId.should.eql(c.id);
-          p.type.should.equal('book');
-          return c.jobs.create({type: 'widget'})
-          .then(function(p) {
-            p.categoryId.should.eql(c.id);
-            p.type.should.equal('widget');
-            done();
-          });
-        });
-      }).catch(done);
+        .then(function(c) {
+          return c.jobs.create({type: 'book'})
+            .then(function(p) {
+              p.categoryId.should.eql(c.id);
+              p.type.should.equal('book');
+              return c.jobs.create({type: 'widget'})
+                .then(function(p) {
+                  p.categoryId.should.eql(c.id);
+                  p.type.should.equal('widget');
+                  done();
+                });
+            });
+        }).catch(done);
     });
 
     it('should find records on scope', function(done) {
@@ -1721,14 +1721,14 @@ describe('relations', function() {
 
     it('should find records on scope with promises', function(done) {
       Category.findOne()
-      .then(function(c) {
-        return c.jobs.find();
-      })
-      .then(function(jobs) {
-        jobs.should.have.length(2);
-        done();
-      })
-      .catch(done);
+        .then(function(c) {
+          return c.jobs.find();
+        })
+        .then(function(jobs) {
+          jobs.should.have.length(2);
+          done();
+        })
+        .catch(done);
     });
 
     it('should find record on scope - filtered', function(done) {
@@ -1745,15 +1745,15 @@ describe('relations', function() {
 
     it('should find record on scope with promises - filtered', function(done) {
       Category.findOne()
-      .then(function(c) {
-        return c.jobs.find({where: {type: 'book'}});
-      })
-      .then(function(jobs) {
-        jobs.should.have.length(1);
-        jobs[0].type.should.equal('book');
-        done();
-      })
-      .catch(done);
+        .then(function(c) {
+          return c.jobs.find({where: {type: 'book'}});
+        })
+        .then(function(jobs) {
+          jobs.should.have.length(1);
+          jobs[0].type.should.equal('book');
+          done();
+        })
+        .catch(done);
     });
 
     // So why not just do the above? In LoopBack, the context
@@ -1777,6 +1777,7 @@ describe('relations', function() {
       });
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should find records on scope', function(done) {
       Category.findOne(function(err, c) {
         should.not.exists(err);
@@ -1801,6 +1802,7 @@ describe('relations', function() {
       });
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should find record on scope - scoped', function(done) {
       Category.findOne(function(err, c) {
         should.not.exists(err);
@@ -1827,27 +1829,27 @@ describe('relations', function() {
     });
 
     bdd.itIf(connectorCapabilities.deleteWithOtherThanId !== false,
-    'should delete records on scope - scoped', function(done) {
-      Category.findOne(function(err, c) {
-        should.not.exists(err);
-        c.jobType = 'tool'; // temporary, for scoping
-        c.jobs.destroyAll(function(err, result) {
-          done(err);
+      'should delete records on scope - scoped', function(done) {
+        Category.findOne(function(err, c) {
+          should.not.exists(err);
+          c.jobType = 'tool'; // temporary, for scoping
+          c.jobs.destroyAll(function(err, result) {
+            done(err);
+          });
         });
       });
-    });
 
     bdd.itIf(connectorCapabilities.deleteWithOtherThanId !== false,
-    'should find record on scope - verify', function(done) {
-      Category.findOne(function(err, c) {
-        should.not.exists(err);
-        c.jobs(function(err, jobs) {
+      'should find record on scope - verify', function(done) {
+        Category.findOne(function(err, c) {
           should.not.exists(err);
-          jobs.should.have.length(2);
-          done(err);
+          c.jobs(function(err, jobs) {
+            should.not.exists(err);
+            jobs.should.have.length(2);
+            done(err);
+          });
         });
       });
-    });
   });
 
   describe('relations validation', function() {
@@ -2060,15 +2062,15 @@ describe('relations', function() {
 
     it('should create polymorphic relation with promises - article', function(done) {
       Article.create({name: 'Article 1'})
-      .then(function(article) {
-        return article.packshot.create({name: 'Packshot'})
-        .then(function(pic) {
-          should.exist(pic);
-          pic.imageableId.should.eql(article.id);
-          pic.imageableType.should.equal('Article');
-          done();
-        });
-      }).catch(done);
+        .then(function(article) {
+          return article.packshot.create({name: 'Packshot'})
+            .then(function(pic) {
+              should.exist(pic);
+              pic.imageableId.should.eql(article.id);
+              pic.imageableType.should.equal('Article');
+              done();
+            });
+        }).catch(done);
     });
 
     it('should create polymorphic relation - reader', function(done) {
@@ -2126,15 +2128,15 @@ describe('relations', function() {
 
     it('should find polymorphic relation with promises - employee', function(done) {
       Employee.findOne()
-      .then(function(employee) {
-        return employee.mugshot.get()
-        .then(function(pic) {
-          pic.name.should.equal('Mugshot');
-          pic.imageableId.toString().should.eql(employee.id.toString());
-          pic.imageableType.should.equal('Employee');
-          done();
-        });
-      }).catch(done);
+        .then(function(employee) {
+          return employee.mugshot.get()
+            .then(function(pic) {
+              pic.name.should.equal('Mugshot');
+              pic.imageableId.toString().should.eql(employee.id.toString());
+              pic.imageableType.should.equal('Employee');
+              done();
+            });
+        }).catch(done);
     });
 
     it('should find inverse polymorphic relation - article', function(done) {
@@ -2274,15 +2276,15 @@ describe('relations', function() {
 
     it('should create polymorphic relation with promises - article', function(done) {
       Article.create({name: 'Article 1'})
-      .then(function(article) {
-        return article.packshot.create({name: 'Packshot'})
-        .then(function(pic) {
-          should.exist(pic);
-          pic.oid.toString().should.equal(article.username.toString());
-          pic.type.should.equal('Article');
-          done();
-        });
-      }).catch(done);
+        .then(function(article) {
+          return article.packshot.create({name: 'Packshot'})
+            .then(function(pic) {
+              should.exist(pic);
+              pic.oid.toString().should.equal(article.username.toString());
+              pic.type.should.equal('Article');
+              done();
+            });
+        }).catch(done);
     });
 
     it('should create polymorphic relation - employee', function(done) {
@@ -2602,39 +2604,39 @@ describe('relations', function() {
     });
 
     bdd.itIf(connectorCapabilities.adhocSort !== false,
-    'should include the inverse of polymorphic relation', function(done) {
-      Picture.find({include: 'imageable'}, function(err, pics) {
-        if (err) return done(err);
-        pics.should.have.length(2);
+      'should include the inverse of polymorphic relation', function(done) {
+        Picture.find({include: 'imageable'}, function(err, pics) {
+          if (err) return done(err);
+          pics.should.have.length(2);
 
-        const actual = pics.map(
-          function(pic) {
-            return {imageName: pic.name, name: pic.imageable().name};
-          });
+          const actual = pics.map(
+            function(pic) {
+              return {imageName: pic.name, name: pic.imageable().name};
+            });
 
-        actual.should.containDeep([
-          {name: 'Article 1', imageName: 'Article Pic'},
-          {name: 'Employee 1', imageName: 'Employee Pic'},
-        ]);
+          actual.should.containDeep([
+            {name: 'Article 1', imageName: 'Article Pic'},
+            {name: 'Employee 1', imageName: 'Employee Pic'},
+          ]);
 
-        done();
+          done();
+        });
       });
-    });
 
     bdd.itIf(connectorCapabilities.adhocSort === false,
-    'should include the inverse of polymorphic relation w/o adhocSort', function(done) {
-      Picture.find({include: 'imageable'}, function(err, pics) {
-        if (err) return done(err);
-        pics.should.have.length(2);
-        var names = ['Article Pic', 'Employee Pic'];
-        var imageables = ['Article 1', 'Employee 1'];
-        names.should.containEql(pics[0].name);
-        names.should.containEql(pics[1].name);
-        imageables.should.containEql(pics[0].imageable().name);
-        imageables.should.containEql(pics[1].imageable().name);
-        done();
+      'should include the inverse of polymorphic relation w/o adhocSort', function(done) {
+        Picture.find({include: 'imageable'}, function(err, pics) {
+          if (err) return done(err);
+          pics.should.have.length(2);
+          var names = ['Article Pic', 'Employee Pic'];
+          var imageables = ['Article 1', 'Employee 1'];
+          names.should.containEql(pics[0].name);
+          names.should.containEql(pics[1].name);
+          imageables.should.containEql(pics[0].imageable().name);
+          imageables.should.containEql(pics[1].imageable().name);
+          done();
+        });
       });
-    });
 
     it('should assign a polymorphic relation', function(done) {
       Article.create({name: 'Article 2'}, function(err, article) {
@@ -2647,6 +2649,7 @@ describe('relations', function() {
       });
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should find polymorphic items - article', function(done) {
       Article.findOne({where: {name: 'Article 2'}}, function(err, article) {
         should.not.exists(err);
@@ -2659,6 +2662,7 @@ describe('relations', function() {
       });
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should find the inverse of polymorphic relation - article', function(done) {
       Picture.findOne({where: {name: 'Sample'}}, function(err, p) {
         if (err) return done(err);
@@ -2902,19 +2906,21 @@ describe('relations', function() {
       });
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should create polymorphic through model', function(done) {
       if (!anotherPicture) return done();
       PictureLink.findOne({where: {pictureId: anotherPicture.id, imageableType: 'Article'}},
-      function(err, link) {
-        if (err) return done(err);
-        link.pictureId.toString().should.eql(anotherPicture.id.toString());
-        link.imageableId.toString().should.eql(article.id.toString());
-        link.imageableType.should.equal('Article');
-        done();
-      });
+        function(err, link) {
+          if (err) return done(err);
+          link.pictureId.toString().should.eql(anotherPicture.id.toString());
+          link.imageableId.toString().should.eql(article.id.toString());
+          link.imageableType.should.equal('Article');
+          done();
+        });
     });
 
     var anotherArticle, anotherEmployee;
+    // eslint-disable-next-line mocha/no-identical-title
     it('should add to a polymorphic relation - article', function(done) {
       Article.create({name: 'Article 2'}, function(err, article) {
         if (err) return done(err);
@@ -2927,6 +2933,7 @@ describe('relations', function() {
       });
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should add to a polymorphic relation - article', function(done) {
       Employee.create({name: 'Employee 2'}, function(err, reader) {
         if (err) return done(err);
@@ -3000,15 +3007,15 @@ describe('relations', function() {
     });
 
     bdd.itIf(connectorCapabilities.deleteWithOtherThanId !== false,
-    'should remove from a polymorphic relation - article', function(done) {
-      if (!article || !anotherPicture) return done();
-      Article.findById(article.id, function(err, article) {
-        article.pictures.remove(anotherPicture.id, function(err) {
-          if (err) return done(err);
-          done();
+      'should remove from a polymorphic relation - article', function(done) {
+        if (!article || !anotherPicture) return done();
+        Article.findById(article.id, function(err, article) {
+          article.pictures.remove(anotherPicture.id, function(err) {
+            if (err) return done(err);
+            done();
+          });
         });
       });
-    });
 
     bdd.itIf(connectorCapabilities.cloudantCompatible !== false,
       'should find polymorphic items - article', function(done) {
@@ -3018,7 +3025,7 @@ describe('relations', function() {
             // If deleteWithOtherThanId is not implemented, the above test is skipped and
             // the remove did not take place.  Thus +1.
             var expectedLength = connectorCapabilities.deleteWithOtherThanId !== false ?
-            2 : 3;
+              2 : 3;
             pics.should.have.length(expectedLength);
 
             const names = pics.map(p => p.name);
@@ -3032,6 +3039,7 @@ describe('relations', function() {
         });
       });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should check if polymorphic relation exists - article', function(done) {
       if (!article) return done();
       Article.findById(article.id, function(err, article) {
@@ -3242,23 +3250,23 @@ describe('relations', function() {
       List.hasMany('todos', {model: Item});
       db.automigrate(['List', 'Item', 'Fear', 'Find'], function() {
         List.create({name: 'List 1'})
-        .then(function(list) {
-          listId = list.id;
-          should.exist(list);
-          return list.todos.create({name: 'Item 1'});
-        })
-        .then(function(todo) {
-          itemId = todo.id;
-          return todo.list.get()
-          .then(function(l) {
-            should.exist(l);
-            l.should.be.an.instanceOf(List);
-            todo.list().id.should.eql(l.id);
-            todo.list().name.should.equal('List 1');
-            done();
-          });
-        })
-        .catch(done);
+          .then(function(list) {
+            listId = list.id;
+            should.exist(list);
+            return list.todos.create({name: 'Item 1'});
+          })
+          .then(function(todo) {
+            itemId = todo.id;
+            return todo.list.get()
+              .then(function(l) {
+                should.exist(l);
+                l.should.be.an.instanceOf(List);
+                todo.list().id.should.eql(l.id);
+                todo.list().name.should.equal('List 1');
+                done();
+              });
+          })
+          .catch(done);
       });
     });
 
@@ -3358,18 +3366,18 @@ describe('relations', function() {
       var mind;
       Fear.beforeCreate = function(next) {
         this.mind.create()
-        .then(function(m) {
-          mind = m;
-          next();
-        }).catch(next);
+          .then(function(m) {
+            mind = m;
+            next();
+          }).catch(next);
       };
       Fear.create()
-      .then(function(fear) {
-        should.exists(fear);
-        fear.mindId.should.eql(mind.id);
-        should.exists(fear.mind());
-        done();
-      }).catch(done);
+        .then(function(fear) {
+          should.exists(fear);
+          fear.mindId.should.eql(mind.id);
+          should.exists(fear.mind());
+          done();
+        }).catch(done);
     });
   });
 
@@ -3416,35 +3424,35 @@ describe('relations', function() {
     it('should create record on scope with promises', function(done) {
       var p = new Passport({name: 'Passport', notes: 'Some notes...'});
       p.person.create({name: 'Fred', age: 36})
-      .then(function(person) {
-        p.personId.should.eql(person.id);
-        person.name.should.equal('Fred');
-        person.passportNotes.should.equal('Some notes...');
-        return p.save();
-      })
-      .then(function(passport) {
-        done();
-      })
-      .catch(done);
+        .then(function(person) {
+          p.personId.should.eql(person.id);
+          person.name.should.equal('Fred');
+          person.passportNotes.should.equal('Some notes...');
+          return p.save();
+        })
+        .then(function(passport) {
+          done();
+        })
+        .catch(done);
     });
 
     it('should find record on scope with promises', function(done) {
       Passport.findOne()
-      .then(function(p) {
-        if (connectorCapabilities.adhocSort !== false) {
+        .then(function(p) {
+          if (connectorCapabilities.adhocSort !== false) {
           // We skip the check if adhocSort is not supported because
           // the first row returned may or may not be the same
-          p.personId.should.eql(personCreated.id);
-        }
-        return p.person.get();
-      })
-      .then(function(person) {
-        person.name.should.equal('Fred');
-        person.should.have.property('age', undefined);
-        person.should.have.property('passportNotes', undefined);
-        done();
-      })
-      .catch(done);
+            p.personId.should.eql(personCreated.id);
+          }
+          return p.person.get();
+        })
+        .then(function(person) {
+          person.name.should.equal('Fred');
+          person.should.have.property('age', undefined);
+          person.should.have.property('passportNotes', undefined);
+          done();
+        })
+        .catch(done);
     });
   });
 
@@ -3491,12 +3499,12 @@ describe('relations', function() {
 
     it('should find record with embedded data with promises', function(done) {
       Passport.findOne()
-      .then(function(p) {
-        var data = p.toObject(true);
-        data.person.id.should.eql(p.personId);
-        data.person.name.should.equal('Fred');
-        done();
-      }).catch(done);
+        .then(function(p) {
+          var data = p.toObject(true);
+          data.person.id.should.eql(p.personId);
+          data.person.name.should.equal('Fred');
+          done();
+        }).catch(done);
     });
   });
 
@@ -3578,23 +3586,23 @@ describe('relations', function() {
     it('can be used to query data with promises', function(done) {
       db.automigrate(['Supplier', 'Account'], function() {
         Supplier.create({name: 'Supplier 1'})
-        .then(function(supplier) {
-          supplierId = supplier.id;
-          should.exist(supplier);
-          return supplier.account.create({accountNo: 'a01'})
-          .then(function(account) {
-            return supplier.account.get();
+          .then(function(supplier) {
+            supplierId = supplier.id;
+            should.exist(supplier);
+            return supplier.account.create({accountNo: 'a01'})
+              .then(function(account) {
+                return supplier.account.get();
+              })
+              .then(function(act) {
+                accountId = act.id;
+                should.exist(act);
+                act.should.be.an.instanceOf(Account);
+                supplier.account().id.should.eql(act.id);
+                act.supplierName.should.equal(supplier.name);
+                done();
+              });
           })
-          .then(function(act) {
-            accountId = act.id;
-            should.exist(act);
-            act.should.be.an.instanceOf(Account);
-            supplier.account().id.should.eql(act.id);
-            act.supplierName.should.equal(supplier.name);
-            done();
-          });
-        })
-        .catch(done);
+          .catch(done);
       });
     });
 
@@ -3628,15 +3636,15 @@ describe('relations', function() {
 
     it('should update the related item on scope with promises', function(done) {
       Supplier.findById(supplierId)
-      .then(function(supplier) {
-        should.exist(supplier);
-        return supplier.account.update({supplierName: 'Supplier B'});
-      })
-      .then(function(act) {
-        act.supplierName.should.equal('Supplier B');
-        done();
-      })
-      .catch(done);
+        .then(function(supplier) {
+          should.exist(supplier);
+          return supplier.account.update({supplierName: 'Supplier B'});
+        })
+        .then(function(act) {
+          act.supplierName.should.equal('Supplier B');
+          done();
+        })
+        .catch(done);
     });
 
     it('should error trying to change the foreign key in the update', function(done) {
@@ -3647,11 +3655,11 @@ describe('relations', function() {
           should.exist(supplier);
           supplier.account.update({supplierName: 'Supplier A',
             supplierId: sid},
-            function(err, act) {
-              should.exist(err);
-              err.message.should.startWith('Cannot override foreign key');
-              done();
-            });
+          function(err, act) {
+            should.exist(err);
+            err.message.should.startWith('Cannot override foreign key');
+            done();
+          });
         });
       });
     });
@@ -3663,12 +3671,12 @@ describe('relations', function() {
           should.exist(supplier);
           supplier.account.update({supplierName: 'Supplier A',
             supplierId: supplierId},
-            function(err, act) {
-              if (err) return done(err);
-              act.supplierName.should.equal('Supplier A');
-              act.supplierId.toString().should.eql(supplierId.toString());
-              done();
-            });
+          function(err, act) {
+            if (err) return done(err);
+            act.supplierName.should.equal('Supplier A');
+            act.supplierId.toString().should.eql(supplierId.toString());
+            done();
+          });
         });
       });
     });
@@ -3688,16 +3696,16 @@ describe('relations', function() {
 
     it('should get the related item on scope with promises', function(done) {
       Supplier.findById(supplierId)
-      .then(function(supplier) {
-        should.exist(supplier);
-        return supplier.account.get();
-      })
-      .then(function(act) {
-        should.exist(act);
-        act.supplierName.should.equal('Supplier A');
-        done();
-      })
-      .catch(done);
+        .then(function(supplier) {
+          should.exist(supplier);
+          return supplier.account.get();
+        })
+        .then(function(act) {
+          should.exist(act);
+          act.supplierName.should.equal('Supplier A');
+          done();
+        })
+        .catch(done);
     });
 
     it('should destroy the related item on scope', function(done) {
@@ -3713,17 +3721,17 @@ describe('relations', function() {
 
     it('should destroy the related item on scope with promises', function(done) {
       Supplier.findById(supplierId)
-      .then(function(supplier) {
-        should.exist(supplier);
-        return supplier.account.create({accountNo: 'a01'})
-        .then(function(account) {
-          return supplier.account.destroy();
+        .then(function(supplier) {
+          should.exist(supplier);
+          return supplier.account.create({accountNo: 'a01'})
+            .then(function(account) {
+              return supplier.account.destroy();
+            })
+            .then(function(err) {
+              done();
+            });
         })
-        .then(function(err) {
-          done();
-        });
-      })
-      .catch(done);
+        .catch(done);
     });
 
     it('should get the related item on scope - verify', function(done) {
@@ -3740,15 +3748,15 @@ describe('relations', function() {
 
     it('should get the related item on scope with promises - verify', function(done) {
       Supplier.findById(supplierId)
-      .then(function(supplier) {
-        should.exist(supplier);
-        return supplier.account.get();
-      })
-      .then(function(act) {
-        should.not.exist(act);
-        done();
-      })
-      .catch(done);
+        .then(function(supplier) {
+          should.exist(supplier);
+          return supplier.account.get();
+        })
+        .then(function(act) {
+          should.not.exist(act);
+          done();
+        })
+        .catch(done);
     });
 
     it('should have deleted related item', function(done) {
@@ -3804,74 +3812,74 @@ describe('relations', function() {
     });
 
     bdd.itIf(connectorCapabilities.supportUpdateWithoutId !== false,
-    'should not find record that does not match scope', function(done) {
-      Account.updateAll({block: true}, function(err) {
-        if (err) return done(err);
-        Supplier.findById(supplierId, function(err, supplier) {
-          supplier.account(function(err, account) {
-            should.not.exists(account);
-            done();
+      'should not find record that does not match scope', function(done) {
+        Account.updateAll({block: true}, function(err) {
+          if (err) return done(err);
+          Supplier.findById(supplierId, function(err, supplier) {
+            supplier.account(function(err, account) {
+              should.not.exists(account);
+              done();
+            });
           });
         });
       });
-    });
 
     bdd.itIf(connectorCapabilities.supportUpdateWithoutId !== false,
-    'should not include record that does not match scope', function(done) {
-      Account.updateAll({block: true}, function(err) {
-        if (err) return done(err);
-        Supplier.findById(supplierId, {include: 'account'}, function(err, supplier) {
-          should.not.exists(supplier.toJSON().account);
-          supplier.account(function(err, account) {
-            should.not.exists(account);
-            done();
+      'should not include record that does not match scope', function(done) {
+        Account.updateAll({block: true}, function(err) {
+          if (err) return done(err);
+          Supplier.findById(supplierId, {include: 'account'}, function(err, supplier) {
+            should.not.exists(supplier.toJSON().account);
+            supplier.account(function(err, account) {
+              should.not.exists(account);
+              done();
+            });
           });
         });
       });
-    });
 
     it('can be used to query data with promises', function(done) {
       db.automigrate(['Supplier', 'Account'], function() {
         Supplier.create({name: 'Supplier 1'})
-        .then(function(supplier) {
-          supplierId = supplier.id;
-          should.exist(supplier);
-          return supplier.account.create({accountNo: 'a01', block: false})
-          .then(function(account) {
-            return supplier.account.get();
+          .then(function(supplier) {
+            supplierId = supplier.id;
+            should.exist(supplier);
+            return supplier.account.create({accountNo: 'a01', block: false})
+              .then(function(account) {
+                return supplier.account.get();
+              })
+              .then(function(act) {
+                accountId = act.id;
+                should.exist(act);
+                act.should.be.an.instanceOf(Account);
+                should.exist(act.block);
+                act.block.should.be.false;
+                supplier.account().id.should.eql(act.id);
+                act.supplierName.should.equal(supplier.name);
+                done();
+              });
           })
-          .then(function(act) {
-            accountId = act.id;
-            should.exist(act);
-            act.should.be.an.instanceOf(Account);
-            should.exist(act.block);
-            act.block.should.be.false;
-            supplier.account().id.should.eql(act.id);
-            act.supplierName.should.equal(supplier.name);
-            done();
-          });
-        })
-        .catch(done);
+          .catch(done);
       });
     });
 
     bdd.itIf(connectorCapabilities.supportUpdateWithoutId !== false,
-    'should find record that match scope with promises', function(done) {
-      Account.updateAll({block: true})
-      .then(function() {
-        return Supplier.findById(supplierId);
-      })
-      .then(function(supplier) {
-        return supplier.account.get();
-      })
-      .then(function(account) {
-        should.not.exist(account);
-        done();
-      })
-      .catch(function(err) {
-        done();
+      'should find record that match scope with promises', function(done) {
+        Account.updateAll({block: true})
+          .then(function() {
+            return Supplier.findById(supplierId);
+          })
+          .then(function(supplier) {
+            return supplier.account.get();
+          })
+          .then(function(account) {
+            should.not.exist(account);
+            done();
+          })
+          .catch(function(err) {
+            done();
+          });
       });
-    });
   });
 
   describe('hasOne with non standard id', function() {
@@ -4163,22 +4171,22 @@ describe('relations', function() {
     });
 
     bdd.itIf(connectorCapabilities.deleteWithOtherThanId !== false,
-    'should destroy all related instances', function(done) {
-      Article.create(function(err, article) {
-        if (err) return done(err);
-        article.tagNames.create({name: 'popular'}, function(err, t) {
+      'should destroy all related instances', function(done) {
+        Article.create(function(err, article) {
           if (err) return done(err);
-          article.tagNames.destroyAll(function(err) {
+          article.tagNames.create({name: 'popular'}, function(err, t) {
             if (err) return done(err);
-            article.tagNames(true, function(err, list) {
+            article.tagNames.destroyAll(function(err) {
               if (err) return done(err);
-              list.should.have.length(0);
-              done();
+              article.tagNames(true, function(err, list) {
+                if (err) return done(err);
+                list.should.have.length(0);
+                done();
+              });
             });
           });
         });
       });
-    });
 
     it('should allow to add connection with instance', function(done) {
       Article.findOne(function(e, article) {
@@ -4196,91 +4204,91 @@ describe('relations', function() {
     });
 
     bdd.itIf(connectorCapabilities.deleteWithOtherThanId !== false,
-    'should allow to remove connection with instance', function(done) {
-      Article.findOne(function(e, article) {
-        article.tagNames(function(e, tags) {
-          var len = tags.length;
-          tags.should.not.be.empty;
-          article.tagNames.remove(tags[0], function(e) {
-            should.not.exist(e);
-            article.tagNames(true, function(e, tags) {
-              tags.should.have.lengthOf(len - 1);
-              done();
+      'should allow to remove connection with instance', function(done) {
+        Article.findOne(function(e, article) {
+          article.tagNames(function(e, tags) {
+            var len = tags.length;
+            tags.should.not.be.empty;
+            article.tagNames.remove(tags[0], function(e) {
+              should.not.exist(e);
+              article.tagNames(true, function(e, tags) {
+                tags.should.have.lengthOf(len - 1);
+                done();
+              });
             });
           });
         });
       });
-    });
 
     it('should allow to create instances on scope with promises', function(done) {
       db.automigrate(['Article', 'TagName', 'ArticleTagName'], function() {
         Article.create()
-        .then(function(article) {
-          return article.tagNames.create({name: 'popular'})
-          .then(function(t) {
-            t.should.be.an.instanceOf(TagName);
-            return ArticleTag.findOne()
-            .then(function(at) {
-              should.exist(at);
-              at.tagNameId.toString().should.eql(t.id.toString());
-              at.articleId.toString().should.eql(article.id.toString());
-              done();
-            });
-          });
-        }).catch(done);
+          .then(function(article) {
+            return article.tagNames.create({name: 'popular'})
+              .then(function(t) {
+                t.should.be.an.instanceOf(TagName);
+                return ArticleTag.findOne()
+                  .then(function(at) {
+                    should.exist(at);
+                    at.tagNameId.toString().should.eql(t.id.toString());
+                    at.articleId.toString().should.eql(article.id.toString());
+                    done();
+                  });
+              });
+          }).catch(done);
       });
     });
 
     it('should allow to fetch scoped instances with promises', function(done) {
       Article.findOne()
-      .then(function(article) {
-        return article.tagNames.find()
-        .then(function(tags) {
-          should.exist(tags);
-          article.tagNames().should.eql(tags);
-          done();
-        });
-      }).catch(done);
+        .then(function(article) {
+          return article.tagNames.find()
+            .then(function(tags) {
+              should.exist(tags);
+              article.tagNames().should.eql(tags);
+              done();
+            });
+        }).catch(done);
     });
 
     it('should allow to add connection with instance with promises', function(done) {
       Article.findOne()
-      .then(function(article) {
-        return TagName.create({name: 'awesome'})
-        .then(function(tag) {
-          return article.tagNames.add(tag)
-          .then(function(at) {
-            should.exist(at);
-            at.should.be.an.instanceOf(ArticleTag);
-            at.tagNameId.should.eql(tag.id);
-            at.articleId.should.eql(article.id);
-            done();
-          });
-        });
-      })
-      .catch(done);
+        .then(function(article) {
+          return TagName.create({name: 'awesome'})
+            .then(function(tag) {
+              return article.tagNames.add(tag)
+                .then(function(at) {
+                  should.exist(at);
+                  at.should.be.an.instanceOf(ArticleTag);
+                  at.tagNameId.should.eql(tag.id);
+                  at.articleId.should.eql(article.id);
+                  done();
+                });
+            });
+        })
+        .catch(done);
     });
 
     bdd.itIf(connectorCapabilities.deleteWithOtherThanId !== false,
-    'should allow to remove connection with instance with promises', function(done) {
-      Article.findOne()
-      .then(function(article) {
-        return article.tagNames.find()
-        .then(function(tags) {
-          var len = tags.length;
-          tags.should.not.be.empty;
-          return article.tagNames.remove(tags[0])
-          .then(function() {
-            return article.tagNames.find();
+      'should allow to remove connection with instance with promises', function(done) {
+        Article.findOne()
+          .then(function(article) {
+            return article.tagNames.find()
+              .then(function(tags) {
+                var len = tags.length;
+                tags.should.not.be.empty;
+                return article.tagNames.remove(tags[0])
+                  .then(function() {
+                    return article.tagNames.find();
+                  })
+                  .then(function(tags) {
+                    tags.should.have.lengthOf(len - 1);
+                    done();
+                  });
+              });
           })
-          .then(function(tags) {
-            tags.should.have.lengthOf(len - 1);
-            done();
-          });
-        });
-      })
-      .catch(done);
-    });
+          .catch(done);
+      });
 
     it('should set targetClass on scope property', function() {
       should.equal(Article.prototype.tagNames._targetClass, 'TagName');
@@ -4294,19 +4302,19 @@ describe('relations', function() {
           Article.find({
             where: {id: article.id},
             include: {relation: 'tagNames', scope: {fields: ['name']}}},
-            function(e, articles) {
-              should.not.exist(e);
-              articles.should.have.property('length', 1);
-              var a = articles[0].toJSON();
-              a.should.have.property('title', 'a1');
-              a.should.have.property('tagNames');
-              a.tagNames.should.have.property('length', 1);
-              var n = a.tagNames[0];
-              n.should.have.property('name', 't1');
-              n.should.have.property('flag', undefined);
-              n.id.should.eql(t.id);
-              done();
-            });
+          function(e, articles) {
+            should.not.exist(e);
+            articles.should.have.property('length', 1);
+            var a = articles[0].toJSON();
+            a.should.have.property('title', 'a1');
+            a.should.have.property('tagNames');
+            a.tagNames.should.have.property('length', 1);
+            var n = a.tagNames[0];
+            n.should.have.property('name', 't1');
+            n.should.have.property('flag', undefined);
+            n.id.should.eql(t.id);
+            done();
+          });
         });
       });
     });
@@ -4320,19 +4328,19 @@ describe('relations', function() {
             Article.find({
               where: {id: article.id},
               include: {relation: 'tagNames', scope: {where: {flag: '2'}}}},
-              function(e, articles) {
-                should.not.exist(e);
-                articles.should.have.property('length', 1);
-                var a = articles[0].toJSON();
-                a.should.have.property('title', 'a2');
-                a.should.have.property('tagNames');
-                a.tagNames.should.have.property('length', 1);
-                var n = a.tagNames[0];
-                n.should.have.property('name', 't2');
-                n.should.have.property('flag', '2');
-                n.id.should.eql(t2.id);
-                done();
-              });
+            function(e, articles) {
+              should.not.exist(e);
+              articles.should.have.property('length', 1);
+              var a = articles[0].toJSON();
+              a.should.have.property('title', 'a2');
+              a.should.have.property('tagNames');
+              a.tagNames.should.have.property('length', 1);
+              var n = a.tagNames[0];
+              n.should.have.property('name', 't2');
+              n.should.have.property('flag', '2');
+              n.id.should.eql(t2.id);
+              done();
+            });
           });
         });
       });
@@ -4519,6 +4527,7 @@ describe('relations', function() {
       });
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should get an embedded item on scope - verify', function(done) {
       Person.findById(personId, function(err, p) {
         if (err) return done(err);
@@ -4540,104 +4549,105 @@ describe('relations', function() {
 
     it('should create an embedded item on scope with promises', function(done) {
       Person.create({name: 'Fred'})
-      .then(function(p) {
-        personId = p.id;
-        p.passportItem.create({name: 'Fredric'})
-        .then(function(passport) {
-          p.passport.toObject().should.eql({name: 'Fredric'});
-          p.passport.should.be.an.instanceOf(Passport);
-          done();
-        });
-      }).catch(done);
+        .then(function(p) {
+          personId = p.id;
+          p.passportItem.create({name: 'Fredric'})
+            .then(function(passport) {
+              p.passport.toObject().should.eql({name: 'Fredric'});
+              p.passport.should.be.an.instanceOf(Passport);
+              done();
+            });
+        }).catch(done);
     });
 
     it('should get an embedded item on scope with promises', function(done) {
       Person.findById(personId)
-      .then(function(p) {
-        var passport = p.passportItem();
-        passport.toObject().should.eql({name: 'Fredric'});
-        passport.should.be.an.instanceOf(Passport);
-        passport.should.equal(p.passport);
-        passport.should.equal(p.passportItem.value());
-        done();
-      }).catch(done);
+        .then(function(p) {
+          var passport = p.passportItem();
+          passport.toObject().should.eql({name: 'Fredric'});
+          passport.should.be.an.instanceOf(Passport);
+          passport.should.equal(p.passport);
+          passport.should.equal(p.passportItem.value());
+          done();
+        }).catch(done);
     });
 
     it('should validate an embedded item on scope with promises - on creation', function(done) {
       var p = new Person({name: 'Fred'});
       p.passportItem.create({})
-      .then(function(passport) {
-        should.not.exist(passport);
-        done();
-      })
-      .catch(function(err) {
-        should.exist(err);
-        err.name.should.equal('ValidationError');
-        err.details.messages.name.should.eql(['can\'t be blank']);
-        done();
-      }).catch(done);
-    });
-
-    it('should validate an embedded item on scope with promises - on update', function(done) {
-      Person.findById(personId)
-      .then(function(p) {
-        var passport = p.passportItem();
-        passport.name = null;
-        return p.save()
-        .then(function(p) {
-          should.not.exist(p);
+        .then(function(passport) {
+          should.not.exist(passport);
           done();
         })
         .catch(function(err) {
           should.exist(err);
           err.name.should.equal('ValidationError');
-          err.details.messages.passportItem
-            .should.eql(['is invalid: `name` can\'t be blank']);
+          err.details.messages.name.should.eql(['can\'t be blank']);
           done();
-        });
-      }).catch(done);
+        }).catch(done);
+    });
+
+    it('should validate an embedded item on scope with promises - on update', function(done) {
+      Person.findById(personId)
+        .then(function(p) {
+          var passport = p.passportItem();
+          passport.name = null;
+          return p.save()
+            .then(function(p) {
+              should.not.exist(p);
+              done();
+            })
+            .catch(function(err) {
+              should.exist(err);
+              err.name.should.equal('ValidationError');
+              err.details.messages.passportItem
+                .should.eql(['is invalid: `name` can\'t be blank']);
+              done();
+            });
+        }).catch(done);
     });
 
     it('should update an embedded item on scope with promises', function(done) {
       Person.findById(personId)
-      .then(function(p) {
-        return p.passportItem.update({name: 'Jason'})
-        .then(function(passport) {
-          passport = p.passportItem();
-          passport.toObject().should.eql({name: 'Jason'});
-          passport.should.be.an.instanceOf(Passport);
-          passport.should.equal(p.passport);
-          done();
-        });
-      }).catch(done);
+        .then(function(p) {
+          return p.passportItem.update({name: 'Jason'})
+            .then(function(passport) {
+              passport = p.passportItem();
+              passport.toObject().should.eql({name: 'Jason'});
+              passport.should.be.an.instanceOf(Passport);
+              passport.should.equal(p.passport);
+              done();
+            });
+        }).catch(done);
     });
 
     it('should get an embedded item on scope with promises - verify', function(done) {
       Person.findById(personId)
-      .then(function(p) {
-        var passport = p.passportItem();
-        passport.toObject().should.eql({name: 'Jason'});
-        done();
-      }).catch(done);
+        .then(function(p) {
+          var passport = p.passportItem();
+          passport.toObject().should.eql({name: 'Jason'});
+          done();
+        }).catch(done);
     });
 
     it('should destroy an embedded item on scope with promises', function(done) {
       Person.findById(personId)
-      .then(function(p) {
-        return p.passportItem.destroy()
-        .then(function() {
-          should.equal(p.passport, null);
-          done();
-        });
-      }).catch(done);
+        .then(function(p) {
+          return p.passportItem.destroy()
+            .then(function() {
+              should.equal(p.passport, null);
+              done();
+            });
+        }).catch(done);
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should get an embedded item on scope with promises - verify', function(done) {
       Person.findById(personId)
-      .then(function(p) {
-        should.equal(p.passport, null);
-        done();
-      }).catch(done);
+        .then(function(p) {
+          should.equal(p.passport, null);
+          done();
+        }).catch(done);
     });
 
     it('should also save changes when directly saving the embedded model', function(done) {
@@ -4731,14 +4741,14 @@ describe('relations', function() {
 
     it('should create an embedded item on scope with promises', function(done) {
       Person.create({name: 'Barney'})
-      .then(function(p) {
-        return p.passportItem.create({name: 'Barnabus'})
-        .then(function(passport) {
-          p.passport.id.should.eql(3);
-          p.passport.name.should.equal('Barnabus');
-          done();
-        });
-      }).catch(done);
+        .then(function(p) {
+          return p.passportItem.create({name: 'Barnabus'})
+            .then(function(passport) {
+              p.passport.id.should.eql(3);
+              p.passport.name.should.equal('Barnabus');
+              done();
+            });
+        }).catch(done);
     });
   });
 
@@ -4828,6 +4838,7 @@ describe('relations', function() {
       Person.definition.properties.addresses.postgresql.should.eql({dataType: 'json'});
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should create embedded items on scope', function(done) {
       Person.findOne(function(err, p) {
         p.addressList.create({street: 'Street 2'}, function(err, address) {
@@ -4970,6 +4981,7 @@ describe('relations', function() {
       });
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should create embedded items on scope', function(done) {
       Person.findOne(function(err, p) {
         p.addressList.create({street: 'Street 3'}, function(err, address) {
@@ -5224,6 +5236,7 @@ describe('relations', function() {
       });
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should have embedded items - verify', function(done) {
       Person.findOne({where: {name: 'Wilma'}}, function(err, p) {
         p.name.should.equal('Wilma');
@@ -5549,6 +5562,7 @@ describe('relations', function() {
       });
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should find items on scope', function(done) {
       Category.findOne(function(err, cat) {
         if (err) return done(err);
@@ -5604,6 +5618,7 @@ describe('relations', function() {
       });
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should find items on scope', function(done) {
       Category.findById(category.id, function(err, cat) {
         if (err) return done(err);
@@ -5699,8 +5714,8 @@ describe('relations', function() {
         scope: {include: 'linked'},
       });
       Link.belongsTo('linked', {
-        polymorphic: {idType: idType},  // native type
-        properties: {name: 'name'},     // denormalized
+        polymorphic: {idType: idType}, // native type
+        properties: {name: 'name'}, // denormalized
         options: {invertProperties: true},
       });
       db.automigrate(['Book', 'Author', 'Reader'], done);
@@ -5776,33 +5791,33 @@ describe('relations', function() {
     });
 
     bdd.itIf(connectorCapabilities.supportInclude === true,
-    'should include nested related items on scope', function(done) {
+      'should include nested related items on scope', function(done) {
       // There's some date duplication going on, so it might
       // make sense to override toObject on a case-by-case basis
       // to sort this out (delete links, keep people).
       // In loopback, an afterRemote filter could do this as well.
 
-      Book.find({include: 'people'}, function(err, books) {
-        var obj = books[0].toObject();
+        Book.find({include: 'people'}, function(err, books) {
+          var obj = books[0].toObject();
 
-        obj.should.have.property('links');
-        obj.should.have.property('people');
+          obj.should.have.property('links');
+          obj.should.have.property('people');
 
-        obj.links.should.have.length(2);
-        obj.links[0].name.should.be.oneOf('Author 1', 'Reader 1');
-        obj.links[1].name.should.be.oneOf('Author 1', 'Reader 1');
+          obj.links.should.have.length(2);
+          obj.links[0].name.should.be.oneOf('Author 1', 'Reader 1');
+          obj.links[1].name.should.be.oneOf('Author 1', 'Reader 1');
 
-        obj.people.should.have.length(2);
+          obj.people.should.have.length(2);
 
-        obj.people[0].name.should.equal('Author 1');
-        obj.people[0].notes.should.equal('Something ...');
+          obj.people[0].name.should.equal('Author 1');
+          obj.people[0].notes.should.equal('Something ...');
 
-        obj.people[0].linked.name.should.equal('Author 1');
-        obj.people[1].linked.name.should.equal('Reader 1');
+          obj.people[0].linked.name.should.equal('Author 1');
+          obj.people[1].linked.name.should.equal('Reader 1');
 
-        done();
+          done();
+        });
       });
-    });
   });
 
   describe('referencesMany', function() {
@@ -5952,6 +5967,7 @@ describe('relations', function() {
       });
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should add a record to scope - object', function(done) {
       Category.findOne(function(err, cat) {
         cat.jobs.add(job3.id, function(err, prod) {
@@ -5967,6 +5983,7 @@ describe('relations', function() {
       });
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should find items on scope - findById', function(done) {
       Category.findOne(function(err, cat) {
         cat.jobs.findById(job3.id, function(err, p) {
@@ -6022,57 +6039,57 @@ describe('relations', function() {
     });
 
     bdd.itIf(connectorCapabilities.adhocSort !== false,
-    'should find items on scope and ordered them by name DESC', function(done) {
-      Category.find(function(err, categories) {
-        categories.should.have.length(1);
-        categories[0].jobs({order: 'name DESC'}, function(err, jobs) {
-          if (err) return done(err);
-          jobs.should.have.length(2);
-          jobs[0].id.should.eql(job3.id);
-          jobs[1].id.should.eql(job2.id);
-          done();
+      'should find items on scope and ordered them by name DESC', function(done) {
+        Category.find(function(err, categories) {
+          categories.should.have.length(1);
+          categories[0].jobs({order: 'name DESC'}, function(err, jobs) {
+            if (err) return done(err);
+            jobs.should.have.length(2);
+            jobs[0].id.should.eql(job3.id);
+            jobs[1].id.should.eql(job2.id);
+            done();
+          });
         });
       });
-    });
 
     bdd.itIf(connectorCapabilities.adhocSort !== false,
-    'should allow custom scope methods - reverse', function(done) {
-      Category.findOne(function(err, cat) {
-        cat.jobs.reverse(function(err, ids) {
-          var expected = [job3.id, job2.id];
-          ids.toArray().should.eql(expected);
-          cat.jobIds.toArray().should.eql(expected);
-          done();
+      'should allow custom scope methods - reverse', function(done) {
+        Category.findOne(function(err, cat) {
+          cat.jobs.reverse(function(err, ids) {
+            var expected = [job3.id, job2.id];
+            ids.toArray().should.eql(expected);
+            cat.jobIds.toArray().should.eql(expected);
+            done();
+          });
         });
       });
-    });
 
     bdd.itIf(connectorCapabilities.adhocSort === false,
-    'should allow custom scope methods - reverse', function(done) {
-      Category.findOne(function(err, cat) {
-        cat.jobs.reverse(function(err, ids) {
-          var expected = [job3.id, job2.id];
-          ids[0].should.be.oneOf(expected);
-          ids[1].should.be.oneOf(expected);
-          cat.jobIds[0].should.be.oneOf(expected);
-          cat.jobIds[1].should.be.oneOf(expected);
+      'should allow custom scope methods - reverse', function(done) {
+        Category.findOne(function(err, cat) {
+          cat.jobs.reverse(function(err, ids) {
+            var expected = [job3.id, job2.id];
+            ids[0].should.be.oneOf(expected);
+            ids[1].should.be.oneOf(expected);
+            cat.jobIds[0].should.be.oneOf(expected);
+            cat.jobIds[1].should.be.oneOf(expected);
+            done();
+          });
+        });
+      });
+
+    bdd.itIf(connectorCapabilities.supportInclude === true,
+      'should include related items from scope', function(done) {
+        Category.find({include: 'jobs'}, function(err, categories) {
+          categories.should.have.length(1);
+          var cat = categories[0].toObject();
+          cat.name.should.equal('Category A');
+          cat.jobs.should.have.length(2);
+          cat.jobs[0].id.should.eql(job3.id);
+          cat.jobs[1].id.should.eql(job2.id);
           done();
         });
       });
-    });
-
-    bdd.itIf(connectorCapabilities.supportInclude === true,
-    'should include related items from scope', function(done) {
-      Category.find({include: 'jobs'}, function(err, categories) {
-        categories.should.have.length(1);
-        var cat = categories[0].toObject();
-        cat.name.should.equal('Category A');
-        cat.jobs.should.have.length(2);
-        cat.jobs[0].id.should.eql(job3.id);
-        cat.jobs[1].id.should.eql(job2.id);
-        done();
-      });
-    });
 
     it('should destroy items from scope - destroyById', function(done) {
       Category.findOne(function(err, cat) {
@@ -6090,6 +6107,7 @@ describe('relations', function() {
       });
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should find items on scope - verify', function(done) {
       Category.findOne(function(err, cat) {
         cat.jobIds.should.have.lengthOf(1);
@@ -6106,31 +6124,31 @@ describe('relations', function() {
     it('should setup test records with promises', function(done) {
       db.automigrate(['Job', 'Category'], function() {
         return Job.create({name: 'Job 1'})
-        .then(function(p) {
-          job1 = p;
-          return Job.create({name: 'Job 3'});
-        })
-        .then(function(p) {
-          job3 = p;
-          done();
-        }).catch(done);
+          .then(function(p) {
+            job1 = p;
+            return Job.create({name: 'Job 3'});
+          })
+          .then(function(p) {
+            job3 = p;
+            done();
+          }).catch(done);
       });
     });
 
     it('should create record on scope with promises', function(done) {
       Category.create({name: 'Category A'})
-      .then(function(cat) {
-        cat.jobIds.should.be.an.array;
-        cat.jobIds.should.have.length(0);
-        return cat.jobs.create({name: 'Job 2'})
-        .then(function(p) {
-          cat.jobIds.should.have.length(1);
-          cat.jobIds[0].should.eql(p.id);
-          p.name.should.equal('Job 2');
-          job2 = p;
-          done();
-        });
-      }).catch(done);
+        .then(function(cat) {
+          cat.jobIds.should.be.an.array;
+          cat.jobIds.should.have.length(0);
+          return cat.jobs.create({name: 'Job 2'})
+            .then(function(p) {
+              cat.jobIds.should.have.length(1);
+              cat.jobIds[0].should.eql(p.id);
+              p.name.should.equal('Job 2');
+              job2 = p;
+              done();
+            });
+        }).catch(done);
     });
 
     it('should not allow duplicate record on scope with promises', function(done) {
@@ -6140,277 +6158,280 @@ describe('relations', function() {
           return cat.save();
         })
         .then(
-           function(p) { done(new Error('save() should have failed')); },
-           function(err) {
-             err.name.should.equal('ValidationError');
-             err.details.codes.jobs.should.eql(['uniqueness']);
-             done();
-           });
+          function(p) { done(new Error('save() should have failed')); },
+          function(err) {
+            err.name.should.equal('ValidationError');
+            err.details.codes.jobs.should.eql(['uniqueness']);
+            done();
+          });
     });
 
     bdd.itIf(connectorCapabilities.adhocSort !== false,
-    'should find items on scope with promises', function(done) {
-      Category.findOne()
-      .then(function(cat) {
-        cat.jobIds.toArray().should.eql([job2.id]);
-        return cat.jobs.find();
-      })
-      .then(function(jobs) {
-        var p = jobs[0];
-        p.id.should.eql(job2.id);
-        p.name.should.equal('Job 2');
-        done();
-      })
-      .catch(done);
-    });
+      'should find items on scope with promises', function(done) {
+        Category.findOne()
+          .then(function(cat) {
+            cat.jobIds.toArray().should.eql([job2.id]);
+            return cat.jobs.find();
+          })
+          .then(function(jobs) {
+            var p = jobs[0];
+            p.id.should.eql(job2.id);
+            p.name.should.equal('Job 2');
+            done();
+          })
+          .catch(done);
+      });
 
     bdd.itIf(connectorCapabilities.adhocSort === false,
-    'should find items on scope with promises', function(done) {
-      var theExpectedIds = [job1.id, job2.id, job3.id];
-      var theExpectedNames = ['Job 1', 'Job 2', 'Job 3'];
-      Category.findOne()
-      .then(function(cat) {
-        cat.jobIds[0].should.be.oneOf(theExpectedIds);
-        return cat.jobs.find();
-      })
-      .then(function(jobs) {
-        var p = jobs[0];
-        p.id.should.be.oneOf(theExpectedIds);
-        p.name.should.be.oneOf(theExpectedNames);
-        done();
-      })
-      .catch(done);
-    });
+      'should find items on scope with promises', function(done) {
+        var theExpectedIds = [job1.id, job2.id, job3.id];
+        var theExpectedNames = ['Job 1', 'Job 2', 'Job 3'];
+        Category.findOne()
+          .then(function(cat) {
+            cat.jobIds[0].should.be.oneOf(theExpectedIds);
+            return cat.jobs.find();
+          })
+          .then(function(jobs) {
+            var p = jobs[0];
+            p.id.should.be.oneOf(theExpectedIds);
+            p.name.should.be.oneOf(theExpectedNames);
+            done();
+          })
+          .catch(done);
+      });
 
     it('should find items on scope with promises - findById', function(done) {
       Category.findOne()
-      .then(function(cat) {
-        cat.jobIds.should.have.lengthOf(1);
-        cat.jobIds[0].should.eql(job2.id);
-        return cat.jobs.findById(job2.id);
-      })
-      .then(function(p) {
-        p.should.be.instanceof(Job);
-        p.id.should.eql(job2.id);
-        p.name.should.equal('Job 2');
-        done();
-      })
-      .catch(done);
+        .then(function(cat) {
+          cat.jobIds.should.have.lengthOf(1);
+          cat.jobIds[0].should.eql(job2.id);
+          return cat.jobs.findById(job2.id);
+        })
+        .then(function(p) {
+          p.should.be.instanceof(Job);
+          p.id.should.eql(job2.id);
+          p.name.should.equal('Job 2');
+          done();
+        })
+        .catch(done);
     });
 
     it('should check if a record exists on scope with promises', function(done) {
       Category.findOne()
-      .then(function(cat) {
-        return cat.jobs.exists(job2.id)
-        .then(function(exists) {
-          should.exist(exists);
-          done();
-        });
-      }).catch(done);
+        .then(function(cat) {
+          return cat.jobs.exists(job2.id)
+            .then(function(exists) {
+              should.exist(exists);
+              done();
+            });
+        }).catch(done);
     });
 
     it('should update a record on scope with promises', function(done) {
       Category.findOne()
-      .then(function(cat) {
-        var attrs = {name: 'Job 2 - edit'};
-        return cat.jobs.updateById(job2.id, attrs)
-        .then(function(p) {
-          p.name.should.equal(attrs.name);
-          done();
-        });
-      })
-      .catch(done);
+        .then(function(cat) {
+          var attrs = {name: 'Job 2 - edit'};
+          return cat.jobs.updateById(job2.id, attrs)
+            .then(function(p) {
+              p.name.should.equal(attrs.name);
+              done();
+            });
+        })
+        .catch(done);
     });
 
     it('should get a record by index with promises - at', function(done) {
       Category.findOne()
-      .then(function(cat) {
-        return cat.jobs.at(0);
-      })
-      .then(function(p) {
-        p.should.be.instanceof(Job);
-        p.id.should.eql(job2.id);
-        p.name.should.equal('Job 2 - edit');
-        done();
-      })
-      .catch(done);
+        .then(function(cat) {
+          return cat.jobs.at(0);
+        })
+        .then(function(p) {
+          p.should.be.instanceof(Job);
+          p.id.should.eql(job2.id);
+          p.name.should.equal('Job 2 - edit');
+          done();
+        })
+        .catch(done);
     });
 
     it('should add a record to scope with promises - object', function(done) {
       Category.findOne()
-      .then(function(cat) {
-        return cat.jobs.add(job1)
-        .then(function(prod) {
-          var expected = [job2.id, job1.id];
-          cat.jobIds.should.have.lengthOf(expected.length);
-          cat.jobIds.should.containDeep(expected);
-          prod.id.should.eql(job1.id);
-          prod.should.have.property('name');
-          done();
-        });
-      })
-      .catch(done);
+        .then(function(cat) {
+          return cat.jobs.add(job1)
+            .then(function(prod) {
+              var expected = [job2.id, job1.id];
+              cat.jobIds.should.have.lengthOf(expected.length);
+              cat.jobIds.should.containDeep(expected);
+              prod.id.should.eql(job1.id);
+              prod.should.have.property('name');
+              done();
+            });
+        })
+        .catch(done);
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should add a record to scope with promises - object', function(done) {
       Category.findOne()
-      .then(function(cat) {
-        return cat.jobs.add(job3.id)
-        .then(function(prod) {
-          var expected = [job2.id, job1.id, job3.id];
-          cat.jobIds.should.have.lengthOf(expected.length);
-          cat.jobIds.should.containDeep(expected);
-          prod.id.should.eql(job3.id);
-          prod.should.have.property('name');
-          done();
-        });
-      })
-      .catch(done);
+        .then(function(cat) {
+          return cat.jobs.add(job3.id)
+            .then(function(prod) {
+              var expected = [job2.id, job1.id, job3.id];
+              cat.jobIds.should.have.lengthOf(expected.length);
+              cat.jobIds.should.containDeep(expected);
+              prod.id.should.eql(job3.id);
+              prod.should.have.property('name');
+              done();
+            });
+        })
+        .catch(done);
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should find items on scope with promises - findById', function(done) {
       Category.findOne()
-      .then(function(cat) {
-        return cat.jobs.findById(job3.id);
-      })
-      .then(function(p) {
-        p.id.should.eql(job3.id);
-        p.name.should.equal('Job 3');
-        done();
-      })
-      .catch(done);
+        .then(function(cat) {
+          return cat.jobs.findById(job3.id);
+        })
+        .then(function(p) {
+          p.id.should.eql(job3.id);
+          p.name.should.equal('Job 3');
+          done();
+        })
+        .catch(done);
     });
 
     it('should find items on scope with promises - filter', function(done) {
       Category.findOne()
-      .then(function(cat) {
-        var filter = {where: {name: 'Job 1'}};
-        return cat.jobs.find(filter);
-      })
-      .then(function(jobs) {
-        jobs.should.have.length(1);
-        var p = jobs[0];
-        p.id.should.eql(job1.id);
-        p.name.should.equal('Job 1');
-        done();
-      })
-      .catch(done);
+        .then(function(cat) {
+          var filter = {where: {name: 'Job 1'}};
+          return cat.jobs.find(filter);
+        })
+        .then(function(jobs) {
+          jobs.should.have.length(1);
+          var p = jobs[0];
+          p.id.should.eql(job1.id);
+          p.name.should.equal('Job 1');
+          done();
+        })
+        .catch(done);
     });
 
     it('should remove items from scope with promises', function(done) {
       Category.findOne()
-      .then(function(cat) {
-        return cat.jobs.remove(job1.id)
-        .then(function(ids) {
-          var expected = [job2.id, job3.id];
-          cat.jobIds.should.have.lengthOf(expected.length);
-          cat.jobIds.should.containDeep(expected);
-          cat.jobIds.should.eql(ids);
-          done();
-        });
-      })
-      .catch(done);
+        .then(function(cat) {
+          return cat.jobs.remove(job1.id)
+            .then(function(ids) {
+              var expected = [job2.id, job3.id];
+              cat.jobIds.should.have.lengthOf(expected.length);
+              cat.jobIds.should.containDeep(expected);
+              cat.jobIds.should.eql(ids);
+              done();
+            });
+        })
+        .catch(done);
     });
 
     it('should find items on scope with promises - verify', function(done) {
       Category.findOne()
-      .then(function(cat) {
-        var expected = [job2.id, job3.id];
-        cat.jobIds.should.have.lengthOf(expected.length);
-        cat.jobIds.should.containDeep(expected);
-        return cat.jobs.find();
-      })
-      .then(function(jobs) {
-        jobs.should.have.length(2);
-        jobs[0].id.should.eql(job2.id);
-        jobs[1].id.should.eql(job3.id);
-        done();
-      })
-      .catch(done);
-    });
-
-    bdd.itIf(connectorCapabilities.adhocSort !== false,
-    'should find items on scope and ordered them by name DESC', function(done) {
-      Category.find()
-      .then(function(categories) {
-        categories.should.have.length(1);
-        return categories[0].jobs.find({order: 'name DESC'});
-      })
-      .then(function(jobs) {
-        jobs.should.have.length(2);
-        jobs[0].id.should.eql(job3.id);
-        jobs[1].id.should.eql(job2.id);
-        done();
-      })
-      .catch(done);
-    });
-
-    bdd.itIf(connectorCapabilities.adhocSort !== false,
-    'should allow custom scope methods with promises - reverse', function(done) {
-      Category.findOne()
-      .then(function(cat) {
-        return cat.jobs.reverse()
-        .then(function(ids) {
-          var expected = [job3.id, job2.id];
-          ids.toArray().should.eql(expected);
-          cat.jobIds.toArray().should.eql(expected);
+        .then(function(cat) {
+          var expected = [job2.id, job3.id];
+          cat.jobIds.should.have.lengthOf(expected.length);
+          cat.jobIds.should.containDeep(expected);
+          return cat.jobs.find();
+        })
+        .then(function(jobs) {
+          jobs.should.have.length(2);
+          jobs[0].id.should.eql(job2.id);
+          jobs[1].id.should.eql(job3.id);
           done();
-        });
-      })
-      .catch(done);
+        })
+        .catch(done);
     });
+
+    bdd.itIf(connectorCapabilities.adhocSort !== false,
+      'should find items on scope and ordered them by name DESC', function(done) {
+        Category.find()
+          .then(function(categories) {
+            categories.should.have.length(1);
+            return categories[0].jobs.find({order: 'name DESC'});
+          })
+          .then(function(jobs) {
+            jobs.should.have.length(2);
+            jobs[0].id.should.eql(job3.id);
+            jobs[1].id.should.eql(job2.id);
+            done();
+          })
+          .catch(done);
+      });
+
+    bdd.itIf(connectorCapabilities.adhocSort !== false,
+      'should allow custom scope methods with promises - reverse', function(done) {
+        Category.findOne()
+          .then(function(cat) {
+            return cat.jobs.reverse()
+              .then(function(ids) {
+                var expected = [job3.id, job2.id];
+                ids.toArray().should.eql(expected);
+                cat.jobIds.toArray().should.eql(expected);
+                done();
+              });
+          })
+          .catch(done);
+      });
 
     bdd.itIf(connectorCapabilities.adhocSort === true &&
     connectorCapabilities.supportInclude === true,
     'should include related items from scope with promises', function(done) {
       Category.find({include: 'jobs'})
-      .then(function(categories) {
-        categories.should.have.length(1);
-        var cat = categories[0].toObject();
-        cat.name.should.equal('Category A');
-        cat.jobs.should.have.length(2);
-        cat.jobs[0].id.should.eql(job3.id);
-        cat.jobs[1].id.should.eql(job2.id);
-        done();
-      }).catch(done);
+        .then(function(categories) {
+          categories.should.have.length(1);
+          var cat = categories[0].toObject();
+          cat.name.should.equal('Category A');
+          cat.jobs.should.have.length(2);
+          cat.jobs[0].id.should.eql(job3.id);
+          cat.jobs[1].id.should.eql(job2.id);
+          done();
+        }).catch(done);
     });
 
     it('should destroy items from scope with promises - destroyById', function(done) {
       Category.findOne()
-      .then(function(cat) {
-        return cat.jobs.destroy(job2.id)
-        .then(function() {
-          var expected = [job3.id];
-          if (connectorCapabilities.adhocSort !== false) {
-            cat.jobIds.toArray().should.eql(expected);
-          } else {
-            cat.jobIds.toArray().should.containDeep(expected);
-          }
-          return Job.exists(job2.id);
+        .then(function(cat) {
+          return cat.jobs.destroy(job2.id)
+            .then(function() {
+              var expected = [job3.id];
+              if (connectorCapabilities.adhocSort !== false) {
+                cat.jobIds.toArray().should.eql(expected);
+              } else {
+                cat.jobIds.toArray().should.containDeep(expected);
+              }
+              return Job.exists(job2.id);
+            })
+            .then(function(exists) {
+              should.exist(exists);
+              exists.should.be.false;
+              done();
+            });
         })
-        .then(function(exists) {
-          should.exist(exists);
-          exists.should.be.false;
-          done();
-        });
-      })
-      .catch(done);
+        .catch(done);
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should find items on scope with promises - verify', function(done) {
       Category.findOne()
-      .then(function(cat) {
-        var expected = [job3.id];
-        cat.jobIds.should.have.lengthOf(expected.length);
-        cat.jobIds.should.containDeep(expected);
-        return cat.jobs.find();
-      })
-      .then(function(jobs) {
-        jobs.should.have.length(1);
-        jobs[0].id.should.eql(job3.id);
-        done();
-      })
-      .catch(done);
+        .then(function(cat) {
+          var expected = [job3.id];
+          cat.jobIds.should.have.lengthOf(expected.length);
+          cat.jobIds.should.containDeep(expected);
+          return cat.jobs.find();
+        })
+        .then(function(jobs) {
+          jobs.should.have.length(1);
+          jobs[0].id.should.eql(job3.id);
+          done();
+        })
+        .catch(done);
     });
   });
 
@@ -6496,21 +6517,21 @@ describe('relations', function() {
       ];
 
       Category.findOne()
-      .then(function(cat) {
-        return cat.jobs.summarize();
-      })
-      .then(function(summary) {
-        var result = summary.map(function(item) {
-          delete item.id;
-          item.categoryId = item.categoryId.toString();
-          return item;
-        });
-        // order-independent match
-        result.should.containDeep(expected);
-        expected.should.containDeep(result);
-        done();
-      })
-      .catch(done);
+        .then(function(cat) {
+          return cat.jobs.summarize();
+        })
+        .then(function(summary) {
+          var result = summary.map(function(item) {
+            delete item.id;
+            item.categoryId = item.categoryId.toString();
+            return item;
+          });
+          // order-independent match
+          result.should.containDeep(expected);
+          expected.should.containDeep(result);
+          done();
+        })
+        .catch(done);
     });
   });
 

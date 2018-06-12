@@ -90,6 +90,7 @@ function clearAndCreate(model, data, callback) {
   }
 }
 
+/* eslint-disable mocha/handle-done-callback */
 function testOrm(dataSource) {
   var requestsAreCounted = dataSource.name !== 'mongodb';
 
@@ -407,7 +408,7 @@ function testOrm(dataSource) {
       dataSource.name !== 'memory' &&
       dataSource.name !== 'neo4j' &&
       dataSource.name !== 'cradle'
-    )
+  )
     it('relations key is working', function(test) {
       test.ok(User.relations, 'Relations key should be defined');
       test.ok(User.relations.posts, 'posts relation should exist on User');

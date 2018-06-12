@@ -13,8 +13,8 @@ describe('include_util', function() {
   describe('#buildOneToOneIdentityMapWithOrigKeys', function() {
     it('should return an object with keys', function() {
       var objs = [
-          {id: 11, letter: 'A'},
-          {id: 22, letter: 'B'},
+        {id: 11, letter: 'A'},
+        {id: 22, letter: 'B'},
       ];
       var result = includeUtils.buildOneToOneIdentityMapWithOrigKeys(objs, 'id');
       result.get(11).should.be.ok;
@@ -36,19 +36,17 @@ describe('include_util', function() {
       result.get(11)['letter'].should.equal('HA!');
       result.get(33)['letter'].should.equal('C');
     });
-  });
-  describe('#buildOneToOneIdentityMapWithOrigKeys', function() {
-    it('should return an object with keys', function() {
+
+    it('should return an object with no additional keys', function() {
       var objs = [
         {id: 11, letter: 'A'},
         {id: 22, letter: 'B'},
       ];
       var result = includeUtils.buildOneToOneIdentityMapWithOrigKeys(objs, 'id');
-      result.get(11).should.be.ok;
-      result.get(22).should.be.ok;
-      result.getKeys().should.have.lengthOf(2);  // no additional properties
+      result.getKeys().should.eql([11, 22]); // no additional properties
     });
   });
+
   describe('#buildOneToManyIdentityMap', function() {
     it('should return an object with keys', function() {
       var objs = [

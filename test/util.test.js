@@ -127,7 +127,7 @@ describe('util.parseSettings', function() {
     should.equal(settings.url, 'mysql://127.0.0.1:3306/mydb?x[a]=1&x[b]=2&engine=InnoDB');
   });
 
-  it('Parse a url without auth into a settings object', function() {
+  it('Parse a Memory url without auth into a settings object', function() {
     var url = 'memory://?x=1';
     var settings = utils.parseSettings(url);
     should.equal(settings.hostname, '');
@@ -145,7 +145,7 @@ describe('util.deepMerge', function() {
     var extras = {base: 'User',
       relations: {accessTokens: {model: 'accessToken', type: 'hasMany',
         foreignKey: 'userId'},
-        account: {model: 'account', type: 'belongsTo'}},
+      account: {model: 'account', type: 'belongsTo'}},
       acls: [
         {accessType: '*',
           permission: 'DENY',
@@ -206,7 +206,7 @@ describe('util.deepMerge', function() {
       base: 'User',
       relations: {accessTokens: {model: 'accessToken', type: 'hasMany',
         foreignKey: 'userId'},
-        account: {model: 'account', type: 'belongsTo'}}};
+      account: {model: 'account', type: 'belongsTo'}}};
 
     should.deepEqual(merged, expected, 'Merged objects should match the expectation');
   });
@@ -495,19 +495,19 @@ describe('util.toRegExp', function() {
 
   context('with a regex string', function() {
     it('should return a RegExp object when no regex flags are provided',
-        function() {
-          utils.toRegExp('^regex$').should.be.an.instanceOf(RegExp);
-        });
+      function() {
+        utils.toRegExp('^regex$').should.be.an.instanceOf(RegExp);
+      });
 
     it('should throw an error when invalid regex flags are provided',
-        function() {
-          utils.toRegExp('^regex$/abc').should.be.an.Error;
-        });
+      function() {
+        utils.toRegExp('^regex$/abc').should.be.an.Error;
+      });
 
     it('should return a RegExp object when valid flags are provided',
-        function() {
-          utils.toRegExp('regex/igm').should.be.an.instanceOf(RegExp);
-        });
+      function() {
+        utils.toRegExp('regex/igm').should.be.an.instanceOf(RegExp);
+      });
   });
 
   context('with a regex literal', function() {

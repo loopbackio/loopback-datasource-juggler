@@ -228,11 +228,11 @@ describe('manipulation', function() {
           should.exist(p);
           should.not.exists(p.name);
           return Person.findById(p.id)
-          .then(function(person) {
-            person.id.should.eql(p.id);
-            should.not.exists(person.name);
-            done();
-          });
+            .then(function(person) {
+              person.id.should.eql(p.id);
+              should.not.exists(person.name);
+              done();
+            });
         }).catch(done);
     });
 
@@ -528,20 +528,20 @@ describe('manipulation', function() {
     });
 
     it('should have updated password hashed with updateAttribute',
-    function(done) {
-      StubUser.create({password: 'foo'}, function(err, created) {
-        if (err) return done(err);
-        created.updateAttribute('password', 'test', function(err, created) {
+      function(done) {
+        StubUser.create({password: 'foo'}, function(err, created) {
           if (err) return done(err);
-          created.password.should.equal('test-TEST');
-          StubUser.findById(created.id, function(err, found) {
+          created.updateAttribute('password', 'test', function(err, created) {
             if (err) return done(err);
-            found.password.should.equal('test-TEST');
-            done();
+            created.password.should.equal('test-TEST');
+            StubUser.findById(created.id, function(err, found) {
+              if (err) return done(err);
+              found.password.should.equal('test-TEST');
+              done();
+            });
           });
         });
       });
-    });
 
     it('should reject created StubUser with empty password', function(done) {
       StubUser.create({email: 'b@example.com', password: ''}, function(err, createdUser) {
@@ -574,14 +574,14 @@ describe('manipulation', function() {
 
     it('should update one attribute (promise variant)', function(done) {
       person.updateAttribute('name', 'Teddy Graham')
-      .then(function(p) {
-        return Person.all()
-        .then(function(ps) {
-          ps.should.have.lengthOf(1);
-          ps.pop().name.should.equal('Teddy Graham');
-          done();
-        });
-      }).catch(done);
+        .then(function(p) {
+          return Person.all()
+            .then(function(ps) {
+              ps.should.have.lengthOf(1);
+              ps.pop().name.should.equal('Teddy Graham');
+              done();
+            });
+        }).catch(done);
     });
 
     it('should ignore undefined values on updateAttributes', function(done) {
@@ -732,10 +732,10 @@ describe('manipulation', function() {
     it('should fail if an id value is to be changed on updateAttributes',
       function(done) {
         person.updateAttributes({id: person.id + 1, name: 'John'},
-        function(err, p) {
-          should.exist(err);
-          done();
-        });
+          function(err, p) {
+            should.exist(err);
+            done();
+          });
       });
 
     it('has an alias "patchAttributes"', function(done) {
@@ -996,14 +996,14 @@ describe('manipulation', function() {
       });
 
       it('fails when id does not exist in db & validate is false when using updateAttributes',
-      function(done) {
-        var unknownId = uid.fromConnector(db) || 123;
-        var post = new Post({id: unknownId});
-        post.updateAttributes({title: 'updated title', content: 'AAA'}, {validate: false}, (err) => {
-          should(err).have.property('statusCode', 404);
-          done();
+        function(done) {
+          var unknownId = uid.fromConnector(db) || 123;
+          var post = new Post({id: unknownId});
+          post.updateAttributes({title: 'updated title', content: 'AAA'}, {validate: false}, (err) => {
+            should(err).have.property('statusCode', 404);
+            done();
+          });
         });
-      });
 
       it('works on create if the request does not include an id', function(done) {
         var post = {title: 'a', content: 'AAA'};
@@ -1053,45 +1053,45 @@ describe('manipulation', function() {
       it('works without options on create (promise variant)', function(done) {
         var post = {id: unknownId, title: 'a', content: 'AAA'};
         Post.replaceOrCreate(post)
-        .then(function(p) {
-          should.exist(p);
-          p.should.be.instanceOf(Post);
-          p.id.should.eql(post.id);
-          p.should.not.have.property('_id');
-          p.title.should.equal(post.title);
-          p.content.should.equal(post.content);
-          return Post.findById(p.id)
           .then(function(p) {
+            should.exist(p);
+            p.should.be.instanceOf(Post);
             p.id.should.eql(post.id);
-            p.id.should.not.have.property('_id');
-            p.title.should.equal(p.title);
-            p.content.should.equal(p.content);
-            done();
-          });
-        })
-        .catch(done);
+            p.should.not.have.property('_id');
+            p.title.should.equal(post.title);
+            p.content.should.equal(post.content);
+            return Post.findById(p.id)
+              .then(function(p) {
+                p.id.should.eql(post.id);
+                p.id.should.not.have.property('_id');
+                p.title.should.equal(p.title);
+                p.content.should.equal(p.content);
+                done();
+              });
+          })
+          .catch(done);
       });
 
       it('works with options on create (promise variant)', function(done) {
         var post = {id: unknownId, title: 'a', content: 'AAA'};
         Post.replaceOrCreate(post, {validate: false})
-        .then(function(p) {
-          should.exist(p);
-          p.should.be.instanceOf(Post);
-          p.id.should.eql(post.id);
-          p.should.not.have.property('_id');
-          p.title.should.equal(post.title);
-          p.content.should.equal(post.content);
-          return Post.findById(p.id)
           .then(function(p) {
+            should.exist(p);
+            p.should.be.instanceOf(Post);
             p.id.should.eql(post.id);
-            p.id.should.not.have.property('_id');
-            p.title.should.equal(p.title);
-            p.content.should.equal(p.content);
-            done();
-          });
-        })
-        .catch(done);
+            p.should.not.have.property('_id');
+            p.title.should.equal(post.title);
+            p.content.should.equal(post.content);
+            return Post.findById(p.id)
+              .then(function(p) {
+                p.id.should.eql(post.id);
+                p.id.should.not.have.property('_id');
+                p.title.should.equal(p.title);
+                p.content.should.equal(p.content);
+                done();
+              });
+          })
+          .catch(done);
       });
 
       it('works without options on update (promise variant)', function(done) {
@@ -1103,26 +1103,26 @@ describe('manipulation', function() {
             delete created.content;
             created.title = 'b';
             return Post.replaceOrCreate(created)
-            .then(function(p) {
-              should.exist(p);
-              p.should.be.instanceOf(Post);
-              p.id.should.eql(created.id);
-              p.should.not.have.property('_id');
-              p.title.should.equal('b');
-              p.should.have.property('content', undefined);
-              p.should.have.property('comments', undefined);
-
-              return Post.findById(created.id)
               .then(function(p) {
+                should.exist(p);
+                p.should.be.instanceOf(Post);
+                p.id.should.eql(created.id);
                 p.should.not.have.property('_id');
                 p.title.should.equal('b');
-                should.not.exist(p.content);
-                should.not.exist(p.comments);
-                done();
+                p.should.have.property('content', undefined);
+                p.should.have.property('comments', undefined);
+
+                return Post.findById(created.id)
+                  .then(function(p) {
+                    p.should.not.have.property('_id');
+                    p.title.should.equal('b');
+                    should.not.exist(p.content);
+                    should.not.exist(p.comments);
+                    done();
+                  });
               });
-            });
           })
-        .catch(done);
+          .catch(done);
       });
 
       it('works with options on update (promise variant)', function(done) {
@@ -1134,26 +1134,26 @@ describe('manipulation', function() {
             delete created.content;
             created.title = 'b';
             return Post.replaceOrCreate(created, {validate: false})
-            .then(function(p) {
-              should.exist(p);
-              p.should.be.instanceOf(Post);
-              p.id.should.eql(created.id);
-              p.should.not.have.property('_id');
-              p.title.should.equal('b');
-              p.should.have.property('content', undefined);
-              p.should.have.property('comments', undefined);
-
-              return Post.findById(created.id)
               .then(function(p) {
+                should.exist(p);
+                p.should.be.instanceOf(Post);
+                p.id.should.eql(created.id);
                 p.should.not.have.property('_id');
                 p.title.should.equal('b');
-                should.not.exist(p.content);
-                should.not.exist(p.comments);
-                done();
+                p.should.have.property('content', undefined);
+                p.should.have.property('comments', undefined);
+
+                return Post.findById(created.id)
+                  .then(function(p) {
+                    p.should.not.have.property('_id');
+                    p.title.should.equal('b');
+                    should.not.exist(p.content);
+                    should.not.exist(p.comments);
+                    done();
+                  });
               });
-            });
           })
-        .catch(done);
+          .catch(done);
       });
 
       it('works without options on update (callback variant)', function(done) {
@@ -1279,6 +1279,7 @@ describe('manipulation', function() {
       });
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('works on create if the request does not include an id', function(done) {
       var post = {title: 'a', content: 'AAA'};
       Post.replaceOrCreate(post, function(err, p) {
@@ -1289,19 +1290,20 @@ describe('manipulation', function() {
       });
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('works on update if the request includes an existing id in db', function(done) {
       Post.create({title: 'a', content: 'AAA'},
-          function(err, post) {
+        function(err, post) {
+          if (err) return done(err);
+          post = post.toObject();
+          delete post.content;
+          post.title = 'b';
+          Post.replaceOrCreate(post, function(err, p) {
             if (err) return done(err);
-            post = post.toObject();
-            delete post.content;
-            post.title = 'b';
-            Post.replaceOrCreate(post, function(err, p) {
-              if (err) return done(err);
-              p.id.should.eql(post.id);
-              done();
-            });
+            p.id.should.eql(post.id);
+            done();
           });
+        });
     });
   });
 
@@ -1333,20 +1335,20 @@ describe('manipulation', function() {
       });
 
       it('should have updated password hashed with replaceAttributes',
-      function(done) {
-        StubUser.create({password: 'foo'}, function(err, created) {
-          if (err) return done(err);
-          created.replaceAttributes({password: 'test'}, function(err, created) {
+        function(done) {
+          StubUser.create({password: 'foo'}, function(err, created) {
             if (err) return done(err);
-            created.password.should.equal('test-TEST');
-            StubUser.findById(created.id, function(err, found) {
+            created.replaceAttributes({password: 'test'}, function(err, created) {
               if (err) return done(err);
-              found.password.should.equal('test-TEST');
-              done();
+              created.password.should.equal('test-TEST');
+              StubUser.findById(created.id, function(err, found) {
+                if (err) return done(err);
+                found.password.should.equal('test-TEST');
+                done();
+              });
             });
           });
         });
-      });
 
       it('should reject updated empty password with replaceAttributes', function(done) {
         StubUser.create({password: 'abc123'}, function(err, createdUser) {
@@ -1427,42 +1429,42 @@ describe('manipulation', function() {
 
       it('works without options(promise variant)', function(done) {
         Post.findById(postInstance.id)
-      .then(function(p) {
-        p.replaceAttributes({title: 'b'})
-        .then(function(p) {
-          should.exist(p);
-          p.should.be.instanceOf(Post);
-          p.title.should.equal('b');
-          p.should.have.property('content', undefined);
-          return Post.findById(postInstance.id)
           .then(function(p) {
-            p.title.should.equal('b');
-            should.not.exist(p.content);
-            done();
-          });
-        });
-      })
-      .catch(done);
+            p.replaceAttributes({title: 'b'})
+              .then(function(p) {
+                should.exist(p);
+                p.should.be.instanceOf(Post);
+                p.title.should.equal('b');
+                p.should.have.property('content', undefined);
+                return Post.findById(postInstance.id)
+                  .then(function(p) {
+                    p.title.should.equal('b');
+                    should.not.exist(p.content);
+                    done();
+                  });
+              });
+          })
+          .catch(done);
       });
 
       it('works with options(promise variant)', function(done) {
         Post.findById(postInstance.id)
-      .then(function(p) {
-        p.replaceAttributes({title: 'b'}, {validate: false})
-        .then(function(p) {
-          should.exist(p);
-          p.should.be.instanceOf(Post);
-          p.title.should.equal('b');
-          p.should.have.property('content', undefined);
-          return Post.findById(postInstance.id)
           .then(function(p) {
-            p.title.should.equal('b');
-            should.not.exist(p.content);
-            done();
-          });
-        });
-      })
-      .catch(done);
+            p.replaceAttributes({title: 'b'}, {validate: false})
+              .then(function(p) {
+                should.exist(p);
+                p.should.be.instanceOf(Post);
+                p.title.should.equal('b');
+                p.should.have.property('content', undefined);
+                return Post.findById(postInstance.id)
+                  .then(function(p) {
+                    p.title.should.equal('b');
+                    should.not.exist(p.content);
+                    done();
+                  });
+              });
+          })
+          .catch(done);
       });
 
       it('should fail when changing id', function(done) {
@@ -1584,18 +1586,18 @@ describe('manipulation', function() {
       Person.findOrCreate(
         {where: {name: 'Jed'}},
         {name: 'Jed', gender: 'male'})
-      .then(function(res) {
-        res.should.be.instanceOf(Array);
-        res.should.have.lengthOf(2);
-        var p = res[0];
-        var created = res[1];
-        p.should.be.instanceOf(Person);
-        p.name.should.equal('Jed');
-        p.gender.should.equal('male');
-        created.should.equal(false);
-        done();
-      })
-      .catch(done);
+        .then(function(res) {
+          res.should.be.instanceOf(Array);
+          res.should.have.lengthOf(2);
+          var p = res[0];
+          var created = res[1];
+          p.should.be.instanceOf(Person);
+          p.name.should.equal('Jed');
+          p.gender.should.equal('male');
+          created.should.equal(false);
+          done();
+        })
+        .catch(done);
     });
   });
 
@@ -1690,47 +1692,47 @@ describe('manipulation', function() {
     });
 
     it('should only delete instances that satisfy the where condition',
-        function(done) {
-          Person.deleteAll({name: 'John'}, function(err, info) {
+      function(done) {
+        Person.deleteAll({name: 'John'}, function(err, info) {
+          if (err) return done(err);
+          info.should.have.property('count', 1);
+          Person.find({where: {name: 'John'}}, function(err, data) {
             if (err) return done(err);
-            info.should.have.property('count', 1);
-            Person.find({where: {name: 'John'}}, function(err, data) {
+            data.should.have.length(0);
+            Person.find({where: {name: 'Jane'}}, function(err, data) {
               if (err) return done(err);
-              data.should.have.length(0);
-              Person.find({where: {name: 'Jane'}}, function(err, data) {
-                if (err) return done(err);
-                data.should.have.length(1);
-                done();
-              });
+              data.should.have.length(1);
+              done();
             });
           });
         });
+      });
 
     it('should report zero deleted instances when no matches are found',
-        function(done) {
-          Person.deleteAll({name: 'does-not-match'}, function(err, info) {
+      function(done) {
+        Person.deleteAll({name: 'does-not-match'}, function(err, info) {
+          if (err) return done(err);
+          info.should.have.property('count', 0);
+          Person.count(function(err, count) {
             if (err) return done(err);
-            info.should.have.property('count', 0);
-            Person.count(function(err, count) {
-              if (err) return done(err);
-              count.should.equal(2);
-              done();
-            });
+            count.should.equal(2);
+            done();
           });
         });
+      });
 
     it('should delete all instances when the where condition is not provided',
-        function(done) {
-          Person.deleteAll(function(err, info) {
+      function(done) {
+        Person.deleteAll(function(err, info) {
+          if (err) return done(err);
+          info.should.have.property('count', 2);
+          Person.count(function(err, count) {
             if (err) return done(err);
-            info.should.have.property('count', 2);
-            Person.count(function(err, count) {
-              if (err) return done(err);
-              count.should.equal(0);
-              done();
-            });
+            count.should.equal(0);
+            done();
           });
         });
+      });
   });
 
   bdd.describeIf(connectorCapabilities.reportDeletedCount === false &&
@@ -1757,55 +1759,59 @@ describe('manipulation', function() {
       });
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should be defined as function', function() {
       Person.deleteAll.should.be.a.Function;
       Person.destroyAll.should.be.a.Function;
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should only delete instances that satisfy the where condition',
-        function(done) {
-          Person.deleteAll({id: idJohn}, function(err, info) {
+      function(done) {
+        Person.deleteAll({id: idJohn}, function(err, info) {
+          if (err) return done(err);
+          should.not.exist(info.count);
+          Person.find({where: {name: 'John'}}, function(err, data) {
             if (err) return done(err);
-            should.not.exist(info.count);
-            Person.find({where: {name: 'John'}}, function(err, data) {
+            should.not.exist(data.count);
+            data.should.have.length(0);
+            Person.find({where: {name: 'Jane'}}, function(err, data) {
               if (err) return done(err);
-              should.not.exist(data.count);
-              data.should.have.length(0);
-              Person.find({where: {name: 'Jane'}}, function(err, data) {
-                if (err) return done(err);
-                data.should.have.length(1);
-                done();
-              });
+              data.should.have.length(1);
+              done();
             });
           });
         });
+      });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should report zero deleted instances when no matches are found',
-        function(done) {
-          var unknownId = uid.fromConnector(db) || 1234567890;
-          Person.deleteAll({id: unknownId}, function(err, info) {
+      function(done) {
+        var unknownId = uid.fromConnector(db) || 1234567890;
+        Person.deleteAll({id: unknownId}, function(err, info) {
+          if (err) return done(err);
+          should.not.exist(info.count);
+          Person.count(function(err, count) {
             if (err) return done(err);
-            should.not.exist(info.count);
-            Person.count(function(err, count) {
-              if (err) return done(err);
-              count.should.equal(2);
-              done();
-            });
+            count.should.equal(2);
+            done();
           });
         });
+      });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should delete all instances when the where condition is not provided',
-        function(done) {
-          Person.deleteAll(function(err, info) {
+      function(done) {
+        Person.deleteAll(function(err, info) {
+          if (err) return done(err);
+          should.not.exist(info.count);
+          Person.count(function(err, count) {
             if (err) return done(err);
-            should.not.exist(info.count);
-            Person.count(function(err, count) {
-              if (err) return done(err);
-              count.should.equal(0);
-              done();
-            });
+            count.should.equal(0);
+            done();
           });
         });
+      });
   });
 
   describe('deleteById', function() {
@@ -1903,22 +1909,22 @@ describe('manipulation', function() {
 
     bdd.itIf(connectorCapabilities.supportStrictDelete !== false, 'should allow delete(id) - ' +
       'fail with error', function(done) {
-        Person.settings.strictDelete = true;
-        Person.findOne(function(err, u) {
+      Person.settings.strictDelete = true;
+      Person.findOne(function(err, u) {
+        if (err) return done(err);
+        u.delete(function(err, info) {
           if (err) return done(err);
-          u.delete(function(err, info) {
-            if (err) return done(err);
-            info.should.have.property('count', 1);
-            u.delete(function(err) {
-              should.exist(err);
-              err.message.should.equal('No instance with id ' + u.id + ' found for Person');
-              err.should.have.property('code', 'NOT_FOUND');
-              err.should.have.property('statusCode', 404);
-              done();
-            });
+          info.should.have.property('count', 1);
+          u.delete(function(err) {
+            should.exist(err);
+            err.message.should.equal('No instance with id ' + u.id + ' found for Person');
+            err.should.have.property('code', 'NOT_FOUND');
+            err.should.have.property('statusCode', 404);
+            done();
           });
         });
       });
+    });
   });
 
   describe('initialize', function() {
@@ -1933,7 +1939,7 @@ describe('manipulation', function() {
       person.isNewRecord().should.be.true;
     });
 
-    describe('Date $now function', function() {
+    describe('Date $now function (type: Date)', function() {
       var CustomModel;
 
       before(function(done) {
@@ -1957,7 +1963,7 @@ describe('manipulation', function() {
         });
     });
 
-    describe('Date $now function', function() {
+    describe('Date $now function (type: String)', function() {
       var CustomModel;
 
       before(function(done) {
@@ -2202,46 +2208,46 @@ describe('manipulation', function() {
     });
 
     it('should not update instances that do not satisfy the where condition',
-        function(done) {
-          idHarry = uid.fromConnector(db) || undefined;
-          var filter = connectorCapabilities.updateWithOtherThanId === false ?
-            {id: idHarry} : {name: 'Harry Hoe'};
-          Person.update(filter, {name: 'Marta Moe'}, function(err,
+      function(done) {
+        idHarry = uid.fromConnector(db) || undefined;
+        var filter = connectorCapabilities.updateWithOtherThanId === false ?
+          {id: idHarry} : {name: 'Harry Hoe'};
+        Person.update(filter, {name: 'Marta Moe'}, function(err,
           info) {
+          if (err) return done(err);
+          if (connectorCapabilities.reportDeletedCount !== false) {
+            info.should.have.property('count', 0);
+          } else {
+            should.not.exist(info.count);
+          }
+          Person.find({where: {name: 'Harry Hoe'}}, function(err, people) {
             if (err) return done(err);
-            if (connectorCapabilities.reportDeletedCount !== false) {
-              info.should.have.property('count', 0);
-            } else {
-              should.not.exist(info.count);
-            }
-            Person.find({where: {name: 'Harry Hoe'}}, function(err, people) {
-              if (err) return done(err);
-              people.should.be.empty;
-              done();
-            });
+            people.should.be.empty;
+            done();
           });
         });
+      });
 
     it('should only update instances that satisfy the where condition',
-        function(done) {
-          var filter = connectorCapabilities.deleteWithOtherThanId === false ?
-            {id: idBrett} : {name: 'Brett Boe'};
-          Person.update(filter, {name: 'Harry Hoe'}, function(err,
+      function(done) {
+        var filter = connectorCapabilities.deleteWithOtherThanId === false ?
+          {id: idBrett} : {name: 'Brett Boe'};
+        Person.update(filter, {name: 'Harry Hoe'}, function(err,
           info) {
+          if (err) return done(err);
+          if (connectorCapabilities.reportDeletedCount !== false) {
+            info.should.have.property('count', 1);
+          } else {
+            should.not.exist(info.count);
+          }
+          Person.find({where: {age: 19}}, function(err, people) {
             if (err) return done(err);
-            if (connectorCapabilities.reportDeletedCount !== false) {
-              info.should.have.property('count', 1);
-            } else {
-              should.not.exist(info.count);
-            }
-            Person.find({where: {age: 19}}, function(err, people) {
-              if (err) return done(err);
-              people.should.have.length(1);
-              people[0].name.should.equal('Harry Hoe');
-              done();
-            });
+            people.should.have.length(1);
+            people[0].name.should.equal('Harry Hoe');
+            done();
           });
         });
+      });
 
     it('should reject updated empty password with updateAll', function(done) {
       StubUser.create({password: 'abc123'}, function(err, createdUser) {
@@ -2277,16 +2283,16 @@ describe('manipulation', function() {
     bdd.itIf(connectorCapabilities.ignoreUndefinedConditionValue !== false, 'should ignore where ' +
     'conditions with undefined values', function(done) {
       Person.update(filterBrett, {name: undefined, gender: 'male'},
-      function(err, info) {
-        if (err) return done(err);
-        info.should.have.property('count', 1);
-        Person.find({where: filterBrett}, function(err, people) {
+        function(err, info) {
           if (err) return done(err);
-          people.should.have.length(1);
-          people[0].name.should.equal('Brett Boe');
-          done();
+          info.should.have.property('count', 1);
+          Person.find({where: filterBrett}, function(err, people) {
+            if (err) return done(err);
+            people.should.have.length(1);
+            people[0].name.should.equal('Brett Boe');
+            done();
+          });
         });
-      });
     });
 
     it('should not coerce invalid values provided in where conditions', function(done) {
@@ -2355,16 +2361,16 @@ describe('manipulation', function() {
 
           Person.upsertWithWhere({id: 10},
             {name: 'updated name'},
-              function(err, updated) {
-                if (err) return done(err);
-                var result = updated.toObject();
-                result.should.have.properties({
-                  id: instance.id,
-                  name: 'updated name',
-                });
-                should.equal(result.city, null);
-                done();
+            function(err, updated) {
+              if (err) return done(err);
+              var result = updated.toObject();
+              result.should.have.properties({
+                id: instance.id,
+                name: 'updated name',
               });
+              should.equal(result.city, null);
+              done();
+            });
         });
     });
 

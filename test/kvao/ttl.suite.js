@@ -24,25 +24,25 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     beforeEach(setupCacheItem);
 
     it('gets TTL when key with unexpired TTL exists - Promise API',
-    function() {
-      return Promise.resolve(
+      function() {
+        return Promise.resolve(
           CacheItem.set('a-key', 'a-value', {ttl: INITIAL_TTL}))
-        .delay(SMALL_DELAY)
-        .then(function() { return CacheItem.ttl('a-key'); })
-        .then(function(ttl) { ttl.should.be.within(1, INITIAL_TTL); });
-    });
+          .delay(SMALL_DELAY)
+          .then(function() { return CacheItem.ttl('a-key'); })
+          .then(function(ttl) { ttl.should.be.within(1, INITIAL_TTL); });
+      });
 
     it('gets TTL when key with unexpired TTL exists - Callback API',
-    function(done) {
-      CacheItem.set('a-key', 'a-value', {ttl: INITIAL_TTL}, function(err) {
-        if (err) return done(err);
-        CacheItem.ttl('a-key', function(err, ttl) {
+      function(done) {
+        CacheItem.set('a-key', 'a-value', {ttl: INITIAL_TTL}, function(err) {
           if (err) return done(err);
-          ttl.should.be.within(1, INITIAL_TTL);
-          done();
+          CacheItem.ttl('a-key', function(err, ttl) {
+            if (err) return done(err);
+            ttl.should.be.within(1, INITIAL_TTL);
+            done();
+          });
         });
       });
-    });
 
     it('succeeds when key without TTL exists', function() {
       return CacheItem.set('a-key', 'a-value')
@@ -52,7 +52,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
 
     it('fails when getting TTL for a key with expired TTL', function() {
       return Promise.resolve(
-          CacheItem.set('expired-key', 'a-value', {ttl: TTL_PRECISION}))
+        CacheItem.set('expired-key', 'a-value', {ttl: TTL_PRECISION}))
         .delay(2 * TTL_PRECISION)
         .then(function() {
           return CacheItem.ttl('expired-key');

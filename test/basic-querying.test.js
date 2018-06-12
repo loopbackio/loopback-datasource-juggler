@@ -137,27 +137,27 @@ describe('basic-querying', function() {
         createdUsers[1].id,
         createdUsers[2].id,
         createdUsers[3].id],
-        {where: {vip: true}}, function(err, users) {
-          should.exist(users);
-          should.not.exist(err);
-          var names = users.map(function(u) {
-            return u.name;
-          });
-          names.should.eql(createdUsers.slice(0, 4).
-            filter(function(u) {
-              return u.vip;
-            }).map(function(u) {
-              return u.name;
-            }));
-          done();
+      {where: {vip: true}}, function(err, users) {
+        should.exist(users);
+        should.not.exist(err);
+        var names = users.map(function(u) {
+          return u.name;
         });
+        names.should.eql(createdUsers.slice(0, 4).
+          filter(function(u) {
+            return u.vip;
+          }).map(function(u) {
+            return u.name;
+          }));
+        done();
+      });
     });
 
     bdd.itIf(connectorCapabilities.nullDataValueExists !== false,
-    'should query by ids to check null property', function(done) {
-      User.findByIds([
-        createdUsers[0].id,
-        createdUsers[1].id],
+      'should query by ids to check null property', function(done) {
+        User.findByIds([
+          createdUsers[0].id,
+          createdUsers[1].id],
         {where: {vip: null}}, function(err, users) {
           should.not.exist(err);
           should.exist(users);
@@ -165,7 +165,7 @@ describe('basic-querying', function() {
           users[0].name.should.eql(createdUsers[1].name);
           done();
         });
-    });
+      });
   });
 
   describe('find', function() {
@@ -334,28 +334,28 @@ describe('basic-querying', function() {
     });
 
     bdd.itIf(connectorCapabilities.nullDataValueExists !== false,
-    'should support where date "neq" null', function(done) {
-      User.find({where: {birthday: {'neq': null},
-      }}, function(err, users) {
-        should.not.exist(err);
-        should.exist(users);
-        users.should.have.property('length', 2);
-        should(users[0].name).be.oneOf('John Lennon', 'Paul McCartney');
-        should(users[1].name).be.oneOf('John Lennon', 'Paul McCartney');
-        done();
+      'should support where date "neq" null', function(done) {
+        User.find({where: {birthday: {'neq': null},
+        }}, function(err, users) {
+          should.not.exist(err);
+          should.exist(users);
+          users.should.have.property('length', 2);
+          should(users[0].name).be.oneOf('John Lennon', 'Paul McCartney');
+          should(users[1].name).be.oneOf('John Lennon', 'Paul McCartney');
+          done();
+        });
       });
-    });
 
     bdd.itIf(connectorCapabilities.nullDataValueExists !== false,
-    'should support where date is null', function(done) {
-      User.find({where: {birthday: null,
-      }}, function(err, users) {
-        should.not.exist(err);
-        should.exist(users);
-        users.should.have.property('length', 4);
-        done();
+      'should support where date is null', function(done) {
+        User.find({where: {birthday: null,
+        }}, function(err, users) {
+          should.not.exist(err);
+          should.exist(users);
+          users.should.have.property('length', 4);
+          done();
+        });
       });
-    });
 
     it('should support date "gte" that is satisfied', function(done) {
       User.find({where: {birthday: {'gte': new Date('1980-12-08')},
@@ -887,13 +887,13 @@ describe('basic-querying', function() {
         'should support nested property for order in query',
         function(done) {
           User.find({where: {'address.state': 'CA'}, order: 'address.city DESC'},
-          function(err, users) {
-            if (err) return done(err);
-            users.length.should.be.equal(2);
-            users[0].address.city.should.be.eql('San Mateo');
-            users[1].address.city.should.be.eql('San Jose');
-            done();
-          });
+            function(err, users) {
+              if (err) return done(err);
+              users.length.should.be.equal(2);
+              users[0].address.city.should.be.eql('San Mateo');
+              users[1].address.city.should.be.eql('San Jose');
+              done();
+            });
         });
 
       it('should support multi-level nested array property in query', function(done) {
@@ -907,13 +907,13 @@ describe('basic-querying', function() {
       });
 
       it('should fail when querying with an invalid value for a type',
-      function(done) {
-        User.find({where: {birthday: 'notadate'}}, function(err, users) {
-          should.exist(err);
-          err.message.should.equal('Invalid date: notadate');
-          done();
+        function(done) {
+          User.find({where: {birthday: 'notadate'}}, function(err, users) {
+            should.exist(err);
+            err.message.should.equal('Invalid date: notadate');
+            done();
+          });
         });
-      });
     });
   });
 
@@ -1160,16 +1160,16 @@ describe.skip('queries', function() {
     });
 
     it('should return an error for deleteById/destroyById/removeById',
-    function(done) {
-      var aliases = ['deleteById', 'destroyById', 'removeById'];
-      async.each(aliases, function(alias, cb) {
-        Todo[alias](1, function(err) {
-          should.exist(err);
-          err.message.should.equal(expectedErrMsg);
-          cb();
-        });
-      }, done);
-    });
+      function(done) {
+        var aliases = ['deleteById', 'destroyById', 'removeById'];
+        async.each(aliases, function(alias, cb) {
+          Todo[alias](1, function(err) {
+            should.exist(err);
+            err.message.should.equal(expectedErrMsg);
+            cb();
+          });
+        }, done);
+      });
 
     it('should return an error for instance.save', function(done) {
       var todo = new Todo();

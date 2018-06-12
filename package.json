@@ -15,7 +15,7 @@
     "ORM"
   ],
   "engines": {
-    "node": ">=4.0.0"
+    "node": ">=6"
   },
   "repository": {
     "type": "git",
@@ -37,12 +37,12 @@
     "@types/node": "^10.0.8",
     "async-iterators": "^0.2.2",
     "bson": "^1.0.4",
-    "coveralls": "^2.13.1",
-    "eslint": "^3.12.2",
-    "eslint-config-loopback": "^8.0.0",
+    "coveralls": "^3.0.1",
+    "eslint": "^4.19.1",
+    "eslint-config-loopback": "^10.0.0",
     "loopback-connector-throwing": "file:./test/fixtures/loopback-connector-throwing",
-    "mocha": "^3.2.0",
-    "nyc": "^11.1.0",
+    "mocha": "^5.2.0",
+    "nyc": "^12.0.2",
     "should": "^8.4.0",
     "typescript": "^2.8.3"
   },
@@ -57,7 +57,7 @@
     "minimatch": "^3.0.3",
     "qs": "^6.5.0",
     "shortid": "^2.2.6",
-    "strong-globalize": "^3.1.0",
+    "strong-globalize": "^4.1.1",
     "traverse": "^0.6.6",
     "uuid": "^3.0.1"
   },

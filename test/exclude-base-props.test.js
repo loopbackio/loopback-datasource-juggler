@@ -19,7 +19,7 @@ describe('exclude properties ', function() {
     var User = ds.define('User', {name: String, password: String});
     var properties = User.definition.properties;
     // User should have id, name & password properties
-    assert(('id' in properties)  && ('password' in properties) && ('name' in properties),
+    assert(('id' in properties) && ('password' in properties) && ('name' in properties),
       'User should have id, name & password properties');
     // Create sub model Customer with vip as property. id property gets automatically created here as well.
     // Customer will inherit name, password and id from base User model.

@@ -156,19 +156,19 @@ describe('datatypes', function() {
   });
 
   it('rejects array value converted to NaN for a required property',
-  function(done) {
-    db = getSchema();
-    Model = db.define('RequiredNumber', {
-      num: {type: Number, required: true},
-    });
-    db.automigrate(['Model'], function() {
-      Model.create({num: [1, 2, 3]}, function(err, inst) {
-        should.exist(err);
-        err.should.have.property('name').equal('ValidationError');
-        done();
+    function(done) {
+      db = getSchema();
+      Model = db.define('RequiredNumber', {
+        num: {type: Number, required: true},
+      });
+      db.automigrate(['Model'], function() {
+        Model.create({num: [1, 2, 3]}, function(err, inst) {
+          should.exist(err);
+          err.should.have.property('name').equal('ValidationError');
+          done();
+        });
       });
     });
-  });
 
   it('handles null data', (done) => {
     db = getSchema();

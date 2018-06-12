@@ -339,7 +339,7 @@ describe('DataSource define model', function() {
   it('supports plain model definitions', function() {
     var ds = new DataSource('memory');
 
-// define models
+    // define models
     var Post = ds.define('Post', {
       title: {type: String, length: 255},
       content: {type: ModelBuilder.Text},
@@ -350,7 +350,7 @@ describe('DataSource define model', function() {
       published: {type: Boolean, default: false, index: true},
     });
 
-// simpler way to describe model
+    // simpler way to describe model
     var User = ds.define('User', {
       name: String,
       bio: ModelBuilder.Text,
@@ -362,7 +362,7 @@ describe('DataSource define model', function() {
     var Group = ds.define('Group', {group: String});
     User.mixin(Group);
 
-// define any custom method
+    // define any custom method
     User.prototype.getNameAndAge = function() {
       return this.name + ', ' + this.age;
     };
@@ -418,7 +418,7 @@ describe('DataSource define model', function() {
       });
     });
 
-// should be able to attach a data source to an existing model
+    // should be able to attach a data source to an existing model
     var modelBuilder = new ModelBuilder();
 
     var Color = modelBuilder.define('Color', {
@@ -427,7 +427,7 @@ describe('DataSource define model', function() {
 
     Color.should.not.have.property('create');
 
-// attach
+    // attach
     ds.attach(Color);
     Color.should.have.property('create');
 
@@ -971,7 +971,7 @@ describe('DataSource connector types', function() {
   });
 });
 
-describe('DataSource constructor', function() {
+describe('DataSource._resolveConnector', function() {
   // Mocked require
   var loader = function(name) {
     if (name.indexOf('./connectors/') !== -1) {

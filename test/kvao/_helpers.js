@@ -15,7 +15,7 @@ function givenCacheItem(dataSourceFactory) {
 };
 
 function givenModel(dataSourceFactory, modelName,
-modelProperties, options) {
+  modelProperties, options) {
   const dataSource = dataSourceFactory();
   const Model = dataSource.createModel(modelName, modelProperties);
   const p = 'deleteAll' in dataSource.connector ?

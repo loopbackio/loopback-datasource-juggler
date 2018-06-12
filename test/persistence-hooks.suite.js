@@ -140,26 +140,26 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       });
 
       it('triggers the loaded hook multiple times when multiple instances exist when near filter is used',
-      function(done) {
-        var hookMonitorGeoModel;
-        hookMonitorGeoModel = new HookMonitor({includeModelName: false});
+        function(done) {
+          var hookMonitorGeoModel;
+          hookMonitorGeoModel = new HookMonitor({includeModelName: false});
 
-        function monitorHookExecutionGeoModel(hookNames) {
-          hookMonitorGeoModel.install(GeoModel, hookNames);
-        }
+          function monitorHookExecutionGeoModel(hookNames) {
+            hookMonitorGeoModel.install(GeoModel, hookNames);
+          }
 
-        monitorHookExecutionGeoModel();
+          monitorHookExecutionGeoModel();
 
-        var query = {
-          where: {location: {near: '10,5'}},
-        };
-        GeoModel.find(query, function(err, list) {
-          if (err) return done(err);
+          var query = {
+            where: {location: {near: '10,5'}},
+          };
+          GeoModel.find(query, function(err, list) {
+            if (err) return done(err);
 
-          hookMonitorGeoModel.names.should.eql(['access', 'loaded', 'loaded']);
-          done();
+            hookMonitorGeoModel.names.should.eql(['access', 'loaded', 'loaded']);
+            done();
+          });
         });
-      });
 
       it('applies updates from `loaded` hook when near filter is used', function(done) {
         GeoModel.observe('loaded', function(ctx, next) {
@@ -179,23 +179,23 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       });
 
       it('applies updates to one specific instance from `loaded` hook when near filter is used',
-      function(done) {
-        GeoModel.observe('loaded', function(ctx, next) {
-          if (ctx.data.name === 'Rome')
-            ctx.data.name = 'Berlin';
-          next();
-        });
+        function(done) {
+          GeoModel.observe('loaded', function(ctx, next) {
+            if (ctx.data.name === 'Rome')
+              ctx.data.name = 'Berlin';
+            next();
+          });
 
-        var query = {
-          where: {location: {near: '10,5'}},
-        };
+          var query = {
+            where: {location: {near: '10,5'}},
+          };
 
-        GeoModel.find(query, function(err, list) {
-          if (err) return done(err);
-          list.map(get('name')).should.containEql('Berlin', 'Tokyo');
-          done();
+          GeoModel.find(query, function(err, list) {
+            if (err) return done(err);
+            list.map(get('name')).should.containEql('Berlin', 'Tokyo');
+            done();
+          });
         });
-      });
 
       it('applies updates from `loaded` hook when near filter is not used', function(done) {
         TestModel.observe('loaded', function(ctx, next) {
@@ -211,33 +211,33 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       });
 
       it('applies updates to one specific instance from `loaded` hook when near filter is not used',
-      function(done) {
-        TestModel.observe('loaded', function(ctx, next) {
-          if (ctx.data.name === 'first')
-            ctx.data.name = 'Paris';
-          next();
-        });
+        function(done) {
+          TestModel.observe('loaded', function(ctx, next) {
+            if (ctx.data.name === 'first')
+              ctx.data.name = 'Paris';
+            next();
+          });
 
-        TestModel.find(function(err, list) {
-          if (err) return done(err);
-          list.map(get('name')).should.eql(['Paris', 'second']);
-          done();
-        });
-      });
-
-      it('should not trigger hooks for geo queries, if notify is false',
-      function(done) {
-        monitorHookExecution();
-
-        TestModel.find(
-          {where: {geo: {near: '10,20'}}},
-          {notify: false},
-          function(err, list) {
+          TestModel.find(function(err, list) {
             if (err) return done(err);
-            hookMonitor.names.should.be.empty();
+            list.map(get('name')).should.eql(['Paris', 'second']);
             done();
           });
-      });
+        });
+
+      it('should not trigger hooks for geo queries, if notify is false',
+        function(done) {
+          monitorHookExecution();
+
+          TestModel.find(
+            {where: {geo: {near: '10,20'}}},
+            {notify: false},
+            function(err, list) {
+              if (err) return done(err);
+              hookMonitor.names.should.be.empty();
+              done();
+            });
+        });
 
       it('should apply updates from `access` hook', function(done) {
         TestModel.observe('access', function(ctx, next) {
@@ -805,12 +805,12 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
               record.id.should.eql(existingInstance.id);
 
-               // `findOrCreate` creates a new instance of the object everytime.
-               // So, `data.id` as well as `currentInstance.id` always matches
-               // the newly generated UID.
-               // Hence, the test below asserts both `data.id` and
-               // `currentInstance.id` to match  getLastGeneratedUid().
-               // On same lines, it also asserts `isNewInstance` to be true.
+              // `findOrCreate` creates a new instance of the object everytime.
+              // So, `data.id` as well as `currentInstance.id` always matches
+              // the newly generated UID.
+              // Hence, the test below asserts both `data.id` and
+              // `currentInstance.id` to match  getLastGeneratedUid().
+              // On same lines, it also asserts `isNewInstance` to be true.
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
                 data: {
                   id: getLastGeneratedUid(),
@@ -952,9 +952,9 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
               record.id.should.eql(existingInstance.id);
 
-               // After the call to `connector.findOrCreate`, since the record
-               // already exists, `data.id` matches `existingInstance.id`
-               // as against the behaviour noted for `persist` hook
+              // After the call to `connector.findOrCreate`, since the record
+              // already exists, `data.id` matches `existingInstance.id`
+              // as against the behaviour noted for `persist` hook
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
                 data: {
                   id: existingInstance.id,
@@ -2258,7 +2258,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
     });
 
     if (!dataSource.connector.replaceById) {
-      describe.skip('replaceById - not implemented', function() {});
+      describe.skip('replaceOrCreate - not implemented', function() {});
     } else {
       describe('PersistedModel.replaceOrCreate', function() {
         it('triggers hooks in the correct order on create', function(done) {
@@ -2400,19 +2400,19 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         it('triggers `before save` hookon create', function(done) {
           TestModel.observe('before save', ctxRecorder.recordAndNext());
           TestModel.replaceOrCreate({id: existingInstance.id, name: 'new name'},
-          function(err, instance) {
-            if (err)
-              return done(err);
+            function(err, instance) {
+              if (err)
+                return done(err);
 
-            var expectedContext = aCtxForModel(TestModel, {
-              instance: instance,
+              var expectedContext = aCtxForModel(TestModel, {
+                instance: instance,
+              });
+
+              if (!dataSource.connector.replaceOrCreate) {
+                expectedContext.isNewInstance = false;
+              }
+              done();
             });
-
-            if (!dataSource.connector.replaceOrCreate) {
-              expectedContext.isNewInstance = false;
-            }
-            done();
-          });
         });
 
         it('triggers `before save` hook on replace', function(done) {
@@ -2573,7 +2573,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
               expected.isNewInstance =
                 isNewInstanceFlag ?
-                true : undefined;
+                  true : undefined;
 
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, expected));
               done();
@@ -2597,7 +2597,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
               expected.isNewInstance =
                 isNewInstanceFlag ?
-                false : undefined;
+                  false : undefined;
 
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, expected));
               done();
@@ -2632,7 +2632,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
               expected.isNewInstance =
                 isNewInstanceFlag ?
-                false : undefined;
+                  false : undefined;
 
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, expected));
               done();
@@ -2656,7 +2656,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               };
               expected.isNewInstance =
                 isNewInstanceFlag ?
-                true : undefined;
+                  true : undefined;
 
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, expected));
               done();
@@ -3162,14 +3162,14 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('access', ctxRecorder.recordAndNext());
 
         TestModel.upsertWithWhere({id: existingInstance.id},
-           {name: 'new name', extra: 'new extra'},
-           function(err, instance) {
-             if (err) return done(err);
-             ctxRecorder.records.should.eql(aCtxForModel(TestModel, {query: {
-               where: {id: existingInstance.id},
-             }}));
-             done();
-           });
+          {name: 'new name', extra: 'new extra'},
+          function(err, instance) {
+            if (err) return done(err);
+            ctxRecorder.records.should.eql(aCtxForModel(TestModel, {query: {
+              where: {id: existingInstance.id},
+            }}));
+            done();
+          });
       });
 
       it('triggers hooks only once', function(done) {
@@ -3236,27 +3236,27 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         TestModel.observe('before save', ctxRecorder.recordAndNext());
 
         TestModel.upsertWithWhere({id: existingInstance.id},
-           {id: existingInstance.id, name: 'updated name'},
-           function(err, instance) {
-             if (err) return done(err);
-             var expectedContext = aCtxForModel(TestModel, {
-               where: {id: existingInstance.id},
-               data: {
-                 id: existingInstance.id,
-                 name: 'updated name',
-               },
-             });
-             if (!dataSource.connector.upsertWithWhere) {
-               // the difference between `existingInstance` and the following
-               // plain-data object is `currentInstance` the missing fields are
-               // null in `currentInstance`, wehere as in `existingInstance` they
-               // are undefined; please see other tests for example see:
-               // test for "PersistedModel.create triggers `persist` hook"
-               expectedContext.currentInstance = {id: existingInstance.id, name: 'first', extra: null};
-             }
-             ctxRecorder.records.should.eql(expectedContext);
-             done();
-           });
+          {id: existingInstance.id, name: 'updated name'},
+          function(err, instance) {
+            if (err) return done(err);
+            var expectedContext = aCtxForModel(TestModel, {
+              where: {id: existingInstance.id},
+              data: {
+                id: existingInstance.id,
+                name: 'updated name',
+              },
+            });
+            if (!dataSource.connector.upsertWithWhere) {
+              // the difference between `existingInstance` and the following
+              // plain-data object is `currentInstance` the missing fields are
+              // null in `currentInstance`, wehere as in `existingInstance` they
+              // are undefined; please see other tests for example see:
+              // test for "PersistedModel.create triggers `persist` hook"
+              expectedContext.currentInstance = {id: existingInstance.id, name: 'first', extra: null};
+            }
+            ctxRecorder.records.should.eql(expectedContext);
+            done();
+          });
       });
 
       it('triggers `before save` hook on create', function(done) {
@@ -3287,12 +3287,12 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         });
 
         TestModel.upsertWithWhere({id: existingInstance.id},
-           {name: 'updated name'},
-           function(err, instance) {
-             if (err) return done(err);
-             instance.name.should.equal('hooked');
-             done();
-           });
+          {name: 'updated name'},
+          function(err, instance) {
+            if (err) return done(err);
+            instance.name.should.equal('hooked');
+            done();
+          });
       });
 
       it('applies updates from `before save` hook on create', function(done) {
@@ -3429,11 +3429,11 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('emits error when `loaded` hook fails', function(done) {
         TestModel.observe('loaded', nextWithError(expectedError));
         TestModel.upsertWithWhere({id: 'new-id'},
-            {id: 'new-id', name: 'a name'},
-            function(err, instance) {
-              [err].should.eql([expectedError]);
-              done();
-            });
+          {id: 'new-id', name: 'a name'},
+          function(err, instance) {
+            [err].should.eql([expectedError]);
+            done();
+          });
       });
 
       it('triggers `after save` hook on update', function(done) {
