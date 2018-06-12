@@ -1,4 +1,20 @@
-2018-05-25, Version 3.21.1
+2018-06-12, Version 3.22.0
+==========================
+
+ * Update strong-globalize to 4.x (Miroslav Bajtoš)
+
+ * Update remaining dev-dependencies to latest (Miroslav Bajtoš)
+
+ * Update eslint + config to latest (Miroslav Bajtoš)
+
+ * Disable package-lock feature of npm (Miroslav Bajtoš)
+
+ * Travis: add Node.js 10.x to the build matrix (Miroslav Bajtoš)
+
+ * Drop support for Node 4.x (Miroslav Bajtoš)
+
+
+2018-05-24, Version 3.21.1
 ==========================
 
  * Fix tests to ensure compatibility w/ should@10 (Raymond Feng)
