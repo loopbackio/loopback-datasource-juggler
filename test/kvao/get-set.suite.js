@@ -69,9 +69,9 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
 
     it('honours options.ttl', function() {
       return CacheItem.set('a-key', 'a-value', {ttl: TTL_PRECISION})
-      .delay(2 * TTL_PRECISION)
-      .then(function() { return CacheItem.get('a-key'); })
-      .then(function(value) { should.equal(value, null); });
+        .delay(2 * TTL_PRECISION)
+        .then(function() { return CacheItem.get('a-key'); })
+        .then(function(value) { should.equal(value, null); });
     });
 
     describe('get', function() {

@@ -124,7 +124,7 @@ describe('DataSource', function() {
   /**
    * new DataSource(dsName, connectorInstance)
    */
-  it('should accept resolved connector', function() {
+  it('should accept dsName and resolved connector', function() {
     var mockConnector = {
       name: 'loopback-connector-mock',
       initialize: function(ds, cb) {

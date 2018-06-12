@@ -76,19 +76,19 @@ describe('Model class inheritance', function() {
         // saving original getMergePolicy method
       let originalGetMergePolicy = base.getMergePolicy;
 
-        // the injected getMergePolicy method captures the provided configureModelMerge option
+      // the injected getMergePolicy method captures the provided configureModelMerge option
       base.getMergePolicy = function(options) {
         mergePolicy = options && options.configureModelMerge;
         return originalGetMergePolicy(options);
       };
 
-        // calling extend() on base model calls base.getMergePolicy() internally
-        // child model settings are passed as 3rd parameter
+      // calling extend() on base model calls base.getMergePolicy() internally
+      // child model settings are passed as 3rd parameter
       const child = base.extend('child', {}, {configureModelMerge: newMergePolicy});
 
       should.deepEqual(mergePolicy, newMergePolicy);
 
-        // restoring original getMergePolicy method
+      // restoring original getMergePolicy method
       base.getMergePolicy = originalGetMergePolicy;
     });
 
@@ -109,7 +109,7 @@ describe('Model class inheritance', function() {
 
     it('is inherited by child model', function() {
       const child = base.extend('child', {}, {configureModelMerge: true});
-        // get mergePolicy from child
+      // get mergePolicy from child
       const mergePolicy = child.getMergePolicy({configureModelMerge: true});
       should.deepEqual(mergePolicy, recommendedMergePolicy);
     });
@@ -128,8 +128,8 @@ describe('Model class inheritance', function() {
       });
       const baseChild = modelBuilder.define('baseChild');
       baseChild.attachTo(memory);
-        // the name of this must begin with a letter < b
-        // for this test to fail
+      // the name of this must begin with a letter < b
+      // for this test to fail
       const anotherChild = baseChild.extend('anotherChild');
 
       assert(anotherChild.prototype instanceof baseChild);
@@ -220,23 +220,23 @@ describe('Model class inheritance', function() {
       });
 
       var Customer = User.extend('Customer',
-          {customerId: {type: String, id: true}}, {
-            defaultPermission: 'DENY',
-            acls: [
-              {
-                principalType: 'ROLE',
-                principalId: '$unauthenticated',
-                permission: 'DENY',
-              },
-            ],
-            relations: {
-              orders: {
-                type: 'hasMany',
-                model: 'Order',
-              },
+        {customerId: {type: String, id: true}}, {
+          defaultPermission: 'DENY',
+          acls: [
+            {
+              principalType: 'ROLE',
+              principalId: '$unauthenticated',
+              permission: 'DENY',
             },
-          }
-        );
+          ],
+          relations: {
+            orders: {
+              type: 'hasMany',
+              model: 'Order',
+            },
+          },
+        }
+      );
 
       assert.deepEqual(User.settings, {
         // forceId is set to 'auto' in memory if idProp.generated && forceId !== false
@@ -291,8 +291,8 @@ describe('Model class inheritance', function() {
     });
 
     it('defines rank of ACLs according to model\'s inheritance rank', function() {
-        // a simple test is enough as we already fully tested option `{rank: true}`
-        // in tests with flag `configureModelMerge`
+      // a simple test is enough as we already fully tested option `{rank: true}`
+      // in tests with flag `configureModelMerge`
       const modelBuilder = memory.modelBuilder;
       const base = modelBuilder.define('base', {}, {acls: [
         {
@@ -336,7 +336,7 @@ describe('Model class inheritance', function() {
     });
 
     it('replaces baseClass relations with matching subClass relations', function() {
-        // merge policy of settings.relations is {patch: true}
+      // merge policy of settings.relations is {patch: true}
       const modelBuilder = memory.modelBuilder;
       const base = modelBuilder.define('base', {}, {
         relations: {
@@ -462,7 +462,7 @@ describe('Model class inheritance', function() {
 
     it('`{replace: true}` replaces base model array with sub model matching ' +
         'array', function() {
-          // merge policy of settings.description is {replace: true}
+      // merge policy of settings.description is {replace: true}
       const modelBuilder = memory.modelBuilder;
       const base = modelBuilder.define('base', {}, {
         description: ['base', 'model', 'description'],
@@ -515,7 +515,7 @@ describe('Model class inheritance', function() {
 
     it('`{replace: false}` adds distinct members of matching arrays from ' +
         'base model and sub model', function() {
-          // merge policy of settings.hidden is {replace: false}
+      // merge policy of settings.hidden is {replace: false}
       const modelBuilder = memory.modelBuilder;
       const base = modelBuilder.define('base', {}, {
         hidden: ['firstProperty', 'secondProperty'],
@@ -534,7 +534,7 @@ describe('Model class inheritance', function() {
 
     it('`{patch: true}` adds distinct inner properties of matching objects ' +
         'from base model and sub model', function() {
-          // merge policy of settings.relations is {patch: true}
+      // merge policy of settings.relations is {patch: true}
       const modelBuilder = memory.modelBuilder;
       const base = modelBuilder.define('base', {}, {
         relations: {
@@ -576,7 +576,7 @@ describe('Model class inheritance', function() {
 
     it('`{patch: true}` replaces baseClass inner properties with matching ' +
         'subClass inner properties', function() {
-          // merge policy of settings.relations is {patch: true}
+      // merge policy of settings.relations is {patch: true}
       const modelBuilder = memory.modelBuilder;
       const base = modelBuilder.define('base', {}, {
         relations: {

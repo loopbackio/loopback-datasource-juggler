@@ -320,19 +320,19 @@ describe('Memory connector', function() {
 
     it('should successfully extract 1 user (Lennon) from the db', function(done) {
       User.find({where: {birthday: {between: [new Date(1970, 0), new Date(1990, 0)]}}},
-                function(err, users) {
-                  should(users.length).be.equal(1);
-                  should(users[0].name).be.equal('John Lennon');
-                  done();
-                });
+        function(err, users) {
+          should(users.length).be.equal(1);
+          should(users[0].name).be.equal('John Lennon');
+          done();
+        });
     });
 
     it('should successfully extract 2 users from the db', function(done) {
       User.find({where: {birthday: {between: [new Date(1940, 0), new Date(1990, 0)]}}},
-                function(err, users) {
-                  should(users.length).be.equal(2);
-                  done();
-                });
+        function(err, users) {
+          should(users.length).be.equal(2);
+          done();
+        });
     });
 
     it('should successfully extract 2 users using implied and', function(done) {
@@ -358,18 +358,18 @@ describe('Memory connector', function() {
     it('should successfully extract 2 users using date range', function(done) {
       User.find({where: {birthday: {between:
           [new Date(1940, 0).toISOString(), new Date(1990, 0).toISOString()]}}},
-        function(err, users) {
-          should(users.length).be.equal(2);
-          done();
-        });
+      function(err, users) {
+        should(users.length).be.equal(2);
+        done();
+      });
     });
 
     it('should successfully extract 0 user from the db', function(done) {
       User.find({where: {birthday: {between: [new Date(1990, 0), Date.now()]}}},
-                function(err, users) {
-                  should(users.length).be.equal(0);
-                  done();
-                });
+        function(err, users) {
+          should(users.length).be.equal(0);
+          done();
+        });
     });
 
     it('should successfully extract 2 users matching over array values', function(done) {
@@ -503,14 +503,14 @@ describe('Memory connector', function() {
     });
 
     it('should work when a regex is provided without the regexp operator',
-        function(done) {
-          User.find({where: {name: /John.*/i}}, function(err, users) {
-            should.not.exist(err);
-            users.length.should.equal(1);
-            users[0].name.should.equal('John Lennon');
-            done();
-          });
+      function(done) {
+        User.find({where: {name: /John.*/i}}, function(err, users) {
+          should.not.exist(err);
+          users.length.should.equal(1);
+          users[0].name.should.equal('John Lennon');
+          done();
         });
+      });
 
     it('should support the regexp operator with regex strings', function(done) {
       User.find({where: {name: {regexp: '^J'}}}, function(err, users) {
@@ -532,7 +532,7 @@ describe('Memory connector', function() {
 
     it('should support the regexp operator with regex objects', function(done) {
       User.find({where: {name: {regexp: new RegExp(/^J/)}}}, function(err,
-          users) {
+        users) {
         should.not.exist(err);
         users.length.should.equal(1);
         users[0].name.should.equal('John Lennon');
@@ -568,8 +568,8 @@ describe('Memory connector', function() {
             state: 'CA',
             zipCode: '95131',
             tags: [
-                {tag: 'business'},
-                {tag: 'rent'},
+              {tag: 'business'},
+              {tag: 'rent'},
             ],
           },
           friends: [
@@ -957,14 +957,6 @@ describe('Memory connector with options', function() {
   it('should receive options from the find method', function(done) {
     var opts = {transaction: 'tx1'};
     Post.find({where: {title: 't1'}}, opts, function(err, p) {
-      savedOptions.find.should.be.eql(opts);
-      done(err);
-    });
-  });
-
-  it('should receive options from the find method', function(done) {
-    var opts = {transaction: 'tx2'};
-    Post.find({}, opts, function(err, p) {
       savedOptions.find.should.be.eql(opts);
       done(err);
     });

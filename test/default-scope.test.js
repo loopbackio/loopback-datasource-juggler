@@ -667,6 +667,7 @@ describe('default scope', function() {
       });
     });
 
+    // eslint-disable-next-line mocha/no-identical-title
     it('should find a scoped instance - thing', function(done) {
       Product.find({where: {name: 'Product'}}, function(err, products) {
         products.should.have.length(2);
