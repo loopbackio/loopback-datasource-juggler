@@ -163,7 +163,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `loaded` hook when near filter is used', function(done) {
         GeoModel.observe('loaded', function(ctx, next) {
-          ctx.data.name = 'Berlin';
+          // It's crucial to change `ctx.data` reference, not only data props
+          ctx.data = Object.assign({}, ctx.data, {name: 'Berlin'});
           next();
         });
 
@@ -181,8 +182,10 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('applies updates to one specific instance from `loaded` hook when near filter is used',
         function(done) {
           GeoModel.observe('loaded', function(ctx, next) {
-            if (ctx.data.name === 'Rome')
-              ctx.data.name = 'Berlin';
+            if (ctx.data.name === 'Rome') {
+              // It's crucial to change `ctx.data` reference, not only data props
+              ctx.data = Object.assign({}, ctx.data, {name: 'Berlin'});
+            }
             next();
           });
 
@@ -199,7 +202,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `loaded` hook when near filter is not used', function(done) {
         TestModel.observe('loaded', function(ctx, next) {
-          ctx.data.name = 'Paris';
+          // It's crucial to change `ctx.data` reference, not only data props
+          ctx.data = Object.assign({}, ctx.data, {name: 'Paris'});
           next();
         });
 
@@ -213,8 +217,10 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('applies updates to one specific instance from `loaded` hook when near filter is not used',
         function(done) {
           TestModel.observe('loaded', function(ctx, next) {
-            if (ctx.data.name === 'first')
-              ctx.data.name = 'Paris';
+            if (ctx.data.name === 'first') {
+              // It's crucial to change `ctx.data` reference, not only data props
+              ctx.data = Object.assign({}, ctx.data, {name: 'Paris'});
+            }
             next();
           });
 
@@ -313,7 +319,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `loaded` hook', function(done) {
         TestModel.observe('loaded', ctxRecorder.recordAndNext(function(ctx) {
-          ctx.data.extra = 'hook data';
+          // It's crucial to change `ctx.data` reference, not only data props
+          ctx.data = Object.assign({}, ctx.data, {extra: 'hook data'});
         }));
 
         TestModel.find(
@@ -472,7 +479,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `persist` hook', function(done) {
         TestModel.observe('persist', ctxRecorder.recordAndNext(function(ctx) {
-          ctx.data.extra = 'hook data';
+          // It's crucial to change `ctx.data` reference, not only data props
+          ctx.data = Object.assign({}, ctx.data, {extra: 'hook data'});
         }));
 
         // By default, the instance passed to create callback is NOT updated
@@ -536,7 +544,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `loaded` hook', function(done) {
         TestModel.observe('loaded', ctxRecorder.recordAndNext(function(ctx) {
-          ctx.data.extra = 'hook data';
+          // It's crucial to change `ctx.data` reference, not only data props
+          ctx.data = Object.assign({}, ctx.data, {extra: 'hook data'});
         }));
 
         // By default, the instance passed to create callback is NOT updated
@@ -872,7 +881,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       if (dataSource.connector.findOrCreate) {
         it('applies updates from `persist` hook when found', function(done) {
           TestModel.observe('persist', ctxRecorder.recordAndNext(function(ctx) {
-            ctx.data.extra = 'hook data';
+            // It's crucial to change `ctx.data` reference, not only data props
+            ctx.data = Object.assign({}, ctx.data, {extra: 'hook data'});
           }));
 
           TestModel.findOrCreate(
@@ -905,7 +915,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `persist` hook when not found', function(done) {
         TestModel.observe('persist', ctxRecorder.recordAndNext(function(ctx) {
-          ctx.data.extra = 'hook data';
+          // It's crucial to change `ctx.data` reference, not only data props
+          ctx.data = Object.assign({}, ctx.data, {extra: 'hook data'});
         }));
 
         TestModel.findOrCreate(
@@ -1003,7 +1014,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       if (dataSource.connector.findOrCreate) {
         it('applies updates from `loaded` hook when found', function(done) {
           TestModel.observe('loaded', ctxRecorder.recordAndNext(function(ctx) {
-            ctx.data.extra = 'hook data';
+            // It's crucial to change `ctx.data` reference, not only data props
+            ctx.data = Object.assign({}, ctx.data, {extra: 'hook data'});
           }));
 
           TestModel.findOrCreate(
@@ -1021,7 +1033,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `loaded` hook when not found', function(done) {
         TestModel.observe('loaded', ctxRecorder.recordAndNext(function(ctx) {
-          ctx.data.extra = 'hook data';
+          // It's crucial to change `ctx.data` reference, not only data props
+          ctx.data = Object.assign({}, ctx.data, {extra: 'hook data'});
         }));
 
         // Unoptimized connector gives a call to `create. But,
@@ -1198,7 +1211,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `persist` hook', function(done) {
         TestModel.observe('persist', ctxRecorder.recordAndNext(function(ctx) {
-          ctx.data.extra = 'hook data';
+          // It's crucial to change `ctx.data` reference, not only data props
+          ctx.data = Object.assign({}, ctx.data, {extra: 'hook data'});
         }));
 
         existingInstance.save(function(err, instance) {
@@ -1240,7 +1254,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `loaded` hook', function(done) {
         TestModel.observe('loaded', ctxRecorder.recordAndNext(function(ctx) {
-          ctx.data.extra = 'hook data';
+          // It's crucial to change `ctx.data` reference, not only data props
+          ctx.data = Object.assign({}, ctx.data, {extra: 'hook data'});
         }));
 
         existingInstance.save(function(err, instance) {
@@ -1364,8 +1379,11 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `before save` hook', function(done) {
         TestModel.observe('before save', function(ctx, next) {
-          ctx.data.extra = 'extra data';
-          ctx.data.name = 'hooked name';
+          // It's crucial to change `ctx.data` reference, not only data props
+          ctx.data = Object.assign({}, ctx.data, {
+            extra: 'extra data',
+            name: 'hooked name',
+          });
           next();
         });
 
@@ -1418,7 +1436,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `persist` hook', function(done) {
         TestModel.observe('persist', ctxRecorder.recordAndNext(function(ctx) {
-          ctx.data.extra = 'hook data';
+          // It's crucial to change `ctx.data` reference, not only data props
+          ctx.data = Object.assign({}, ctx.data, {extra: 'hook data'});
         }));
 
         // By default, the instance passed to updateAttributes callback is NOT updated
@@ -1429,7 +1448,11 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         existingInstance.updateAttributes({name: 'changed'}, function(err, instance) {
           if (err) return done(err);
           instance.should.have.property('extra', 'hook data');
-          done();
+          TestModel.findById(existingInstance.id, (err, found) => {
+            if (err) return done(err);
+            found.should.have.property('extra', 'hook data');
+            done();
+          });
         });
       });
 
@@ -1459,7 +1482,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               ctx.data.address.should.be.type('object');
               ctx.data.address.should.not.be.instanceOf(Address);
 
-              ctx.data.extra = 'hook data';
+              // It's crucial to change `ctx.data` reference, not only data props
+              ctx.data = Object.assign({}, ctx.data, {extra: 'hook data'});
             }));
 
             // By default, the instance passed to updateAttributes callback is NOT updated
@@ -1505,7 +1529,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           if (err) return done(err);
 
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-            data: {name: 'changed'},
+            data: {id: existingInstance.id, name: 'changed'},
             isNewInstance: false,
           }));
 
@@ -1525,7 +1549,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `loaded` hook updateAttributes', function(done) {
         TestModel.observe('loaded', ctxRecorder.recordAndNext(function(ctx) {
-          ctx.data.extra = 'hook data';
+          // It's crucial to change `ctx.data` reference, not only data props
+          ctx.data = Object.assign({}, ctx.data, {extra: 'hook data'});
         }));
 
         // By default, the instance passed to updateAttributes callback is NOT updated
@@ -1583,7 +1608,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
     });
 
     if (!dataSource.connector.replaceById) {
-      describe.skip('replaceById - not implemented', function() {});
+      describe.skip('replaceAttributes - not implemented', function() {});
     } else {
       describe('PersistedModel.prototype.replaceAttributes', function() {
         it('triggers hooks in the correct order', function(done) {
@@ -1722,7 +1747,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 ctx.data.address.should.be.type('object');
                 ctx.data.address.should.not.be.instanceOf(Address);
 
-                ctx.data.extra = 'hook data';
+                // It's crucial to change `ctx.data` reference, not only data props
+                ctx.data = Object.assign({}, ctx.data, {extra: 'hook data'});
               }));
 
               existingUser.replaceAttributes(
@@ -1775,7 +1801,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
         it('applies updates from `loaded` hook replaceAttributes', function(done) {
           TestModel.observe('loaded', ctxRecorder.recordAndNext(function(ctx) {
-            ctx.data.name = 'changed in hook';
+            // It's crucial to change `ctx.data` reference, not only data props
+            ctx.data = Object.assign({}, ctx.data, {name: 'changed in hook'});
           }));
 
           existingInstance.replaceAttributes({name: 'changed'}, function(err, instance) {
@@ -2025,7 +2052,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `before save` hook on update', function(done) {
         TestModel.observe('before save', function(ctx, next) {
-          ctx.data.name = 'hooked';
+          // It's crucial to change `ctx.data` reference, not only data props
+          ctx.data = Object.assign({}, ctx.data, {name: 'hooked'});
           next();
         });
 
@@ -2043,7 +2071,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           if (ctx.instance) {
             ctx.instance.name = 'hooked';
           } else {
-            ctx.data.name = 'hooked';
+            // It's crucial to change `ctx.data` reference, not only data props
+            ctx.data = Object.assign({}, ctx.data, {name: 'hooked'});
           }
           next();
         });
@@ -2556,6 +2585,53 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             });
         });
 
+        it('applies updates from `persist` hook on create', function(done) {
+          TestModel.observe('persist', (ctx, next) => {
+            // it's crucial to change `ctx.data` reference, not only data props
+            ctx.data = Object.assign({}, ctx.data, {extra: 'hook data'});
+            next();
+          });
+
+          // By default, the instance passed to create callback is NOT updated
+          // with the changes made through persist/loaded hooks. To preserve
+          // backwards compatibility, we introduced a new setting updateOnLoad,
+          // which if set, will apply these changes to the model instance too.
+          TestModel.settings.updateOnLoad = true;
+
+          TestModel.replaceOrCreate(
+            {name: 'a name'},
+            function(err, instance) {
+              if (err) return done(err);
+              instance.should.have.property('extra', 'hook data');
+              TestModel.findById(instance.id, (err, found) => {
+                if (err) return done(err);
+                found.should.have.property('extra', 'hook data');
+                done();
+              });
+            });
+        });
+
+        it('applies updates from `persist` hook on update', function(done) {
+          TestModel.observe('persist', (ctx, next) => {
+            // It's crucial to change `ctx.data` reference, not only data props
+            ctx.data = Object.assign({}, ctx.data, {extra: 'hook data'});
+            next();
+          });
+
+          existingInstance.name = 'changed';
+          const data = existingInstance.toObject();
+
+          TestModel.replaceOrCreate(data, function(err, instance) {
+            if (err) return done(err);
+            instance.should.have.property('extra', 'hook data');
+            TestModel.findById(existingInstance.id, (err, found) => {
+              if (err) return done(err);
+              found.should.have.property('extra', 'hook data');
+              done();
+            });
+          });
+        });
+
         it('triggers `loaded` hook on create', function(done) {
           TestModel.observe('loaded', ctxRecorder.recordAndNext());
 
@@ -2660,6 +2736,83 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, expected));
               done();
+            });
+        });
+      });
+    }
+
+    if (!dataSource.connector.replaceById) {
+      describe.skip('replaceById - not implemented', function() {});
+    } else {
+      describe('PersistedModel.replaceById', function() {
+        it('triggers hooks in the correct order on create', function(done) {
+          monitorHookExecution();
+
+          existingInstance.name = 'replaced name';
+          TestModel.replaceById(
+            existingInstance.id,
+            existingInstance.toObject(),
+            function(err, record, created) {
+              if (err) return done(err);
+              hookMonitor.names.should.eql([
+                'before save',
+                'persist',
+                'loaded',
+                'after save',
+              ]);
+              done();
+            });
+        });
+
+        it('triggers `persist` hook', function(done) {
+          TestModel.observe('persist', ctxRecorder.recordAndNext());
+
+          existingInstance.name = 'replaced name';
+          TestModel.replaceById(
+            existingInstance.id,
+            existingInstance.toObject(),
+            function(err, instance) {
+              if (err) return done(err);
+
+              const expected = {
+                where: {id: existingInstance.id},
+                data: {
+                  id: existingInstance.id,
+                  name: 'replaced name',
+                },
+                currentInstance: {
+                  id: existingInstance.id,
+                  name: 'replaced name',
+                  extra: undefined,
+                },
+              };
+
+              const expectedContext = aCtxForModel(TestModel, expected);
+              expectedContext.isNewInstance = false;
+
+              ctxRecorder.records.should.eql(expectedContext);
+              done();
+            });
+        });
+
+        it('applies updates from `persist` hook', function(done) {
+          TestModel.observe('persist', ctxRecorder.recordAndNext(function(ctx) {
+            // It's crucial to change `ctx.data` reference, not only data props
+            ctx.data = Object.assign({}, ctx.data, {extra: 'hook data'});
+          }));
+
+          existingInstance.name = 'changed';
+          TestModel.replaceById(
+            existingInstance.id,
+            existingInstance.toObject(),
+            function(err, instance) {
+              if (err) return done(err);
+              instance.should.have.property('extra', 'hook data');
+              TestModel.findById(existingInstance.id, (err, found) => {
+                if (err) return done(err);
+                found.should.have.property('extra', 'hook data');
+                done();
+              });
             });
         });
       });
@@ -3037,7 +3190,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `persist` hook', function(done) {
         TestModel.observe('persist', ctxRecorder.recordAndNext(function(ctx) {
-          ctx.data.extra = 'hook data';
+          // It's crucial to change `ctx.data` reference, not only data props
+          ctx.data = Object.assign({}, ctx.data, {extra: 'hook data'});
         }));
 
         TestModel.updateAll(
@@ -3282,7 +3436,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('applies updates from `before save` hook on update', function(done) {
         TestModel.observe('before save', function(ctx, next) {
-          ctx.data.name = 'hooked';
+          // It's crucial to change `ctx.data` reference, not only data props
+          ctx.data = Object.assign({}, ctx.data, {name: 'hooked'});
           next();
         });
 
@@ -3300,7 +3455,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           if (ctx.instance) {
             ctx.instance.name = 'hooked';
           } else {
-            ctx.data.name = 'hooked';
+            // It's crucial to change `ctx.data` reference, not only data props
+            ctx.data = Object.assign({}, ctx.data, {name: 'hooked'});
           }
           next();
         });
