@@ -18,7 +18,7 @@ export type Options = AnyObject<any>;
 /**
  * Type alias for Node.js callback functions
  */
-export type Callback<T = any> = (err: any, result?: T) => void;
+export type Callback<T = any> = (err?: Error | null, result?: T) => void;
 
 /**
  * Return export type for promisified Node.js async methods.

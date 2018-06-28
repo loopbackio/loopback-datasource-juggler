@@ -246,4 +246,4 @@ export declare class ModelBuilder extends EventEmitter {
  * Union export type for model instance or plain object representing the model
  * instance
  */
-export type ModelData<T extends ModelBase = ModelBase> = T | AnyObject;
+export type ModelData<T extends ModelBase = ModelBase> = T | Partial<T>;
