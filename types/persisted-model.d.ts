@@ -38,8 +38,14 @@ export declare class PersistedModel extends ModelBase {
   static create(
     data: PersistedData,
     options?: Options,
-    callback?: Callback<PersistedData>,
-  ): PromiseOrVoid<PersistedData>;
+    callback?: Callback<PersistedModel>,
+  ): PromiseOrVoid<PersistedModel>;
+
+  static create(
+    data: PersistedData[],
+    options?: Options,
+    callback?: Callback<PersistedModel[]>,
+  ): PromiseOrVoid<PersistedModel[]>;
 
   /**
    * Update or insert a model instance
@@ -51,20 +57,20 @@ export declare class PersistedModel extends ModelBase {
   static upsert(
     data: PersistedData,
     options?: Options,
-    callback?: Callback<PersistedData>,
-  ): PromiseOrVoid<PersistedData>;
+    callback?: Callback<PersistedModel>,
+  ): PromiseOrVoid<PersistedModel>;
 
   static updateOrCreate(
     data: PersistedData,
     options?: Options,
-    callback?: Callback<PersistedData>,
-  ): PromiseOrVoid<PersistedData>;
+    callback?: Callback<PersistedModel>,
+  ): PromiseOrVoid<PersistedModel>;
 
   static patchOrCreate(
     data: PersistedData,
     options?: Options,
-    callback?: Callback<PersistedData>,
-  ): PromiseOrVoid<PersistedData>;
+    callback?: Callback<PersistedModel>,
+  ): PromiseOrVoid<PersistedModel>;
 
   /**
    * Update or insert a model instance based on the search criteria.
@@ -86,15 +92,15 @@ export declare class PersistedModel extends ModelBase {
     where: Where,
     data: PersistedData,
     options?: Options,
-    callback?: Callback<PersistedData>,
-  ): PromiseOrVoid<PersistedData>;
+    callback?: Callback<PersistedModel>,
+  ): PromiseOrVoid<PersistedModel>;
 
   static patchOrCreateWithWhere(
     where: Where,
     data: PersistedData,
     options?: Options,
-    callback?: Callback<PersistedData>,
-  ): PromiseOrVoid<PersistedData>;
+    callback?: Callback<PersistedModel>,
+  ): PromiseOrVoid<PersistedModel>;
 
   /**
    * Replace or insert a model instance; replace existing record if one is found,
@@ -110,8 +116,8 @@ export declare class PersistedModel extends ModelBase {
   static replaceOrCreate(
     data: PersistedData,
     options?: Options,
-    callback?: Callback<PersistedData>,
-  ): PromiseOrVoid<PersistedData>;
+    callback?: Callback<PersistedModel>,
+  ): PromiseOrVoid<PersistedModel>;
 
   /**
    * Finds one record matching the optional filter object. If not found, creates
@@ -147,8 +153,8 @@ export declare class PersistedModel extends ModelBase {
     filter: Filter,
     data: PersistedData,
     options?: Options,
-    callback?: Callback<PersistedData>,
-  ): PromiseOrVoid<PersistedData>;
+    callback?: Callback<PersistedModel>,
+  ): PromiseOrVoid<PersistedModel>;
 
   /**
    * Check whether a model instance exists in database.
@@ -183,7 +189,7 @@ export declare class PersistedModel extends ModelBase {
     filter?: Filter,
     options?: Options,
     callback?: Callback<boolean>,
-  ): PromiseOrVoid<PersistedData>;
+  ): PromiseOrVoid<PersistedModel>;
 
   /**
    * Find all model instances that match `filter` specification.
@@ -215,8 +221,8 @@ export declare class PersistedModel extends ModelBase {
   static find(
     filter?: Filter,
     options?: Options,
-    callback?: Callback<PersistedData>,
-  ): PromiseOrVoid<PersistedData[]>;
+    callback?: Callback<PersistedModel>,
+  ): PromiseOrVoid<PersistedModel[]>;
 
   /**
    * Find one model instance that matches `filter` specification.
@@ -246,8 +252,8 @@ export declare class PersistedModel extends ModelBase {
   static findOne(
     filter?: Filter,
     options?: Options,
-    callback?: Callback<PersistedData>,
-  ): PromiseOrVoid<PersistedData>;
+    callback?: Callback<PersistedModel>,
+  ): PromiseOrVoid<PersistedModel>;
 
   /**
    * Destroy all model instances that match the optional `where` specification.
@@ -362,8 +368,8 @@ export declare class PersistedModel extends ModelBase {
     id: any,
     data: PersistedData,
     options?: Options,
-    callback?: Callback<PersistedData>,
-  ): PromiseOrVoid<PersistedData>;
+    callback?: Callback<PersistedModel>,
+  ): PromiseOrVoid<PersistedModel>;
 
   /**
    * Return the number of records that match the optional "where" filter.
@@ -479,8 +485,8 @@ export declare class PersistedModel extends ModelBase {
    */
   reload(
     options?: Options,
-    callback?: Callback<PersistedData>,
-  ): PromiseOrVoid<PersistedData>;
+    callback?: Callback<PersistedModel>,
+  ): PromiseOrVoid<PersistedModel>;
 
   /**
    * Set the correct `id` property for the `PersistedModel`. Uses the `setId` method if the model is attached to

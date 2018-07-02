@@ -243,7 +243,13 @@ export declare class ModelBuilder extends EventEmitter {
 }
 
 /**
+ * An extension of the built-in Partial<T> type which allows partial values
+ * in deeply nested properties too.
+ */
+export type DeepPartial<T> = { [P in keyof T]?: DeepPartial<T[P]>; };
+
+/**
  * Union export type for model instance or plain object representing the model
  * instance
  */
-export type ModelData<T extends ModelBase = ModelBase> = T | AnyObject;
+export type ModelData<T extends ModelBase = ModelBase> = T | DeepPartial<T>;
