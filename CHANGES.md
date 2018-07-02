@@ -1,3 +1,17 @@
+2018-07-02, Version 3.22.1
+==========================
+
+ * [WebFM] cs/pl/ru translation (#1600) (tangyinb)
+
+ * fixup! address code review comments (Miroslav Bajtoš)
+
+ * Fix type definitions for PersistedModel API (Miroslav Bajtoš)
+
+ * Fix Operation Hooks to propagate data changes (Miroslav Bajtoš)
+
+ * Fix stalebot config to ignore "good first issue" (Miroslav Bajtoš)
+
+
 2018-06-12, Version 3.22.0
 ==========================
 
