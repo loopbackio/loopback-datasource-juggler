@@ -1109,8 +1109,8 @@ describe('manipulation', function() {
                 p.id.should.eql(created.id);
                 p.should.not.have.property('_id');
                 p.title.should.equal('b');
-                p.should.have.property('content', undefined);
-                p.should.have.property('comments', undefined);
+                p.should.have.property('content').be.oneOf(null, undefined);
+                p.should.have.property('comments').be.oneOf(null, undefined);
 
                 return Post.findById(created.id)
                   .then(function(p) {
@@ -1140,8 +1140,8 @@ describe('manipulation', function() {
                 p.id.should.eql(created.id);
                 p.should.not.have.property('_id');
                 p.title.should.equal('b');
-                p.should.have.property('content', undefined);
-                p.should.have.property('comments', undefined);
+                p.should.have.property('content').be.oneOf(null, undefined);
+                p.should.have.property('comments').be.oneOf(null, undefined);
 
                 return Post.findById(created.id)
                   .then(function(p) {
@@ -1169,8 +1169,8 @@ describe('manipulation', function() {
               p.id.should.eql(post.id);
               p.should.not.have.property('_id');
               p.title.should.equal('b');
-              p.should.have.property('content', undefined);
-              p.should.have.property('comments', undefined);
+              p.should.have.property('content').be.oneOf(null, undefined);
+              p.should.have.property('comments').be.oneOf(null, undefined);
 
               Post.findById(post.id, function(err, p) {
                 if (err) return done(err);
@@ -1199,8 +1199,8 @@ describe('manipulation', function() {
               p.id.should.eql(post.id);
               p.should.not.have.property('_id');
               p.title.should.equal('b');
-              p.should.have.property('content', undefined);
-              p.should.have.property('comments', undefined);
+              p.should.have.property('content').be.oneOf(null, undefined);
+              p.should.have.property('comments').be.oneOf(null, undefined);
 
               Post.findById(post.id, function(err, p) {
                 if (err) return done(err);
@@ -1435,7 +1435,7 @@ describe('manipulation', function() {
                 should.exist(p);
                 p.should.be.instanceOf(Post);
                 p.title.should.equal('b');
-                p.should.have.property('content', undefined);
+                p.should.have.property('content').be.oneOf(null, undefined);
                 return Post.findById(postInstance.id)
                   .then(function(p) {
                     p.title.should.equal('b');
@@ -1455,7 +1455,7 @@ describe('manipulation', function() {
                 should.exist(p);
                 p.should.be.instanceOf(Post);
                 p.title.should.equal('b');
-                p.should.have.property('content', undefined);
+                p.should.have.property('content').be.oneOf(null, undefined);
                 return Post.findById(postInstance.id)
                   .then(function(p) {
                     p.title.should.equal('b');
@@ -1486,7 +1486,7 @@ describe('manipulation', function() {
           if (err) return done(err);
           p.replaceAttributes({title: 'b'}, function(err, p) {
             if (err) return done(err);
-            p.should.have.property('content', undefined);
+            p.should.have.property('content').be.oneOf(null, undefined);
             p.title.should.equal('b');
             done();
           });
@@ -1498,7 +1498,7 @@ describe('manipulation', function() {
           if (err) return done(err);
           p.replaceAttributes({title: 'b'}, {validate: false}, function(err, p) {
             if (err) return done(err);
-            p.should.have.property('content', undefined);
+            p.should.have.property('content').be.oneOf(null, undefined);
             p.title.should.equal('b');
             done();
           });
