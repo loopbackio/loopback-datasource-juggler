@@ -1529,7 +1529,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           if (err) return done(err);
 
           ctxRecorder.records.should.eql(aCtxForModel(TestModel, {
-            data: {id: existingInstance.id, name: 'changed'},
+            data: {name: 'changed'},
             isNewInstance: false,
           }));
 
@@ -2765,6 +2765,14 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         });
 
         it('triggers `persist` hook', function(done) {
+          // "extra" property is undefined by default. As a result,
+          // NoSQL connectors omit this property from the data. Because
+          // SQL connectors store it as null, we have different results
+          // depending on the database used.
+          // By enabling "persistUndefinedAsNull", we force NoSQL connectors
+          // to store unset properties using "null" value and thus match SQL.
+          TestModel.settings.persistUndefinedAsNull = true;
+
           TestModel.observe('persist', ctxRecorder.recordAndNext());
 
           existingInstance.name = 'replaced name';
@@ -2779,11 +2787,12 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 data: {
                   id: existingInstance.id,
                   name: 'replaced name',
+                  extra: null,
                 },
                 currentInstance: {
                   id: existingInstance.id,
                   name: 'replaced name',
-                  extra: undefined,
+                  extra: null,
                 },
               };
 
