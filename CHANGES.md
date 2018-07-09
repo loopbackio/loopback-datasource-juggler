@@ -1,3 +1,11 @@
+2018-07-09, Version 3.22.2
+==========================
+
+ * assertation of undefined could be null (shenghu)
+
+ * fix: regression on Operation Hooks (virkt25)
+
+
 2018-07-02, Version 3.22.1
 ==========================
 
