@@ -2,5 +2,8 @@
   "exclude":  [
     "test/**/*.js"
   ],
+  "reporter": [
+    "html"
+  ],
   "cache": true
 }
