@@ -103,6 +103,16 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             name: 'created',
             extra: undefined,
           },
+          parentInstance: {
+            embeddeds: [
+              {
+                id: instance.id,
+                name: 'created',
+                extra: undefined,
+              },
+            ],
+            id: ownerInstance.id,
+          },
           data: {
             name: 'updated',
           },

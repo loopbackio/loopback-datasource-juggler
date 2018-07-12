@@ -90,6 +90,10 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             name: 'created',
             extra: undefined,
           },
+          parentInstance: {
+            embedded: undefined,
+            id: ownerInstance.id,
+          },
         }));
       });
     });
@@ -117,6 +121,10 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             id: existingItem.id,
             name: 'created',
             extra: undefined,
+          },
+          parentInstance: {
+            embedded: undefined,
+            id: ownerInstance.id,
           },
         }));
       });
