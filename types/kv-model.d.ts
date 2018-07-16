@@ -5,30 +5,30 @@
 
 import {Callback, Options, PromiseOrVoid} from './common';
 import {ModelBase, ModelData} from './model';
-import {Filter} from './query';
 
 /**
  * Data object for KV models
  */
-export type KVData = ModelData<KeyValueModel>;
+export type KVData<T extends ModelBase = ModelBase> = ModelData<T>;
 
 /**
- * Key/Value model
+ * Key/Value model. Strictly speaking, KeyValueModel is not a class
+ * but a mixin into existing model classes
  */
 export declare class KeyValueModel extends ModelBase {
   /**
    * Return the value associated with a given key.
    *
-   * @param {String} key Key to use when searching the database.
+   * @param {string} key Key to use when searching the database.
    * @options {Object} options
    * @callback {Function} callback
    * @param {Error} err Error object.
-   * @param {Any} result Value associated with the given key.
+   * @param {any} result Value associated with the given key.
    * @promise
    *
    * @header KeyValueModel.get(key, cb)
    */
-  get(
+  static get(
     key: string,
     options?: Options,
     callback?: Callback<KVData>,
@@ -37,8 +37,8 @@ export declare class KeyValueModel extends ModelBase {
   /**
    * Persist a value and associate it with the given key.
    *
-   * @param {String} key Key to associate with the given value.
-   * @param {Any} value Value to persist.
+   * @param {string} key Key to associate with the given value.
+   * @param {any} value Value to persist.
    * @options {Number|Object} options Optional settings for the key-value
    *   pair. If a Number is provided, it is set as the TTL (time to live) in ms
    *   (milliseconds) for the key-value pair.
@@ -49,18 +49,47 @@ export declare class KeyValueModel extends ModelBase {
    *
    * @header KeyValueModel.set(key, value, cb)
    */
-  set(
+  static set(
     key: string,
     value: KVData,
     options?: Options,
-    callback?: Callback<boolean>,
-  ): PromiseOrVoid<boolean>;
+    callback?: Callback<void>,
+  ): PromiseOrVoid<void>;
+
+  /**
+   * Delete the key-value pair associated to the given key.
+   *
+   * @param {string} key Key to use when searching the database.
+   * @options {Object} options
+   * @callback {Function} callback
+   * @param {Error} err Error object.
+   * @param {*} result Value associated with the given key.
+   * @promise
+   */
+  static delete(
+    key: string,
+    options?: Options,
+    callback?: Callback<void>,
+  ): PromiseOrVoid<void>;
+
+  /**
+   * Delete all keys (and values) associated to the current model.
+   *
+   * @options {Object} options Unused ATM, placeholder for future options.
+   * @callback {Function} callback
+   * @param {Error} err Error object.
+   * @promise
+   */
+  static deleteAll(
+    options?: Options,
+    callback?: Callback<void>,
+  ): PromiseOrVoid<void>;
 
   /**
    * Set the TTL (time to live) in ms (milliseconds) for a given key. TTL is the
    * remaining time before a key-value pair is discarded from the database.
    *
-   * @param {String} key Key to use when searching the database.
+   * @param {string} key Key to use when searching the database.
    * @param {Number} ttl TTL in ms to set for the key.
    * @options {Object} options
    * @callback {Function} callback
@@ -69,18 +98,18 @@ export declare class KeyValueModel extends ModelBase {
    *
    * @header KeyValueModel.expire(key, ttl, cb)
    */
-  expire(
+  static expire(
     key: string,
     ttl: number,
     options?: Options,
-    callback?: Callback<number>,
-  ): PromiseOrVoid<number>;
+    callback?: Callback<void>,
+  ): PromiseOrVoid<void>;
 
   /**
    * Return the TTL (time to live) for a given key. TTL is the remaining time
    * before a key-value pair is discarded from the database.
    *
-   * @param {String} key Key to use when searching the database.
+   * @param {string} key Key to use when searching the database.
    * @options {Object} options
    * @callback {Function} callback
    * @param {Error} error
@@ -90,7 +119,7 @@ export declare class KeyValueModel extends ModelBase {
    *
    * @header KeyValueModel.ttl(key, cb)
    */
-  ttl(
+  static ttl(
     key: string,
     options?: Options,
     callback?: Callback<number>,
@@ -104,7 +133,7 @@ export declare class KeyValueModel extends ModelBase {
    * use `iterateKeys()` instead.
    *
    * @param {Object} filter An optional filter object with the following
-   * @param {String} filter.match Glob string used to filter returned
+   * @param {string} filter.match Glob string used to filter returned
    *   keys (i.e. `userid.*`). All connectors are required to support `*` and
    *   `?`, but may also support additional special characters specific to the
    *   database.
@@ -114,8 +143,8 @@ export declare class KeyValueModel extends ModelBase {
    *
    * @header KeyValueModel.keys(filter, cb)
    */
-  keys(
-    filter?: Filter,
+  static keys(
+    filter?: KVFilter,
     options?: Options,
     callback?: Callback<string[]>,
   ): PromiseOrVoid<string[]>;
@@ -154,15 +183,36 @@ export declare class KeyValueModel extends ModelBase {
    * ```
    *
    * @param {Object} filter An optional filter object with the following
-   * @param {String} filter.match Glob string to use to filter returned
-   *   keys (i.e. `userid.*`). All connectors are required to support `*` and
-   *   `?`. They may also support additional special characters that are
-   *   specific to the backing database.
+   * @param {string} filter.match
    * @param {Object} options
-   * @returns {AsyncIterator} An Object implementing `next(cb) -> Promise`
+   * @returns {AsyncKeyIterator} An Object implementing `next(cb) -> Promise`
    *   function that can be used to iterate all keys.
    *
    * @header KeyValueModel.iterateKeys(filter)
    */
-  iterateKeys(filter?: Filter, options?: Options): Iterator<Promise<string>>;
+  static iterateKeys(filter?: KVFilter, options?: Options): AsyncKeyIterator;
+}
+
+export type KVFilter = {
+  /**
+   * Glob string to use to filter returned keys (i.e. `userid.*`). All connectors
+   * are required to support `*` and `?`. They may also support additional special
+   * characters that are specific to the backing database.
+   */
+  match: string;
+};
+
+/**
+ * Async iterator to return keys one by one. The value will be undefined if there is
+ * no more keys
+ */
+export interface AsyncKeyIterator {
+  /**
+   * Try to fetch the next key
+   * @param callback Callback function. If not provided, the return value will be
+   * a promise
+   */
+  next(
+    callback?: Callback<string | undefined>,
+  ): PromiseOrVoid<string | undefined>;
 }
