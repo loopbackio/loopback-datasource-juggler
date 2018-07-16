@@ -1,3 +1,15 @@
+2018-07-16, Version 3.23.0
+==========================
+
+ * fix: update TypeScript declaration for KV (Raymond Feng)
+
+ * Upgrade eslint-config-loopback + fix formatting (Miroslav Bajtoš)
+
+ * Hide nyc coverage from test output (Miroslav Bajtoš)
+
+ * Configure Mocha to use dot reporter (Miroslav Bajtoš)
+
+
 2018-07-09, Version 3.22.2
 ==========================
 
