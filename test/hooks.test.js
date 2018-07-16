@@ -411,7 +411,8 @@ describe('hooks', function() {
     it('should describe isValid sequence', function(done) {
       should.not.exist(
         user.constructor._validations,
-        'Expected user to have no validations, but she have');
+        'Expected user to have no validations, but she have'
+      );
       user.isValid(function(valid) {
         valid.should.be.true;
         life.should.eql([

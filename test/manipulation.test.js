@@ -351,7 +351,8 @@ describe('manipulation', function() {
             should.equal(result.gender, null);
             done();
           });
-        });
+        }
+      );
     });
 
     bdd.itIf(connectorCapabilities.refuseDuplicateInsert !== false, 'should refuse to create ' +
@@ -914,8 +915,10 @@ describe('manipulation', function() {
               should.equal(result.gender, null);
 
               done();
-            });
-        });
+            }
+          );
+        }
+      );
     });
 
     it('updates specific instances when PK is not an auto-generated id', function(done) {
@@ -961,7 +964,8 @@ describe('manipulation', function() {
         function(err, inst) {
           if (err) return done(err);
           inst.save(done);
-        });
+        }
+      );
     });
   });
 
@@ -1562,7 +1566,8 @@ describe('manipulation', function() {
           p.gender.should.equal('male');
           created.should.equal(false);
           done();
-        });
+        }
+      );
     });
 
     it('should create a record with if new (promise variant)', function(done) {
@@ -1585,7 +1590,8 @@ describe('manipulation', function() {
     it('should find a record if exists (promise variant)', function(done) {
       Person.findOrCreate(
         {where: {name: 'Jed'}},
-        {name: 'Jed', gender: 'male'})
+        {name: 'Jed', gender: 'male'}
+      )
         .then(function(res) {
           res.should.be.instanceOf(Array);
           res.should.have.lengthOf(2);
@@ -2371,7 +2377,8 @@ describe('manipulation', function() {
               should.equal(result.city, null);
               done();
             });
-        });
+        }
+      );
     });
 
     it('should allow save() of the created instance', function(done) {

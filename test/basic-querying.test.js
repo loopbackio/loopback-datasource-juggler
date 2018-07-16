@@ -126,9 +126,11 @@ describe('basic-querying', function() {
             return u.name;
           });
           names.should.eql(
-            [createdUsers[2].name, createdUsers[1].name, createdUsers[0].name]);
+            [createdUsers[2].name, createdUsers[1].name, createdUsers[0].name]
+          );
           done();
-        });
+        }
+      );
     });
 
     it('should query by ids and condition', function(done) {

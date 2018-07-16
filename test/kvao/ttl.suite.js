@@ -26,7 +26,8 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     it('gets TTL when key with unexpired TTL exists - Promise API',
       function() {
         return Promise.resolve(
-          CacheItem.set('a-key', 'a-value', {ttl: INITIAL_TTL}))
+          CacheItem.set('a-key', 'a-value', {ttl: INITIAL_TTL})
+        )
           .delay(SMALL_DELAY)
           .then(function() { return CacheItem.ttl('a-key'); })
           .then(function(ttl) { ttl.should.be.within(1, INITIAL_TTL); });
@@ -52,7 +53,8 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
 
     it('fails when getting TTL for a key with expired TTL', function() {
       return Promise.resolve(
-        CacheItem.set('expired-key', 'a-value', {ttl: TTL_PRECISION}))
+        CacheItem.set('expired-key', 'a-value', {ttl: TTL_PRECISION})
+      )
         .delay(2 * TTL_PRECISION)
         .then(function() {
           return CacheItem.ttl('expired-key');
@@ -62,7 +64,8 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
           function(err) {
             err.message.should.match(/expired-key/);
             err.should.have.property('statusCode', 404);
-          });
+          }
+        );
     });
 
     it('fails when key does not exist', function() {
@@ -71,7 +74,8 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
         function(err) {
           err.message.should.match(/key-does-not-exist/);
           err.should.have.property('statusCode', 404);
-        });
+        }
+      );
     });
 
     function setupCacheItem() {

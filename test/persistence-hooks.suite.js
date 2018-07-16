@@ -109,7 +109,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               'loaded',
             ]);
             done();
-          });
+          }
+        );
       });
 
       it('triggers the loaded hook multiple times when multiple instances exist', function(done) {
@@ -136,7 +137,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             if (err) return done(err);
             hookMonitor.names.should.be.empty();
             done();
-          });
+          }
+        );
       });
 
       it('triggers the loaded hook multiple times when multiple instances exist when near filter is used',
@@ -242,7 +244,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               if (err) return done(err);
               hookMonitor.names.should.be.empty();
               done();
-            });
+            }
+          );
         });
 
       it('should apply updates from `access` hook', function(done) {
@@ -340,7 +343,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
             list[0].should.have.property('extra', 'hook data');
             done();
-          });
+          }
+        );
       });
 
       it('emits error when `loaded` hook fails', function(done) {
@@ -350,7 +354,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, list) {
             [err].should.eql([expectedError]);
             done();
-          });
+          }
+        );
       });
     });
 
@@ -370,7 +375,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               'after save',
             ]);
             done();
-          });
+          }
+        );
       });
 
       it('aborts when `after save` fires when option to notify is false', function(done) {
@@ -446,7 +452,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               }),
             ]);
             done();
-          });
+          }
+        );
       });
 
       it('validates model after `before save` hook', function(done) {
@@ -474,7 +481,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             }));
 
             done();
-          });
+          }
+        );
       });
 
       it('applies updates from `persist` hook', function(done) {
@@ -507,7 +515,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               });
               done();
             });
-          });
+          }
+        );
       });
 
       it('triggers `loaded` hook', function(done) {
@@ -529,7 +538,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             }));
 
             done();
-          });
+          }
+        );
       });
 
       it('emits error when `loaded` hook fails', function(done) {
@@ -539,7 +549,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, instance) {
             [err].should.eql([expectedError]);
             done();
-          });
+          }
+        );
       });
 
       it('applies updates from `loaded` hook', function(done) {
@@ -560,7 +571,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
             instance.should.have.property('extra', 'hook data');
             done();
-          });
+          }
+        );
       });
 
       it('triggers `after save` hook', function(done) {
@@ -625,7 +637,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               }),
             ]);
             done();
-          });
+          }
+        );
       });
 
       it('emits `after save` when some models were not saved', function(done) {
@@ -654,7 +667,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               isNewInstance: true,
             }));
             done();
-          });
+          }
+        );
       });
     });
 
@@ -674,7 +688,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               skip: 0,
             }}));
             done();
-          });
+          }
+        );
       });
 
       if (dataSource.connector.findOrCreate) {
@@ -696,7 +711,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 isNewInstance: true,
               }));
               done();
-            });
+            }
+          );
         });
       }
 
@@ -717,7 +733,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               isNewInstance: true,
             }));
             done();
-          });
+          }
+        );
       });
 
       it('validates model after `before save` hook', function(done) {
@@ -730,7 +747,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             (err || {}).should.be.instanceOf(ValidationError);
             (err.details.codes || {}).should.eql({name: ['presence']});
             done();
-          });
+          }
+        );
       });
 
       it('triggers hooks in the correct order when not found', function(done) {
@@ -749,7 +767,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               'after save',
             ]);
             done();
-          });
+          }
+        );
       });
 
       it('triggers hooks in the correct order when found', function(done) {
@@ -775,7 +794,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               ]);
             }
             done();
-          });
+          }
+        );
       });
 
       it('aborts when `access` hook fails', function(done) {
@@ -787,7 +807,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, instance) {
             [err].should.eql([expectedError]);
             done();
-          });
+          }
+        );
       });
 
       it('aborts when `before save` hook fails', function(done) {
@@ -799,7 +820,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, instance) {
             [err].should.eql([expectedError]);
             done();
-          });
+          }
+        );
       });
 
       if (dataSource.connector.findOrCreate) {
@@ -835,7 +857,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               }));
 
               done();
-            });
+            }
+          );
         });
       }
 
@@ -875,7 +898,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               }));
             }
             done();
-          });
+          }
+        );
       });
 
       if (dataSource.connector.findOrCreate) {
@@ -909,7 +933,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               });
 
               done();
-            });
+            }
+          );
         });
       }
 
@@ -948,7 +973,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               });
             }
             done();
-          });
+          }
+        );
       });
 
       if (dataSource.connector.findOrCreate) {
@@ -975,7 +1001,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               }));
 
               done();
-            });
+            }
+          );
         });
       }
 
@@ -997,7 +1024,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             }));
 
             done();
-          });
+          }
+        );
       });
 
       it('emits error when `loaded` hook fails', function(done) {
@@ -1008,7 +1036,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, instance) {
             [err].should.eql([expectedError]);
             done();
-          });
+          }
+        );
       });
 
       if (dataSource.connector.findOrCreate) {
@@ -1027,7 +1056,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               instance.should.have.property('extra', 'hook data');
 
               done();
-            });
+            }
+          );
         });
       }
 
@@ -1053,7 +1083,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
             instance.should.have.property('extra', 'hook data');
             done();
-          });
+          }
+        );
       });
 
       it('triggers `after save` hook when not found', function(done) {
@@ -1073,7 +1104,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               isNewInstance: true,
             }));
             done();
-          });
+          }
+        );
       });
 
       it('does not trigger `after save` hook when found', function(done) {
@@ -1086,7 +1118,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             if (err) return done(err);
             ctxRecorder.records.should.eql('hook not called');
             done();
-          });
+          }
+        );
       });
     });
 
@@ -1131,7 +1164,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               'after save',
             ]);
             done();
-          });
+          }
+        );
       });
 
       it('triggers `before save` hook', function(done) {
@@ -1249,7 +1283,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, instance) {
             [err].should.eql([expectedError]);
             done();
-          });
+          }
+        );
       });
 
       it('applies updates from `loaded` hook', function(done) {
@@ -1292,7 +1327,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         // PersistedModel.create and force it to call connector.save()
         var instance = new TestModel(
           {id: 'new-id', name: 'created'},
-          {persisted: true});
+          {persisted: true}
+        );
 
         instance.save(function(err, instance) {
           if (err) return done(err);
@@ -1348,7 +1384,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               'after save',
             ]);
             done();
-          });
+          }
+        );
       });
 
       it('triggers `before save` hook', function(done) {
@@ -1508,7 +1545,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                   });
                   done();
                 });
-              });
+              }
+            );
           });
         });
       });
@@ -1544,7 +1582,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, instance) {
             [err].should.eql([expectedError]);
             done();
-          });
+          }
+        );
       });
 
       it('applies updates from `loaded` hook updateAttributes', function(done) {
@@ -1625,7 +1664,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 'after save',
               ]);
               done();
-            });
+            }
+          );
         });
 
         it('triggers `before save` hook', function(done) {
@@ -1768,7 +1808,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                     });
                     done();
                   });
-                });
+                }
+              );
             });
           });
         });
@@ -1796,7 +1837,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             function(err, instance) {
               [err].should.eql([expectedError]);
               done();
-            });
+            }
+          );
         });
 
         it('applies updates from `loaded` hook replaceAttributes', function(done) {
@@ -1871,7 +1913,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               'after save',
             ]);
             done();
-          });
+          }
+        );
       });
 
       it('triggers hooks in the correct order on update', function(done) {
@@ -1889,7 +1932,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               'after save',
             ]);
             done();
-          });
+          }
+        );
       });
 
       it('triggers `access` hook on create', function(done) {
@@ -1903,7 +1947,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               where: {id: 'not-found'},
             }}));
             done();
-          });
+          }
+        );
       });
 
       it('triggers `access` hook on update', function(done) {
@@ -1917,7 +1962,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               where: {id: existingInstance.id},
             }}));
             done();
-          });
+          }
+        );
       });
 
       it('does not trigger `access` on missing id', function(done) {
@@ -1929,7 +1975,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             if (err) return done(err);
             ctxRecorder.records.should.equal('hook not called');
             done();
-          });
+          }
+        );
       });
 
       it('applies updates from `access` hook when found', function(done) {
@@ -1950,7 +1997,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               ]);
               done();
             });
-          });
+          }
+        );
       });
 
       it('applies updates from `access` hook when not found', function(done) {
@@ -1972,7 +2020,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               ]);
               done();
             });
-          });
+          }
+        );
       });
 
       it('triggers hooks only once', function(done) {
@@ -1989,7 +2038,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             if (err) return done(err);
             hookMonitor.names.should.eql(['access', 'before save']);
             done();
-          });
+          }
+        );
       });
 
       it('triggers `before save` hook on update', function(done) {
@@ -2018,7 +2068,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               }));
             }
             done();
-          });
+          }
+        );
       });
 
       it('triggers `before save` hook on create', function(done) {
@@ -2047,7 +2098,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             }
 
             done();
-          });
+          }
+        );
       });
 
       it('applies updates from `before save` hook on update', function(done) {
@@ -2063,7 +2115,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             if (err) return done(err);
             instance.name.should.equal('hooked');
             done();
-          });
+          }
+        );
       });
 
       it('applies updates from `before save` hook on create', function(done) {
@@ -2083,7 +2136,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             if (err) return done(err);
             instance.name.should.equal('hooked');
             done();
-          });
+          }
+        );
       });
 
       // FIXME(bajtos) this fails with connector-specific updateOrCreate
@@ -2097,7 +2151,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             (err || {}).should.be.instanceOf(ValidationError);
             (err.details.codes || {}).should.eql({name: ['presence']});
             done();
-          });
+          }
+        );
       });
 
       // FIXME(bajtos) this fails with connector-specific updateOrCreate
@@ -2111,7 +2166,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             (err || {}).should.be.instanceOf(ValidationError);
             (err.details.codes || {}).should.eql({name: ['presence']});
             done();
-          });
+          }
+        );
       });
 
       it('triggers `persist` hook on create', function(done) {
@@ -2147,7 +2203,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               }));
             }
             done();
-          });
+          }
+        );
       });
 
       it('triggers `persist` hook on update', function(done) {
@@ -2179,7 +2236,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
             ctxRecorder.records.should.eql(expectedContext);
             done();
-          });
+          }
+        );
       });
 
       it('triggers `loaded` hook on create', function(done) {
@@ -2205,7 +2263,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               }));
             }
             done();
-          });
+          }
+        );
       });
 
       it('triggers `loaded` hook on update', function(done) {
@@ -2223,7 +2282,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               isNewInstance: isNewInstanceFlag ? false : undefined,
             }));
             done();
-          });
+          }
+        );
       });
 
       it('emits error when `loaded` hook fails', function(done) {
@@ -2233,7 +2293,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, instance) {
             [err].should.eql([expectedError]);
             done();
-          });
+          }
+        );
       });
 
       it('triggers `after save` hook on update', function(done) {
@@ -2252,7 +2313,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               isNewInstance: isNewInstanceFlag ? false : undefined,
             }));
             done();
-          });
+          }
+        );
       });
 
       it('aborts when `after save` fires on update or create when option to notify is false', function(done) {
@@ -2282,7 +2344,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               isNewInstance: isNewInstanceFlag ? true : undefined,
             }));
             done();
-          });
+          }
+        );
       });
     });
 
@@ -2305,7 +2368,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 'after save',
               ]);
               done();
-            });
+            }
+          );
         });
 
         it('triggers hooks in the correct order on replace', function(done) {
@@ -2323,7 +2387,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 'after save',
               ]);
               done();
-            });
+            }
+          );
         });
 
         it('triggers `access` hook on create', function(done) {
@@ -2337,7 +2402,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 where: {id: 'not-found'},
               }}));
               done();
-            });
+            }
+          );
         });
 
         it('triggers `access` hook on replace', function(done) {
@@ -2351,7 +2417,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 where: {id: existingInstance.id},
               }}));
               done();
-            });
+            }
+          );
         });
 
         it('does not trigger `access` on missing id', function(done) {
@@ -2363,7 +2430,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               if (err) return done(err);
               ctxRecorder.records.should.equal('hook not called');
               done();
-            });
+            }
+          );
         });
 
         it('applies updates from `access` hook when found', function(done) {
@@ -2384,7 +2452,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 ]);
                 done();
               });
-            });
+            }
+          );
         });
 
         it('applies updates from `access` hook when not found', function(done) {
@@ -2406,7 +2475,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 ]);
                 done();
               });
-            });
+            }
+          );
         });
 
         it('triggers hooks only once', function(done) {
@@ -2423,7 +2493,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               if (err) return done(err);
               hookMonitor.names.should.eql(['access', 'before save']);
               done();
-            });
+            }
+          );
         });
 
         it('triggers `before save` hookon create', function(done) {
@@ -2465,7 +2536,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               ctxRecorder.records.should.eql(expectedContext);
 
               done();
-            });
+            }
+          );
         });
 
         it('triggers `before save` hook on create', function(done) {
@@ -2490,7 +2562,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               ctxRecorder.records.should.eql(expectedContext);
 
               done();
-            });
+            }
+          );
         });
 
         it('applies updates from `before save` hook on create', function(done) {
@@ -2505,7 +2578,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               if (err) return done(err);
               instance.name.should.equal('hooked');
               done();
-            });
+            }
+          );
         });
 
         it('validates model after `before save` hook on create', function(done) {
@@ -2517,7 +2591,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               (err || {}).should.be.instanceOf(ValidationError);
               (err.details.codes || {}).should.eql({name: ['presence']});
               done();
-            });
+            }
+          );
         });
 
         it('triggers `persist` hook on create', function(done) {
@@ -2550,7 +2625,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               }
               ctxRecorder.records.should.eql(expectedContext);
               done();
-            });
+            }
+          );
         });
 
         it('triggers `persist` hook on replace', function(done) {
@@ -2582,7 +2658,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
               ctxRecorder.records.should.eql(expectedContext);
               done();
-            });
+            }
+          );
         });
 
         it('applies updates from `persist` hook on create', function(done) {
@@ -2608,7 +2685,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 found.should.have.property('extra', 'hook data');
                 done();
               });
-            });
+            }
+          );
         });
 
         it('applies updates from `persist` hook on update', function(done) {
@@ -2653,7 +2731,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, expected));
               done();
-            });
+            }
+          );
         });
 
         it('triggers `loaded` hook on replace', function(done) {
@@ -2677,7 +2756,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, expected));
               done();
-            });
+            }
+          );
         });
 
         it('emits error when `loaded` hook fails', function(done) {
@@ -2687,7 +2767,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             function(err, instance) {
               [err].should.eql([expectedError]);
               done();
-            });
+            }
+          );
         });
 
         it('triggers `after save` hook on replace', function(done) {
@@ -2712,7 +2793,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, expected));
               done();
-            });
+            }
+          );
         });
 
         it('triggers `after save` hook on create', function(done) {
@@ -2736,7 +2818,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, expected));
               done();
-            });
+            }
+          );
         });
       });
     }
@@ -2761,7 +2844,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 'after save',
               ]);
               done();
-            });
+            }
+          );
         });
 
         it('triggers `persist` hook', function(done) {
@@ -2801,7 +2885,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
               ctxRecorder.records.should.eql(expectedContext);
               done();
-            });
+            }
+          );
         });
 
         it('applies updates from `persist` hook', function(done) {
@@ -2822,7 +2907,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 found.should.have.property('extra', 'hook data');
                 done();
               });
-            });
+            }
+          );
         });
       });
     }
@@ -3020,7 +3106,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           TestModel.findById(existingInstance.id, function(err, inst) {
             if (err) return done(err);
             (inst ? inst.toObject() : 'null').should.eql(
-              existingInstance.toObject());
+              existingInstance.toObject()
+            );
             done();
           });
         });
@@ -3118,7 +3205,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               where: {name: 'searched'},
             }}));
             done();
-          });
+          }
+        );
       });
 
       it('applies updates from `access` hook', function(done) {
@@ -3140,7 +3228,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               ]);
               done();
             });
-          });
+          }
+        );
       });
 
       it('triggers `before save` hook', function(done) {
@@ -3156,7 +3245,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               data: {name: 'updated'},
             }));
             done();
-          });
+          }
+        );
       });
 
       it('applies updates from `before save` hook', function(done) {
@@ -3176,7 +3266,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               instance.should.have.property('extra', 'added');
               done();
             });
-          });
+          }
+        );
       });
 
       it('triggers `persist` hook', function(done) {
@@ -3194,7 +3285,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             }));
 
             done();
-          });
+          }
+        );
       });
 
       it('applies updates from `persist` hook', function(done) {
@@ -3212,7 +3304,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               instance.should.have.property('extra', 'hook data');
               done();
             });
-          });
+          }
+        );
       });
 
       it('does not trigger `loaded`', function(done) {
@@ -3225,7 +3318,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             if (err) return done(err);
             ctxRecorder.records.should.eql('hook not called');
             done();
-          });
+          }
+        );
       });
 
       it('triggers `after save` hook', function(done) {
@@ -3242,7 +3336,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               info: {count: 1},
             }));
             done();
-          });
+          }
+        );
       });
 
       it('accepts hookState from options', function(done) {
@@ -3258,7 +3353,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               foo: 'bar',
             });
             done();
-          });
+          }
+        );
       });
     });
 

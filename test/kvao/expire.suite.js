@@ -49,7 +49,8 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
           function(err) {
             err.message.should.match(/expired-key/);
             err.should.have.property('statusCode', 404);
-          });
+          }
+        );
     });
 
     it('returns error when key does not exist', function() {
@@ -58,7 +59,8 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
         function(err) {
           err.message.should.match(/key-does-not-exist/);
           err.should.have.property('statusCode', 404);
-        });
+        }
+      );
     });
 
     function setupCacheItem() {

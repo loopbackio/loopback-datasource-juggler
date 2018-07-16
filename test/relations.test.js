@@ -2612,7 +2612,8 @@ describe('relations', function() {
           const actual = pics.map(
             function(pic) {
               return {imageName: pic.name, name: pic.imageable().name};
-            });
+            }
+          );
 
           actual.should.containDeep([
             {name: 'Article 1', imageName: 'Article Pic'},
@@ -4357,8 +4358,7 @@ describe('relations', function() {
       Person = db.define('Person', {name: String});
       Passport = tmp.define('Passport',
         {name: {type: 'string', required: true}},
-        {idInjection: false}
-      );
+        {idInjection: false});
       Address = tmp.define('Address', {street: String}, {idInjection: false});
       Other = db.define('Other', {name: String});
       Person.embedsOne(Passport, {
@@ -4707,8 +4707,7 @@ describe('relations', function() {
       db = getMemoryDataSource();
       Person = db.define('Person', {name: String});
       Passport = db.define('Passport',
-        {name: {type: 'string', required: true}}
-      );
+        {name: {type: 'string', required: true}});
     });
 
     it('can be declared using embedsOne method', function(done) {
@@ -4761,8 +4760,7 @@ describe('relations', function() {
         {
           id: {type: 'string', id: true, generated: true},
           name: {type: 'string', required: true},
-        }
-      );
+        });
     });
 
     it('can be declared using embedsOne method', function(done) {
@@ -6163,7 +6161,8 @@ describe('relations', function() {
             err.name.should.equal('ValidationError');
             err.details.codes.jobs.should.eql(['uniqueness']);
             done();
-          });
+          }
+        );
     });
 
     bdd.itIf(connectorCapabilities.adhocSort !== false,
@@ -6550,7 +6549,8 @@ describe('relations', function() {
                 type: 'hasMany',
               },
             },
-          });
+          }
+        );
       }).should.throw('Invalid relation name: trigger');
     });
   });
