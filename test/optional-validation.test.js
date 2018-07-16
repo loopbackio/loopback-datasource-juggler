@@ -24,7 +24,8 @@ describe('optional-validation', function() {
     ModelWithForceId = db.createModel(
       'ModelWithForceId',
       {name: String},
-      {forceId: true});
+      {forceId: true}
+    );
     User = db.define('User', {
       seq: {type: Number, index: true},
       name: {type: String, index: true, sort: true},

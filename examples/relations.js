@@ -109,8 +109,10 @@ Physician.create({name: 'Dr John'}, function(err, physician1) {
                 patient1.physicians.create({name: 'Dr X'}, function(err, patient4) {
                   console.log('Physician 4: ', patient4, patient4.constructor.modelName);
                 });
-              });
-          });
+              }
+            );
+          }
+        );
       });
     });
   });

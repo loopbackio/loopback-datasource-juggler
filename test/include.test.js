@@ -1633,8 +1633,7 @@ describe('Model instance with included relation .toJSON()', function() {
             foreignKey: '',
           },
         },
-      }
-    );
+      });
     GameParticipationModel = db.createModel('GameParticipation',
       {
         date: Date,
@@ -1652,8 +1651,7 @@ describe('Model instance with included relation .toJSON()', function() {
             foreignKey: '',
           },
         },
-      }
-    );
+      });
     ResultModel = db.createModel('Result', {
       points: Number,
     }, {

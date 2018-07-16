@@ -235,8 +235,7 @@ describe('Model class inheritance', function() {
               model: 'Order',
             },
           },
-        }
-      );
+        });
 
       assert.deepEqual(User.settings, {
         // forceId is set to 'auto' in memory if idProp.generated && forceId !== false

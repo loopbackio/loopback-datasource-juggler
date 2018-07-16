@@ -194,7 +194,8 @@ describe('datatypes', function() {
         },
         {
           persistUndefinedAsNull: true,
-        });
+        }
+      );
 
       isStrict = TestModel.definition.settings.strict;
 

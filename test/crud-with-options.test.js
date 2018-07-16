@@ -89,7 +89,8 @@ describe('crud-with-options', function() {
       function(done) {
         User.findById(undefined, {}, function(err, u) {
           err.should.be.eql(
-            new Error('Model::findById requires the id argument'));
+            new Error('Model::findById requires the id argument')
+          );
           done();
         });
       });
