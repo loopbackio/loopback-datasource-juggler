@@ -11,6 +11,7 @@ import {
   ModelDefinition,
   PropertyDefinition,
 } from './model';
+import {EventEmitter} from 'events';
 
 /**
  * LoopBack models can manipulate data via the DataSource object.
@@ -72,7 +73,7 @@ import {
  *   - new DataSource(connectorModule, {name: 'myDataSource})
  *   - new DataSource(connectorModule)
  */
-export declare class DataSource {
+export declare class DataSource extends EventEmitter {
   name: string;
   settings: Options;
 
