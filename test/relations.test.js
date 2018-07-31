@@ -4308,6 +4308,71 @@ describe('relations', function() {
     });
   });
 
+  describe('embedsMany - omit default value for embedded item', function() {
+    before(function(done) {
+      tmp = getTransientDataSource({defaultIdType: Number});
+      Person = db.define('Person', {name: String});
+      Address = tmp.define('Address', {street: String});
+      Address.validatesPresenceOf('street');
+
+      db.automigrate(['Person'], done);
+    });
+
+    it('can be declared', function(done) {
+      Person.embedsMany(Address, {
+        options: {
+          omitDefaultEmbeddedItem: true,
+          property: {
+            postgresql: {
+              dataType: 'json',
+            },
+          },
+        },
+      });
+      db.automigrate(['Person'], done);
+    });
+
+    it('should not set default value for embedded item', function() {
+      var p = new Person({name: 'Fred'});
+      p.should.have.property('addresses', undefined);
+    });
+
+    it('should create embedded items on scope', function(done) {
+      Person.create({name: 'Fred'}, function(err, p) {
+        p.addressList.create({street: 'Street 1'}, function(err, address) {
+          if (err) return done(err);
+          should.exist(address.id);
+          address.street.should.equal('Street 1');
+          p.addresses.should.be.array;
+          p.addresses.should.have.length(1);
+          done();
+        });
+      });
+    });
+
+    it('should build embedded items', function(done) {
+      Person.findOne(function(err, p) {
+        p.addresses.should.have.length(1);
+        p.addressList.build({id: 'home', street: 'Home'});
+        p.addressList.build({id: 'work', street: 'Work'});
+        p.addresses.should.have.length(3);
+        done();
+      });
+    });
+
+    it('should not create embedded from attributes - relation name', function(done) {
+      var addresses = [
+        {id: 'home', street: 'Home Street'},
+        {id: 'work', street: 'Work Street'},
+      ];
+      Person.create({name: 'Wilma', addressList: addresses}, function(err, p) {
+        if (err) return done(err);
+        p.should.have.property('addresses', undefined);
+        done();
+      });
+    });
+  });
+
   describe('embedsMany - numeric ids + forceId', function() {
     before(function(done) {
       tmp = getTransientDataSource();
