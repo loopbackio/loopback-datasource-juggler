@@ -1,3 +1,9 @@
+2018-07-31, Version 2.58.0
+==========================
+
+ * feat: omit default fn for embeds many (jannyHou)
+
+
 2018-05-18, Version 2.57.0
 ==========================
 
