@@ -405,7 +405,7 @@ describe('relations', function() {
       it('should update scoped record', function(done) {
         var id;
         Book.create(function(err, book) {
-          book.chapters.create({name: 'a'}, function(err, ch) {
+          book.chapters.create({name: 'a', type: 'b'}, function(err, ch) {
             id = ch.id;
             book.chapters.updateById(id, {name: 'aa'}, function(err, ch) {
               verify(book);
@@ -419,6 +419,30 @@ describe('relations', function() {
             should.exist(ch);
             ch.id.should.eql(id);
             ch.name.should.equal('aa');
+            ch.type.should.equal('b');
+            done();
+          });
+        }
+      });
+
+      it('should replace scoped record', function(done) {
+        var id;
+        Book.create(function(err, book) {
+          book.chapters.create({name: 'a', type: 'b'}, function(err, ch) {
+            id = ch.id;
+            book.chapters.replaceById(id, {name: 'aa'}, function(err, ch) {
+              verify(book);
+            });
+          });
+        });
+
+        function verify(book) {
+          book.chapters.findById(id, function(err, ch) {
+            if (err) return done(err);
+            should.exist(ch);
+            ch.id.should.eql(id);
+            ch.name.should.equal('aa');
+            ch.should.not.have.property('type', undefined);
             done();
           });
         }
@@ -428,7 +452,7 @@ describe('relations', function() {
         var id;
         Book.create()
           .then(function(book) {
-            return book.chapters.create({name: 'a'})
+            return book.chapters.create({name: 'a', type: 'b'})
               .then(function(ch) {
                 id = ch.id;
                 return book.chapters.updateById(id, {name: 'aa'});
@@ -445,6 +469,34 @@ describe('relations', function() {
               should.exist(ch);
               ch.id.should.eql(id);
               ch.name.should.equal('aa');
+              ch.type.should.equal('b');
+              done();
+            });
+        }
+      });
+
+      it('should replace scoped record with promises', function(done) {
+        var id;
+        Book.create()
+          .then(function(book) {
+            return book.chapters.create({name: 'a', type: 'b'})
+              .then(function(ch) {
+                id = ch.id;
+                return book.chapters.replaceById(id, {name: 'aa'});
+              })
+              .then(function(ch) {
+                return verify(book);
+              });
+          })
+          .catch(done);
+
+        function verify(book) {
+          return book.chapters.findById(id)
+            .then(function(ch) {
+              should.exist(ch);
+              ch.id.should.eql(id);
+              ch.name.should.equal('aa');
+              ch.should.not.have.property('type', undefined);
               done();
             });
         }
