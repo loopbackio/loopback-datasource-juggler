@@ -73,7 +73,7 @@ describe('Model class inheritance', function() {
         relations: {patch: true},
       };
 
-        // saving original getMergePolicy method
+      // saving original getMergePolicy method
       let originalGetMergePolicy = base.getMergePolicy;
 
       // the injected getMergePolicy method captures the provided configureModelMerge option
