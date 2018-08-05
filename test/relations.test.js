@@ -2738,6 +2738,40 @@ describe('relations', function() {
     });
   });
 
+  describe('polymorphic hasMany with inverse relation', function() {
+    /**
+     * This tests for whether an inverse relation can
+     * be defined on a polymorphic hasMany property
+     */
+    before(function(done) {
+      Picture = db.define('Picture', {name: String});
+      Author = db.define('Author', {name: String});
+      PictureLink = db.define('PictureLink', {});
+      Author.hasMany(Picture, {through: PictureLink, polymorphic: 'imageable', invert: true});
+      Picture.hasMany(Author, {through: PictureLink, polymorphic: 'imageable'});
+
+      db.automigrate(['Picture', 'Author', 'PictureLink'], done);
+    });
+
+    it('should return records for models through an inverted hasMany relationship', function(done) {
+      Author.create({name: 'John Doe'}, function(err, author) {
+        if (err) return done(err);
+
+        author.pictures.create({name: 'John Doe picture'}, function(err, pic) {
+          if (err) return done(err);
+
+          Author.findOne({include: 'pictures'}, function(err, author) {
+            if (err) return done(err);
+
+            author.pictures().length.should.eql(1);
+            author.pictures()[0].name.should.eql('John Doe picture');
+            done();
+          });
+        });
+      });
+    });
+  });
+
   describe('polymorphic hasAndBelongsToMany through', function() {
     var idArticle, idEmployee;
 
