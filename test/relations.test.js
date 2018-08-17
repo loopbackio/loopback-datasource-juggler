@@ -475,7 +475,7 @@ describe('relations', function() {
         }
       });
 
-      it('should replace scoped record with promises', function(done) {
+      it('should replace scoped record with promises', function() {
         var id;
         Book.create()
           .then(function(book) {
@@ -487,8 +487,7 @@ describe('relations', function() {
               .then(function(ch) {
                 return verify(book);
               });
-          })
-          .catch(done);
+          });
 
         function verify(book) {
           return book.chapters.findById(id)
@@ -497,7 +496,6 @@ describe('relations', function() {
               ch.id.should.eql(id);
               ch.name.should.equal('aa');
               ch.should.not.have.property('type', undefined);
-              done();
             });
         }
       });
