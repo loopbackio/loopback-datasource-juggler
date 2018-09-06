@@ -1622,6 +1622,20 @@ describe('manipulation', function() {
   });
 
   describe('destroy', function() {
+    beforeEach(function resetFixtures(done) {
+      Person.destroyAll(function() {
+        Person.create([
+          {name: 'John'},
+          {name: 'Jane'},
+          {name: 'Mary'},
+        ], done);
+      });
+    });
+
+    after(function deleteFixtures(done) {
+      Person.destroyAll(done);
+    });
+
     it('should destroy record', function(done) {
       Person.create(function(err, p) {
         if (err) return done(err);
@@ -1686,7 +1700,73 @@ describe('manipulation', function() {
     });
 
     // TODO: implement destroy with filtered set
-    it('should destroy filtered set of records');
+    it.skip('should destroy filtered set of records');
+
+    it('should not delete using condition from filter', function(done) {
+      Person.destroyAll({where: {name: 'John'}}, function(err, info) {
+        should.exist(err);
+        err.should.match(/Filter object detected/);
+        Person.find({fields: 'name'}, function(err, users) {
+          should.not.exist(err);
+          users.should.containDeep([
+            {name: 'Jane'},
+            {name: 'Mary'},
+            {name: 'John'},
+          ]);
+          done();
+        });
+      });
+    });
+
+    it('should not delete all for bad and condition', function(done) {
+      Person.destroyAll({and: [{name: 'Jane'}, {where: {name: 'John'}}]}, function(err, info) {
+        should.not.exist(err);
+        Person.find({fields: 'name'}, function(err, users) {
+          should.not.exist(err);
+          let userObjects = [];
+          users.forEach(user => userObjects.push(user.toObject()));
+          userObjects.should.containDeep([
+            {name: 'John'},
+            {name: 'Jane'},
+            {name: 'Mary'},
+          ]);
+          done();
+        });
+      });
+    });
+
+    it('should delete all for undefined object', function(done) {
+      Person.destroyAll(undefined, function(err, info) {
+        should.not.exist(err);
+        Person.find({fields: 'name'}, function(err, users) {
+          should.not.exist(err);
+          users.should.containDeep([]);
+          done();
+        });
+      });
+    });
+
+    it('should delete all for empty object', function(done) {
+      Person.destroyAll({}, function(err, info) {
+        should.not.exist(err);
+        Person.find({fields: 'name'}, function(err, users) {
+          should.not.exist(err);
+          users.should.containDeep([]);
+          done();
+        });
+      });
+    });
+
+    it('should normalize filter with undefined property', function(done) {
+      Person.destroyAll({name: undefined}, function(err, info) {
+        should.not.exist(err);
+        Person.find({fields: 'name'}, function(err, users) {
+          should.not.exist(err);
+          users.should.containDeep([]);
+          done();
+        });
+      });
+    });
   });
 
   bdd.describeIf(connectorCapabilities.reportDeletedCount !== false &&
