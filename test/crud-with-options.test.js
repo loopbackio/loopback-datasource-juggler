@@ -23,6 +23,7 @@ describe('crud-with-options', function() {
       role: {type: String, index: true},
       order: {type: Number, index: true, sort: true},
       vip: {type: Boolean},
+      address: {type: {city: String, area: String}},
     });
     options = {};
     filter = {fields: ['name', 'id']};
@@ -145,7 +146,7 @@ describe('crud-with-options', function() {
 
     it('should allow promise-style findById',
       function(done) {
-        User.create({name: 'w', email: 'w@y.com'}).then(function(u) {
+        User.create({id: 15, name: 'w', email: 'w@y.com'}).then(function(u) {
           should.exist(u.id);
           return User.findById(u.id).then(function(u) {
             should.exist(u);
@@ -520,6 +521,24 @@ describe('crud-with-options', function() {
       });
     });
   });
+
+  describe('updateAttributes', function() {
+    beforeEach(seed);
+    it('preserves document properties not modified by the patch', function() {
+      return User.findOne({where: {name: 'John Lennon'}})
+        .then(function(user) {
+          return user.updateAttributes({address: {city: 'Volos'}});
+        })
+        .then(function() {
+          return User.findOne({where: {name: 'John Lennon'}}); // retrieve the user again from the db
+        })
+        .then(function(updatedUser) {
+          updatedUser.address.city.should.equal('Volos');
+          should(updatedUser.address.area).not.be.exactly(null);
+          should(updatedUser.address.area).be.undefined();
+        });
+    });
+  });
 });
 
 describe('upsertWithWhere', function() {
@@ -588,6 +607,7 @@ describe('upsertWithWhere', function() {
 function seed(done) {
   var beatles = [
     {
+      id: 0,
       seq: 0,
       name: 'John Lennon',
       email: 'john@b3atl3s.co.uk',
@@ -597,6 +617,7 @@ function seed(done) {
       vip: true,
     },
     {
+      id: 1,
       seq: 1,
       name: 'Paul McCartney',
       email: 'paul@b3atl3s.co.uk',
@@ -605,10 +626,10 @@ function seed(done) {
       order: 1,
       vip: true,
     },
-    {seq: 2, name: 'George Harrison', order: 5, vip: false},
-    {seq: 3, name: 'Ringo Starr', order: 6, vip: false},
-    {seq: 4, name: 'Pete Best', order: 4},
-    {seq: 5, name: 'Stuart Sutcliffe', order: 3, vip: true},
+    {id: 2, seq: 2, name: 'George Harrison', order: 5, vip: false},
+    {id: 3, seq: 3, name: 'Ringo Starr', order: 6, vip: false},
+    {id: 4, seq: 4, name: 'Pete Best', order: 4},
+    {id: 5, seq: 5, name: 'Stuart Sutcliffe', order: 3, vip: true},
   ];
 
   async.series([
