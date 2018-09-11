@@ -1623,16 +1623,6 @@ describe('manipulation', function() {
 
   describe('destroy', function() {
     beforeEach(function resetFixtures(done) {
-      Person.destroyAll(function() {
-        Person.create([
-          {name: 'John'},
-          {name: 'Jane'},
-          {name: 'Mary'},
-        ], done);
-      });
-    });
-
-    after(function deleteFixtures(done) {
       Person.destroyAll(done);
     });
 
@@ -1699,74 +1689,58 @@ describe('manipulation', function() {
         .catch(done);
     });
 
-    // TODO: implement destroy with filtered set
-    it.skip('should destroy filtered set of records');
-
-    it('should not delete using condition from filter', function(done) {
-      Person.destroyAll({where: {name: 'John'}}, function(err, info) {
-        should.exist(err);
-        err.should.match(/Filter object detected/);
-        Person.find({fields: 'name'}, function(err, users) {
-          should.not.exist(err);
-          users.should.containDeep([
-            {name: 'Jane'},
-            {name: 'Mary'},
-            {name: 'John'},
-          ]);
-          done();
-        });
-      });
+    it('should destroy filtered set of records', function() {
+      return givenNamedPeople(['John', 'Jane', 'Mary'])
+        .then(() =>
+          Person.destroyAll({name: 'Jane'}))
+        .then(() => Person.find({fields: {name: true}})
+          .then(users => {
+            let userData = [];
+            users.forEach(user => userData.push(user.__data));
+            userData.should.deepEqual([
+              {name: 'John'},
+              {name: 'Mary'},
+            ]);
+          }));
     });
 
-    it('should not delete all for bad and condition', function(done) {
-      Person.destroyAll({and: [{name: 'Jane'}, {where: {name: 'John'}}]}, function(err, info) {
-        should.not.exist(err);
-        Person.find({fields: 'name'}, function(err, users) {
-          should.not.exist(err);
-          let userObjects = [];
-          users.forEach(user => userObjects.push(user.toObject()));
-          userObjects.should.containDeep([
-            {name: 'John'},
-            {name: 'Jane'},
-            {name: 'Mary'},
-          ]);
-          done();
-        });
-      });
+    it('should reject unknown properties', function() {
+      return givenNamedPeople(['John', 'Jane', 'Mary'])
+        .then(() =>
+          Person.destroyAll({names: 'John'}).should.be.rejectedWith(/Unknown property/))
+        .then(() => Person.find({fields: {name: true}, order: 'name ASC'})
+          .then(users => {
+            let userData = [];
+            users.forEach(user => userData.push(user.__data));
+            userData.should.deepEqual([
+              {name: 'Jane'},
+              {name: 'John'},
+              {name: 'Mary'},
+            ]);
+          }));
     });
 
-    it('should delete all for undefined object', function(done) {
-      Person.destroyAll(undefined, function(err, info) {
-        should.not.exist(err);
-        Person.find({fields: 'name'}, function(err, users) {
-          should.not.exist(err);
-          users.should.containDeep([]);
-          done();
-        });
-      });
+    it('should reject where object inside a filter object', function() {
+      return givenNamedPeople(['John', 'Jane', 'Mary'])
+        .then(() =>
+          Person.destroyAll({where: {name: 'John'}}).should.be.rejectedWith(/Unknown property/))
+        .then(() => Person.find({fields: {name: true}})
+          .then(users => {
+            let userData = [];
+            users.forEach(user => userData.push(user.__data));
+            userData.should.deepEqual([
+              {name: 'John'},
+              {name: 'Jane'},
+              {name: 'Mary'},
+            ]);
+          }));
     });
 
-    it('should delete all for empty object', function(done) {
-      Person.destroyAll({}, function(err, info) {
-        should.not.exist(err);
-        Person.find({fields: 'name'}, function(err, users) {
-          should.not.exist(err);
-          users.should.containDeep([]);
-          done();
-        });
-      });
-    });
-
-    it('should normalize filter with undefined property', function(done) {
-      Person.destroyAll({name: undefined}, function(err, info) {
-        should.not.exist(err);
-        Person.find({fields: 'name'}, function(err, users) {
-          should.not.exist(err);
-          users.should.containDeep([]);
-          done();
-        });
-      });
-    });
+    function givenNamedPeople(namesList) {
+      return Promise.all(
+        namesList.map(name => Person.create({name}))
+      );
+    }
   });
 
   bdd.describeIf(connectorCapabilities.reportDeletedCount !== false &&
