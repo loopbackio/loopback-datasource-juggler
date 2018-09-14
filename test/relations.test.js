@@ -6622,7 +6622,7 @@ describe('relations', function() {
     });
   });
 
-  describe('polymorphic hasMany', function() {
+  describe('polymorphic hasMany - revert', function() {
     before(function(done) {
       Picture = db.define('Picture', {name: String});
       Author = db.define('Author', {name: String});
