@@ -1,3 +1,15 @@
+2018-09-17, Version 3.24.0
+==========================
+
+ * Add IBM copyright and MIT license headers (Raymond Feng)
+
+ * Allow List to take items as instances of a class (Raymond Feng)
+
+ * fix: ignore extra properties when strict=filter (#1423) (Tom Kirkpatrick)
+
+ * Add EventEmitter type info to DataSource type (shimks)
+
+
 2018-07-16, Version 3.23.0
 ==========================
 
