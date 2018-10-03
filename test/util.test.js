@@ -559,3 +559,35 @@ describe('util.hasRegExpFlags', function() {
     });
   });
 });
+
+describe('util.idsHaveDuplicates', function() {
+  context('with string IDs', function() {
+    it('should be true with a duplicate present', function() {
+      utils.idsHaveDuplicates(['a', 'b', 'a']).should.be.ok;
+    });
+
+    it('should be false when no duplicates are present', function() {
+      utils.idsHaveDuplicates(['a', 'b', 'c']).should.not.be.ok;
+    });
+  });
+
+  context('with numeric IDs', function() {
+    it('should be true with a duplicate present', function() {
+      utils.idsHaveDuplicates([1, 2, 1]).should.be.ok;
+    });
+
+    it('should be false when no duplicates are present', function() {
+      utils.idsHaveDuplicates([1, 2, 3]).should.not.be.ok;
+    });
+  });
+
+  context('with complex IDs', function() {
+    it('should be true with a duplicate present', function() {
+      utils.idsHaveDuplicates(['a', 'b', 'a'].map(id => ({id}))).should.be.ok;
+    });
+
+    it('should be false when no duplicates are present', function() {
+      utils.idsHaveDuplicates(['a', 'b', 'c'].map(id => ({id}))).should.not.be.ok;
+    });
+  });
+});
