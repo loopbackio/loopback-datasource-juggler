@@ -1,6 +1,6 @@
 {
   "name": "loopback-datasource-juggler",
-  "version": "3.24.0",
+  "version": "4.0.0-alpha.1",
   "publishConfig": {
     "export-tests": true
   },
@@ -15,7 +15,7 @@
     "ORM"
   ],
   "engines": {
-    "node": ">=6"
+    "node": ">=8"
   },
   "repository": {
     "type": "git",
