@@ -5,7 +5,6 @@
 
 'use strict';
 
-var Promise = require('bluebird');
 var ValidationError = require('../..').ValidationError;
 
 var contextTestHelpers = require('../helpers/context-test-helpers');
