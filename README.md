@@ -4,9 +4,13 @@ An ORM/ODM that provides a common set of interfaces for interacting with databas
 
 ## Supported versions
 
-Current|Long Term Support
-:-:|:-:
-3.x|2.x
+This module adopts the [Module Long Term Support (LTS)](http://github.com/CloudNativeJS/ModuleLTS) policy, with the following End Of Life (EOL) dates:
+
+| Version    | Status          | Published | EOL                  |
+| ---------- | --------------- | --------- | -------------------- |
+| 4.x        | Current         | Oct 2018  | Apr 2021 _(minimum)_ |
+| 3.x        | Active LTS      | Dec 2016  | Dec 2019             |
+| 2.x        | Maintenance LTS | Jul 2014  | Apr 2019             |
 
 Learn more about our LTS plan in the [LoopBack documentation](http://loopback.io/doc/en/contrib/Long-term-support.html).
 
