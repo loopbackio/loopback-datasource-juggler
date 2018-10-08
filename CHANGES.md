@@ -1,3 +1,11 @@
+2018-10-08, Version 3.24.1
+==========================
+
+ * Update LTS versions in README (Miroslav Bajtoš)
+
+ * Set publish tag to "lts" in package.json (Miroslav Bajtoš)
+
+
 2018-09-17, Version 3.24.0
 ==========================
 
