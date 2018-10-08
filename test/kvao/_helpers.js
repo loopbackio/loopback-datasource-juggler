@@ -1,10 +1,9 @@
 'use strict';
 
-var Promise = require('bluebird');
-
 exports.givenCacheItem = givenCacheItem;
 exports.givenKeys = givenKeys;
 exports.givenModel = givenModel;
+exports.delay = delay;
 
 function givenCacheItem(dataSourceFactory) {
   const modelProperties = {
@@ -34,3 +33,9 @@ function givenKeys(Model, keys, cb) {
   }
   return p;
 };
+
+function delay(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}

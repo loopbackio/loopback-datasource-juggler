@@ -2,7 +2,6 @@
 
 var bdd = require('../helpers/bdd-if');
 var helpers = require('./_helpers');
-var Promise = require('bluebird');
 var should = require('should');
 
 module.exports = function(dataSourceFactory, connectorCapabilities) {

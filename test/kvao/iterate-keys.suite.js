@@ -3,9 +3,7 @@
 var asyncIterators = require('async-iterators');
 var bdd = require('../helpers/bdd-if');
 var helpers = require('./_helpers');
-var Promise = require('bluebird');
 var should = require('should');
-var toArray = Promise.promisify(asyncIterators.toArray);
 
 module.exports = function(dataSourceFactory, connectorCapabilities) {
   var canIterateKeys = connectorCapabilities.canIterateKeys !== false;
@@ -52,3 +50,15 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     };
   });
 };
+
+// A promisified version of asyncIterators.toArray
+// Node.js 8.x does not have util.promisify function,
+// we are adding promise support manually here
+function toArray(iter) {
+  return new Promise((resolve, reject) => {
+    asyncIterators.toArray(iter, (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
+    });
+  });
+}

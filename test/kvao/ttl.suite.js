@@ -3,7 +3,6 @@
 var bdd = require('../helpers/bdd-if');
 var should = require('should');
 var helpers = require('./_helpers');
-var Promise = require('bluebird');
 
 module.exports = function(dataSourceFactory, connectorCapabilities) {
   var TTL_PRECISION = connectorCapabilities.ttlPrecision;
@@ -28,7 +27,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
         return Promise.resolve(
           CacheItem.set('a-key', 'a-value', {ttl: INITIAL_TTL})
         )
-          .delay(SMALL_DELAY)
+          .then(() => helpers.delay(SMALL_DELAY))
           .then(function() { return CacheItem.ttl('a-key'); })
           .then(function(ttl) { ttl.should.be.within(1, INITIAL_TTL); });
       });
@@ -55,7 +54,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
       return Promise.resolve(
         CacheItem.set('expired-key', 'a-value', {ttl: TTL_PRECISION})
       )
-        .delay(2 * TTL_PRECISION)
+        .then(() => helpers.delay(2 * TTL_PRECISION))
         .then(function() {
           return CacheItem.ttl('expired-key');
         })

@@ -3,7 +3,6 @@
 var bdd = require('../helpers/bdd-if');
 var should = require('should');
 var helpers = require('./_helpers');
-var Promise = require('bluebird');
 
 module.exports = function(dataSourceFactory, connectorCapabilities) {
   // While we support millisecond precision, for the purpose of tests
@@ -35,14 +34,14 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     it('sets key ttl - Promise API', function() {
       return CacheItem.set('a-key', 'a-value')
         .then(function() { return CacheItem.expire('a-key', ttlPrecision); })
-        .delay(2 * ttlPrecision)
+        .then(() => helpers.delay(2 * ttlPrecision))
         .then(function() { return CacheItem.get('a-key'); })
         .then(function(value) { should.equal(value, null); });
     });
 
     it('returns error when expiring a key that has expired', function() {
       return Promise.resolve(CacheItem.set('expired-key', 'a-value', ttlPrecision))
-        .delay(2 * ttlPrecision)
+        .then(() => helpers.delay(2 * ttlPrecision))
         .then(function() { return CacheItem.expire('expired-key', 1000); })
         .then(
           function() { throw new Error('expire() should have failed'); },
