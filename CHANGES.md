@@ -1,3 +1,9 @@
+2018-10-08, Version 2.58.1
+==========================
+
+ * Describe LTS versions in README (Miroslav Bajtoš)
+
+
 2018-07-31, Version 2.58.0
 ==========================
 
