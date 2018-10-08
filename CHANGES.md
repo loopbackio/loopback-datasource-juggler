@@ -1,3 +1,13 @@
+2018-10-08, Version 4.0.0
+=========================
+
+ * Update LTS versions in README (Miroslav Bajtoš)
+
+ * Switch from Bluebird to native Promise (Miroslav Bajtoš)
+
+ * Start 4.0 development, drop support for Node 6 (Miroslav Bajtoš)
+
+
 2018-09-17, Version 3.24.0
 ==========================
 
