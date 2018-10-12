@@ -258,7 +258,6 @@ describe('ModelDefinition class', function() {
   });
 
   it('should serialize protected properties into JSON', function() {
-    var modelBuilder = memory.modelBuilder;
     var ProtectedModel = memory.createModel('protected', {}, {
       protected: ['protectedProperty'],
     });
@@ -272,7 +271,6 @@ describe('ModelDefinition class', function() {
   });
 
   it('should not serialize protected properties of nested models into JSON', function(done) {
-    var modelBuilder = memory.modelBuilder;
     var Parent = memory.createModel('parent');
     var Child = memory.createModel('child', {}, {protected: ['protectedProperty']});
     Parent.hasMany(Child);
@@ -295,7 +293,6 @@ describe('ModelDefinition class', function() {
   });
 
   it('should not serialize hidden properties into JSON', function() {
-    var modelBuilder = memory.modelBuilder;
     var HiddenModel = memory.createModel('hidden', {}, {
       hidden: ['secret'],
     });
@@ -312,7 +309,6 @@ describe('ModelDefinition class', function() {
   });
 
   it('should not serialize hidden properties of nested models into JSON', function(done) {
-    var modelBuilder = memory.modelBuilder;
     var Parent = memory.createModel('parent');
     var Child = memory.createModel('child', {}, {hidden: ['secret']});
     Parent.hasMany(Child);
@@ -328,6 +324,137 @@ describe('ModelDefinition class', function() {
           var child = serialized.children[0];
           assert.equal(child.name, 'child');
           assert.notEqual(child.secret, 'secret');
+          done();
+        });
+      });
+    });
+  });
+
+  function assertPropertyNotAllowed(err) {
+    should.exist(err);
+    err.message.should.match(/Properties "secret" are not allowed in query/);
+    err.code.should.equal('PROPERTY_NOT_ALLOWED_IN_QUERY');
+    err.statusCode.should.equal(400);
+    err.details.should.have.property('properties');
+    err.details.should.have.property('where');
+  }
+
+  it('should report errors if a hidden property is used in where', function(done) {
+    var Child = memory.createModel('child', {}, {hidden: ['secret']});
+    Child.create({
+      name: 'child',
+      secret: 'secret',
+    }, function(err) {
+      if (err) return done(err);
+      Child.find({
+        where: {secret: 'secret'},
+      }, function(err) {
+        assertPropertyNotAllowed(err);
+        done();
+      });
+    });
+  });
+
+  it('should report errors if a hidden property is used in where.and', function(done) {
+    var Child = memory.createModel('child', {}, {hidden: ['secret']});
+    Child.create({
+      name: 'child',
+      secret: 'secret',
+    }, function(err) {
+      if (err) return done(err);
+      Child.find({
+        where: {and: [{secret: 'secret'}]},
+      }, function(err) {
+        assertPropertyNotAllowed(err);
+        done();
+      });
+    });
+  });
+
+  it('should report errors if a protected property is used in include scope', function(done) {
+    var Parent = memory.createModel('parent');
+    var Child = memory.createModel('child', {}, {protected: ['secret']});
+    Parent.hasMany(Child);
+    Parent.create({
+      name: 'parent',
+    }, function(err, parent) {
+      if (err) return done(err);
+      parent.children.create({
+        name: 'child',
+        secret: 'secret',
+      }, function(err) {
+        if (err) return done(err);
+        Parent.find({
+          include: {
+            relation: 'children',
+            scope: {
+              where: {
+                secret: 'x',
+              },
+            },
+          },
+        }, function(err) {
+          assertPropertyNotAllowed(err);
+          done();
+        });
+      });
+    });
+  });
+
+  it('should report errors if a protected property is used in include scope.where.and', function(done) {
+    var Parent = memory.createModel('parent');
+    var Child = memory.createModel('child', {}, {protected: ['secret']});
+    Parent.hasMany(Child);
+    Parent.create({
+      name: 'parent',
+    }, function(err, parent) {
+      if (err) return done(err);
+      parent.children.create({
+        name: 'child',
+        secret: 'secret',
+      }, function(err) {
+        if (err) return done(err);
+        Parent.find({
+          include: {
+            relation: 'children',
+            scope: {
+              where: {
+                and: [{secret: 'x'}],
+              },
+            },
+          },
+        }, function(err) {
+          assertPropertyNotAllowed(err);
+          done();
+        });
+      });
+    });
+  });
+
+  it('should report errors if a hidden property is used in include scope', function(done) {
+    var Parent = memory.createModel('parent');
+    var Child = memory.createModel('child', {}, {hidden: ['secret']});
+    Parent.hasMany(Child);
+    Parent.create({
+      name: 'parent',
+    }, function(err, parent) {
+      if (err) return done(err);
+      parent.children.create({
+        name: 'child',
+        secret: 'secret',
+      }, function(err) {
+        if (err) return done(err);
+        Parent.find({
+          include: {
+            relation: 'children',
+            scope: {
+              where: {
+                secret: 'x',
+              },
+            },
+          },
+        }, function(err) {
+          assertPropertyNotAllowed(err);
           done();
         });
       });
