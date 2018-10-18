@@ -46,6 +46,15 @@ describe('include', function() {
     });
   });
 
+  it('does not return included item if FK is excluded', function(done) {
+    Passport.find({include: 'owner', fields: 'number'}, function(err, passports) {
+      if (err) return done(err);
+      var owner = passports[0].toJSON().owner;
+      should.not.exist(owner);
+      done();
+    });
+  });
+
   it('should fetch hasMany relation', function(done) {
     User.find({include: 'posts'}, function(err, users) {
       should.not.exist(err);
@@ -63,6 +72,14 @@ describe('include', function() {
           p.userId.toString().should.eql(u.id.toString());
         });
       });
+      done();
+    });
+  });
+
+  it('should report errors if the PK is excluded', function(done) {
+    User.find({include: 'posts', fields: 'posts'}, function(err) {
+      should.exist(err);
+      err.message.should.match(/ID property "id" is missing/);
       done();
     });
   });
@@ -575,6 +592,16 @@ describe('include', function() {
             profile.userId.should.eql(createdProfiles[0].userId);
             profile.id.should.eql(createdProfiles[0].id);
 
+            done();
+          });
+        });
+
+        it('does not return included item if hasOne is missing the id property', function(done) {
+          User.findOne({include: {relation: 'profile'}, fields: 'name'}, function(err, user) {
+            if (err) return done(err);
+            should.exist(user);
+            // Convert to JSON as the user instance has `profile` as a relational method
+            should.not.exist(user.toJSON().profile);
             done();
           });
         });
@@ -1487,6 +1514,7 @@ function setup(done) {
   });
   Passport = db.define('Passport', {
     number: String,
+    expirationDate: Date,
   });
   Post = db.define('Post', {
     title: String,
