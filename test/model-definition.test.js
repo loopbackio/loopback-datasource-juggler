@@ -332,10 +332,9 @@ describe('ModelDefinition class', function() {
 
   function assertPropertyNotAllowed(err) {
     should.exist(err);
-    err.message.should.match(/Properties "secret" are not allowed in query/);
+    err.message.should.match(/Invalid properties are used in query/);
     err.code.should.equal('PROPERTY_NOT_ALLOWED_IN_QUERY');
     err.statusCode.should.equal(400);
-    err.details.should.have.property('properties');
     err.details.should.have.property('where');
   }
 
