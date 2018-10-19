@@ -21,6 +21,17 @@ describe('include_util', function() {
       result.get(22).should.be.ok;
     });
 
+    it('should report errors if id is missing', function() {
+      var objs = [
+        {letter: 'A'},
+        {id: 22, letter: 'B'},
+      ];
+      function build() {
+        includeUtils.buildOneToOneIdentityMapWithOrigKeys(objs, 'id');
+      }
+      build.should.throw(/ID property "id" is missing/);
+    });
+
     it('should overwrite keys in case of collision', function() {
       var objs = [
         {id: 11, letter: 'A'},
@@ -56,6 +67,17 @@ describe('include_util', function() {
       var result = includeUtils.buildOneToManyIdentityMapWithOrigKeys(objs, 'id');
       result.exist(11).should.be.true;
       result.exist(22).should.be.true;
+    });
+
+    it('should report errors if id is missing', function() {
+      var objs = [
+        {letter: 'A'},
+        {id: 22, letter: 'B'},
+      ];
+      function build() {
+        includeUtils.buildOneToManyIdentityMapWithOrigKeys(objs, 'id');
+      }
+      build.should.throw(/ID property "id" is missing/);
     });
 
     it('should collect keys in case of collision', function() {
