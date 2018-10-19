@@ -3715,7 +3715,11 @@ describe('relations', function() {
         should.exist(supplier);
         supplier.account.destroy(function(err) {
           should.not.exist(e);
-          done();
+          supplier.account(function(err, act) {
+            if (err) return done(err);
+            should.not.exist(act);
+            done();
+          });
         });
       });
     });
@@ -3728,7 +3732,11 @@ describe('relations', function() {
             .then(function(account) {
               return supplier.account.destroy();
             })
-            .then(function(err) {
+            .then(function() {
+              return supplier.account();
+            })
+            .then(function(act) {
+              should.not.exist(act);
               done();
             });
         })
