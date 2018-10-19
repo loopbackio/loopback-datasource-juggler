@@ -8,7 +8,7 @@ var should = require('./init.js');
 var utils = require('../lib/utils');
 var ObjectID = require('bson').ObjectID;
 var fieldsToArray = utils.fieldsToArray;
-var removeUndefined = utils.removeUndefined;
+var sanitizeQuery = utils.sanitizeQuery;
 var deepMerge = utils.deepMerge;
 var rankArrayElements = utils.rankArrayElements;
 var mergeIncludes = utils.mergeIncludes;
@@ -52,33 +52,65 @@ describe('util.fieldsToArray', function() {
   });
 });
 
-describe('util.removeUndefined', function() {
+describe('util.sanitizeQuery', function() {
   it('Remove undefined values from the query object', function() {
     var q1 = {where: {x: 1, y: undefined}};
-    should.deepEqual(removeUndefined(q1), {where: {x: 1}});
+    should.deepEqual(sanitizeQuery(q1), {where: {x: 1}});
 
     var q2 = {where: {x: 1, y: 2}};
-    should.deepEqual(removeUndefined(q2), {where: {x: 1, y: 2}});
+    should.deepEqual(sanitizeQuery(q2), {where: {x: 1, y: 2}});
 
     var q3 = {where: {x: 1, y: {in: [2, undefined]}}};
-    should.deepEqual(removeUndefined(q3), {where: {x: 1, y: {in: [2]}}});
+    should.deepEqual(sanitizeQuery(q3), {where: {x: 1, y: {in: [2]}}});
 
-    should.equal(removeUndefined(null), null);
+    should.equal(sanitizeQuery(null), null);
 
-    should.equal(removeUndefined(undefined), undefined);
+    should.equal(sanitizeQuery(undefined), undefined);
 
-    should.equal(removeUndefined('x'), 'x');
+    should.equal(sanitizeQuery('x'), 'x');
 
     var date = new Date();
     var q4 = {where: {x: 1, y: date}};
-    should.deepEqual(removeUndefined(q4), {where: {x: 1, y: date}});
+    should.deepEqual(sanitizeQuery(q4), {where: {x: 1, y: date}});
 
     // test handling of undefined
     var q5 = {where: {x: 1, y: undefined}};
-    should.deepEqual(removeUndefined(q5, 'nullify'), {where: {x: 1, y: null}});
+    should.deepEqual(sanitizeQuery(q5, 'nullify'), {where: {x: 1, y: null}});
+
+    q5 = {where: {x: 1, y: undefined}};
+    should.deepEqual(sanitizeQuery(q5, {handleUndefined: 'nullify'}), {where: {x: 1, y: null}});
 
     var q6 = {where: {x: 1, y: undefined}};
-    (function() { removeUndefined(q6, 'throw'); }).should.throw(/`undefined` in query/);
+    (function() { sanitizeQuery(q6, 'throw'); }).should.throw(/`undefined` in query/);
+  });
+
+  it('Report errors for circular or deep query objects', function() {
+    var q7 = {where: {x: 1}};
+    q7.where.y = q7;
+    (function() { sanitizeQuery(q7); }).should.throw(
+      /The query object is too deep or circular/
+    );
+
+    var q8 = {where: {and: [{and: [{and: [{and: [{and: [{and:
+      [{and: [{and: [{and: [{x: 1}]}]}]}]}]}]}]}]}]}};
+    (function() { sanitizeQuery(q8); }).should.throw(
+      /The query object is too deep or circular/
+    );
+
+    var q9 = {where: {and: [{and: [{and: [{and: [{x: 1}]}]}]}]}};
+    (function() { sanitizeQuery(q8, {maxDepth: 4}); }).should.throw(
+      /The query object is too deep or circular/
+    );
+  });
+
+  it('Removed prohibited properties in query objects', function() {
+    var q1 = {where: {secret: 'guess'}};
+    sanitizeQuery(q1, {prohibitedKeys: ['secret']});
+    q1.where.should.eql({});
+
+    var q2 = {and: [{secret: 'guess'}, {x: 1}]};
+    sanitizeQuery(q2, {prohibitedKeys: ['secret']});
+    q2.should.eql({and: [{}, {x: 1}]});
   });
 });
 
