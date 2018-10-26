@@ -1,3 +1,21 @@
+2018-10-26, Version 3.25.0
+==========================
+
+ * Ren handleUndefined to normalizeUndefinedInQuery (Raymond Feng)
+
+ * Report circular or deep query objects (Raymond Feng)
+
+ * Hide offending properties from the error object (Raymond Feng)
+
+ * Tidy up extended operator check (Raymond Feng)
+
+ * Prevent hidden/protected props from being searched (Raymond Feng)
+
+ * Report errors for missing id props for include (Raymond Feng)
+
+ * remove null in embedded doc properties updates (Dimitris)
+
+
 2018-10-08, Version 3.24.1
 ==========================
 
