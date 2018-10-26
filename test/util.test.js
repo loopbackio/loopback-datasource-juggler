@@ -78,7 +78,7 @@ describe('util.sanitizeQuery', function() {
     should.deepEqual(sanitizeQuery(q5, 'nullify'), {where: {x: 1, y: null}});
 
     q5 = {where: {x: 1, y: undefined}};
-    should.deepEqual(sanitizeQuery(q5, {handleUndefined: 'nullify'}), {where: {x: 1, y: null}});
+    should.deepEqual(sanitizeQuery(q5, {normalizeUndefinedInQuery: 'nullify'}), {where: {x: 1, y: null}});
 
     var q6 = {where: {x: 1, y: undefined}};
     (function() { sanitizeQuery(q6, 'throw'); }).should.throw(/`undefined` in query/);
