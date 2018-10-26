@@ -258,7 +258,6 @@ describe('ModelDefinition class', function() {
   });
 
   it('should serialize protected properties into JSON', function() {
-    var modelBuilder = memory.modelBuilder;
     var ProtectedModel = memory.createModel('protected', {}, {
       protected: ['protectedProperty'],
     });
@@ -272,18 +271,20 @@ describe('ModelDefinition class', function() {
   });
 
   it('should not serialize protected properties of nested models into JSON', function(done) {
-    var modelBuilder = memory.modelBuilder;
     var Parent = memory.createModel('parent');
     var Child = memory.createModel('child', {}, {protected: ['protectedProperty']});
     Parent.hasMany(Child);
     Parent.create({
       name: 'parent',
     }, function(err, parent) {
+      if (err) return done(err);
       parent.children.create({
         name: 'child',
         protectedProperty: 'protectedValue',
       }, function(err, child) {
+        if (err) return done(err);
         Parent.find({include: 'children'}, function(err, parents) {
+          if (err) return done(err);
           var serialized = parents[0].toJSON();
           var child = serialized.children[0];
           assert.equal(child.name, 'child');
@@ -295,7 +296,6 @@ describe('ModelDefinition class', function() {
   });
 
   it('should not serialize hidden properties into JSON', function() {
-    var modelBuilder = memory.modelBuilder;
     var HiddenModel = memory.createModel('hidden', {}, {
       hidden: ['secret'],
     });
@@ -312,18 +312,20 @@ describe('ModelDefinition class', function() {
   });
 
   it('should not serialize hidden properties of nested models into JSON', function(done) {
-    var modelBuilder = memory.modelBuilder;
     var Parent = memory.createModel('parent');
     var Child = memory.createModel('child', {}, {hidden: ['secret']});
     Parent.hasMany(Child);
     Parent.create({
       name: 'parent',
     }, function(err, parent) {
+      if (err) return done(err);
       parent.children.create({
         name: 'child',
         secret: 'secret',
       }, function(err, child) {
+        if (err) return done(err);
         Parent.find({include: 'children'}, function(err, parents) {
+          if (err) return done(err);
           var serialized = parents[0].toJSON();
           var child = serialized.children[0];
           assert.equal(child.name, 'child');
@@ -332,6 +334,140 @@ describe('ModelDefinition class', function() {
         });
       });
     });
+  });
+
+  describe('hidden properties', function() {
+    var Child;
+    beforeEach(givenChildren);
+
+    it('should be removed if used in where', function() {
+      return Child.find({
+        where: {secret: 'guess'},
+      }).then(assertHiddenPropertyIsIgnored);
+    });
+
+    it('should be removed if used in where.and', function() {
+      return Child.find({
+        where: {and: [{secret: 'guess'}]},
+      }).then(assertHiddenPropertyIsIgnored);
+    });
+
+    /**
+     * Create two children with a hidden property, one with a matching
+     * value, the other with a non-matching value
+     */
+    function givenChildren() {
+      Child = memory.createModel('child', {}, {hidden: ['secret']});
+      return Child.create([{
+        name: 'childA',
+        secret: 'secret',
+      }, {
+        name: 'childB',
+        secret: 'guess',
+      }]);
+    }
+
+    function assertHiddenPropertyIsIgnored(children) {
+      // All children are found whether the `secret` condition matches or not
+      // as the condition is removed because it's hidden
+      children.length.should.equal(2);
+    }
+  });
+
+  function assertParentIncludeChildren(parents) {
+    parents[0].toJSON().children.length.should.equal(1);
+  }
+
+  describe('protected properties', function() {
+    var Parent;
+    var Child;
+    beforeEach(givenParentAndChild);
+
+    it('should be removed if used in include scope', function() {
+      Parent.find({
+        include: {
+          relation: 'children',
+          scope: {
+            where: {
+              secret: 'x',
+            },
+          },
+        },
+      }).then(assertParentIncludeChildren);
+    });
+
+    it('should be rejected if used in include scope.where.and', function() {
+      return Parent.find({
+        include: {
+          relation: 'children',
+          scope: {
+            where: {
+              and: [{secret: 'x'}],
+            },
+          },
+        },
+      }).then(assertParentIncludeChildren);
+    });
+
+    it('should be removed if a hidden property is used in include scope', function() {
+      return Parent.find({
+        include: {
+          relation: 'children',
+          scope: {
+            where: {
+              secret: 'x',
+            },
+          },
+        },
+      }).then(assertParentIncludeChildren);
+    });
+
+    function givenParentAndChild() {
+      Parent = memory.createModel('parent');
+      Child = memory.createModel('child', {}, {protected: ['secret']});
+      Parent.hasMany(Child);
+      return Parent.create({
+        name: 'parent',
+      }).then(parent => {
+        return parent.children.create({
+          name: 'child',
+          secret: 'secret',
+        });
+      });
+    }
+  });
+
+  describe('hidden properties in include', function() {
+    var Parent;
+    var Child;
+    beforeEach(givenParentAndChildWithHiddenProperty);
+
+    it('should be rejected if used in scope', function() {
+      return Parent.find({
+        include: {
+          relation: 'children',
+          scope: {
+            where: {
+              secret: 'x',
+            },
+          },
+        },
+      }).then(assertParentIncludeChildren);
+    });
+
+    function givenParentAndChildWithHiddenProperty() {
+      Parent = memory.createModel('parent');
+      Child = memory.createModel('child', {}, {hidden: ['secret']});
+      Parent.hasMany(Child);
+      return Parent.create({
+        name: 'parent',
+      }).then(parent => {
+        return parent.children.create({
+          name: 'child',
+          secret: 'secret',
+        });
+      });
+    }
   });
 
   it('should throw error for property names containing dot', function() {

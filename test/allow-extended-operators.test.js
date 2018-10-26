@@ -67,50 +67,59 @@ describe('allowExtendedOperators', () => {
     }
   }
 
+  function assertOperatorNotAllowed(err) {
+    should.exist(err);
+    err.message.should.match(/Operators "\$exists" are not allowed in query/);
+    err.code.should.equal('OPERATOR_NOT_ALLOWED_IN_QUERY');
+    err.statusCode.should.equal(400);
+    err.details.should.have.property('operators');
+    err.details.should.have.property('where');
+  }
+
   describe('dataSource.settings.allowExtendedOperators', () => {
     context('DAO.find()', () => {
-      it('converts extended operators to string value by default', () => {
+      it('reports invalid operator by default', () => {
         const TestModel = createTestModel();
-        return TestModel.find(extendedQuery()).then((results) => {
-          should(results[0].value).eql('[object Object]');
+        return TestModel.find(extendedQuery()).catch(err => {
+          assertOperatorNotAllowed(err);
         });
       });
 
       it('preserves extended operators with allowExtendedOperators set', () => {
         const TestModel = createTestModel({allowExtendedOperators: true});
-        return TestModel.find(extendedQuery()).then((results) => {
+        return TestModel.find(extendedQuery()).then(results => {
           should(results[0].value).eql({$exists: true});
         });
       });
 
       it('`Model.settings.allowExtendedOperators` override data source settings - ' +
-        'converts extended operators', () => {
+        'reports invalid operator', () => {
         const TestModel = createTestModel({allowExtendedOperators: true}, {allowExtendedOperators: false});
-        return TestModel.find(extendedQuery()).then((results) => {
-          should(results[0].value).eql('[object Object]');
+        return TestModel.find(extendedQuery()).catch(err => {
+          assertOperatorNotAllowed(err);
         });
       });
 
       it('`Model.settings.allowExtendedOperators` override data source settings - ' +
         'preserves extended operators', () => {
         const TestModel = createTestModel({allowExtendedOperators: false}, {allowExtendedOperators: true});
-        return TestModel.find(extendedQuery()).then((results) => {
+        return TestModel.find(extendedQuery()).then(results => {
           should(results[0].value).eql({$exists: true});
         });
       });
 
       it('`options.allowExtendedOperators` override data source settings - ' +
-        'converts extended operators', () => {
+        'reports invalid operator', () => {
         const TestModel = createTestModel({allowExtendedOperators: true});
-        return TestModel.find(extendedQuery(), {allowExtendedOperators: false}).then((results) => {
-          should(results[0].value).eql('[object Object]');
+        return TestModel.find(extendedQuery(), {allowExtendedOperators: false}).catch(err => {
+          assertOperatorNotAllowed(err);
         });
       });
 
       it('`options.allowExtendedOperators` override data source settings - ' +
         'preserves extended operators', () => {
         const TestModel = createTestModel({allowExtendedOperators: false});
-        return TestModel.find(extendedQuery(), {allowExtendedOperators: true}).then((results) => {
+        return TestModel.find(extendedQuery(), {allowExtendedOperators: true}).then(results => {
           should(results[0].value).eql({$exists: true});
         });
       });
@@ -168,37 +177,37 @@ describe('allowExtendedOperators', () => {
     context('DAO.find()', () => {
       it('preserves extended operators with allowExtendedOperators set', () => {
         const TestModel = createTestModel({}, {allowExtendedOperators: true});
-        return TestModel.find(extendedQuery()).then((results) => {
+        return TestModel.find(extendedQuery()).then(results => {
           should(results[0].value).eql({$exists: true});
         });
       });
 
       it('`dataSource.settings.allowExtendedOperators` honor Model settings - ' +
-        'converts extended operators', () => {
+        'reports invalid operator', () => {
         const TestModel = createTestModel({allowExtendedOperators: true}, {allowExtendedOperators: false});
-        return TestModel.find(extendedQuery()).then((results) => {
-          should(results[0].value).eql('[object Object]');
+        return TestModel.find(extendedQuery()).catch(err => {
+          assertOperatorNotAllowed(err);
         });
       });
 
       it('`dataSource.settings.allowExtendedOperators` honor Model settings - ' +
         'preserves extended operators', () => {
         const TestModel = createTestModel({allowExtendedOperators: false}, {allowExtendedOperators: true});
-        return TestModel.find(extendedQuery()).then((results) => {
+        return TestModel.find(extendedQuery()).then(results => {
           should(results[0].value).eql({$exists: true});
         });
       });
 
       it('`options.allowExtendedOperators` override Model settings - converts extended operators', () => {
         const TestModel = createTestModel({allowExtendedOperators: true});
-        return TestModel.find(extendedQuery(), {allowExtendedOperators: false}).then((results) => {
-          should(results[0].value).eql('[object Object]');
+        return TestModel.find(extendedQuery(), {allowExtendedOperators: false}).catch(err => {
+          assertOperatorNotAllowed(err);
         });
       });
 
       it('`options.allowExtendedOperators` Model settings - preserves extended operators', () => {
         const TestModel = createTestModel({allowExtendedOperators: false});
-        return TestModel.find(extendedQuery(), {allowExtendedOperators: true}).then((results) => {
+        return TestModel.find(extendedQuery(), {allowExtendedOperators: true}).then(results => {
           should(results[0].value).eql({$exists: true});
         });
       });
@@ -255,7 +264,7 @@ describe('allowExtendedOperators', () => {
     context('DAO.find()', () => {
       it('preserves extended operators with allowExtendedOperators set', () => {
         const TestModel = createTestModel();
-        return TestModel.find(extendedQuery(), {allowExtendedOperators: true}).then((results) => {
+        return TestModel.find(extendedQuery(), {allowExtendedOperators: true}).then(results => {
           should(results[0].value).eql({$exists: true});
         });
       });
@@ -263,15 +272,15 @@ describe('allowExtendedOperators', () => {
       it('`dataSource.settings.allowExtendedOperators` honor options settings - ' +
         'converts extended operators', () => {
         const TestModel = createTestModel({allowExtendedOperators: true});
-        return TestModel.find(extendedQuery(), {allowExtendedOperators: false}).then((results) => {
-          should(results[0].value).eql('[object Object]');
+        return TestModel.find(extendedQuery(), {allowExtendedOperators: false}).catch(err => {
+          assertOperatorNotAllowed(err);
         });
       });
 
       it('`dataSource.settings.allowExtendedOperators` honor options settings - ' +
         'preserves extended operators', () => {
         const TestModel = createTestModel({allowExtendedOperators: false});
-        return TestModel.find(extendedQuery(), {allowExtendedOperators: true}).then((results) => {
+        return TestModel.find(extendedQuery(), {allowExtendedOperators: true}).then(results => {
           should(results[0].value).eql({$exists: true});
         });
       });
@@ -279,15 +288,15 @@ describe('allowExtendedOperators', () => {
       it('`Model.settings.allowExtendedOperators` honor options settings - ' +
         'converts extended operators', () => {
         const TestModel = createTestModel({}, {allowExtendedOperators: true});
-        return TestModel.find(extendedQuery(), {allowExtendedOperators: false}).then((results) => {
-          should(results[0].value).eql('[object Object]');
+        return TestModel.find(extendedQuery(), {allowExtendedOperators: false}).catch(err => {
+          assertOperatorNotAllowed(err);
         });
       });
 
       it('`Model.settings.allowExtendedOperators` honor options settings - ' +
         'preserves extended operators', () => {
         const TestModel = createTestModel({}, {allowExtendedOperators: false});
-        return TestModel.find(extendedQuery(), {allowExtendedOperators: true}).then((results) => {
+        return TestModel.find(extendedQuery(), {allowExtendedOperators: true}).then(results => {
           should(results[0].value).eql({$exists: true});
         });
       });
