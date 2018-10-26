@@ -3673,6 +3673,46 @@ describe('relations', function() {
       });
     });
 
+    it('should replace the related item on scope', function(done) {
+      Supplier.create(function(err, supplier) {
+        supplier.account.create({
+          accountNo: 'a01',
+          supplierName: 'Supplier A',
+        }, function(err, account) {
+          supplier.account.replace({accountNo: 'a02'}, function(err, acc) {
+            supplier.account(function(err, act) {
+              if (err) return done(err);
+              should.exist(act);
+              act.accountNo.should.equal('a02');
+              act.should.have.property('supplierName', undefined);
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('should replace scoped record with promises', function() {
+      Supplier.create()
+        .then(function(supplier) {
+          return supplier.account.create({
+            accountNo: 'a01',
+            supplierName: 'Supplier A',
+          })
+            .then(function(act) {
+              return supplier.account.replace({accountNo: 'a02'});
+            })
+            .then(function(act) {
+              return supplier.account.get();
+            })
+            .then(function(act) {
+              should.exist(act);
+              act.accountNo.should.equal('a02');
+              act.should.have.property('supplierName', undefined);
+            });
+        });
+    });
+
     it('should not update the related item FK on scope', function(done) {
       Supplier.findById(supplierId, function(err, supplier) {
         if (err) return done(err);
