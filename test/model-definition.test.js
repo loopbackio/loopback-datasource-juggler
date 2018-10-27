@@ -338,26 +338,46 @@ describe('ModelDefinition class', function() {
 
   describe('hidden properties', function() {
     var Child;
-    beforeEach(givenChildren);
 
-    it('should be removed if used in where', function() {
-      return Child.find({
-        where: {secret: 'guess'},
-      }).then(assertHiddenPropertyIsIgnored);
+    describe('with hidden array', function() {
+      beforeEach(function() { givenChildren(); });
+
+      it('should be removed if used in where', function() {
+        return Child.find({
+          where: {secret: 'guess'},
+        }).then(assertHiddenPropertyIsIgnored);
+      });
+
+      it('should be removed if used in where.and', function() {
+        return Child.find({
+          where: {and: [{secret: 'guess'}]},
+        }).then(assertHiddenPropertyIsIgnored);
+      });
     });
 
-    it('should be removed if used in where.and', function() {
-      return Child.find({
-        where: {and: [{secret: 'guess'}]},
-      }).then(assertHiddenPropertyIsIgnored);
+    describe('with hidden object', function() {
+      beforeEach(function() { givenChildren({hiddenProperties: {secret: true}}); });
+
+      it('should be removed if used in where', function() {
+        return Child.find({
+          where: {secret: 'guess'},
+        }).then(assertHiddenPropertyIsIgnored);
+      });
+
+      it('should be removed if used in where.and', function() {
+        return Child.find({
+          where: {and: [{secret: 'guess'}]},
+        }).then(assertHiddenPropertyIsIgnored);
+      });
     });
 
     /**
      * Create two children with a hidden property, one with a matching
      * value, the other with a non-matching value
      */
-    function givenChildren() {
-      Child = memory.createModel('child', {}, {hidden: ['secret']});
+    function givenChildren(hiddenProps) {
+      hiddenProps = hiddenProps || {hidden: ['secret']};
+      Child = memory.createModel('child', {}, hiddenProps);
       return Child.create([{
         name: 'childA',
         secret: 'secret',
