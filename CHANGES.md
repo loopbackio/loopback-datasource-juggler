@@ -1,3 +1,9 @@
+2018-10-27, Version 3.25.1
+==========================
+
+ * Allow hidden/protected props as an object (Raymond Feng)
+
+
 2018-10-26, Version 3.25.0
 ==========================
 
