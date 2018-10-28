@@ -353,6 +353,24 @@ describe('ModelDefinition class', function() {
           where: {and: [{secret: 'guess'}]},
         }).then(assertHiddenPropertyIsIgnored);
       });
+
+      it('should be allowed for update', function() {
+        return Child.update({name: 'childA'}, {secret: 'new-secret'}).then(
+          function(result) {
+            result.count.should.equal(1);
+          }
+        );
+      });
+
+      it('should be allowed if prohibitHiddenPropertiesInQuery is `false`', function() {
+        Child.definition.settings.prohibitHiddenPropertiesInQuery = false;
+        return Child.find({
+          where: {secret: 'guess'},
+        }).then(function(children) {
+          children.length.should.equal(1);
+          children[0].secret.should.equal('guess');
+        });
+      });
     });
 
     describe('with hidden object', function() {
