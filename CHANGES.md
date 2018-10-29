@@ -1,3 +1,11 @@
+2018-10-29, Version 3.25.2
+==========================
+
+ * Check composite keys containing hidden props (Raymond Feng)
+
+ * Improve hidden/protected property checks (Raymond Feng)
+
+
 2018-10-27, Version 3.25.1
 ==========================
 
