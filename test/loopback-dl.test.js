@@ -394,7 +394,6 @@ describe('DataSource define model', function() {
 
     User.create({name: 'Jeff'}, function(err, data) {
       if (err) {
-        console.log(err);
         return;
       }
       var post = data.posts.build({title: 'My Post'});
