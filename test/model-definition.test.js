@@ -353,6 +353,24 @@ describe('ModelDefinition class', function() {
           where: {and: [{secret: 'guess'}]},
         }).then(assertHiddenPropertyIsIgnored);
       });
+
+      it('should be allowed for update', function() {
+        return Child.update({name: 'childA'}, {secret: 'new-secret'}).then(
+          function(result) {
+            result.count.should.equal(1);
+          }
+        );
+      });
+
+      it('should be allowed if prohibitHiddenPropertiesInQuery is `false`', function() {
+        Child.definition.settings.prohibitHiddenPropertiesInQuery = false;
+        return Child.find({
+          where: {secret: 'guess'},
+        }).then(function(children) {
+          children.length.should.equal(1);
+          children[0].secret.should.equal('guess');
+        });
+      });
     });
 
     describe('with hidden object', function() {
@@ -377,13 +395,74 @@ describe('ModelDefinition class', function() {
      */
     function givenChildren(hiddenProps) {
       hiddenProps = hiddenProps || {hidden: ['secret']};
-      Child = memory.createModel('child', {}, hiddenProps);
+      Child = memory.createModel('child', {
+        name: String,
+        secret: String,
+      }, hiddenProps);
       return Child.create([{
         name: 'childA',
         secret: 'secret',
       }, {
         name: 'childB',
         secret: 'guess',
+      }]);
+    }
+
+    function assertHiddenPropertyIsIgnored(children) {
+      // All children are found whether the `secret` condition matches or not
+      // as the condition is removed because it's hidden
+      children.length.should.equal(2);
+    }
+  });
+
+  describe('hidden nested properties', function() {
+    var Child;
+    beforeEach(givenChildren);
+
+    it('should be removed if used in where as a composite key - x.secret', function() {
+      return Child.find({
+        where: {'x.secret': 'guess'},
+      }).then(assertHiddenPropertyIsIgnored);
+    });
+
+    it('should be removed if used in where as a composite key - secret.y', function() {
+      return Child.find({
+        where: {'secret.y': 'guess'},
+      }).then(assertHiddenPropertyIsIgnored);
+    });
+
+    it('should be removed if used in where as a composite key - a.secret.b', function() {
+      return Child.find({
+        where: {'a.secret.b': 'guess'},
+      }).then(assertHiddenPropertyIsIgnored);
+    });
+
+    function givenChildren() {
+      var hiddenProps = {hidden: ['secret']};
+      Child = memory.createModel('child', {
+        name: String,
+        x: {
+          secret: String,
+        },
+        secret: {
+          y: String,
+        },
+        a: {
+          secret: {
+            b: String,
+          },
+        },
+      }, hiddenProps);
+      return Child.create([{
+        name: 'childA',
+        x: {secret: 'secret'},
+        secret: {y: 'secret'},
+        a: {secret: {b: 'secret'}},
+      }, {
+        name: 'childB',
+        x: {secret: 'guess'},
+        secret: {y: 'guess'},
+        a: {secret: {b: 'guess'}},
       }]);
     }
 
