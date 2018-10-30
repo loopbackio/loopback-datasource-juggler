@@ -88,18 +88,18 @@ describe('util.sanitizeQuery', function() {
     var q7 = {where: {x: 1}};
     q7.where.y = q7;
     (function() { sanitizeQuery(q7); }).should.throw(
-      /The query object is too deep or circular/
+      /The query object is circular/
     );
 
     var q8 = {where: {and: [{and: [{and: [{and: [{and: [{and:
       [{and: [{and: [{and: [{x: 1}]}]}]}]}]}]}]}]}]}};
     (function() { sanitizeQuery(q8); }).should.throw(
-      /The query object is too deep or circular/
+      /The query object exceeds maximum depth 12/
     );
 
     var q9 = {where: {and: [{and: [{and: [{and: [{x: 1}]}]}]}]}};
     (function() { sanitizeQuery(q8, {maxDepth: 4}); }).should.throw(
-      /The query object is too deep or circular/
+      /The query object exceeds maximum depth 4/
     );
   });
 
