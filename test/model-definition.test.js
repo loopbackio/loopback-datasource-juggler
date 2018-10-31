@@ -257,6 +257,41 @@ describe('ModelDefinition class', function() {
     done();
   });
 
+  describe('maxDepthOfQuery', function() {
+    it('should report errors for deep query than maxDepthOfQuery', function(done) {
+      var MyModel = memory.createModel('my-model', {}, {
+        maxDepthOfQuery: 5,
+      });
+
+      var filter = givenComplexFilter();
+
+      MyModel.find(filter, function(err) {
+        should.exist(err);
+        err.message.should.match('The query object exceeds maximum depth 5');
+        done();
+      });
+    });
+
+    it('should honor maxDepthOfQuery setting', function(done) {
+      var MyModel = memory.createModel('my-model', {}, {
+        maxDepthOfQuery: 20,
+      });
+
+      var filter = givenComplexFilter();
+
+      MyModel.find(filter, function(err) {
+        should.not.exist(err);
+        done();
+      });
+    });
+
+    function givenComplexFilter() {
+      var filter = {where: {and: [{and: [{and: [{and: [{and: [{and:
+        [{and: [{and: [{and: [{x: 1}]}]}]}]}]}]}]}]}]}};
+      return filter;
+    }
+  });
+
   it('should serialize protected properties into JSON', function() {
     var ProtectedModel = memory.createModel('protected', {}, {
       protected: ['protectedProperty'],
