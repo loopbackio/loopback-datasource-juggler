@@ -1,3 +1,9 @@
+2018-10-31, Version 4.2.0
+=========================
+
+ * Allow configuration of maxDepthOfQuery (Raymond Feng)
+
+
 2018-10-29, Version 4.1.2
 =========================
 
