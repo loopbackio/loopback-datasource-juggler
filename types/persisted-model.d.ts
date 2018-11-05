@@ -154,7 +154,7 @@ export declare class PersistedModel extends ModelBase {
     data: PersistedData,
     options?: Options,
     callback?: Callback<PersistedModel>,
-  ): PromiseOrVoid<PersistedModel>;
+  ): PromiseOrVoid<[PersistedModel, boolean]>;
 
   /**
    * Check whether a model instance exists in database.
