@@ -46,6 +46,11 @@ describe('ModelBuilder', () => {
         const MyModel = builder.define('Grand\tchild');
         MyModel.should.have.property('name', 'ModelConstructor');
       });
+
+      it('supports model names that match parameter names', () => {
+        builder.define('data').should.not.throw();
+        builder.define('options').should.not.throw();
+      });
     });
 
     function givenModelBuilderInstance() {
