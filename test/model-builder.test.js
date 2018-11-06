@@ -42,9 +42,9 @@ describe('ModelBuilder', () => {
         MyModel.should.have.property('name', 'local_User');
       });
 
-      it('falls back to legacy "ModelConstructor" in other cases', () => {
+      it('falls back to provided name in other cases', () => {
         const MyModel = builder.define('Grand\tchild');
-        MyModel.should.have.property('name', 'ModelConstructor');
+        MyModel.should.have.property('name', 'Grand\tchild');
       });
 
       it('supports model names that match parameter names', () => {
