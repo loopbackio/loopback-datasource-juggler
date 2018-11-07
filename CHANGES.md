@@ -1,3 +1,9 @@
+2018-11-07, Version 4.2.1
+=========================
+
+ * [ BUGFIX ] maxDepthOfQuery config (leon3s)
+
+
 2018-10-31, Version 4.2.0
 =========================
 
