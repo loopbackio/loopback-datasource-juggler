@@ -285,6 +285,19 @@ describe('ModelDefinition class', function() {
       });
     });
 
+    it('should honor maxDepthOfQuery in options', function(done) {
+      var MyModel = memory.createModel('my-model', {}, {
+        maxDepthOfQuery: 5,
+      });
+
+      var filter = givenComplexFilter();
+
+      MyModel.find(filter, {maxDepthOfQuery: 20}, function(err) {
+        should.not.exist(err);
+        done();
+      });
+    });
+
     function givenComplexFilter() {
       var filter = {where: {and: [{and: [{and: [{and: [{and: [{and:
         [{and: [{and: [{and: [{x: 1}]}]}]}]}]}]}]}]}]}};
@@ -401,6 +414,17 @@ describe('ModelDefinition class', function() {
         Child.definition.settings.prohibitHiddenPropertiesInQuery = false;
         return Child.find({
           where: {secret: 'guess'},
+        }).then(function(children) {
+          children.length.should.equal(1);
+          children[0].secret.should.equal('guess');
+        });
+      });
+
+      it('should be allowed if prohibitHiddenPropertiesInQuery is `false` in options', function() {
+        return Child.find({
+          where: {secret: 'guess'},
+        }, {
+          prohibitHiddenPropertiesInQuery: false,
         }).then(function(children) {
           children.length.should.equal(1);
           children[0].secret.should.equal('guess');
