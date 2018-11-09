@@ -1,7 +1,12 @@
 {
     "content": [
+        "lib/dao.js",
+        "lib/scope.js",
+        "lib/relation-definition.js",
         "lib/datasource.js",
         "lib/model.js",
+        "lib/model-definition.js",
+        "lib/mixins.js",
         "lib/date-string.js",
         "lib/geo.js",
         "lib/hooks.js",
