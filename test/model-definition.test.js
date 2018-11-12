@@ -393,17 +393,17 @@ describe('ModelDefinition class', function() {
       it('should be removed if used in where', function() {
         return Child.find({
           where: {secret: 'guess'},
-        }).then(assertHiddenPropertyIsIgnored);
+        }, optionsFromRemoteReq).then(assertHiddenPropertyIsIgnored);
       });
 
       it('should be removed if used in where.and', function() {
         return Child.find({
           where: {and: [{secret: 'guess'}]},
-        }).then(assertHiddenPropertyIsIgnored);
+        }, optionsFromRemoteReq).then(assertHiddenPropertyIsIgnored);
       });
 
       it('should be allowed for update', function() {
-        return Child.update({name: 'childA'}, {secret: 'new-secret'}).then(
+        return Child.update({name: 'childA'}, {secret: 'new-secret'}, optionsFromRemoteReq).then(
           function(result) {
             result.count.should.equal(1);
           }
@@ -412,6 +412,15 @@ describe('ModelDefinition class', function() {
 
       it('should be allowed if prohibitHiddenPropertiesInQuery is `false`', function() {
         Child.definition.settings.prohibitHiddenPropertiesInQuery = false;
+        return Child.find({
+          where: {secret: 'guess'},
+        }).then(function(children) {
+          children.length.should.equal(1);
+          children[0].secret.should.equal('guess');
+        });
+      });
+
+      it('should be allowed by default if not remote call', function() {
         return Child.find({
           where: {secret: 'guess'},
         }).then(function(children) {
@@ -438,13 +447,13 @@ describe('ModelDefinition class', function() {
       it('should be removed if used in where', function() {
         return Child.find({
           where: {secret: 'guess'},
-        }).then(assertHiddenPropertyIsIgnored);
+        }, optionsFromRemoteReq).then(assertHiddenPropertyIsIgnored);
       });
 
       it('should be removed if used in where.and', function() {
         return Child.find({
           where: {and: [{secret: 'guess'}]},
-        }).then(assertHiddenPropertyIsIgnored);
+        }, optionsFromRemoteReq).then(assertHiddenPropertyIsIgnored);
       });
     });
 
@@ -474,6 +483,15 @@ describe('ModelDefinition class', function() {
     }
   });
 
+  /**
+   * Mock up for default values set by the remote model
+   */
+  const optionsFromRemoteReq = {
+    prohibitHiddenPropertiesInQuery: true,
+    maxDepthOfQuery: 12,
+    maxDepthOfQuery: 32,
+  };
+
   describe('hidden nested properties', function() {
     var Child;
     beforeEach(givenChildren);
@@ -481,19 +499,19 @@ describe('ModelDefinition class', function() {
     it('should be removed if used in where as a composite key - x.secret', function() {
       return Child.find({
         where: {'x.secret': 'guess'},
-      }).then(assertHiddenPropertyIsIgnored);
+      }, optionsFromRemoteReq).then(assertHiddenPropertyIsIgnored);
     });
 
     it('should be removed if used in where as a composite key - secret.y', function() {
       return Child.find({
         where: {'secret.y': 'guess'},
-      }).then(assertHiddenPropertyIsIgnored);
+      }, optionsFromRemoteReq).then(assertHiddenPropertyIsIgnored);
     });
 
     it('should be removed if used in where as a composite key - a.secret.b', function() {
       return Child.find({
         where: {'a.secret.b': 'guess'},
-      }).then(assertHiddenPropertyIsIgnored);
+      }, optionsFromRemoteReq).then(assertHiddenPropertyIsIgnored);
     });
 
     function givenChildren() {
@@ -551,7 +569,7 @@ describe('ModelDefinition class', function() {
             },
           },
         },
-      }).then(assertParentIncludeChildren);
+      }, optionsFromRemoteReq).then(assertParentIncludeChildren);
     });
 
     it('should be rejected if used in include scope.where.and', function() {
@@ -564,7 +582,7 @@ describe('ModelDefinition class', function() {
             },
           },
         },
-      }).then(assertParentIncludeChildren);
+      }, optionsFromRemoteReq).then(assertParentIncludeChildren);
     });
 
     it('should be removed if a hidden property is used in include scope', function() {
@@ -577,7 +595,7 @@ describe('ModelDefinition class', function() {
             },
           },
         },
-      }).then(assertParentIncludeChildren);
+      }, optionsFromRemoteReq).then(assertParentIncludeChildren);
     });
 
     function givenParentAndChild() {
@@ -610,7 +628,7 @@ describe('ModelDefinition class', function() {
             },
           },
         },
-      }).then(assertParentIncludeChildren);
+      }, optionsFromRemoteReq).then(assertParentIncludeChildren);
     });
 
     function givenParentAndChildWithHiddenProperty() {
