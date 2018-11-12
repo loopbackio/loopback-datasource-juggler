@@ -93,9 +93,12 @@ describe('util.sanitizeQuery', function() {
 
     var q8 = {where: {and: [{and: [{and: [{and: [{and: [{and:
       [{and: [{and: [{and: [{x: 1}]}]}]}]}]}]}]}]}]}};
-    (function() { sanitizeQuery(q8); }).should.throw(
+    (function() { sanitizeQuery(q8, {maxDepth: 12}); }).should.throw(
       /The query object exceeds maximum depth 12/
     );
+
+    // maxDepth is default to maximum integer
+    sanitizeQuery(q8).should.eql(q8);
 
     var q9 = {where: {and: [{and: [{and: [{and: [{x: 1}]}]}]}]}};
     (function() { sanitizeQuery(q8, {maxDepth: 4}); }).should.throw(
