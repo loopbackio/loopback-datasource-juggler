@@ -1,3 +1,11 @@
+2018-11-12, Version 3.27.0
+==========================
+
+ * Allow flags to be passed via options (Raymond Feng)
+
+ * chore: update file list for apidocs (biniam)
+
+
 2018-11-08, Version 3.26.1
 ==========================
 
