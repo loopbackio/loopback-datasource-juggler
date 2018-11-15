@@ -1,3 +1,9 @@
+2018-11-15, Version 3.28.0
+==========================
+
+ * Use options from request for settings (Raymond Feng)
+
+
 2018-11-12, Version 3.27.0
 ==========================
 
