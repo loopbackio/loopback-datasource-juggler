@@ -61,6 +61,19 @@ describe('datatypes', function() {
       });
     });
 
+  it('throws an error when property of type Date is set to an invalid value using promises',
+    function() {
+      var myModel = db.define('myModel', {
+        date: {type: Date},
+      });
+
+      return myModel
+        .create({date: 'invalid'})
+        .catch(function(err) {
+          (err.message).should.equal('Invalid date: invalid');
+        });
+    });
+
   it('should keep types when get read data from db', function(done) {
     var d = new Date, id;
 
