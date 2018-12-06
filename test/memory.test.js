@@ -677,6 +677,24 @@ describe('Memory connector', function() {
     });
   });
 
+  it('should refuse to create object with duplicate unique index', function(done) {
+    var ds = new DataSource({connector: 'memory'});
+    var Product = ds.define('ProductTest', {name: {type: String, index: {unique: true}}}, {forceId: false});
+    ds.automigrate('ProductTest', function(err) {
+      if (err) return done(err);
+
+      Product.create({name: 'a-name'}, function(err, p) {
+        if (err) return done(err);
+        Product.create({name: 'a-name'}, function(err) {
+          should.exist(err);
+          err.message.should.match(/Duplicate/i);
+          err.statusCode.should.equal(409);
+          done();
+        });
+      });
+    });
+  });
+
   describe('automigrate', function() {
     var ds;
     beforeEach(function() {
