@@ -178,4 +178,11 @@ export declare class DataSource extends EventEmitter {
   connect(callback?: Callback): PromiseOrVoid;
   disconnect(callback?: Callback): PromiseOrVoid;
   ping(callback?: Callback): PromiseOrVoid;
+
+  // Only promise variant, callback is intentionally not supported.
+  execute(
+    command: string | object,
+    args?: any[] | object,
+    options?: Options
+  ): Promise<any>;
 }
