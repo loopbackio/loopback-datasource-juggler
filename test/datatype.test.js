@@ -53,7 +53,8 @@ describe('datatypes', function() {
     });
 
   it('should keep types when get read data from db', function(done) {
-    let d = new Date('2015-01-01T12:00:00'), id;
+    const d = new Date('2015-01-01T12:00:00');
+    let id;
 
     Model.create({
       str: 'hello', date: d, num: '3', bool: 1, list: ['test'], arr: [1, 'str'],
@@ -101,7 +102,8 @@ describe('datatypes', function() {
   });
 
   it('should respect data types when updating attributes', function(done) {
-    const d = new Date, id;
+    const d = new Date;
+    let id;
 
     Model.create({
       str: 'hello', date: d, num: '3', bool: 1}, function(err, m) {

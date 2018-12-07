@@ -615,8 +615,7 @@ describe('DataSource define model', function() {
 
   it('updates instances with unknown properties in non-strict mode', function(done) {
     const ds = new DataSource('memory');// define models
-    let Post;
-    Post = ds.define('Post', {
+    const Post = ds.define('Post', {
       title: {type: String, length: 255, index: true},
       content: {type: String},
     });

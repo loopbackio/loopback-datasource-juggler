@@ -632,7 +632,8 @@ describe('Mock connector', function() {
 });
 
 describe('Default memory connector', function() {
-  let ds, nonExistantError = 'Table \'NONEXISTENT\' does not exist.';
+  const nonExistantError = 'Table \'NONEXISTENT\' does not exist.';
+  let ds;
 
   before(function() {
     ds = new DataSource({connector: 'memory'});

@@ -9,12 +9,12 @@
 /* global getSchema:false */
 const should = require('./init.js');
 
-let j = require('../'),
+const j = require('../'),
   Schema = j.Schema,
   AbstractClass = j.AbstractClass,
-  Hookable = j.Hookable,
+  Hookable = j.Hookable;
 
-  db, User;
+let db, User;
 
 describe('hooks', function() {
   before(function(done) {
@@ -436,7 +436,8 @@ describe('hooks', function() {
 });
 
 function addHooks(name, done) {
-  let called = false, random = String(Math.floor(Math.random() * 1000));
+  const random = String(Math.floor(Math.random() * 1000));
+  let called = false;
   User['before' + name] = function(next, data) {
     called = true;
     data.email = random;

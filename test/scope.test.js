@@ -284,7 +284,7 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
       verify();
     });
 
-    var verify = function() {
+    function verify() {
       Station.flagged.count(function(err, count) {
         if (err) return done(err);
         count.should.equal(2);
@@ -300,7 +300,7 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
       verify();
     });
 
-    var verify = function() {
+    function verify() {
       Station.flagged.count(function(err, count) {
         if (err) return done(err);
         count.should.equal(2);
@@ -315,7 +315,7 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
       verify();
     });
 
-    var verify = function() {
+    function verify() {
       Station.ordered.count(function(err, count) {
         if (err) return done(err);
         count.should.equal(2);

@@ -108,7 +108,7 @@ describe('DataSource', function() {
    * new DataSource(connectorInstance)
    */
   it('should accept resolved connector', function() {
-    var mockConnector = {
+    const mockConnector = {
       name: 'loopback-connector-mock',
       initialize: function(ds, cb) {
         ds.connector = mockConnector;
@@ -125,7 +125,7 @@ describe('DataSource', function() {
    * new DataSource(dsName, connectorInstance)
    */
   it('should accept dsName and resolved connector', function() {
-    var mockConnector = {
+    const mockConnector = {
       name: 'loopback-connector-mock',
       initialize: function(ds, cb) {
         ds.connector = mockConnector;
@@ -142,7 +142,7 @@ describe('DataSource', function() {
    * new DataSource(connectorInstance, settings)
    */
   it('should accept resolved connector and settings', function() {
-    var mockConnector = {
+    const mockConnector = {
       name: 'loopback-connector-mock',
       initialize: function(ds, cb) {
         ds.connector = mockConnector;
@@ -156,7 +156,7 @@ describe('DataSource', function() {
   });
 
   it('should set states correctly with eager connect', function(done) {
-    var mockConnector = {
+    const mockConnector = {
       name: 'loopback-connector-mock',
       initialize: function(ds, cb) {
         ds.connector = mockConnector;
@@ -211,7 +211,7 @@ describe('DataSource', function() {
   });
 
   it('should set states correctly with deferred connect', function(done) {
-    var mockConnector = {
+    const mockConnector = {
       name: 'loopback-connector-mock',
       initialize: function(ds, cb) {
         ds.connector = mockConnector;
@@ -267,7 +267,7 @@ describe('DataSource', function() {
   });
 
   it('should set states correctly with lazyConnect = true', function(done) {
-    var mockConnector = {
+    const mockConnector = {
       name: 'loopback-connector-mock',
       initialize: function(ds, cb) {
         ds.connector = mockConnector;
