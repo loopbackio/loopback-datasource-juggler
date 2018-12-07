@@ -577,7 +577,7 @@ function testOrm(dataSource) {
 
     function done() {
       if (--wait === 0) test.done();
-    };
+    }
   });
 
   it('should return type of property', function(test) {

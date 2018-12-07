@@ -426,7 +426,7 @@ describe('default scope', function() {
         exists.should.be.false;
         done();
       });
-    };
+    }
 
     before(function(done) {
       db.automigrate(setupProducts.bind(null, ids, done));

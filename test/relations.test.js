@@ -946,7 +946,7 @@ describe('relations', function() {
                 });
             });
         });
-      };
+      }
     });
 
     describe('find over related model with options', function() {

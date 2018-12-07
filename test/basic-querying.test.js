@@ -521,7 +521,7 @@ describe('basic-querying', function() {
         for (var ix = 0; ix < users.length; ix++) {
           users[ix].name.should.be.oneOf(['John Lennon', 'Stuart Sutcliffe', 'Paul McCartney']);
           users[ix].vip.should.be.true();
-        };
+        }
         done();
       });
     });
