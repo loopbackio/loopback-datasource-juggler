@@ -9,7 +9,9 @@
 /* global getSchema:false */
 const should = require('./init.js');
 
-let db = getSchema(), slave = getSchema(), Model, SlaveModel;
+const db = getSchema();
+const slave = getSchema();
+let Model, SlaveModel;
 
 describe('dataSource', function() {
   it('should define Model', function() {

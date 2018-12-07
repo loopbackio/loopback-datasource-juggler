@@ -137,7 +137,7 @@ describe('manipulation', function() {
     });
 
     it('should not return instance of object', function(done) {
-      var person = Person.create(function(err, p) {
+      const person = Person.create(function(err, p) {
         if (err) return done(err);
         should.exist(p.id);
         if (person) person.should.not.be.an.instanceOf(Person);
@@ -254,7 +254,7 @@ describe('manipulation', function() {
         {name: 'Boltay'},
         {},
       ];
-      var res = Person.create(batch, function(e, ps) {
+      const res = Person.create(batch, function(e, ps) {
         if (res) res.should.not.be.instanceOf(Array);
         should.not.exist(e);
         should.exist(ps);

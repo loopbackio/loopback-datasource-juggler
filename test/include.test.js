@@ -1493,10 +1493,10 @@ describe('include', function() {
   });
 });
 
-var createdUsers = [];
-var createdPassports = [];
-var createdProfiles = [];
-var createdPosts = [];
+let createdUsers = [];
+let createdPassports = [];
+let createdProfiles = [];
+let createdPosts = [];
 function setup(done) {
   db = getSchema();
   City = db.define('City');

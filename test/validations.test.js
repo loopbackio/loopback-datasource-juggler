@@ -10,7 +10,8 @@
 const should = require('./init.js');
 const async = require('async');
 
-let j = require('../'), db, User;
+const j = require('../');
+let db, User;
 const ValidationError = j.ValidationError;
 
 function getValidAttributes() {
@@ -1521,7 +1522,7 @@ describe('validations', function() {
   });
 });
 
-var empData = [{
+const empData = [{
   id: 1,
   name: 'Foo',
   age: 1,

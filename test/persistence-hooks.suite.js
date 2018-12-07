@@ -143,8 +143,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('triggers the loaded hook multiple times when multiple instances exist when near filter is used',
         function(done) {
-          let hookMonitorGeoModel;
-          hookMonitorGeoModel = new HookMonitor({includeModelName: false});
+          const hookMonitorGeoModel = new HookMonitor({includeModelName: false});
 
           function monitorHookExecutionGeoModel(hookNames) {
             hookMonitorGeoModel.install(GeoModel, hookNames);

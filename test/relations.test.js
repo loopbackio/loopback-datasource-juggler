@@ -2784,7 +2784,8 @@ describe('relations', function() {
       scope4.should.have.property('include', 'imageable');
     });
 
-    let article, employee, pictures = [];
+    let article, employee;
+    const pictures = [];
     it('should create polymorphic relation - article', function(done) {
       Article.create({name: 'Article 1'}, function(err, a) {
         if (err) return done(err);

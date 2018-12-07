@@ -923,7 +923,8 @@ describe('Unoptimized connector', function() {
 });
 
 describe('Memory connector with options', function() {
-  let ds, savedOptions = {}, Post;
+  const savedOptions = {};
+  let ds, Post;
 
   before(function() {
     ds = new DataSource({connector: 'memory'});
