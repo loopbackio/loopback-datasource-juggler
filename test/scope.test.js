@@ -7,9 +7,9 @@
 'use strict';
 
 /* global getSchema:false */
-var should = require('./init.js');
+const should = require('./init.js');
 
-var db, Railway, Station;
+let db, Railway, Station;
 
 describe('scope', function() {
   before(function() {
@@ -161,7 +161,7 @@ describe('scope - order', function() {
 });
 
 describe('scope - filtered count, updateAll and destroyAll', function() {
-  var stationA;
+  let stationA;
 
   before(function() {
     db = getSchema();
@@ -290,7 +290,7 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
         count.should.equal(2);
         done();
       });
-    };
+    }
   });
 
   it('should allow filtered updateAll', function(done) {
@@ -306,7 +306,7 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
         count.should.equal(2);
         done();
       });
-    };
+    }
   });
 
   it('should allow filtered destroyAll', function(done) {
@@ -325,12 +325,12 @@ describe('scope - filtered count, updateAll and destroyAll', function() {
           done();
         });
       });
-    };
+    }
   });
 });
 
 describe('scope - dynamic target class', function() {
-  var Collection, Image, Video;
+  let Collection, Image, Video;
 
   before(function() {
     db = getSchema();
@@ -414,7 +414,7 @@ describe('scope - dynamic target class', function() {
 });
 
 describe('scope - dynamic function', function() {
-  var Item, seed = 0;
+  let Item, seed = 0;
 
   before(function() {
     db = getSchema();

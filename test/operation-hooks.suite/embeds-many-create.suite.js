@@ -5,18 +5,18 @@
 
 'use strict';
 
-var ValidationError = require('../..').ValidationError;
+const ValidationError = require('../..').ValidationError;
 
-var contextTestHelpers = require('../helpers/context-test-helpers');
-var ContextRecorder = contextTestHelpers.ContextRecorder;
-var aCtxForModel = contextTestHelpers.aCtxForModel;
+const contextTestHelpers = require('../helpers/context-test-helpers');
+const ContextRecorder = contextTestHelpers.ContextRecorder;
+const aCtxForModel = contextTestHelpers.aCtxForModel;
 
-var uid = require('../helpers/uid-generator');
-var HookMonitor = require('../helpers/hook-monitor');
+const uid = require('../helpers/uid-generator');
+const HookMonitor = require('../helpers/hook-monitor');
 
 module.exports = function(dataSource, should, connectorCapabilities) {
   describe('EmbedsMany - create', function() {
-    var ctxRecorder, hookMonitor, expectedError;
+    let ctxRecorder, hookMonitor, expectedError;
 
     beforeEach(function setupHelpers() {
       ctxRecorder = new ContextRecorder('hook not called');
@@ -24,8 +24,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       expectedError = new Error('test error');
     });
 
-    var Owner, Embedded, ownerInstance;
-    var migrated = false;
+    let Owner, Embedded, ownerInstance;
+    let migrated = false;
 
     beforeEach(function setupDatabase() {
       Embedded = dataSource.createModel('Embedded', {
@@ -57,7 +57,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
     });
 
     function callCreate() {
-      var item = new Embedded({name: 'created'});
+      const item = new Embedded({name: 'created'});
       return ownerInstance.embeddedList.create(item);
     }
 

@@ -5,8 +5,8 @@
 
 'use strict';
 
-var should = require('./init.js');
-var List = require('../lib/list');
+const should = require('./init.js');
+const List = require('../lib/list');
 
 /**
  * Phone as a class
@@ -40,31 +40,31 @@ function PhoneCtor(label, num) {
 
 describe('list of items typed by a class', function() {
   it('allows itemType to be a class', function() {
-    var phones = givenPhones();
+    const phones = givenPhones();
 
-    var list = new List(phones, Phone);
+    const list = new List(phones, Phone);
     list.should.be.an.instanceOf(Array);
     list.toJSON().should.be.eql(phones);
   });
 
   it('converts items of plain json to the itemType', function() {
-    var phones = givenPhonesAsJSON();
+    const phones = givenPhonesAsJSON();
 
-    var list = new List(phones, Phone);
+    const list = new List(phones, Phone);
     list[0].should.be.an.instanceOf(Phone);
   });
 
   it('converts stringified items to the itemType', function() {
-    var phones = givenPhonesAsJSON();
+    const phones = givenPhonesAsJSON();
 
-    var list = new List(JSON.stringify(phones), Phone);
+    const list = new List(JSON.stringify(phones), Phone);
     list[0].should.be.an.instanceOf(Phone);
   });
 
   it('converts items of plain json to the itemType with push', function() {
-    var phones = givenPhonesAsJSON();
+    const phones = givenPhonesAsJSON();
 
-    var list = new List([], Phone);
+    const list = new List([], Phone);
     list.push(phones[0]);
     list[0].should.be.an.instanceOf(Phone);
   });
@@ -72,31 +72,31 @@ describe('list of items typed by a class', function() {
 
 describe('list of items typed by a ctor', function() {
   it('allows itemType to be a ctor', function() {
-    var phones = givenPhonesWithCtor();
+    const phones = givenPhonesWithCtor();
 
-    var list = new List(phones, PhoneCtor);
+    const list = new List(phones, PhoneCtor);
     list.should.be.an.instanceOf(Array);
     list.toJSON().should.be.eql(phones);
   });
 
   it('converts items of plain json to the itemType', function() {
-    var phones = givenPhonesAsJSON();
+    const phones = givenPhonesAsJSON();
 
-    var list = new List(phones, PhoneCtor);
+    const list = new List(phones, PhoneCtor);
     list[0].should.be.an.instanceOf(PhoneCtor);
   });
 
   it('converts stringified items to the itemType', function() {
-    var phones = givenPhonesAsJSON();
+    const phones = givenPhonesAsJSON();
 
-    var list = new List(JSON.stringify(phones), PhoneCtor);
+    const list = new List(JSON.stringify(phones), PhoneCtor);
     list[0].should.be.an.instanceOf(PhoneCtor);
   });
 
   it('converts items of plain json to the itemType with push', function() {
-    var phones = givenPhonesAsJSON();
+    const phones = givenPhonesAsJSON();
 
-    var list = new List([], PhoneCtor);
+    const list = new List([], PhoneCtor);
     list.push(phones[0]);
     list[0].should.be.an.instanceOf(PhoneCtor);
   });

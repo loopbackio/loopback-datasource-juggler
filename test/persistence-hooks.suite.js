@@ -4,35 +4,35 @@
 // License text available at https://opensource.org/licenses/MIT
 
 'use strict';
-var ValidationError = require('../').ValidationError;
+const ValidationError = require('../').ValidationError;
 
-var async = require('async');
-var contextTestHelpers = require('./helpers/context-test-helpers');
-var ContextRecorder = contextTestHelpers.ContextRecorder;
-var deepCloneToObject = contextTestHelpers.deepCloneToObject;
-var aCtxForModel = contextTestHelpers.aCtxForModel;
-var GeoPoint = require('../lib/geo.js').GeoPoint;
+const async = require('async');
+const contextTestHelpers = require('./helpers/context-test-helpers');
+const ContextRecorder = contextTestHelpers.ContextRecorder;
+const deepCloneToObject = contextTestHelpers.deepCloneToObject;
+const aCtxForModel = contextTestHelpers.aCtxForModel;
+const GeoPoint = require('../lib/geo.js').GeoPoint;
 
-var uid = require('./helpers/uid-generator');
-var getLastGeneratedUid = uid.last;
+const uid = require('./helpers/uid-generator');
+const getLastGeneratedUid = uid.last;
 
-var HookMonitor = require('./helpers/hook-monitor');
-var isNewInstanceFlag;
+const HookMonitor = require('./helpers/hook-monitor');
+let isNewInstanceFlag;
 
 module.exports = function(dataSource, should, connectorCapabilities) {
   isNewInstanceFlag = connectorCapabilities.replaceOrCreateReportsNewInstance;
   if (!connectorCapabilities) connectorCapabilities = {};
   if (isNewInstanceFlag === undefined) {
-    var warn = 'The connector does not support a recently added feature:' +
+    const warn = 'The connector does not support a recently added feature:' +
       ' replaceOrCreateReportsNewInstance';
     console.warn(warn);
   }
   describe('Persistence hooks', function() {
-    var ctxRecorder, hookMonitor, expectedError;
-    var TestModel, existingInstance, GeoModel;
-    var migrated = false;
+    let ctxRecorder, hookMonitor, expectedError;
+    let TestModel, existingInstance, GeoModel;
+    let migrated = false;
 
-    var undefinedValue = undefined;
+    let undefinedValue = undefined;
 
     beforeEach(function setupDatabase(done) {
       ctxRecorder = new ContextRecorder('hook not called');
@@ -82,8 +82,8 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
           TestModel.create({name: 'second'}, function(err) {
             if (err) return done(err);
-            var location1 = new GeoPoint({lat: 10.2, lng: 6.7});
-            var location2 = new GeoPoint({lat: 10.3, lng: 6.8});
+            const location1 = new GeoPoint({lat: 10.2, lng: 6.7});
+            const location2 = new GeoPoint({lat: 10.3, lng: 6.8});
             GeoModel.create([
               {name: 'Rome', location: location1},
               {name: 'Tokyo', location: location2},
@@ -143,7 +143,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
       it('triggers the loaded hook multiple times when multiple instances exist when near filter is used',
         function(done) {
-          var hookMonitorGeoModel;
+          let hookMonitorGeoModel;
           hookMonitorGeoModel = new HookMonitor({includeModelName: false});
 
           function monitorHookExecutionGeoModel(hookNames) {
@@ -152,7 +152,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
           monitorHookExecutionGeoModel();
 
-          var query = {
+          const query = {
             where: {location: {near: '10,5'}},
           };
           GeoModel.find(query, function(err, list) {
@@ -170,7 +170,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           next();
         });
 
-        var query = {
+        const query = {
           where: {location: {near: '10,5'}},
         };
 
@@ -191,7 +191,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             next();
           });
 
-          var query = {
+          const query = {
             where: {location: {near: '10,5'}},
           };
 
@@ -1325,7 +1325,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         // The rationale behind passing { persisted: true } is to bypass the check
         // made by DAO to determine whether the instance should be saved via
         // PersistedModel.create and force it to call connector.save()
-        var instance = new TestModel(
+        const instance = new TestModel(
           {id: 'new-id', name: 'created'},
           {persisted: true}
         );
@@ -1391,7 +1391,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       it('triggers `before save` hook', function(done) {
         TestModel.observe('before save', ctxRecorder.recordAndNext());
 
-        var currentInstance = deepCloneToObject(existingInstance);
+        const currentInstance = deepCloneToObject(existingInstance);
 
         existingInstance.updateAttributes({name: 'changed'}, function(err) {
           if (err) return done(err);
@@ -1494,13 +1494,13 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       });
 
       it('applies updates from `persist` hook - for nested model instance', function(done) {
-        var Address = dataSource.createModel('NestedAddress', {
+        const Address = dataSource.createModel('NestedAddress', {
           id: {type: String, id: true, default: 1},
           city: {type: String, required: true},
           country: {type: String, required: true},
         });
 
-        var User = dataSource.createModel('UserWithAddress', {
+        const User = dataSource.createModel('UserWithAddress', {
           id: {type: String, id: true, default: uid.next},
           name: {type: String, required: true},
           address: {type: Address, required: false},
@@ -1512,7 +1512,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           User.create({name: 'Joe'}, function(err, instance) {
             if (err) return done(err);
 
-            var existingUser = instance;
+            const existingUser = instance;
 
             User.observe('persist', ctxRecorder.recordAndNext(function(ctx) {
               should.exist(ctx.data.address);
@@ -1762,13 +1762,13 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         });
 
         it('applies updates from `persist` hook - for nested model instance', function(done) {
-          var Address = dataSource.createModel('NestedAddress', {
+          const Address = dataSource.createModel('NestedAddress', {
             id: {type: String, id: true, default: 1},
             city: {type: String, required: true},
             country: {type: String, required: true},
           });
 
-          var User = dataSource.createModel('UserWithAddress', {
+          const User = dataSource.createModel('UserWithAddress', {
             id: {type: String, id: true, default: uid.next},
             name: {type: String, required: true},
             address: {type: Address, required: false},
@@ -1780,7 +1780,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             User.create({name: 'Joe'}, function(err, instance) {
               if (err) return done(err);
 
-              var existingUser = instance;
+              const existingUser = instance;
 
               User.observe('persist', ctxRecorder.recordAndNext(function(ctx) {
                 should.exist(ctx.data.address);
@@ -2215,7 +2215,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, instance) {
             if (err) return done(err);
 
-            var expectedContext = aCtxForModel(TestModel, {
+            const expectedContext = aCtxForModel(TestModel, {
               where: {id: existingInstance.id},
               data: {
                 id: existingInstance.id,
@@ -2504,7 +2504,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               if (err)
                 return done(err);
 
-              var expectedContext = aCtxForModel(TestModel, {
+              const expectedContext = aCtxForModel(TestModel, {
                 instance: instance,
               });
 
@@ -2522,7 +2522,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             function(err, instance) {
               if (err) return done(err);
 
-              var expectedContext = aCtxForModel(TestModel, {
+              const expectedContext = aCtxForModel(TestModel, {
                 instance: {
                   id: existingInstance.id,
                   name: 'replaced name',
@@ -2548,7 +2548,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             function(err, instance) {
               if (err) return done(err);
 
-              var expectedContext = aCtxForModel(TestModel, {
+              const expectedContext = aCtxForModel(TestModel, {
                 instance: {
                   id: 'new-id',
                   name: 'a name',
@@ -2603,7 +2603,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             function(err, instance) {
               if (err) return done(err);
 
-              var expectedContext = aCtxForModel(TestModel, {
+              const expectedContext = aCtxForModel(TestModel, {
                 currentInstance: {
                   id: 'new-id',
                   name: 'a name',
@@ -2637,7 +2637,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             function(err, instance) {
               if (err) return done(err);
 
-              var expected = {
+              const expected = {
                 where: {id: existingInstance.id},
                 data: {
                   id: existingInstance.id,
@@ -2650,7 +2650,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 },
               };
 
-              var expectedContext = aCtxForModel(TestModel, expected);
+              const expectedContext = aCtxForModel(TestModel, expected);
 
               if (!dataSource.connector.replaceOrCreate) {
                 expectedContext.isNewInstance = false;
@@ -2718,7 +2718,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             function(err, instance) {
               if (err) return done(err);
 
-              var expected = {
+              const expected = {
                 data: {
                   id: 'new-id',
                   name: 'a name',
@@ -2743,7 +2743,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             function(err, instance) {
               if (err) return done(err);
 
-              var expected = {
+              const expected = {
                 data: {
                   id: existingInstance.id,
                   name: 'replaced name',
@@ -2779,7 +2779,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             function(err, instance) {
               if (err) return done(err);
 
-              var expected = {
+              const expected = {
                 instance: {
                   id: existingInstance.id,
                   name: 'replaced name',
@@ -2805,7 +2805,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             function(err, instance) {
               if (err) return done(err);
 
-              var expected = {
+              const expected = {
                 instance: {
                   id: instance.id,
                   name: 'a name',
@@ -3498,7 +3498,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           {id: existingInstance.id, name: 'updated name'},
           function(err, instance) {
             if (err) return done(err);
-            var expectedContext = aCtxForModel(TestModel, {
+            const expectedContext = aCtxForModel(TestModel, {
               where: {id: existingInstance.id},
               data: {
                 id: existingInstance.id,
@@ -3525,7 +3525,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           {id: 'new-id', name: 'a name'},
           function(err, instance) {
             if (err) return done(err);
-            var expectedContext = aCtxForModel(TestModel, {});
+            const expectedContext = aCtxForModel(TestModel, {});
 
             if (dataSource.connector.upsertWithWhere) {
               expectedContext.data = {id: 'new-id', name: 'a name'};
@@ -3607,7 +3607,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, instance) {
             if (err) return done(err);
 
-            var expectedContext = aCtxForModel(TestModel, {
+            const expectedContext = aCtxForModel(TestModel, {
               data: {id: 'new-id', name: 'a name'},
               currentInstance: {
                 id: 'new-id',
@@ -3633,7 +3633,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           {id: existingInstance.id, name: 'updated name'},
           function(err, instance) {
             if (err) return done(err);
-            var expectedContext = aCtxForModel(TestModel, {
+            const expectedContext = aCtxForModel(TestModel, {
               where: {id: existingInstance.id},
               data: {
                 id: existingInstance.id,
@@ -3675,7 +3675,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           {id: existingInstance.id, name: 'updated name'},
           function(err, instance) {
             if (err) return done(err);
-            var expectedContext = aCtxForModel(TestModel, {
+            const expectedContext = aCtxForModel(TestModel, {
               data: {
                 id: existingInstance.id,
                 name: 'updated name',

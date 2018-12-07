@@ -18,8 +18,8 @@ module.exports = require('should');
  }
  */
 
-var ModelBuilder = require('../').ModelBuilder;
-var Schema = require('../').Schema;
+const ModelBuilder = require('../').ModelBuilder;
+const Schema = require('../').Schema;
 
 if (!('getSchema' in global)) {
   global.getSchema = function(connector, settings) {

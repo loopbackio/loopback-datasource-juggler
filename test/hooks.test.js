@@ -7,9 +7,9 @@
 
 // This test written in mocha+should.js
 /* global getSchema:false */
-var should = require('./init.js');
+const should = require('./init.js');
 
-var j = require('../'),
+let j = require('../'),
   Schema = j.Schema,
   AbstractClass = j.AbstractClass,
   Hookable = j.Hookable,
@@ -43,7 +43,7 @@ describe('hooks', function() {
     });
 
     it('should be triggered on create', function(done) {
-      var user;
+      let user;
       User.afterInitialize = function() {
         if (this.name === 'Nickolay') {
           this.name += ' Rozental';
@@ -70,7 +70,7 @@ describe('hooks', function() {
         should.fail('This should not be called');
         next();
       };
-      var u = new User;
+      const u = new User;
     });
 
     it('should be triggered on new+save', function(done) {
@@ -79,7 +79,7 @@ describe('hooks', function() {
     });
 
     it('afterCreate should not be triggered on failed create', function(done) {
-      var old = User.dataSource.connector.create;
+      const old = User.dataSource.connector.create;
       User.dataSource.connector.create = function(modelName, id, cb) {
         cb(new Error('error'));
       };
@@ -99,7 +99,7 @@ describe('hooks', function() {
         next(new Error('fail in beforeCreate'));
       };
 
-      var old = User.dataSource.connector.create;
+      const old = User.dataSource.connector.create;
       User.dataSource.connector.create = function(modelName, id, cb) {
         throw new Error('shouldn\'t be called');
       };
@@ -259,7 +259,7 @@ describe('hooks', function() {
         should.fail('afterUpdate shouldn\'t be called');
       };
       User.create(function(err, user) {
-        var save = User.dataSource.connector.save;
+        const save = User.dataSource.connector.save;
         User.dataSource.connector.save = function(modelName, id, cb) {
           User.dataSource.connector.save = save;
           cb(new Error('Error'));
@@ -276,7 +276,7 @@ describe('hooks', function() {
     afterEach(removeHooks('Destroy'));
 
     it('should be triggered on destroy', function(done) {
-      var hook = 'not called';
+      let hook = 'not called';
       User.beforeDestroy = function(next) {
         hook = 'called';
         next();
@@ -291,7 +291,7 @@ describe('hooks', function() {
     });
 
     it('should not trigger after-hook on failed destroy', function(done) {
-      var destroy = User.dataSource.connector.destroy;
+      const destroy = User.dataSource.connector.destroy;
       User.dataSource.connector.destroy = function(modelName, id, cb) {
         cb(new Error('error'));
       };
@@ -308,7 +308,7 @@ describe('hooks', function() {
   });
 
   describe('lifecycle', function() {
-    var life = [], user;
+    let life = [], user;
     before(function(done) {
       User.beforeSave = function(d) {
         life.push('beforeSave');
@@ -379,7 +379,7 @@ describe('hooks', function() {
     });
 
     it('should describe new+save sequence', function(done) {
-      var u = new User;
+      const u = new User;
       u.save(function() {
         life.should.eql([
           'afterInitialize',
@@ -436,7 +436,7 @@ describe('hooks', function() {
 });
 
 function addHooks(name, done) {
-  var called = false, random = String(Math.floor(Math.random() * 1000));
+  let called = false, random = String(Math.floor(Math.random() * 1000));
   User['before' + name] = function(next, data) {
     called = true;
     data.email = random;

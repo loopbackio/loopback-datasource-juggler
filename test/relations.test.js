@@ -7,25 +7,25 @@
 'use strict';
 
 /* global getSchema:false, connectorCapabilities:false */
-var assert = require('assert');
-var bdd = require('./helpers/bdd-if');
-var should = require('./init.js');
-var uid = require('./helpers/uid-generator');
-var jdb = require('../');
-var DataSource = jdb.DataSource;
-var createPromiseCallback = require('../lib/utils.js').createPromiseCallback;
+const assert = require('assert');
+const bdd = require('./helpers/bdd-if');
+const should = require('./init.js');
+const uid = require('./helpers/uid-generator');
+const jdb = require('../');
+const DataSource = jdb.DataSource;
+const createPromiseCallback = require('../lib/utils.js').createPromiseCallback;
 
-var db, tmp, Book, Chapter, Author, Reader, Article, Employee;
-var Category, Job;
-var Picture, PictureLink;
-var Person, Address;
-var Link;
+let db, tmp, Book, Chapter, Author, Reader, Article, Employee;
+let Category, Job;
+let Picture, PictureLink;
+let Person, Address;
+let Link;
 
-var getTransientDataSource = function(settings) {
+const getTransientDataSource = function(settings) {
   return new DataSource('transient', settings, db.modelBuilder);
 };
 
-var getMemoryDataSource = function(settings) {
+const getMemoryDataSource = function(settings) {
   return new DataSource('memory', settings, db.modelBuilder);
 };
 
@@ -49,7 +49,7 @@ describe('relations', function() {
       Book.hasMany(Chapter);
       Book.hasMany(Reader, {as: 'users'});
       Book.hasMany(Author, {foreignKey: 'projectId'});
-      var b = new Book;
+      const b = new Book;
       b.chapters.should.be.an.instanceOf(Function);
       b.users.should.be.an.instanceOf(Function);
       b.authors.should.be.an.instanceOf(Function);
@@ -77,8 +77,8 @@ describe('relations', function() {
 
       it('should build record on scope', function(done) {
         Book.create(function(err, book) {
-          var chaps = book.chapters;
-          var c = chaps.build();
+          const chaps = book.chapters;
+          const c = chaps.build();
           c.bookId.should.eql(book.id);
           c.save(done);
         });
@@ -124,7 +124,7 @@ describe('relations', function() {
       });
 
       it('should create a batch of records on scope', function(done) {
-        var chapters = [
+        const chapters = [
           {name: 'a'},
           {name: 'z'},
           {name: 'c'},
@@ -143,7 +143,7 @@ describe('relations', function() {
       });
 
       it('should create a batch of records on scope with promises', function(done) {
-        var chapters = [
+        const chapters = [
           {name: 'a'},
           {name: 'z'},
           {name: 'c'},
@@ -177,14 +177,14 @@ describe('relations', function() {
             should.exist(ch);
             ch.should.have.lengthOf(3);
 
-            var chapters = book.chapters();
+            const chapters = book.chapters();
             chapters.should.eql(ch);
 
             book.chapters(function(e, c) {
               should.not.exist(e);
               should.exist(c);
               ch.should.have.lengthOf(3);
-              var acz = ['a', 'c', 'z'];
+              const acz = ['a', 'c', 'z'];
               acz.should.containEql(c[0].name);
               acz.should.containEql(c[1].name);
               acz.should.containEql(c[2].name);
@@ -214,13 +214,13 @@ describe('relations', function() {
             .then(function(ch) {
               should.exist(ch);
               ch.should.have.lengthOf(3);
-              var chapters = book.chapters();
+              const chapters = book.chapters();
               chapters.should.eql(ch);
               return book.chapters.find()
                 .then(function(c) {
                   should.exist(c);
                   ch.should.have.lengthOf(3);
-                  var acz = ['a', 'c', 'z'];
+                  const acz = ['a', 'c', 'z'];
                   acz.should.containEql(c[0].name);
                   acz.should.containEql(c[1].name);
                   acz.should.containEql(c[2].name);
@@ -246,13 +246,13 @@ describe('relations', function() {
             should.exist(ch);
             ch.should.have.lengthOf(3);
 
-            var chapters = book.chapters();
+            const chapters = book.chapters();
             chapters.should.eql(ch);
             book.chapters.find(function(e, c) {
               should.not.exist(e);
               should.exist(c);
               ch.should.have.lengthOf(3);
-              var acz = ['a', 'c', 'z'];
+              const acz = ['a', 'c', 'z'];
               acz.should.containEql(c[0].name);
               acz.should.containEql(c[1].name);
               acz.should.containEql(c[2].name);
@@ -278,7 +278,7 @@ describe('relations', function() {
             should.exist(ch);
             ch.should.have.lengthOf(3);
 
-            var chapters = book.chapters();
+            const chapters = book.chapters();
             chapters.should.eql(ch);
 
             book.chapters.find(function(e, c) {
@@ -286,7 +286,7 @@ describe('relations', function() {
               should.exist(c);
               should.exist(c.length);
               c.should.have.lengthOf(3);
-              var acz = ['a', 'c', 'z'];
+              const acz = ['a', 'c', 'z'];
               acz.should.containEql(c[0].name);
               acz.should.containEql(c[1].name);
               acz.should.containEql(c[2].name);
@@ -297,7 +297,7 @@ describe('relations', function() {
       });
 
       it('should find scoped record', function(done) {
-        var id;
+        let id;
         Book.create(function(err, book) {
           book.chapters.create({name: 'a'}, function(err, ch) {
             id = ch.id;
@@ -320,7 +320,7 @@ describe('relations', function() {
       });
 
       it('should find scoped record with promises', function(done) {
-        var id;
+        let id;
         Book.create()
           .then(function(book) {
             return book.chapters.create({name: 'a'})
@@ -403,7 +403,7 @@ describe('relations', function() {
       });
 
       it('should update scoped record', function(done) {
-        var id;
+        let id;
         Book.create(function(err, book) {
           book.chapters.create({name: 'a'}, function(err, ch) {
             id = ch.id;
@@ -425,7 +425,7 @@ describe('relations', function() {
       });
 
       it('should update scoped record with promises', function(done) {
-        var id;
+        let id;
         Book.create()
           .then(function(book) {
             return book.chapters.create({name: 'a'})
@@ -451,7 +451,7 @@ describe('relations', function() {
       });
 
       it('should destroy scoped record', function(done) {
-        var id;
+        let id;
         Book.create(function(err, book) {
           book.chapters.create({name: 'a'}, function(err, ch) {
             id = ch.id;
@@ -470,7 +470,7 @@ describe('relations', function() {
       });
 
       it('should destroy scoped record with promises', function(done) {
-        var id;
+        let id;
         Book.create()
           .then(function(book) {
             return book.chapters.create({name: 'a'})
@@ -494,7 +494,7 @@ describe('relations', function() {
       });
 
       it('should check existence of a scoped record', function(done) {
-        var id;
+        let id;
         Book.create(function(err, book) {
           book.chapters.create({name: 'a'}, function(err, ch) {
             id = ch.id;
@@ -516,7 +516,7 @@ describe('relations', function() {
       });
 
       it('should check existence of a scoped record with promises', function(done) {
-        var id;
+        let id;
         Book.create()
           .then(function(book) {
             return book.chapters.create({name: 'a'})
@@ -545,7 +545,7 @@ describe('relations', function() {
         Book.create({chapters: []}, function(err, book) {
           if (err) return done(err);
           book.chapters.should.be.a.function;
-          var obj = book.toObject();
+          const obj = book.toObject();
           should.not.exist(obj.chapters);
           done();
         });
@@ -555,7 +555,7 @@ describe('relations', function() {
         Book.create({chapters: []})
           .then(function(book) {
             book.chapters.should.be.a.function;
-            var obj = book.toObject();
+            const obj = book.toObject();
             should.not.exist(obj.chapters);
             done();
           }).catch(done);
@@ -565,7 +565,7 @@ describe('relations', function() {
         Book.create({chapters: {}}, function(err, book) {
           if (err) return done(err);
           book.chapters.should.be.a.function;
-          var obj = book.toObject();
+          const obj = book.toObject();
           should.not.exist(obj.chapters);
           done();
         });
@@ -575,7 +575,7 @@ describe('relations', function() {
         Book.create({chapters: {}})
           .then(function(book) {
             book.chapters.should.be.a.function;
-            var obj = book.toObject();
+            const obj = book.toObject();
             should.not.exist(obj.chapters);
             done();
           }).catch(done);
@@ -584,7 +584,7 @@ describe('relations', function() {
   });
 
   describe('hasMany through', function() {
-    var Physician, Patient, Appointment, Address;
+    let Physician, Patient, Appointment, Address;
 
     before(function(done) {
       Physician = db.define('Physician', {name: String});
@@ -607,7 +607,7 @@ describe('relations', function() {
 
     it('should build record on scope', function(done) {
       Physician.create(function(err, physician) {
-        var patient = physician.patients.build();
+        const patient = physician.patients.build();
         patient.physicianId.should.eql(physician.id);
         patient.save(done);
       });
@@ -644,7 +644,7 @@ describe('relations', function() {
     });
 
     it('should create multiple records on scope', function(done) {
-      var async = require('async');
+      const async = require('async');
       Physician.create(function(err, physician) {
         physician.patients.create([{}, {}], function(err, patients) {
           if (err) return done(err);
@@ -667,7 +667,7 @@ describe('relations', function() {
     });
 
     it('should create multiple records on scope with promises', function(done) {
-      var async = require('async');
+      const async = require('async');
       Physician.create()
         .then(function(physician) {
           return physician.patients.create([{}, {}])
@@ -701,7 +701,7 @@ describe('relations', function() {
       });
       function verify(physician) {
         physician.patients(function(err, ch) {
-          var patients = physician.patients();
+          const patients = physician.patients();
           patients.should.eql(ch);
 
           if (err) return done(err);
@@ -729,7 +729,7 @@ describe('relations', function() {
       function verify(physician) {
         return physician.patients.find()
           .then(function(ch) {
-            var patients = physician.patients();
+            const patients = physician.patients();
             should.equal(patients, ch);
 
             should.exist(ch);
@@ -740,8 +740,8 @@ describe('relations', function() {
     });
 
     describe('fetch scoped instances with paging filters', function() {
-      var samplePatientId;
-      var physician;
+      let samplePatientId;
+      let physician;
 
       beforeEach(createSampleData);
 
@@ -760,7 +760,7 @@ describe('relations', function() {
       });
       context('with filter order', function() {
         it('orders the result by patient name', function(done) {
-          var filter = connectorCapabilities.adhocSort !== false ? {order: 'name DESC'} : {};
+          const filter = connectorCapabilities.adhocSort !== false ? {order: 'name DESC'} : {};
           physician.patients(filter, function(err, ch) {
             if (err) return done(err);
             should.exist(ch);
@@ -770,7 +770,7 @@ describe('relations', function() {
               ch[1].name.should.eql('c');
               ch[2].name.should.eql('a');
             } else {
-              var acz = ['a', 'c', 'z'];
+              const acz = ['a', 'c', 'z'];
               ch[0].name.should.be.oneOf(acz);
               ch[1].name.should.be.oneOf(acz);
               ch[2].name.should.be.oneOf(acz);
@@ -796,7 +796,7 @@ describe('relations', function() {
       });
       context('with filter fields', function() {
         it('includes field \'name\' but not \'age\'', function(done) {
-          var fieldsFilter = {
+          const fieldsFilter = {
             fields: {name: true, age: false},
             order: 'sequence',
           };
@@ -816,7 +816,7 @@ describe('relations', function() {
       });
       context('with filter include', function() {
         it('returns physicians included in patient', function(done) {
-          var includeFilter = {include: 'physicians'};
+          const includeFilter = {include: 'physicians'};
           physician.patients(includeFilter, function(err, ch) {
             if (err) return done(err);
             ch.should.have.lengthOf(3);
@@ -827,7 +827,7 @@ describe('relations', function() {
       });
       context('with filter where', function() {
         it('returns patient where id equal to samplePatientId', function(done) {
-          var whereFilter = {where: {id: samplePatientId}};
+          const whereFilter = {where: {id: samplePatientId}};
           physician.patients(whereFilter, function(err, ch) {
             if (err) return done(err);
             should.exist(ch);
@@ -837,7 +837,7 @@ describe('relations', function() {
           });
         });
         it('returns patient where name equal to samplePatient name', function(done) {
-          var whereFilter = {where: {name: 'a'}};
+          const whereFilter = {where: {name: 'a'}};
           physician.patients(whereFilter, function(err, ch) {
             if (err) return done(err);
             should.exist(ch);
@@ -847,8 +847,8 @@ describe('relations', function() {
           });
         });
         it('returns patients where id in an array', function(done) {
-          var idArr = [];
-          var whereFilter;
+          const idArr = [];
+          let whereFilter;
           physician.patients.create({name: 'b'}, function(err, p) {
             idArr.push(samplePatientId, p.id);
             whereFilter = {where: {id: {inq: idArr}}};
@@ -875,7 +875,7 @@ describe('relations', function() {
             if (err) return done(err);
             should.exist(p);
 
-            var wrongWhereFilter = {where: {id: p.id}};
+            const wrongWhereFilter = {where: {id: p.id}};
             physician.patients(wrongWhereFilter, function(err, ch) {
               if (err) return done(err);
               should.exist(ch);
@@ -888,7 +888,7 @@ describe('relations', function() {
       context('findById with filter include', function() {
         it('returns patient where id equal to \'samplePatientId\'' +
           'with included physicians', function(done) {
-          var includeFilter = {include: 'physicians'};
+          const includeFilter = {include: 'physicians'};
           physician.patients.findById(samplePatientId,
             includeFilter, function(err, ch) {
               if (err) return done(err);
@@ -902,7 +902,7 @@ describe('relations', function() {
       context('findById with filter fields', function() {
         it('returns patient where id equal to \'samplePatientId\'' +
           'with field \'name\' but not \'age\'', function(done) {
-          var fieldsFilter = {fields: {name: true, age: false}};
+          const fieldsFilter = {fields: {name: true, age: false}};
           physician.patients.findById(samplePatientId,
             fieldsFilter, function(err, ch) {
               if (err) return done(err);
@@ -916,8 +916,8 @@ describe('relations', function() {
       });
       context('findById with include filter that contains string fields', function() {
         it('should accept string and convert it to array', function(done) {
-          var includeFilter = {include: {relation: 'patients', scope: {fields: 'name'}}};
-          var physicianId = physician.id;
+          const includeFilter = {include: {relation: 'patients', scope: {fields: 'name'}}};
+          const physicianId = physician.id;
           Physician.findById(physicianId, includeFilter, function(err, result) {
             if (err) return done(err);
             should.exist(result);
@@ -964,7 +964,7 @@ describe('relations', function() {
         }
       });
       it('should find be filtered from option', function(done) {
-        var id;
+        let id;
         Physician.create(function(err, physician) {
           if (err) return done(err);
           physician.patients.create({name: 'a', realm: 'test'}, function(err, ch) {
@@ -995,7 +995,7 @@ describe('relations', function() {
     });
 
     it('should find scoped record', function(done) {
-      var id;
+      let id;
       Physician.create(function(err, physician) {
         physician.patients.create({name: 'a'}, function(err, ch) {
           id = ch.id;
@@ -1018,7 +1018,7 @@ describe('relations', function() {
     });
 
     it('should find scoped record with promises', function(done) {
-      var id;
+      let id;
       Physician.create()
         .then(function(physician) {
           return physician.patients.create({name: 'a'})
@@ -1062,7 +1062,7 @@ describe('relations', function() {
           should.exist(ch);
           ch.should.have.lengthOf(1);
           ch[0].addressId.should.eql(addressId);
-          var address = ch[0].address();
+          const address = ch[0].address();
           should.exist(address);
           address.should.be.an.instanceof(Address);
           address.name.should.equal('z');
@@ -1093,7 +1093,7 @@ describe('relations', function() {
             should.exist(ch);
             ch.should.have.lengthOf(1);
             ch[0].addressId.toString().should.eql(addressId.toString());
-            var address = ch[0].address();
+            const address = ch[0].address();
             should.exist(address);
             address.should.be.an.instanceof(Address);
             address.name.should.equal('z');
@@ -1107,7 +1107,7 @@ describe('relations', function() {
     });
 
     it('should update scoped record', function(done) {
-      var id;
+      let id;
       Physician.create(function(err, physician) {
         physician.patients.create({name: 'a'}, function(err, ch) {
           id = ch.id;
@@ -1129,7 +1129,7 @@ describe('relations', function() {
     });
 
     it('should update scoped record with promises', function(done) {
-      var id;
+      let id;
       Physician.create()
         .then(function(physician) {
           return physician.patients.create({name: 'a'})
@@ -1155,7 +1155,7 @@ describe('relations', function() {
 
     bdd.itIf(connectorCapabilities.deleteWithOtherThanId !== false,
       'should destroy scoped record', function(done) {
-        var id;
+        let id;
         Physician.create(function(err, physician) {
           physician.patients.create({name: 'a'}, function(err, ch) {
             id = ch.id;
@@ -1175,7 +1175,7 @@ describe('relations', function() {
 
     bdd.itIf(connectorCapabilities.deleteWithOtherThanId !== false,
       'should destroy scoped record with promises', function(done) {
-        var id;
+        let id;
         Physician.create()
           .then(function(physician) {
             return physician.patients.create({name: 'a'})
@@ -1202,7 +1202,7 @@ describe('relations', function() {
       });
 
     it('should check existence of a scoped record', function(done) {
-      var id;
+      let id;
       Physician.create(function(err, physician) {
         physician.patients.create({name: 'a'}, function(err, ch) {
           if (err) return done(err);
@@ -1225,7 +1225,7 @@ describe('relations', function() {
     });
 
     it('should check existence of a scoped record with promises', function(done) {
-      var id;
+      let id;
       Physician.create()
         .then(function(physician) {
           return physician.patients.create({name: 'a'})
@@ -1285,7 +1285,7 @@ describe('relations', function() {
     it('should allow to add connection with through data', function(done) {
       Physician.create({name: 'ph1'}, function(e, physician) {
         Patient.create({name: 'pa1'}, function(e, patient) {
-          var now = Date.now();
+          const now = Date.now();
           physician.patients.add(patient, {date: new Date(now)}, function(e, app) {
             should.not.exist(e);
             should.exist(app);
@@ -1305,7 +1305,7 @@ describe('relations', function() {
         .then(function(physician) {
           return Patient.create({name: 'pa1'})
             .then(function(patient) {
-              var now = Date.now();
+              const now = Date.now();
               return physician.patients.add(patient, {date: new Date(now)})
                 .then(function(app) {
                   should.exist(app);
@@ -1322,7 +1322,7 @@ describe('relations', function() {
 
     bdd.itIf(connectorCapabilities.deleteWithOtherThanId !== false,
       'should allow to remove connection with instance', function(done) {
-        var id;
+        let id;
         Physician.create(function(err, physician) {
           physician.patients.create({name: 'a'}, function(err, patient) {
             id = patient.id;
@@ -1343,7 +1343,7 @@ describe('relations', function() {
 
     bdd.itIf(connectorCapabilities.deleteWithOtherThanId !== false,
       'should allow to remove connection with instance with promises', function(done) {
-        var id;
+        let id;
         Physician.create()
           .then(function(physician) {
             return physician.patients.create({name: 'a'})
@@ -1375,8 +1375,8 @@ describe('relations', function() {
   });
 
   describe('hasMany through - collect', function() {
-    var Physician, Patient, Appointment, Address;
-    var idPatient, idPhysician;
+    let Physician, Patient, Appointment, Address;
+    let idPatient, idPhysician;
 
     beforeEach(function(done) {
       idPatient = uid.fromConnector(db) || 1234;
@@ -1399,12 +1399,12 @@ describe('relations', function() {
         Patient.belongsTo(Address);
         Appointment.belongsTo(Physician);
         Appointment.belongsTo(Patient);
-        var physician = new Physician({id: idPhysician});
-        var scope1 = physician.patients._scope;
+        const physician = new Physician({id: idPhysician});
+        const scope1 = physician.patients._scope;
         scope1.should.have.property('collect', 'patient');
         scope1.should.have.property('include', 'patient');
-        var patient = new Patient({id: idPatient});
-        var scope2 = patient.yyy._scope;
+        const patient = new Patient({id: idPatient});
+        const scope2 = patient.yyy._scope;
         scope2.should.have.property('collect', 'physician');
         scope2.should.have.property('include', 'physician');
       });
@@ -1423,12 +1423,12 @@ describe('relations', function() {
         Patient.belongsTo(Address); // jam.
         Appointment.belongsTo(Patient, {as: 'car'}); // jam. Should we complain in this case???
 
-        var physician = new Physician({id: idPhysician});
-        var scope1 = physician.patients._scope;
+        const physician = new Physician({id: idPhysician});
+        const scope1 = physician.patients._scope;
         scope1.should.have.property('collect', 'bar');
         scope1.should.have.property('include', 'bar');
-        var patient = new Patient({id: idPatient});
-        var scope2 = patient.yyy._scope;
+        const patient = new Patient({id: idPatient});
+        const scope2 = patient.yyy._scope;
         scope2.should.have.property('collect', 'foo');
         scope2.should.have.property('include', 'foo');
       });
@@ -1440,12 +1440,12 @@ describe('relations', function() {
         Appointment.belongsTo(Patient, {as: 'bar', foreignKey: 'patientId'});
         Patient.belongsTo(Address); // jam.
 
-        var physician = new Physician({id: idPhysician});
-        var scope1 = physician.patients._scope;
+        const physician = new Physician({id: idPhysician});
+        const scope1 = physician.patients._scope;
         scope1.should.have.property('collect', 'bar');
         scope1.should.have.property('include', 'bar');
-        var patient = new Patient({id: idPatient});
-        var scope2 = patient.yyy._scope;
+        const patient = new Patient({id: idPatient});
+        const scope2 = patient.yyy._scope;
         scope2.should.have.property('collect', 'foo');
         scope2.should.have.property('include', 'foo');
       });
@@ -1459,12 +1459,12 @@ describe('relations', function() {
         Appointment.belongsTo(Physician, {as: 'goo', foreignKey: 'physicianId'}); // jam. Should we complain in this case???
         Appointment.belongsTo(Patient, {as: 'car', foreignKey: 'patientId'}); // jam. Should we complain in this case???
 
-        var physician = new Physician({id: idPhysician});
-        var scope1 = physician.patients._scope;
+        const physician = new Physician({id: idPhysician});
+        const scope1 = physician.patients._scope;
         scope1.should.have.property('collect', 'bar');
         scope1.should.have.property('include', 'bar');
-        var patient = new Patient({id: idPatient});
-        var scope2 = patient.yyy._scope;
+        const patient = new Patient({id: idPatient});
+        const scope2 = patient.yyy._scope;
         scope2.should.have.property('collect', 'foo'); // first matched relation
         scope2.should.have.property('include', 'foo'); // first matched relation
       });
@@ -1481,15 +1481,15 @@ describe('relations', function() {
       });
 
       it('can determine the collect via model name', function() {
-        var physician = new Physician({id: idPhysician});
-        var scope1 = physician.xxx._scope;
+        const physician = new Physician({id: idPhysician});
+        const scope1 = physician.xxx._scope;
         scope1.should.have.property('collect', 'patient');
         scope1.should.have.property('include', 'patient');
       });
 
       it('can determine the collect via keyThrough', function() {
-        var patient = new Patient({id: idPatient});
-        var scope2 = patient.yyy._scope;
+        const patient = new Patient({id: idPatient});
+        const scope2 = patient.yyy._scope;
         scope2.should.have.property('collect', 'foo');
         scope2.should.have.property('include', 'foo');
       });
@@ -1497,7 +1497,7 @@ describe('relations', function() {
   });
 
   describe('hasMany through - customized relation name and foreign key', function() {
-    var Physician, Patient, Appointment;
+    let Physician, Patient, Appointment;
 
     beforeEach(function(done) {
       Physician = db.define('Physician', {name: String});
@@ -1512,16 +1512,16 @@ describe('relations', function() {
       Patient.hasMany(Physician, {through: Appointment, as: 'yyy', foreignKey: 'bbbId', keyThrough: 'aaaId'});
       Appointment.belongsTo(Physician, {as: 'aaa', foreignKey: 'aaaId'});
       Appointment.belongsTo(Patient, {as: 'bbb', foreignKey: 'bbbId'});
-      var physician = new Physician({id: 1});
+      const physician = new Physician({id: 1});
       physician.xxx.should.have.property('_targetClass', 'Patient');
-      var patient = new Patient({id: 1});
+      const patient = new Patient({id: 1});
       patient.yyy.should.have.property('_targetClass', 'Physician');
     });
   });
 
   describe('hasMany through bi-directional relations on the same model', function() {
-    var User, Follow, Address;
-    var idFollower, idFollowee;
+    let User, Follow, Address;
+    let idFollower, idFollowee;
 
     before(function(done) {
       idFollower = uid.fromConnector(db) || 3456;
@@ -1547,8 +1547,8 @@ describe('relations', function() {
 
     it('should set foreignKeys of through model correctly in first relation',
       function(done) {
-        var follower = new User({id: idFollower});
-        var followee = new User({id: idFollowee});
+        const follower = new User({id: idFollower});
+        const followee = new User({id: idFollowee});
         followee.followers.add(follower, function(err, throughInst) {
           if (err) return done(err);
           should.exist(throughInst);
@@ -1560,8 +1560,8 @@ describe('relations', function() {
 
     it('should set foreignKeys of through model correctly in second relation',
       function(done) {
-        var follower = new User({id: idFollower});
-        var followee = new User({id: idFollowee});
+        const follower = new User({id: idFollower});
+        const followee = new User({id: idFollowee});
         follower.following.add(followee, function(err, throughInst) {
           if (err) return done(err);
           should.exist(throughInst);
@@ -1573,8 +1573,8 @@ describe('relations', function() {
   });
 
   describe('hasMany through - between same models', function() {
-    var User, Follow, Address;
-    var idFollower, idFollowee;
+    let User, Follow, Address;
+    let idFollower, idFollowee;
 
     before(function(done) {
       idFollower = uid.fromConnector(db) || 3456;
@@ -1599,8 +1599,8 @@ describe('relations', function() {
     });
 
     it('should set the keyThrough and the foreignKey', function(done) {
-      var user = new User({id: idFollower});
-      var user2 = new User({id: idFollowee});
+      const user = new User({id: idFollower});
+      const user2 = new User({id: idFollowee});
       user.following.add(user2, function(err, f) {
         if (err) return done(err);
         should.exist(f);
@@ -1611,11 +1611,11 @@ describe('relations', function() {
     });
 
     it('can determine the collect via keyThrough for each side', function() {
-      var user = new User({id: idFollower});
-      var scope1 = user.followers._scope;
+      const user = new User({id: idFollower});
+      const scope1 = user.followers._scope;
       scope1.should.have.property('collect', 'follower');
       scope1.should.have.property('include', 'follower');
-      var scope2 = user.following._scope;
+      const scope2 = user.following._scope;
       scope2.should.have.property('collect', 'followee');
       scope2.should.have.property('include', 'followee');
     });
@@ -1667,7 +1667,7 @@ describe('relations', function() {
           return {type: inst.jobType};
         },
         scope: function(inst, filter) {
-          var m = this.properties(inst); // re-use properties
+          const m = this.properties(inst); // re-use properties
           if (m) return {where: m};
         },
       });
@@ -1853,15 +1853,15 @@ describe('relations', function() {
   });
 
   describe('relations validation', function() {
-    var validationError;
+    let validationError;
     // define a mockup getRelationValidationMsg() method to log the validation error
-    var logRelationValidationError = function(code, rType, rName) {
+    const logRelationValidationError = function(code, rType, rName) {
       validationError = {code, rType, rName};
     };
 
     it('rejects belongsTo relation if `model` is not provided', function() {
       try {
-        var Picture = db.define('Picture', {name: String}, {relations: {
+        const Picture = db.define('Picture', {name: String}, {relations: {
           author: {
             type: 'belongsTo',
             foreignKey: 'authorId'},
@@ -1877,7 +1877,7 @@ describe('relations', function() {
 
     it('rejects polymorphic belongsTo relation if `model` is provided', function() {
       try {
-        var Picture = db.define('Picture', {name: String}, {relations: {
+        const Picture = db.define('Picture', {name: String}, {relations: {
           imageable: {
             type: 'belongsTo',
             model: 'Picture',
@@ -1894,7 +1894,7 @@ describe('relations', function() {
 
     it('rejects polymorphic non belongsTo relation if `model` is not provided', function() {
       try {
-        var Article = db.define('Picture', {name: String}, {relations: {
+        const Article = db.define('Picture', {name: String}, {relations: {
           pictures: {
             type: 'hasMany',
             polymorphic: 'imageable'},
@@ -1911,7 +1911,7 @@ describe('relations', function() {
     it('rejects polymorphic relation if `foreignKey` is provided but discriminator ' +
     'is missing', function() {
       try {
-        var Article = db.define('Picture', {name: String}, {relations: {
+        const Article = db.define('Picture', {name: String}, {relations: {
           pictures: {
             type: 'hasMany',
             model: 'Picture',
@@ -1929,7 +1929,7 @@ describe('relations', function() {
     it('rejects polymorphic relation if `discriminator` is provided but foreignKey ' +
     'is missing', function() {
       try {
-        var Article = db.define('Picture', {name: String}, {relations: {
+        const Article = db.define('Picture', {name: String}, {relations: {
           pictures: {
             type: 'hasMany',
             model: 'Picture',
@@ -1947,7 +1947,7 @@ describe('relations', function() {
     it('rejects polymorphic relation if `polymorphic.as` is provided along ' +
     'with custom foreignKey/discriminator', function() {
       try {
-        var Article = db.define('Picture', {name: String}, {relations: {
+        const Article = db.define('Picture', {name: String}, {relations: {
           pictures: {
             type: 'hasMany',
             model: 'Picture',
@@ -1969,7 +1969,7 @@ describe('relations', function() {
     it('rejects polymorphic relation if `polymorphic.selector` is provided along ' +
     'with custom foreignKey/discriminator', function() {
       try {
-        var Article = db.define('Picture', {name: String}, {relations: {
+        const Article = db.define('Picture', {name: String}, {relations: {
           pictures: {
             type: 'hasMany',
             model: 'Picture',
@@ -1989,10 +1989,10 @@ describe('relations', function() {
     });
 
     it('warns on use of deprecated `polymorphic.as` keyword in polymorphic relation', function() {
-      var message = 'deprecation not reported';
+      let message = 'deprecation not reported';
       process.once('deprecation', function(err) { message = err.message; });
 
-      var Article = db.define('Picture', {name: String}, {relations: {
+      const Article = db.define('Picture', {name: String}, {relations: {
         pictures: {type: 'hasMany', model: 'Picture', polymorphic: {as: 'imageable'}},
       }});
 
@@ -2092,7 +2092,7 @@ describe('relations', function() {
         article.packshot(function(err, pic) {
           if (err) return done(err);
 
-          var packshot = article.packshot();
+          const packshot = article.packshot();
           packshot.should.equal(pic);
 
           pic.name.should.equal('Packshot');
@@ -2119,7 +2119,7 @@ describe('relations', function() {
     it('should include polymorphic relation - article', function(done) {
       Article.findOne({include: 'packshot'}, function(err, article) {
         should.not.exists(err);
-        var packshot = article.packshot();
+        const packshot = article.packshot();
         should.exist(packshot);
         packshot.name.should.equal('Packshot');
         done();
@@ -2155,7 +2155,7 @@ describe('relations', function() {
       Picture.findOne({where: {name: 'Packshot'}, include: 'imageable'},
         function(err, pic) {
           should.not.exists(err);
-          var imageable = pic.imageable();
+          const imageable = pic.imageable();
           should.exist(imageable);
           imageable.should.be.instanceof(Article);
           imageable.name.should.equal('Article 1');
@@ -2230,14 +2230,14 @@ describe('relations', function() {
         },
       });
 
-      var imageableRel = Picture.relations['imageable'].toJSON();
+      const imageableRel = Picture.relations['imageable'].toJSON();
 
       // assert idType independantly
       assert(typeof imageableRel.polymorphic.idType == 'function');
 
       // backup idType and remove it temporarily from the relation
       // object to ease the test
-      var idType = imageableRel.polymorphic.idType;
+      const idType = imageableRel.polymorphic.idType;
       delete imageableRel.polymorphic.idType;
 
       imageableRel.should.eql({
@@ -2306,7 +2306,7 @@ describe('relations', function() {
         article.packshot(function(err, pic) {
           if (err) return done(err);
 
-          var packshot = article.packshot();
+          const packshot = article.packshot();
           packshot.should.equal(pic);
 
           pic.name.should.equal('Packshot');
@@ -2358,7 +2358,7 @@ describe('relations', function() {
       Employee.findOne({include: 'mugshot'},
         function(err, employee) {
           should.not.exists(err);
-          var mugshot = employee.mugshot();
+          const mugshot = employee.mugshot();
           should.exist(mugshot);
           mugshot.name.should.equal('Mugshot');
           done();
@@ -2369,7 +2369,7 @@ describe('relations', function() {
       Picture.findOne({where: {name: 'Mugshot'}, include: 'imageable'},
         function(err, pic) {
           should.not.exists(err);
-          var imageable = pic.imageable();
+          const imageable = pic.imageable();
           should.exist(imageable);
           imageable.should.be.instanceof(Employee);
           imageable.name.should.equal('Employee 1');
@@ -2388,15 +2388,15 @@ describe('relations', function() {
     });
 
     it('can be declared with model JSON definition when related model is already attached', function(done) {
-      var ds = new DataSource('memory');
+      const ds = new DataSource('memory');
 
       // by defining Picture model before Article model we make sure Picture IS
       // already attached when defining Article. This way, datasource.defineRelations
       // WILL NOT use the async listener to call hasMany relation method
-      var Picture = ds.define('Picture', {name: String}, {relations: {
+      const Picture = ds.define('Picture', {name: String}, {relations: {
         imageable: {type: 'belongsTo', polymorphic: true},
       }});
-      var Article = ds.define('Article', {name: String}, {relations: {
+      const Article = ds.define('Article', {name: String}, {relations: {
         pictures: {type: 'hasMany', model: 'Picture', polymorphic: 'imageable'},
       }});
 
@@ -2435,15 +2435,15 @@ describe('relations', function() {
     });
 
     it('can be declared with model JSON definition when related model is not yet attached', function(done) {
-      var ds = new DataSource('memory');
+      const ds = new DataSource('memory');
 
       // by defining Author model before Picture model we make sure Picture IS NOT
       // already attached when defining Author. This way, datasource.defineRelations
       // WILL use the async listener to call hasMany relation method
-      var Author = ds.define('Author', {name: String}, {relations: {
+      const Author = ds.define('Author', {name: String}, {relations: {
         pictures: {type: 'hasMany', model: 'Picture', polymorphic: 'imageable'},
       }});
-      var Picture = ds.define('Picture', {name: String}, {relations: {
+      const Picture = ds.define('Picture', {name: String}, {relations: {
         imageable: {type: 'belongsTo', polymorphic: true},
       }});
 
@@ -2555,7 +2555,7 @@ describe('relations', function() {
         article.pictures(function(err, pics) {
           if (err) return done(err);
 
-          var pictures = article.pictures();
+          const pictures = article.pictures();
           pictures.should.eql(pics);
 
           pics.should.have.length(1);
@@ -2629,8 +2629,8 @@ describe('relations', function() {
         Picture.find({include: 'imageable'}, function(err, pics) {
           if (err) return done(err);
           pics.should.have.length(2);
-          var names = ['Article Pic', 'Employee Pic'];
-          var imageables = ['Article 1', 'Employee 1'];
+          const names = ['Article Pic', 'Employee Pic'];
+          const imageables = ['Article 1', 'Employee 1'];
           names.should.containEql(pics[0].name);
           names.should.containEql(pics[1].name);
           imageables.should.containEql(pics[0].imageable().name);
@@ -2642,7 +2642,7 @@ describe('relations', function() {
     it('should assign a polymorphic relation', function(done) {
       Article.create({name: 'Article 2'}, function(err, article) {
         should.not.exists(err);
-        var p = new Picture({name: 'Sample'});
+        const p = new Picture({name: 'Sample'});
         p.imageable(article); // assign
         p.imageableId.should.eql(article.id);
         p.imageableType.should.equal('Article');
@@ -2682,7 +2682,7 @@ describe('relations', function() {
         Picture.findOne({where: {name: 'Sample'}, include: 'imageable'},
           function(err, p) {
             if (err) return done(err);
-            var imageable = p.imageable();
+            const imageable = p.imageable();
             should.exist(imageable);
             imageable.should.be.instanceof(Article);
             imageable.name.should.equal('Article 2');
@@ -2739,7 +2739,7 @@ describe('relations', function() {
   });
 
   describe('polymorphic hasAndBelongsToMany through', function() {
-    var idArticle, idEmployee;
+    let idArticle, idEmployee;
 
     before(function(done) {
       idArticle = uid.fromConnector(db) || 3456;
@@ -2767,24 +2767,24 @@ describe('relations', function() {
       // Optionally, define inverse relations:
       Picture.hasMany(Article, {through: PictureLink, polymorphic: 'imageable', invert: true});
       Picture.hasMany(Employee, {through: PictureLink, polymorphic: 'imageable', invert: true});
-      var article = new Article({id: idArticle});
-      var scope1 = article.pictures._scope;
+      const article = new Article({id: idArticle});
+      const scope1 = article.pictures._scope;
       scope1.should.have.property('collect', 'picture');
       scope1.should.have.property('include', 'picture');
-      var employee = new Employee({id: idEmployee});
-      var scope2 = employee.pictures._scope;
+      const employee = new Employee({id: idEmployee});
+      const scope2 = employee.pictures._scope;
       scope2.should.have.property('collect', 'picture');
       scope2.should.have.property('include', 'picture');
-      var picture = new Picture({id: idArticle});
-      var scope3 = picture.articles._scope;
+      const picture = new Picture({id: idArticle});
+      const scope3 = picture.articles._scope;
       scope3.should.have.property('collect', 'imageable');
       scope3.should.have.property('include', 'imageable');
-      var scope4 = picture.employees._scope;
+      const scope4 = picture.employees._scope;
       scope4.should.have.property('collect', 'imageable');
       scope4.should.have.property('include', 'imageable');
     });
 
-    var article, employee, pictures = [];
+    let article, employee, pictures = [];
     it('should create polymorphic relation - article', function(done) {
       Article.create({name: 'Article 1'}, function(err, a) {
         if (err) return done(err);
@@ -2888,7 +2888,7 @@ describe('relations', function() {
       });
     });
 
-    var anotherPicture;
+    let anotherPicture;
     it('should add to a polymorphic relation - article', function(done) {
       if (!article) return done();
       Article.findById(article.id, function(err, article) {
@@ -2920,7 +2920,7 @@ describe('relations', function() {
         });
     });
 
-    var anotherArticle, anotherEmployee;
+    let anotherArticle, anotherEmployee;
     // eslint-disable-next-line mocha/no-identical-title
     it('should add to a polymorphic relation - article', function(done) {
       Article.create({name: 'Article 2'}, function(err, article) {
@@ -2972,7 +2972,7 @@ describe('relations', function() {
           if (connectorCapabilities.adhocSort !== false) {
             employees[0].name.should.equal('Employee 2');
           } else {
-            var employeeNames = ['Employee 1', 'Employee 2'];
+            const employeeNames = ['Employee 1', 'Employee 2'];
             employees[0].name.should.be.oneOf(employeeNames);
           }
           done();
@@ -3025,7 +3025,7 @@ describe('relations', function() {
           article.pictures(function(err, pics) {
             // If deleteWithOtherThanId is not implemented, the above test is skipped and
             // the remove did not take place.  Thus +1.
-            var expectedLength = connectorCapabilities.deleteWithOtherThanId !== false ?
+            const expectedLength = connectorCapabilities.deleteWithOtherThanId !== false ?
               2 : 3;
             pics.should.have.length(expectedLength);
 
@@ -3163,9 +3163,9 @@ describe('relations', function() {
   });
 
   describe('belongsTo', function() {
-    var List, Item, Fear, Mind;
+    let List, Item, Fear, Mind;
 
-    var listId, itemId;
+    let listId, itemId;
 
     it('can be declared in different ways', function() {
       List = db.define('List', {name: String});
@@ -3189,14 +3189,14 @@ describe('relations', function() {
     });
 
     it('should setup a custom method on accessor', function() {
-      var rel = Fear.relations['mind'];
+      const rel = Fear.relations['mind'];
       rel.defineMethod('other', function() {
         return true;
       });
     });
 
     it('should have setup a custom method on accessor', function() {
-      var f = new Fear();
+      const f = new Fear();
       f.mind.check.should.be.a.function;
       f.mind.check().should.be.true;
       f.mind.other.should.be.a.function;
@@ -3347,7 +3347,7 @@ describe('relations', function() {
     });
 
     it('should allow to create belongsTo model in beforeCreate hook', function(done) {
-      var mind;
+      let mind;
       Fear.beforeCreate = function(next) {
         this.mind.create(function(err, m) {
           mind = m;
@@ -3364,7 +3364,7 @@ describe('relations', function() {
     });
 
     it('should allow to create belongsTo model in beforeCreate hook with promises', function(done) {
-      var mind;
+      let mind;
       Fear.beforeCreate = function(next) {
         this.mind.create()
           .then(function(m) {
@@ -3383,7 +3383,7 @@ describe('relations', function() {
   });
 
   describe('belongsTo with scope', function() {
-    var Person, Passport;
+    let Person, Passport;
 
     it('can be declared with scope and properties', function(done) {
       Person = db.define('Person', {name: String, age: Number, passportNotes: String});
@@ -3395,9 +3395,9 @@ describe('relations', function() {
       db.automigrate(['Person', 'Passport'], done);
     });
 
-    var personCreated;
+    let personCreated;
     it('should create record on scope', function(done) {
-      var p = new Passport({name: 'Passport', notes: 'Some notes...'});
+      const p = new Passport({name: 'Passport', notes: 'Some notes...'});
       p.person.create({name: 'Fred', age: 36}, function(err, person) {
         personCreated = person;
         p.personId.toString().should.eql(person.id.toString());
@@ -3423,7 +3423,7 @@ describe('relations', function() {
     });
 
     it('should create record on scope with promises', function(done) {
-      var p = new Passport({name: 'Passport', notes: 'Some notes...'});
+      const p = new Passport({name: 'Passport', notes: 'Some notes...'});
       p.person.create({name: 'Fred', age: 36})
         .then(function(person) {
           p.personId.should.eql(person.id);
@@ -3461,7 +3461,7 @@ describe('relations', function() {
   // https://github.com/strongloop/loopback-datasource-juggler/pull/399
   // is fixed
   describe.skip('belongsTo with embed', function() {
-    var Person, Passport;
+    let Person, Passport;
 
     it('can be declared with embed and properties', function(done) {
       Person = db.define('Person', {name: String, age: Number});
@@ -3475,10 +3475,10 @@ describe('relations', function() {
 
     it('should create record with embedded data', function(done) {
       Person.create({name: 'Fred', age: 36}, function(err, person) {
-        var p = new Passport({name: 'Passport', notes: 'Some notes...'});
+        const p = new Passport({name: 'Passport', notes: 'Some notes...'});
         p.person(person);
         p.personId.should.eql(person.id);
-        var data = p.toObject(true);
+        const data = p.toObject(true);
         data.person.id.should.eql(person.id);
         data.person.name.should.equal('Fred');
         p.save(function(err) {
@@ -3491,7 +3491,7 @@ describe('relations', function() {
     it('should find record with embedded data', function(done) {
       Passport.findOne(function(err, p) {
         should.not.exists(err);
-        var data = p.toObject(true);
+        const data = p.toObject(true);
         data.person.id.should.eql(p.personId);
         data.person.name.should.equal('Fred');
         done();
@@ -3501,7 +3501,7 @@ describe('relations', function() {
     it('should find record with embedded data with promises', function(done) {
       Passport.findOne()
         .then(function(p) {
-          var data = p.toObject(true);
+          const data = p.toObject(true);
           data.person.id.should.eql(p.personId);
           data.person.name.should.equal('Fred');
           done();
@@ -3510,8 +3510,8 @@ describe('relations', function() {
   });
 
   describe('hasOne', function() {
-    var Supplier, Account;
-    var supplierId, accountId;
+    let Supplier, Account;
+    let supplierId, accountId;
 
     before(function() {
       Supplier = db.define('Supplier', {name: String});
@@ -3528,14 +3528,14 @@ describe('relations', function() {
     });
 
     it('should setup a custom method on accessor', function() {
-      var rel = Supplier.relations['account'];
+      const rel = Supplier.relations['account'];
       rel.defineMethod('other', function() {
         return true;
       });
     });
 
     it('should have setup a custom method on accessor', function() {
-      var s = new Supplier();
+      const s = new Supplier();
       s.account.check.should.be.a.function;
       s.account.check().should.be.true;
       s.account.other.should.be.a.function;
@@ -3650,7 +3650,7 @@ describe('relations', function() {
 
     it('should error trying to change the foreign key in the update', function(done) {
       Supplier.create({name: 'Supplier 2'}, function(e, supplier) {
-        var sid = supplier.id;
+        const sid = supplier.id;
         Supplier.findById(supplierId, function(e, supplier) {
           should.not.exist(e);
           should.exist(supplier);
@@ -3770,8 +3770,8 @@ describe('relations', function() {
   });
 
   describe('hasOne with scope', function() {
-    var Supplier, Account;
-    var supplierId, accountId;
+    let Supplier, Account;
+    let supplierId, accountId;
 
     before(function() {
       Supplier = db.define('Supplier', {name: String});
@@ -3884,8 +3884,8 @@ describe('relations', function() {
   });
 
   describe('hasOne with non standard id', function() {
-    var Supplier, Account;
-    var supplierId, accountId;
+    let Supplier, Account;
+    let supplierId, accountId;
 
     before(function() {
       Supplier = db.define('Supplier', {
@@ -3970,8 +3970,8 @@ describe('relations', function() {
   });
 
   describe('hasOne with primaryKey different from model PK', function() {
-    var CompanyBoard, Boss;
-    var companyBoardId, bossId;
+    let CompanyBoard, Boss;
+    let companyBoardId, bossId;
 
     before(function() {
       CompanyBoard = db.define('CompanyBoard', {
@@ -4042,8 +4042,8 @@ describe('relations', function() {
   });
 
   describe('hasMany with primaryKey different from model PK', function() {
-    var Employee, Boss;
-    var COMPANY_ID = 'Company1';
+    let Employee, Boss;
+    const COMPANY_ID = 'Company1';
 
     before(function() {
       Employee = db.define('Employee', {name: String, companyId: String});
@@ -4069,7 +4069,7 @@ describe('relations', function() {
                 should.exists(employees);
                 return boss.employees();
               }).then(function(employees) {
-                var employee = employees[0];
+                const employee = employees[0];
                 should.exist(employee);
                 employees.length.should.equal(2);
                 employee.should.be.an.instanceOf(Employee);
@@ -4098,9 +4098,9 @@ describe('relations', function() {
   });
 
   describe('belongsTo with primaryKey different from model PK', function() {
-    var Employee, Boss;
-    var COMPANY_ID = 'Company1';
-    var bossId;
+    let Employee, Boss;
+    const COMPANY_ID = 'Company1';
+    let bossId;
 
     before(function() {
       Employee = db.define('Employee', {name: String, companyId: String});
@@ -4135,7 +4135,7 @@ describe('relations', function() {
   });
 
   describe('hasAndBelongsToMany', function() {
-    var Article, TagName, ArticleTag;
+    let Article, TagName, ArticleTag;
     it('can be declared', function(done) {
       Article = db.define('Article', {title: String});
       TagName = db.define('TagName', {name: String, flag: String});
@@ -4208,7 +4208,7 @@ describe('relations', function() {
       'should allow to remove connection with instance', function(done) {
         Article.findOne(function(e, article) {
           article.tagNames(function(e, tags) {
-            var len = tags.length;
+            const len = tags.length;
             tags.should.not.be.empty;
             article.tagNames.remove(tags[0], function(e) {
               should.not.exist(e);
@@ -4276,7 +4276,7 @@ describe('relations', function() {
           .then(function(article) {
             return article.tagNames.find()
               .then(function(tags) {
-                var len = tags.length;
+                const len = tags.length;
                 tags.should.not.be.empty;
                 return article.tagNames.remove(tags[0])
                   .then(function() {
@@ -4306,11 +4306,11 @@ describe('relations', function() {
           function(e, articles) {
             should.not.exist(e);
             articles.should.have.property('length', 1);
-            var a = articles[0].toJSON();
+            const a = articles[0].toJSON();
             a.should.have.property('title', 'a1');
             a.should.have.property('tagNames');
             a.tagNames.should.have.property('length', 1);
-            var n = a.tagNames[0];
+            const n = a.tagNames[0];
             n.should.have.property('name', 't1');
             n.should.have.property('flag', undefined);
             n.id.should.eql(t.id);
@@ -4332,11 +4332,11 @@ describe('relations', function() {
             function(e, articles) {
               should.not.exist(e);
               articles.should.have.property('length', 1);
-              var a = articles[0].toJSON();
+              const a = articles[0].toJSON();
               a.should.have.property('title', 'a2');
               a.should.have.property('tagNames');
               a.tagNames.should.have.property('length', 1);
-              var n = a.tagNames[0];
+              const n = a.tagNames[0];
               n.should.have.property('name', 't2');
               n.should.have.property('flag', '2');
               n.id.should.eql(t2.id);
@@ -4349,9 +4349,9 @@ describe('relations', function() {
   });
 
   describe('embedsOne', function() {
-    var person;
-    var Passport;
-    var Other;
+    let person;
+    let Passport;
+    let Other;
 
     before(function() {
       tmp = getTransientDataSource();
@@ -4380,7 +4380,7 @@ describe('relations', function() {
     });
 
     it('should have setup a property and accessor', function() {
-      var p = new Person();
+      const p = new Person();
       p.passport.should.be.an.object; // because of default
       p.passportItem.should.be.a.function;
       p.passportItem.create.should.be.a.function;
@@ -4394,14 +4394,14 @@ describe('relations', function() {
     });
 
     it('should setup a custom method on accessor', function() {
-      var rel = Person.relations['passportItem'];
+      const rel = Person.relations['passportItem'];
       rel.defineMethod('other', function() {
         return true;
       });
     });
 
     it('should have setup a custom method on accessor', function() {
-      var p = new Person();
+      const p = new Person();
       p.passportItem.check.should.be.a.function;
       p.passportItem.check().should.be.true;
       p.passportItem.other.should.be.a.function;
@@ -4409,20 +4409,20 @@ describe('relations', function() {
     });
 
     it('should behave properly without default or being set', function(done) {
-      var p = new Person();
+      const p = new Person();
       should.not.exist(p.address);
-      var a = p.addressItem();
+      const a = p.addressItem();
       should.not.exist(a);
       Person.create({}, function(err, p) {
         should.not.exist(p.address);
-        var a = p.addressItem();
+        const a = p.addressItem();
         should.not.exist(a);
         done();
       });
     });
 
     it('should return an instance with default values', function() {
-      var p = new Person();
+      const p = new Person();
       p.passport.toObject().should.eql({name: 'Anonymous'});
       p.passportItem().should.equal(p.passport);
       p.passportItem(function(err, passport) {
@@ -4432,20 +4432,20 @@ describe('relations', function() {
     });
 
     it('should embed a model instance', function() {
-      var p = new Person();
+      const p = new Person();
       p.passportItem(new Passport({name: 'Fred'}));
       p.passport.toObject().should.eql({name: 'Fred'});
       p.passport.should.be.an.instanceOf(Passport);
     });
 
     it('should not embed an invalid model type', function() {
-      var p = new Person();
+      const p = new Person();
       p.passportItem(new Other());
       p.passport.toObject().should.eql({name: 'Anonymous'});
       p.passport.should.be.an.instanceOf(Passport);
     });
 
-    var personId;
+    let personId;
     it('should create an embedded item on scope', function(done) {
       Person.create({name: 'Fred'}, function(err, p) {
         if (err) return done(err);
@@ -4462,7 +4462,7 @@ describe('relations', function() {
     it('should get an embedded item on scope', function(done) {
       Person.findById(personId, function(err, p) {
         if (err) return done(err);
-        var passport = p.passportItem();
+        const passport = p.passportItem();
         passport.toObject().should.eql({name: 'Fredric'});
         passport.should.be.an.instanceOf(Passport);
         passport.should.equal(p.passport);
@@ -4472,7 +4472,7 @@ describe('relations', function() {
     });
 
     it('should validate an embedded item on scope - on creation', function(done) {
-      var p = new Person({name: 'Fred'});
+      const p = new Person({name: 'Fred'});
       p.passportItem.create({}, function(err, passport) {
         should.exist(err);
         err.name.should.equal('ValidationError');
@@ -4483,7 +4483,7 @@ describe('relations', function() {
 
     it('should validate an embedded item on scope - on update', function(done) {
       Person.findById(personId, function(err, p) {
-        var passport = p.passportItem();
+        const passport = p.passportItem();
         passport.name = null;
         p.save(function(err) {
           should.exist(err);
@@ -4511,7 +4511,7 @@ describe('relations', function() {
     it('should get an embedded item on scope - verify', function(done) {
       Person.findById(personId, function(err, p) {
         if (err) return done(err);
-        var passport = p.passportItem();
+        const passport = p.passportItem();
         passport.toObject().should.eql({name: 'Freddy'});
         done();
       });
@@ -4537,7 +4537,7 @@ describe('relations', function() {
     });
 
     it('should save an unsaved model', function(done) {
-      var p = new Person({name: 'Fred'});
+      const p = new Person({name: 'Fred'});
       p.isNewRecord().should.be.true;
       p.passportItem.create({name: 'Fredric'}, function(err, passport) {
         if (err) return done(err);
@@ -4563,7 +4563,7 @@ describe('relations', function() {
     it('should get an embedded item on scope with promises', function(done) {
       Person.findById(personId)
         .then(function(p) {
-          var passport = p.passportItem();
+          const passport = p.passportItem();
           passport.toObject().should.eql({name: 'Fredric'});
           passport.should.be.an.instanceOf(Passport);
           passport.should.equal(p.passport);
@@ -4573,7 +4573,7 @@ describe('relations', function() {
     });
 
     it('should validate an embedded item on scope with promises - on creation', function(done) {
-      var p = new Person({name: 'Fred'});
+      const p = new Person({name: 'Fred'});
       p.passportItem.create({})
         .then(function(passport) {
           should.not.exist(passport);
@@ -4590,7 +4590,7 @@ describe('relations', function() {
     it('should validate an embedded item on scope with promises - on update', function(done) {
       Person.findById(personId)
         .then(function(p) {
-          var passport = p.passportItem();
+          const passport = p.passportItem();
           passport.name = null;
           return p.save()
             .then(function(p) {
@@ -4624,7 +4624,7 @@ describe('relations', function() {
     it('should get an embedded item on scope with promises - verify', function(done) {
       Person.findById(personId)
         .then(function(p) {
-          var passport = p.passportItem();
+          const passport = p.passportItem();
           passport.toObject().should.eql({name: 'Jason'});
           done();
         }).catch(done);
@@ -4652,7 +4652,7 @@ describe('relations', function() {
 
     it('should also save changes when directly saving the embedded model', function(done) {
       // Passport should normally have an id for the direct save to work. For now override the check
-      var originalHasPK = Passport.definition.hasPK;
+      const originalHasPK = Passport.definition.hasPK;
       Passport.definition.hasPK = function() { return true; };
       Person.findById(personId)
         .then(function(p) {
@@ -4678,7 +4678,7 @@ describe('relations', function() {
     });
 
     it('should delete the embedded document and also update parent', function(done) {
-      var originalHasPK = Passport.definition.hasPK;
+      const originalHasPK = Passport.definition.hasPK;
       Passport.definition.hasPK = function() { return true; };
       Person.findById(personId)
         .then(function(p) {
@@ -4702,7 +4702,7 @@ describe('relations', function() {
     // This test spefically uses the Memory connector
     // in order to test the use of the auto-generated
     // id, in the sequence of the related model.
-    var Passport, Person;
+    let Passport, Person;
     before(function() {
       db = getMemoryDataSource();
       Person = db.define('Person', {name: String});
@@ -4752,7 +4752,7 @@ describe('relations', function() {
   });
 
   describe('embedsOne - generated id', function() {
-    var Passport;
+    let Passport;
     before(function() {
       tmp = getTransientDataSource();
       Person = db.define('Person', {name: String});
@@ -4782,7 +4782,7 @@ describe('relations', function() {
   });
 
   describe('embedsMany', function() {
-    var address1, address2;
+    let address1, address2;
 
     before(function(done) {
       tmp = getTransientDataSource({defaultIdType: Number});
@@ -4807,7 +4807,7 @@ describe('relations', function() {
     });
 
     it('should have setup embedded accessor/scope', function() {
-      var p = new Person({name: 'Fred'});
+      const p = new Person({name: 'Fred'});
       p.addresses.should.be.an.array;
       p.addresses.should.have.length(0);
       p.addressList.should.be.a.function;
@@ -4854,7 +4854,7 @@ describe('relations', function() {
         p.addressList(function(err, addresses) {
           if (err) return done(err);
 
-          var list = p.addressList();
+          const list = p.addressList();
           list.should.equal(addresses);
           list.should.equal(p.addresses);
 
@@ -5020,7 +5020,7 @@ describe('relations', function() {
     });
 
     it('should save an unsaved model', function(done) {
-      var p = new Person({name: 'Fred'});
+      const p = new Person({name: 'Fred'});
       p.isNewRecord().should.be.true;
       p.addressList.create({street: 'Street 4'}, function(err, address) {
         if (err) return done(err);
@@ -5056,7 +5056,7 @@ describe('relations', function() {
     });
 
     it('should not set default value for embedded item', function() {
-      var p = new Person({name: 'Fred'});
+      const p = new Person({name: 'Fred'});
       p.should.have.property('addresses', undefined);
     });
 
@@ -5084,7 +5084,7 @@ describe('relations', function() {
     });
 
     it('should not create embedded from attributes - relation name', function(done) {
-      var addresses = [
+      const addresses = [
         {id: 'home', street: 'Home Street'},
         {id: 'work', street: 'Work Street'},
       ];
@@ -5211,7 +5211,7 @@ describe('relations', function() {
     });
 
     it('should validate all embedded items', function(done) {
-      var addresses = [];
+      const addresses = [];
       addresses.push({id: 'home', street: 'Home Street'});
       addresses.push({id: 'work', street: ''});
       Person.create({name: 'Wilma', addresses: addresses}, function(err, p) {
@@ -5262,7 +5262,7 @@ describe('relations', function() {
     });
 
     it('should create embedded from attributes - property name', function(done) {
-      var addresses = [
+      const addresses = [
         {id: 'home', street: 'Home Street'},
         {id: 'work', street: 'Work Street'},
       ];
@@ -5275,7 +5275,7 @@ describe('relations', function() {
     });
 
     it('should not create embedded from attributes - relation name', function(done) {
-      var addresses = [
+      const addresses = [
         {id: 'home', street: 'Home Street'},
         {id: 'work', street: 'Work Street'},
       ];
@@ -5299,8 +5299,8 @@ describe('relations', function() {
   });
 
   describe('embedsMany - persisted model', function() {
-    var address0, address1, address2;
-    var person;
+    let address0, address1, address2;
+    let person;
 
     // This test spefically uses the Memory connector
     // in order to test the use of the auto-generated
@@ -5408,13 +5408,13 @@ describe('relations', function() {
     });
 
     it('should validate embedded items on scope - street', function(done) {
-      var newId = uid.fromConnector(db) || 1234;
+      const newId = uid.fromConnector(db) || 1234;
       Person.create({name: 'Wilma'}, function(err, p) {
         p.addressList.create({id: newId}, function(err, address) {
           should.exist(err);
           err.name.should.equal('ValidationError');
           err.details.codes.street.should.eql(['presence']);
-          var expected = 'The `Address` instance is not valid. ';
+          let expected = 'The `Address` instance is not valid. ';
           expected += 'Details: `street` can\'t be blank (value: undefined).';
           err.message.should.equal(expected);
           done();
@@ -5424,7 +5424,7 @@ describe('relations', function() {
   });
 
   describe('embedsMany - relations, scope and properties', function() {
-    var category, job1, job2, job3;
+    let category, job1, job2, job3;
 
     before(function() {
       Category = db.define('Category', {name: String});
@@ -5467,13 +5467,13 @@ describe('relations', function() {
     it('should associate items on scope', function(done) {
       Category.create({name: 'Category A'}, function(err, cat) {
         if (err) return done(err);
-        var link = cat.items.build();
+        let link = cat.items.build();
         link.job(job1);
         link = cat.items.build();
         link.job(job2);
         cat.save(function(err, cat) {
           if (err) return done(err);
-          var job = cat.items.at(0);
+          let job = cat.items.at(0);
           job.should.be.instanceof(Link);
           job.should.not.have.property('jobId');
           job.id.should.eql(job1.id);
@@ -5597,13 +5597,13 @@ describe('relations', function() {
       });
     });
 
-    var jobId;
+    let jobId;
 
     it('should create items on scope', function(done) {
       Category.create({name: 'Category B'}, function(err, cat) {
         if (err) return done(err);
         category = cat;
-        var link = cat.items.build({notes: 'Some notes...'});
+        const link = cat.items.build({notes: 'Some notes...'});
         link.job.create({name: 'Job 1'}, function(err, p) {
           if (err) return done(err);
           jobId = p.id;
@@ -5640,7 +5640,7 @@ describe('relations', function() {
     it('should update items on scope - and save parent', function(done) {
       Category.findById(category.id, function(err, cat) {
         if (err) return done(err);
-        var link = cat.items.at(0);
+        const link = cat.items.at(0);
         // use 'updateById' instead as a replacement as it is one of the embedsMany methods,
         // that works with all connectors. `updateAttributes` does not recognize the query done on
         // the Category Model, resulting with an error in three connectors: mssql, oracle, postgresql
@@ -5685,7 +5685,7 @@ describe('relations', function() {
   });
 
   describe('embedsMany - polymorphic relations', function() {
-    var person1, person2;
+    let person1, person2;
 
     before(function(done) {
       tmp = getTransientDataSource();
@@ -5705,7 +5705,7 @@ describe('relations', function() {
     });
 
     it('can be declared', function(done) {
-      var idType = db.connector.getDefaultIdType();
+      const idType = db.connector.getDefaultIdType();
 
       Book.embedsMany(Link, {as: 'people',
         polymorphic: 'linked',
@@ -5731,14 +5731,14 @@ describe('relations', function() {
 
     it('should create items on scope', function(done) {
       Book.create({name: 'Book'}, function(err, book) {
-        var link = book.people.build({notes: 'Something ...'});
+        let link = book.people.build({notes: 'Something ...'});
         link.linked(person1);
         link = book.people.build();
         link.linked(person2);
         book.save(function(err, book) {
           if (err) return done(err);
 
-          var link = book.people.at(0);
+          let link = book.people.at(0);
           link.should.be.instanceof(Link);
           link.id.should.equal(1);
           link.linkedId.should.eql(person1.id);
@@ -5761,7 +5761,7 @@ describe('relations', function() {
       Book.findOne(function(err, book) {
         book.links.should.have.length(2);
 
-        var link = book.people.at(0);
+        let link = book.people.at(0);
         link.should.be.instanceof(Link);
         link.id.should.eql(1);
         link.linkedId.should.eql(person1.id);
@@ -5796,7 +5796,7 @@ describe('relations', function() {
       // In loopback, an afterRemote filter could do this as well.
 
         Book.find({include: 'people'}, function(err, books) {
-          var obj = books[0].toObject();
+          const obj = books[0].toObject();
 
           obj.should.have.property('links');
           obj.should.have.property('people');
@@ -5819,7 +5819,7 @@ describe('relations', function() {
   });
 
   describe('referencesMany', function() {
-    var job1, job2, job3;
+    let job1, job2, job3;
 
     before(function(done) {
       Category = db.define('Category', {name: String});
@@ -5829,11 +5829,11 @@ describe('relations', function() {
     });
 
     it('can be declared', function(done) {
-      var reverse = function(cb) {
+      const reverse = function(cb) {
         cb = cb || createPromiseCallback();
-        var modelInstance = this.modelInstance;
-        var fk = this.definition.keyFrom;
-        var ids = modelInstance[fk] || [];
+        const modelInstance = this.modelInstance;
+        const fk = this.definition.keyFrom;
+        const ids = modelInstance[fk] || [];
         modelInstance.updateAttribute(fk, ids.reverse(), function(err, inst) {
           cb(err, inst[fk] || []);
         });
@@ -5897,7 +5897,7 @@ describe('relations', function() {
         cat.jobIds[0].should.eql(job2.id);
         cat.jobs(function(err, jobs) {
           if (err) return done(err);
-          var p = jobs[0];
+          const p = jobs[0];
           p.id.should.eql(job2.id);
           p.name.should.equal('Job 2');
           done();
@@ -5931,7 +5931,7 @@ describe('relations', function() {
 
     it('should update a record on scope', function(done) {
       Category.findOne(function(err, cat) {
-        var attrs = {name: 'Job 2 - edit'};
+        const attrs = {name: 'Job 2 - edit'};
         cat.jobs.updateById(job2.id, attrs, function(err, p) {
           if (err) return done(err);
           p.name.should.equal(attrs.name);
@@ -5970,7 +5970,7 @@ describe('relations', function() {
       Category.findOne(function(err, cat) {
         cat.jobs.add(job3.id, function(err, prod) {
           if (err) return done(err);
-          var expected = [job2.id, job1.id, job3.id];
+          const expected = [job2.id, job1.id, job3.id];
           cat.jobIds[0].should.eql(expected[0]);
           cat.jobIds[1].should.eql(expected[1]);
           cat.jobIds[2].should.eql(expected[2]);
@@ -5995,11 +5995,11 @@ describe('relations', function() {
 
     it('should find items on scope - filter', function(done) {
       Category.findOne(function(err, cat) {
-        var filter = {where: {name: 'Job 1'}};
+        const filter = {where: {name: 'Job 1'}};
         cat.jobs(filter, function(err, jobs) {
           if (err) return done(err);
           jobs.should.have.length(1);
-          var p = jobs[0];
+          const p = jobs[0];
           p.id.should.eql(job1.id);
           p.name.should.equal('Job 1');
           done();
@@ -6011,7 +6011,7 @@ describe('relations', function() {
       Category.findOne(function(err, cat) {
         cat.jobs.remove(job1.id, function(err, ids) {
           if (err) return done(err);
-          var expected = [job2.id, job3.id];
+          const expected = [job2.id, job3.id];
           cat.jobIds[0].should.eql(expected[0]);
           cat.jobIds[1].should.eql(expected[1]);
           cat.jobIds[0].should.eql(ids[0]);
@@ -6023,7 +6023,7 @@ describe('relations', function() {
 
     it('should find items on scope - verify', function(done) {
       Category.findOne(function(err, cat) {
-        var expected = [job2.id, job3.id];
+        const expected = [job2.id, job3.id];
         cat.jobIds[0].should.eql(expected[0]);
         cat.jobIds[1].should.eql(expected[1]);
         cat.jobs(function(err, jobs) {
@@ -6054,7 +6054,7 @@ describe('relations', function() {
       'should allow custom scope methods - reverse', function(done) {
         Category.findOne(function(err, cat) {
           cat.jobs.reverse(function(err, ids) {
-            var expected = [job3.id, job2.id];
+            const expected = [job3.id, job2.id];
             ids.toArray().should.eql(expected);
             cat.jobIds.toArray().should.eql(expected);
             done();
@@ -6066,7 +6066,7 @@ describe('relations', function() {
       'should allow custom scope methods - reverse', function(done) {
         Category.findOne(function(err, cat) {
           cat.jobs.reverse(function(err, ids) {
-            var expected = [job3.id, job2.id];
+            const expected = [job3.id, job2.id];
             ids[0].should.be.oneOf(expected);
             ids[1].should.be.oneOf(expected);
             cat.jobIds[0].should.be.oneOf(expected);
@@ -6080,7 +6080,7 @@ describe('relations', function() {
       'should include related items from scope', function(done) {
         Category.find({include: 'jobs'}, function(err, categories) {
           categories.should.have.length(1);
-          var cat = categories[0].toObject();
+          const cat = categories[0].toObject();
           cat.name.should.equal('Category A');
           cat.jobs.should.have.length(2);
           cat.jobs[0].id.should.eql(job3.id);
@@ -6173,7 +6173,7 @@ describe('relations', function() {
             return cat.jobs.find();
           })
           .then(function(jobs) {
-            var p = jobs[0];
+            const p = jobs[0];
             p.id.should.eql(job2.id);
             p.name.should.equal('Job 2');
             done();
@@ -6183,15 +6183,15 @@ describe('relations', function() {
 
     bdd.itIf(connectorCapabilities.adhocSort === false,
       'should find items on scope with promises', function(done) {
-        var theExpectedIds = [job1.id, job2.id, job3.id];
-        var theExpectedNames = ['Job 1', 'Job 2', 'Job 3'];
+        const theExpectedIds = [job1.id, job2.id, job3.id];
+        const theExpectedNames = ['Job 1', 'Job 2', 'Job 3'];
         Category.findOne()
           .then(function(cat) {
             cat.jobIds[0].should.be.oneOf(theExpectedIds);
             return cat.jobs.find();
           })
           .then(function(jobs) {
-            var p = jobs[0];
+            const p = jobs[0];
             p.id.should.be.oneOf(theExpectedIds);
             p.name.should.be.oneOf(theExpectedNames);
             done();
@@ -6229,7 +6229,7 @@ describe('relations', function() {
     it('should update a record on scope with promises', function(done) {
       Category.findOne()
         .then(function(cat) {
-          var attrs = {name: 'Job 2 - edit'};
+          const attrs = {name: 'Job 2 - edit'};
           return cat.jobs.updateById(job2.id, attrs)
             .then(function(p) {
               p.name.should.equal(attrs.name);
@@ -6258,7 +6258,7 @@ describe('relations', function() {
         .then(function(cat) {
           return cat.jobs.add(job1)
             .then(function(prod) {
-              var expected = [job2.id, job1.id];
+              const expected = [job2.id, job1.id];
               cat.jobIds.should.have.lengthOf(expected.length);
               cat.jobIds.should.containDeep(expected);
               prod.id.should.eql(job1.id);
@@ -6275,7 +6275,7 @@ describe('relations', function() {
         .then(function(cat) {
           return cat.jobs.add(job3.id)
             .then(function(prod) {
-              var expected = [job2.id, job1.id, job3.id];
+              const expected = [job2.id, job1.id, job3.id];
               cat.jobIds.should.have.lengthOf(expected.length);
               cat.jobIds.should.containDeep(expected);
               prod.id.should.eql(job3.id);
@@ -6303,12 +6303,12 @@ describe('relations', function() {
     it('should find items on scope with promises - filter', function(done) {
       Category.findOne()
         .then(function(cat) {
-          var filter = {where: {name: 'Job 1'}};
+          const filter = {where: {name: 'Job 1'}};
           return cat.jobs.find(filter);
         })
         .then(function(jobs) {
           jobs.should.have.length(1);
-          var p = jobs[0];
+          const p = jobs[0];
           p.id.should.eql(job1.id);
           p.name.should.equal('Job 1');
           done();
@@ -6321,7 +6321,7 @@ describe('relations', function() {
         .then(function(cat) {
           return cat.jobs.remove(job1.id)
             .then(function(ids) {
-              var expected = [job2.id, job3.id];
+              const expected = [job2.id, job3.id];
               cat.jobIds.should.have.lengthOf(expected.length);
               cat.jobIds.should.containDeep(expected);
               cat.jobIds.should.eql(ids);
@@ -6334,7 +6334,7 @@ describe('relations', function() {
     it('should find items on scope with promises - verify', function(done) {
       Category.findOne()
         .then(function(cat) {
-          var expected = [job2.id, job3.id];
+          const expected = [job2.id, job3.id];
           cat.jobIds.should.have.lengthOf(expected.length);
           cat.jobIds.should.containDeep(expected);
           return cat.jobs.find();
@@ -6370,7 +6370,7 @@ describe('relations', function() {
           .then(function(cat) {
             return cat.jobs.reverse()
               .then(function(ids) {
-                var expected = [job3.id, job2.id];
+                const expected = [job3.id, job2.id];
                 ids.toArray().should.eql(expected);
                 cat.jobIds.toArray().should.eql(expected);
                 done();
@@ -6385,7 +6385,7 @@ describe('relations', function() {
       Category.find({include: 'jobs'})
         .then(function(categories) {
           categories.should.have.length(1);
-          var cat = categories[0].toObject();
+          const cat = categories[0].toObject();
           cat.name.should.equal('Category A');
           cat.jobs.should.have.length(2);
           cat.jobs[0].id.should.eql(job3.id);
@@ -6399,7 +6399,7 @@ describe('relations', function() {
         .then(function(cat) {
           return cat.jobs.destroy(job2.id)
             .then(function() {
-              var expected = [job3.id];
+              const expected = [job3.id];
               if (connectorCapabilities.adhocSort !== false) {
                 cat.jobIds.toArray().should.eql(expected);
               } else {
@@ -6420,7 +6420,7 @@ describe('relations', function() {
     it('should find items on scope with promises - verify', function(done) {
       Category.findOne()
         .then(function(cat) {
-          var expected = [job3.id];
+          const expected = [job3.id];
           cat.jobIds.should.have.lengthOf(expected.length);
           cat.jobIds.should.containDeep(expected);
           return cat.jobs.find();
@@ -6435,7 +6435,7 @@ describe('relations', function() {
   });
 
   describe('custom relation/scope methods', function() {
-    var categoryId;
+    let categoryId;
 
     before(function(done) {
       Category = db.define('Category', {name: String});
@@ -6445,15 +6445,15 @@ describe('relations', function() {
     });
 
     it('can be declared', function(done) {
-      var relation = Category.hasMany(Job);
+      const relation = Category.hasMany(Job);
 
-      var summarize = function(cb) {
+      const summarize = function(cb) {
         cb = cb || createPromiseCallback();
-        var modelInstance = this.modelInstance;
+        const modelInstance = this.modelInstance;
         this.fetch(function(err, items) {
           if (err) return cb(err, []);
-          var summary = items.map(function(item) {
-            var obj = item.toObject();
+          const summary = items.map(function(item) {
+            const obj = item.toObject();
             obj.categoryName = modelInstance.name;
             return obj;
           });
@@ -6486,8 +6486,8 @@ describe('relations', function() {
     });
 
     it('should allow custom scope methods - summarize', function(done) {
-      var categoryIdStr = categoryId.toString();
-      var expected = [
+      const categoryIdStr = categoryId.toString();
+      const expected = [
         {name: 'Job 1', categoryId: categoryIdStr, categoryName: 'Category A'},
         {name: 'Job 2', categoryId: categoryIdStr, categoryName: 'Category A'},
       ];
@@ -6495,7 +6495,7 @@ describe('relations', function() {
       Category.findOne(function(err, cat) {
         cat.jobs.summarize(function(err, summary) {
           if (err) return done(err);
-          var result = summary.map(function(item) {
+          const result = summary.map(function(item) {
             delete item.id;
             item.categoryId = item.categoryId.toString();
             return item;
@@ -6509,8 +6509,8 @@ describe('relations', function() {
     });
 
     it('should allow custom scope methods with promises - summarize', function(done) {
-      var categoryIdStr = categoryId.toString();
-      var expected = [
+      const categoryIdStr = categoryId.toString();
+      const expected = [
         {name: 'Job 1', categoryId: categoryIdStr, categoryName: 'Category A'},
         {name: 'Job 2', categoryId: categoryIdStr, categoryName: 'Category A'},
       ];
@@ -6520,7 +6520,7 @@ describe('relations', function() {
           return cat.jobs.summarize();
         })
         .then(function(summary) {
-          var result = summary.map(function(item) {
+          const result = summary.map(function(item) {
             delete item.id;
             item.categoryId = item.categoryId.toString();
             return item;
