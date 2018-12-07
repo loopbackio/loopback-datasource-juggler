@@ -159,7 +159,7 @@ describe('Transactions on test connector with execute()', () => {
 });
 
 function createDataSource() {
-  let db = new DataSource({
+  const db = new DataSource({
     initialize: (dataSource, cb) => {
       dataSource.connector = new TestConnector();
       cb();

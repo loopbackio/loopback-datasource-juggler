@@ -7,15 +7,15 @@
 'use strict';
 
 /* global getSchema:false */
-var should = require('./init.js');
+const should = require('./init.js');
 
-var db = getSchema(), slave = getSchema(), Model, SlaveModel;
+let db = getSchema(), slave = getSchema(), Model, SlaveModel;
 
 describe('dataSource', function() {
   it('should define Model', function() {
     Model = db.define('Model');
     Model.dataSource.should.eql(db);
-    var m = new Model;
+    const m = new Model;
     m.getDataSource().should.eql(db);
   });
 
@@ -23,7 +23,7 @@ describe('dataSource', function() {
     SlaveModel = slave.copyModel(Model);
     SlaveModel.dataSource.should.equal(slave);
     slave.should.not.equal(db);
-    var sm = new SlaveModel;
+    const sm = new SlaveModel;
     sm.should.be.instanceOf(Model);
     sm.getDataSource().should.not.equal(db);
     sm.getDataSource().should.equal(slave);
@@ -34,10 +34,10 @@ describe('dataSource', function() {
   });
 
   it('should create transaction', function(done) {
-    var tr = db.transaction();
+    const tr = db.transaction();
     tr.connected.should.be.false;
     tr.connecting.should.be.false;
-    var called = false;
+    let called = false;
     tr.models.Model.create(Array(3), function() {
       called = true;
     });

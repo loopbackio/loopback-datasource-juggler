@@ -5,21 +5,21 @@
 
 // This test written in mocha+should.js
 'use strict';
-var should = require('./init.js');
+const should = require('./init.js');
 
-var jdb = require('../');
-var ModelBuilder = jdb.ModelBuilder;
-var DataSource = jdb.DataSource;
-var Memory = require('../lib/connectors/memory');
+const jdb = require('../');
+const ModelBuilder = jdb.ModelBuilder;
+const DataSource = jdb.DataSource;
+const Memory = require('../lib/connectors/memory');
 
-var modelBuilder = new ModelBuilder();
-var mixins = modelBuilder.mixins;
+const modelBuilder = new ModelBuilder();
+const mixins = modelBuilder.mixins;
 
 function timestamps(Model, options) {
   Model.defineProperty('createdAt', {type: Date});
   Model.defineProperty('updatedAt', {type: Date});
 
-  var originalBeforeSave = Model.beforeSave;
+  const originalBeforeSave = Model.beforeSave;
   Model.beforeSave = function(next, data) {
     Model.applyTimestamps(data, this.isNewRecord());
     if (data.createdAt) {
@@ -62,24 +62,24 @@ describe('Model class', function() {
   });
 
   it('should apply a mixin class', function() {
-    var Address = modelBuilder.define('Address', {
+    const Address = modelBuilder.define('Address', {
       street: {type: 'string', required: true},
       city: {type: 'string', required: true},
     });
 
-    var memory = new DataSource('mem', {connector: Memory}, modelBuilder);
-    var Item = memory.createModel('Item', {name: 'string'}, {
+    const memory = new DataSource('mem', {connector: Memory}, modelBuilder);
+    const Item = memory.createModel('Item', {name: 'string'}, {
       mixins: {Address: true},
     });
 
-    var properties = Item.definition.properties;
+    const properties = Item.definition.properties;
 
     properties.street.should.eql({type: String, required: true});
     properties.city.should.eql({type: String, required: true});
   });
 
   it('should fail to apply an undefined mixin class', function() {
-    var memory = new DataSource('mem', {connector: Memory}, modelBuilder);
+    const memory = new DataSource('mem', {connector: Memory}, modelBuilder);
     function applyMixin() {
       memory.createModel('Item', {name: 'string'}, {
         mixins: {UndefinedMixin: true},
@@ -89,8 +89,8 @@ describe('Model class', function() {
   });
 
   it('should apply mixins', function(done) {
-    var memory = new DataSource('mem', {connector: Memory}, modelBuilder);
-    var Item = memory.createModel('Item', {name: 'string'}, {
+    const memory = new DataSource('mem', {connector: Memory}, modelBuilder);
+    const Item = memory.createModel('Item', {name: 'string'}, {
       mixins: {
         TimeStamp: true,
         Demo: {value: true},
@@ -108,7 +108,7 @@ describe('Model class', function() {
     Item.multiMixin.foo.should.equal('bar');
     Item.multiMixin.fox.should.equal('baz');
 
-    var properties = Item.definition.properties;
+    const properties = Item.definition.properties;
     properties.createdAt.should.eql({type: Date});
     properties.updatedAt.should.eql({type: Date});
 
@@ -121,8 +121,8 @@ describe('Model class', function() {
   });
 
   it('should fail to apply undefined mixin', function() {
-    var memory = new DataSource('mem', {connector: Memory}, modelBuilder);
-    var Item = memory.createModel('Item', {name: 'string'});
+    const memory = new DataSource('mem', {connector: Memory}, modelBuilder);
+    const Item = memory.createModel('Item', {name: 'string'});
 
     function applyMixin() {
       Item.mixin('UndefinedMixin', {foo: 'bar'});
@@ -131,14 +131,14 @@ describe('Model class', function() {
   });
 
   describe('#mixin()', function() {
-    var Person, Author, Address;
+    let Person, Author, Address;
 
     beforeEach(function() {
       Address = modelBuilder.define('Address', {
         street: {type: 'string', required: true},
         city: {type: 'string', required: true},
       });
-      var memory = new DataSource('mem', {connector: Memory}, modelBuilder);
+      const memory = new DataSource('mem', {connector: Memory}, modelBuilder);
       Person = memory.createModel('Person', {name: 'string'});
       Author = memory.createModel('Author', {name: 'string'});
     });

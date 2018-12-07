@@ -1,14 +1,14 @@
 'use strict';
 
-var should = require('should');
-var helpers = require('./_helpers');
-var Promise = require('bluebird');
+const should = require('should');
+const helpers = require('./_helpers');
+const Promise = require('bluebird');
 
 module.exports = function(dataSourceFactory, connectorCapabilities) {
-  var TTL_PRECISION = connectorCapabilities.ttlPrecision;
+  const TTL_PRECISION = connectorCapabilities.ttlPrecision;
 
   describe('get/set', function() {
-    var CacheItem;
+    let CacheItem;
     beforeEach(setupCacheItem);
 
     it('works for string values - Callback API', function(done) {
@@ -103,6 +103,6 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     function setupCacheItem() {
       return helpers.givenCacheItem(dataSourceFactory)
         .then(ModelCtor => CacheItem = ModelCtor);
-    };
+    }
   });
 };

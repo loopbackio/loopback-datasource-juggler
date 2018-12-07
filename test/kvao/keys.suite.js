@@ -1,12 +1,12 @@
 'use strict';
 
-var bdd = require('../helpers/bdd-if');
-var helpers = require('./_helpers');
-var Promise = require('bluebird');
-var should = require('should');
+const bdd = require('../helpers/bdd-if');
+const helpers = require('./_helpers');
+const Promise = require('bluebird');
+const should = require('should');
 
 module.exports = function(dataSourceFactory, connectorCapabilities) {
-  var canIterateKeys = connectorCapabilities.canIterateKeys !== false;
+  const canIterateKeys = connectorCapabilities.canIterateKeys !== false;
 
   bdd.describeIf(canIterateKeys, 'keys', function() {
     let CacheItem;
@@ -53,10 +53,10 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
         .then(keys => should(keys).eql(['key1', 'key2']));
     });
 
-    var largeKeySets = connectorCapabilities.canIterateLargeKeySets !== false;
+    const largeKeySets = connectorCapabilities.canIterateLargeKeySets !== false;
     bdd.itIf(largeKeySets, 'handles large key set', function() {
-      var expectedKeys = [];
-      for (var ix = 0; ix < 1000; ix++)
+      const expectedKeys = [];
+      for (let ix = 0; ix < 1000; ix++)
         expectedKeys.push('key-' + ix);
       expectedKeys.sort();
 

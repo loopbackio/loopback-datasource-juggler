@@ -7,10 +7,10 @@
 'use strict';
 
 /* global getSchema:false */
-var should = require('./init.js');
-var async = require('async');
+const should = require('./init.js');
+const async = require('async');
 
-var db, Category, Product, Tool, Widget, Thing, Person;
+let db, Category, Product, Tool, Widget, Thing, Person;
 
 // This test requires a connector that can
 // handle a custom collection or table name
@@ -18,7 +18,7 @@ var db, Category, Product, Tool, Widget, Thing, Person;
 // TODO [fabien] add table for pgsql/mysql
 // TODO [fabien] change model definition - see #293
 
-var setupProducts = function(ids, done) {
+const setupProducts = function(ids, done) {
   async.series([
     function(next) {
       Tool.create({name: 'Tool Z'}, function(err, inst) {
@@ -72,7 +72,7 @@ describe('default scope', function() {
     });
 
     Product.lookupModel = function(data) {
-      var m = this.dataSource.models[data.kind];
+      const m = this.dataSource.models[data.kind];
       if (m.base === this) return m;
       return this;
     };
@@ -104,11 +104,11 @@ describe('default scope', function() {
     // inst is only valid for instance methods
     // like save, updateAttributes
 
-    var scopeFn = function(target, inst) {
+    const scopeFn = function(target, inst) {
       return {where: {kind: this.modelName}};
     };
 
-    var propertiesFn = function(target, inst) {
+    const propertiesFn = function(target, inst) {
       return {kind: this.modelName};
     };
 
@@ -138,14 +138,14 @@ describe('default scope', function() {
   });
 
   describe('manipulation', function() {
-    var ids = {};
+    const ids = {};
 
     before(function(done) {
       db.automigrate(done);
     });
 
     it('should return a scoped instance', function() {
-      var p = new Tool({name: 'Product A', kind: 'ignored'});
+      const p = new Tool({name: 'Product A', kind: 'ignored'});
       p.name.should.equal('Product A');
       p.kind.should.equal('Tool');
       p.setAttributes({kind: 'ignored'});
@@ -205,7 +205,7 @@ describe('default scope', function() {
     });
 
     it('should update a scoped instance - updateOrCreate', function(done) {
-      var data = {id: ids.productA, description: 'Anything...', kind: 'ingored'};
+      const data = {id: ids.productA, description: 'Anything...', kind: 'ingored'};
       Tool.updateOrCreate(data, function(err, p) {
         should.not.exist(err);
         p.name.should.equal('Product A');
@@ -217,7 +217,7 @@ describe('default scope', function() {
   });
 
   describe('findById', function() {
-    var ids = {};
+    const ids = {};
 
     before(function(done) {
       db.automigrate(setupProducts.bind(null, ids, done));
@@ -250,7 +250,7 @@ describe('default scope', function() {
   });
 
   describe('find', function() {
-    var ids = {};
+    const ids = {};
 
     before(function(done) {
       db.automigrate(setupProducts.bind(null, ids, done));
@@ -322,7 +322,7 @@ describe('default scope', function() {
   });
 
   describe('exists', function() {
-    var ids = {};
+    const ids = {};
 
     before(function(done) {
       db.automigrate(setupProducts.bind(null, ids, done));
@@ -370,7 +370,7 @@ describe('default scope', function() {
   });
 
   describe('count', function() {
-    var ids = {};
+    const ids = {};
 
     before(function(done) {
       db.automigrate(setupProducts.bind(null, ids, done));
@@ -418,7 +418,7 @@ describe('default scope', function() {
   });
 
   describe('removeById', function() {
-    var ids = {};
+    const ids = {};
 
     function isDeleted(id, done) {
       Product.exists(id, function(err, exists) {
@@ -426,7 +426,7 @@ describe('default scope', function() {
         exists.should.be.false;
         done();
       });
-    };
+    }
 
     before(function(done) {
       db.automigrate(setupProducts.bind(null, ids, done));
@@ -476,7 +476,7 @@ describe('default scope', function() {
   });
 
   describe('update', function() {
-    var ids = {};
+    const ids = {};
 
     before(function(done) {
       db.automigrate(setupProducts.bind(null, ids, done));
@@ -521,7 +521,7 @@ describe('default scope', function() {
   });
 
   describe('remove', function() {
-    var ids = {};
+    const ids = {};
 
     before(function(done) {
       db.automigrate(setupProducts.bind(null, ids, done));
@@ -593,7 +593,7 @@ describe('default scope', function() {
   });
 
   describe('scopes', function() {
-    var ids = {};
+    const ids = {};
 
     before(function(done) {
       db.automigrate(setupProducts.bind(null, ids, done));
@@ -673,7 +673,7 @@ describe('default scope', function() {
         products.should.have.length(2);
         products[0].name.should.equal('Product');
         products[1].name.should.equal('Product');
-        var kinds = products.map(function(p) { return p.kind; });
+        const kinds = products.map(function(p) { return p.kind; });
         kinds.sort();
         kinds.should.eql(['Thing', 'Widget']);
         done();
@@ -682,7 +682,7 @@ describe('default scope', function() {
   });
 
   describe('relations', function() {
-    var ids = {};
+    const ids = {};
 
     before(function(done) {
       db.automigrate(done);
@@ -817,7 +817,7 @@ describe('default scope', function() {
       Person.findById(1, function(err, person) {
         should.not.exist(err);
         should.exist(person);
-        var things = person.things();
+        const things = person.things();
         should.exist(things);
         things.should.be.an.instanceOf(Array);
         things.should.have.length(1);

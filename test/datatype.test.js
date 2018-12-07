@@ -7,15 +7,15 @@
 'use strict';
 
 /* global getSchema:false */
-var should = require('./init.js');
+const should = require('./init.js');
 
-var db, Model;
+let db, Model;
 
 describe('datatypes', function() {
   before(function(done) {
     db = getSchema();
-    var Nested = db.define('Nested', {});
-    var modelTableSchema = {
+    const Nested = db.define('Nested', {});
+    const modelTableSchema = {
       str: String,
       date: Date,
       num: Number,
@@ -30,7 +30,7 @@ describe('datatypes', function() {
 
   it('should return 400 when property of type array is set to string value',
     function(done) {
-      var myModel = db.define('myModel', {
+      const myModel = db.define('myModel', {
         list: {type: ['object']},
       });
 
@@ -42,7 +42,7 @@ describe('datatypes', function() {
 
   it('should return 400 when property of type array is set to object value',
     function(done) {
-      var myModel = db.define('myModel', {
+      const myModel = db.define('myModel', {
         list: {type: ['object']},
       });
 
@@ -53,7 +53,7 @@ describe('datatypes', function() {
     });
 
   it('should keep types when get read data from db', function(done) {
-    var d = new Date('2015-01-01T12:00:00'), id;
+    let d = new Date('2015-01-01T12:00:00'), id;
 
     Model.create({
       str: 'hello', date: d, num: '3', bool: 1, list: ['test'], arr: [1, 'str'],
@@ -101,7 +101,7 @@ describe('datatypes', function() {
   });
 
   it('should respect data types when updating attributes', function(done) {
-    var d = new Date, id;
+    const d = new Date, id;
 
     Model.create({
       str: 'hello', date: d, num: '3', bool: 1}, function(err, m) {
@@ -151,7 +151,7 @@ describe('datatypes', function() {
   });
 
   it('should not coerce nested objects into ModelConstructor types', function() {
-    var coerced = Model._coerce({nested: {foo: 'bar'}});
+    const coerced = Model._coerce({nested: {foo: 'bar'}});
     coerced.nested.constructor.name.should.equal('Object');
   });
 
@@ -176,13 +176,13 @@ describe('datatypes', function() {
       data: {type: 'string'},
     });
     db.automigrate(['HandleNullModel'], function() {
-      let a = new Model(null);
+      const a = new Model(null);
       done();
     });
   });
 
   describe('model option persistUndefinedAsNull', function() {
-    var TestModel, isStrict;
+    let TestModel, isStrict;
     before(function(done) {
       db = getSchema();
       TestModel = db.define(
@@ -203,7 +203,7 @@ describe('datatypes', function() {
     });
 
     it('should set missing optional properties to null', function(done) {
-      var EXPECTED = {desc: null, stars: null};
+      const EXPECTED = {desc: null, stars: null};
       TestModel.create({name: 'a-test-name'}, function(err, created) {
         if (err) return done(err);
         created.should.have.properties(EXPECTED);
@@ -217,8 +217,8 @@ describe('datatypes', function() {
     });
 
     it('should convert property value undefined to null', function(done) {
-      var EXPECTED = {desc: null, extra: null};
-      var data = {desc: undefined, extra: undefined};
+      const EXPECTED = {desc: null, extra: null};
+      const data = {desc: undefined, extra: undefined};
       if (isStrict) {
         // SQL-based connectors don't support dynamic properties
         delete EXPECTED.extra;
@@ -238,21 +238,21 @@ describe('datatypes', function() {
     });
 
     it('should convert undefined to null in the setter', function() {
-      var inst = new TestModel();
+      const inst = new TestModel();
       inst.desc = undefined;
       inst.should.have.property('desc', null);
       inst.toObject().should.have.property('desc', null);
     });
 
     it('should use null in unsetAttribute()', function() {
-      var inst = new TestModel();
+      const inst = new TestModel();
       inst.unsetAttribute('stars');
       inst.should.have.property('stars', null);
       inst.toObject().should.have.property('stars', null);
     });
 
     it('should convert undefined to null on save', function(done) {
-      var EXPECTED = {desc: null, stars: null, extra: null, dx: null};
+      const EXPECTED = {desc: null, stars: null, extra: null, dx: null};
       if (isStrict) {
         // SQL-based connectors don't support dynamic properties
         delete EXPECTED.extra;
@@ -298,7 +298,7 @@ describe('datatypes', function() {
     });
 
     it('should convert undefined to null in toObject()', function() {
-      var inst = new TestModel();
+      const inst = new TestModel();
       inst.desc = undefined; // Note: this may be a no-op
       inst.unsetAttribute('stars');
       inst.extra = undefined;

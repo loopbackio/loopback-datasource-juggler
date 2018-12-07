@@ -4,7 +4,7 @@
 // License text available at https://opensource.org/licenses/MIT
 'use strict';
 
-var fmt = require('util').format;
+const fmt = require('util').format;
 
 exports.describeIf = function describeIf(cond, name, fn) {
   if (cond)

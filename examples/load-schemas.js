@@ -5,7 +5,7 @@
 
 'use strict';
 
-var path = require('path'),
+const path = require('path'),
   fs = require('fs'),
   DataSource = require('../lib/datasource').DataSource;
 
@@ -21,12 +21,12 @@ function loadSchemasSync(schemaFile, dataSource) {
   }
 
   // Read the dataSource JSON file
-  var schemas = JSON.parse(fs.readFileSync(schemaFile));
+  const schemas = JSON.parse(fs.readFileSync(schemaFile));
 
   return dataSource.buildModels(schemas);
 }
 
-var models = loadSchemasSync(path.join(__dirname, 'jdb-schemas.json'));
+let models = loadSchemasSync(path.join(__dirname, 'jdb-schemas.json'));
 
 for (const s in models) {
   const m = models[s];

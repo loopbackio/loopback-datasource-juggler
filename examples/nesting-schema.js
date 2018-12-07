@@ -5,11 +5,11 @@
 
 'use strict';
 
-var ModelBuilder = require('../../loopback-datasource-juggler').ModelBuilder;
-var modelBuilder = new ModelBuilder();
+const ModelBuilder = require('../../loopback-datasource-juggler').ModelBuilder;
+const modelBuilder = new ModelBuilder();
 
 // simplier way to describe model
-var User = modelBuilder.define('User', {
+const User = modelBuilder.define('User', {
   name: String,
   bio: ModelBuilder.Text,
   approved: Boolean,
@@ -31,7 +31,7 @@ var User = modelBuilder.define('User', {
   friends: [String],
 });
 
-var user = new User({
+const user = new User({
   name: 'Joe',
   age: 20,
   address: {street: '123 Main St', 'city': 'San Jose', state: 'CA'},

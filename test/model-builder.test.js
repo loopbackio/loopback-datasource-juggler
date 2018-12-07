@@ -8,7 +8,7 @@
 const should = require('./init.js');
 
 const juggler = require('../');
-var ModelBuilder = juggler.ModelBuilder;
+const ModelBuilder = juggler.ModelBuilder;
 
 describe('ModelBuilder', () => {
   describe('define()', () => {

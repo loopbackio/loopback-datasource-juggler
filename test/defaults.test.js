@@ -7,12 +7,12 @@
 'use strict';
 
 /* global getSchema:false */
-var should = require('./init.js');
+const should = require('./init.js');
 
-var db = getSchema();
+const db = getSchema();
 
 describe('defaults', function() {
-  var Server;
+  let Server;
 
   before(function() {
     Server = db.define('Server', {
@@ -23,7 +23,7 @@ describe('defaults', function() {
   });
 
   it('should apply defaults on new', function() {
-    var s = new Server;
+    const s = new Server;
     s.port.should.equal(80);
   });
 

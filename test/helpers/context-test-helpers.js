@@ -4,7 +4,7 @@
 // License text available at https://opensource.org/licenses/MIT
 'use strict';
 
-var traverse = require('traverse');
+const traverse = require('traverse');
 
 exports.ContextRecorder = ContextRecorder;
 exports.deepCloneToObject = deepCloneToObject;
@@ -15,10 +15,10 @@ function ContextRecorder(initialValue) {
     return new ContextRecorder(initialValue);
   }
   this.records = initialValue;
-};
+}
 
 ContextRecorder.prototype.recordAndNext = function(transformFm) {
-  var self = this;
+  const self = this;
   return function(context, next) {
     if (typeof transformFm === 'function') {
       transformFm(context);
