@@ -11,7 +11,7 @@ function givenCacheItem(dataSourceFactory) {
     value: 'Any',
   };
   return givenModel(dataSourceFactory, 'CacheItem', modelProperties);
-};
+}
 
 function givenModel(dataSourceFactory, modelName,
   modelProperties, options) {
@@ -20,7 +20,7 @@ function givenModel(dataSourceFactory, modelName,
   const p = 'deleteAll' in dataSource.connector ?
     Model.deleteAll() : Promise.resolve();
   return p.then(() => Model);
-};
+}
 
 function givenKeys(Model, keys, cb) {
   var p = Promise.all(
@@ -32,7 +32,7 @@ function givenKeys(Model, keys, cb) {
     p = p.then(function(r) { cb(null, r); }, cb);
   }
   return p;
-};
+}
 
 function delay(ms) {
   return new Promise((resolve) => {

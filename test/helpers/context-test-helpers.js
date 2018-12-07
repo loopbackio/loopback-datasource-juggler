@@ -15,7 +15,7 @@ function ContextRecorder(initialValue) {
     return new ContextRecorder(initialValue);
   }
   this.records = initialValue;
-};
+}
 
 ContextRecorder.prototype.recordAndNext = function(transformFm) {
   var self = this;

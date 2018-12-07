@@ -119,7 +119,7 @@ describe('async observer', function() {
     function call(ctx, next) {
       notifications.push('call');
       process.nextTick(next);
-    };
+    }
 
     TestModel.observe('event', call);
     TestModel.removeObserver('event', call);
@@ -137,7 +137,7 @@ describe('async observer', function() {
     function call(ctx, next) {
       notifications.push('call');
       process.nextTick(next);
-    };
+    }
 
     TestModel.observe('event', call);
     TestModel.observe('event', call);

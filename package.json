@@ -39,7 +39,7 @@
     "bson": "^4.0.1",
     "coveralls": "^3.0.1",
     "eslint": "^5.1.0",
-    "eslint-config-loopback": "^11.0.0",
+    "eslint-config-loopback": "^12.1.0",
     "loopback-connector-throwing": "file:./test/fixtures/loopback-connector-throwing",
     "mocha": "^5.2.0",
     "nyc": "^13.1.0",

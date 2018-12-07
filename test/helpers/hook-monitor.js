@@ -13,7 +13,7 @@ function HookMonitor(opts) {
 
   this.options = opts || {};
   this.names = [];
-};
+}
 
 HookMonitor.prototype.install = function(ObservedModel, hookNames) {
   var monitor = this;

@@ -102,6 +102,6 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     function setupCacheItem() {
       return helpers.givenCacheItem(dataSourceFactory)
         .then(ModelCtor => CacheItem = ModelCtor);
-    };
+    }
   });
 };
