@@ -36,7 +36,7 @@
   "devDependencies": {
     "@types/node": "^10.0.8",
     "async-iterators": "^0.2.2",
-    "bson": "^1.0.4",
+    "bson": "^4.0.1",
     "coveralls": "^3.0.1",
     "eslint": "^5.1.0",
     "eslint-config-loopback": "^11.0.0",
