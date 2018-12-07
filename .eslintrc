@@ -1,12 +1,6 @@
 {
   "extends": "loopback",
-  "parserOptions": {
-    "ecmaVersion": 2017
-  },
   "rules": {
-    // TODO(bajtos) move these two rules to eslint-config-loopback
-    "no-var": "error",
-    "prefer-const": "error",
     "max-len": ["error", 110, 4, {
       "ignoreComments": true,
       "ignoreUrls": true,
@@ -15,12 +9,6 @@
     // NOTE(bajtos) we should eventually remove this override
     // and fix all of those 100+ violations
     "one-var": "off",
-    "no-unused-expressions": "off",
-    // TODO(bajtos) move this to eslint-config-loopback
-    "space-before-function-paren": ["error", {
-        "anonymous": "never",
-        "named": "never",
-        "asyncArrow": "always"
-    }],
+    "no-unused-expressions": "off"
   }
 }
