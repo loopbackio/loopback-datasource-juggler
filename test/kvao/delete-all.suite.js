@@ -5,7 +5,7 @@ const helpers = require('./_helpers');
 const should = require('should');
 
 module.exports = function(dataSourceFactory, connectorCapabilities) {
-  var supportsDeleteAll = 'deleteAll' in dataSourceFactory().connector;
+  const supportsDeleteAll = 'deleteAll' in dataSourceFactory().connector;
 
   bdd.describeIf(supportsDeleteAll, 'deleteAll', () => {
     let CacheItem;

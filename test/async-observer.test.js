@@ -4,19 +4,19 @@
 // License text available at https://opensource.org/licenses/MIT
 'use strict';
 
-var ModelBuilder = require('../').ModelBuilder;
-var should = require('./init');
-var Promise = require('bluebird');
+const ModelBuilder = require('../').ModelBuilder;
+const should = require('./init');
+const Promise = require('bluebird');
 
 describe('async observer', function() {
-  var TestModel;
+  let TestModel;
   beforeEach(function defineTestModel() {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
     TestModel = modelBuilder.define('TestModel', {name: String});
   });
 
   it('calls registered async observers', function(done) {
-    var notifications = [];
+    const notifications = [];
     TestModel.observe('before', pushAndNext(notifications, 'before'));
     TestModel.observe('after', pushAndNext(notifications, 'after'));
 
@@ -33,7 +33,7 @@ describe('async observer', function() {
   });
 
   it('allows multiple observers for the same operation', function(done) {
-    var notifications = [];
+    const notifications = [];
     TestModel.observe('event', pushAndNext(notifications, 'one'));
     TestModel.observe('event', pushAndNext(notifications, 'two'));
 
@@ -45,7 +45,7 @@ describe('async observer', function() {
   });
 
   it('allows multiple operations to be notified in one call', function(done) {
-    var notifications = [];
+    const notifications = [];
     TestModel.observe('event1', pushAndNext(notifications, 'one'));
     TestModel.observe('event2', pushAndNext(notifications, 'two'));
 
@@ -57,10 +57,10 @@ describe('async observer', function() {
   });
 
   it('inherits observers from base model', function(done) {
-    var notifications = [];
+    const notifications = [];
     TestModel.observe('event', pushAndNext(notifications, 'base'));
 
-    var Child = TestModel.extend('Child');
+    const Child = TestModel.extend('Child');
     Child.observe('event', pushAndNext(notifications, 'child'));
 
     Child.notifyObserversOf('event', {}, function(err) {
@@ -71,11 +71,11 @@ describe('async observer', function() {
   });
 
   it('allow multiple operations to be notified with base models', function(done) {
-    var notifications = [];
+    const notifications = [];
     TestModel.observe('event1', pushAndNext(notifications, 'base1'));
     TestModel.observe('event2', pushAndNext(notifications, 'base2'));
 
-    var Child = TestModel.extend('Child');
+    const Child = TestModel.extend('Child');
     Child.observe('event1', pushAndNext(notifications, 'child1'));
     Child.observe('event2', pushAndNext(notifications, 'child2'));
 
@@ -87,10 +87,10 @@ describe('async observer', function() {
   });
 
   it('does not modify observers in the base model', function(done) {
-    var notifications = [];
+    const notifications = [];
     TestModel.observe('event', pushAndNext(notifications, 'base'));
 
-    var Child = TestModel.extend('Child');
+    const Child = TestModel.extend('Child');
     Child.observe('event', pushAndNext(notifications, 'child'));
 
     TestModel.notifyObserversOf('event', {}, function(err) {
@@ -101,10 +101,10 @@ describe('async observer', function() {
   });
 
   it('always calls inherited observers', function(done) {
-    var notifications = [];
+    const notifications = [];
     TestModel.observe('event', pushAndNext(notifications, 'base'));
 
-    var Child = TestModel.extend('Child');
+    const Child = TestModel.extend('Child');
     // Important: there are no observers on the Child model
 
     Child.notifyObserversOf('event', {}, function(err) {
@@ -115,12 +115,12 @@ describe('async observer', function() {
   });
 
   it('can remove observers', function(done) {
-    var notifications = [];
+    const notifications = [];
 
     function call(ctx, next) {
       notifications.push('call');
       process.nextTick(next);
-    };
+    }
 
     TestModel.observe('event', call);
     TestModel.removeObserver('event', call);
@@ -133,12 +133,12 @@ describe('async observer', function() {
   });
 
   it('can clear all observers', function(done) {
-    var notifications = [];
+    const notifications = [];
 
     function call(ctx, next) {
       notifications.push('call');
       process.nextTick(next);
-    };
+    }
 
     TestModel.observe('event', call);
     TestModel.observe('event', call);
@@ -160,7 +160,7 @@ describe('async observer', function() {
   });
 
   it('passes context to final callback', function(done) {
-    var context = {};
+    const context = {};
     TestModel.notifyObserversOf('event', context, function(err, ctx) {
       (ctx || 'null').should.equal(context);
       done();
@@ -168,7 +168,7 @@ describe('async observer', function() {
   });
 
   describe('notifyObserversAround', function() {
-    var notifications;
+    let notifications;
     beforeEach(function() {
       notifications = [];
       TestModel.observe('before execute',
@@ -178,7 +178,7 @@ describe('async observer', function() {
     });
 
     it('should notify before/after observers', function(done) {
-      var context = {};
+      const context = {};
 
       function work(done) {
         process.nextTick(function() {
@@ -195,7 +195,7 @@ describe('async observer', function() {
     });
 
     it('should allow work with context', function(done) {
-      var context = {};
+      const context = {};
 
       function work(context, done) {
         process.nextTick(function() {
@@ -213,7 +213,7 @@ describe('async observer', function() {
 
     it('should notify before/after observers with multiple results',
       function(done) {
-        var context = {};
+        const context = {};
 
         function work(done) {
           process.nextTick(function() {
@@ -240,7 +240,7 @@ describe('async observer', function() {
         TestModel.observe('after invoke',
           pushAndNext(notifications, 'after invoke'));
 
-        var context = {};
+        const context = {};
 
         function work(done) {
           process.nextTick(function() {
@@ -265,7 +265,7 @@ describe('async observer', function() {
             next();
           });
 
-        var context = {};
+        const context = {};
 
         function work(done) {
           process.nextTick(function() {
@@ -293,7 +293,7 @@ describe('async observer', function() {
   });
 
   it('handles rejected promise returned by an observer', function(done) {
-    var testError = new Error('expected test error');
+    const testError = new Error('expected test error');
     TestModel.observe('event', function(ctx) {
       return Promise.reject(testError);
     });
@@ -304,8 +304,8 @@ describe('async observer', function() {
   });
 
   it('returns a promise when no callback is provided', function() {
-    var context = {value: 'a-test-context'};
-    var p = TestModel.notifyObserversOf('event', context);
+    const context = {value: 'a-test-context'};
+    const p = TestModel.notifyObserversOf('event', context);
     (p !== undefined).should.be.true;
     return p.then(function(result) {
       result.should.eql(context);
@@ -313,9 +313,9 @@ describe('async observer', function() {
   });
 
   it('returns a rejected promise when no callback is provided', function() {
-    var testError = new Error('expected test error');
+    const testError = new Error('expected test error');
     TestModel.observe('event', function(ctx, next) { next(testError); });
-    var p = TestModel.notifyObserversOf('event', context);
+    const p = TestModel.notifyObserversOf('event', context);
     return p.then(
       function(result) {
         throw new Error('The promise should have been rejected.');

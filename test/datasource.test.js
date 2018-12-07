@@ -5,12 +5,12 @@
 
 'use strict';
 
-var should = require('./init.js');
-var DataSource = require('../lib/datasource.js').DataSource;
+const should = require('./init.js');
+const DataSource = require('../lib/datasource.js').DataSource;
 
 describe('DataSource', function() {
   it('reports helpful error when connector init throws', function() {
-    var throwingConnector = {
+    const throwingConnector = {
       name: 'loopback-connector-throwing',
       initialize: function(ds, cb) {
         throw new Error('expected test error');
@@ -50,7 +50,7 @@ describe('DataSource', function() {
    * new DataSource(dsName, settings) without settings.name
    */
   it('should retain the name assigned to it', function() {
-    var dataSource = new DataSource('myDataSource', {
+    const dataSource = new DataSource('myDataSource', {
       connector: 'memory',
     });
 
@@ -61,7 +61,7 @@ describe('DataSource', function() {
    * new DataSource(dsName, settings)
    */
   it('should allow the name assigned to it to take precedence over the settings name', function() {
-    var dataSource = new DataSource('myDataSource', {
+    const dataSource = new DataSource('myDataSource', {
       name: 'defaultDataSource',
       connector: 'memory',
     });
@@ -73,7 +73,7 @@ describe('DataSource', function() {
    * new DataSource(settings) with settings.name
    */
   it('should retain the name from the settings if no name is assigned', function() {
-    var dataSource = new DataSource({
+    const dataSource = new DataSource({
       name: 'defaultDataSource',
       connector: 'memory',
     });
@@ -85,7 +85,7 @@ describe('DataSource', function() {
    * new DataSource(undefined, settings)
    */
   it('should retain the name from the settings if name is undefined', function() {
-    var dataSource = new DataSource(undefined, {
+    const dataSource = new DataSource(undefined, {
       name: 'defaultDataSource',
       connector: 'memory',
     });
@@ -97,7 +97,7 @@ describe('DataSource', function() {
    * new DataSource(settings) without settings.name
    */
   it('should use the connector name if no name is provided', function() {
-    var dataSource = new DataSource({
+    const dataSource = new DataSource({
       connector: 'memory',
     });
 
@@ -108,14 +108,14 @@ describe('DataSource', function() {
    * new DataSource(connectorInstance)
    */
   it('should accept resolved connector', function() {
-    var mockConnector = {
+    const mockConnector = {
       name: 'loopback-connector-mock',
       initialize: function(ds, cb) {
         ds.connector = mockConnector;
         return cb(null);
       },
     };
-    var dataSource = new DataSource(mockConnector);
+    const dataSource = new DataSource(mockConnector);
 
     dataSource.name.should.equal('loopback-connector-mock');
     dataSource.connector.should.equal(mockConnector);
@@ -125,14 +125,14 @@ describe('DataSource', function() {
    * new DataSource(dsName, connectorInstance)
    */
   it('should accept dsName and resolved connector', function() {
-    var mockConnector = {
+    const mockConnector = {
       name: 'loopback-connector-mock',
       initialize: function(ds, cb) {
         ds.connector = mockConnector;
         return cb(null);
       },
     };
-    var dataSource = new DataSource('myDataSource', mockConnector);
+    const dataSource = new DataSource('myDataSource', mockConnector);
 
     dataSource.name.should.equal('myDataSource');
     dataSource.connector.should.equal(mockConnector);
@@ -142,21 +142,21 @@ describe('DataSource', function() {
    * new DataSource(connectorInstance, settings)
    */
   it('should accept resolved connector and settings', function() {
-    var mockConnector = {
+    const mockConnector = {
       name: 'loopback-connector-mock',
       initialize: function(ds, cb) {
         ds.connector = mockConnector;
         return cb(null);
       },
     };
-    var dataSource = new DataSource(mockConnector, {name: 'myDataSource'});
+    const dataSource = new DataSource(mockConnector, {name: 'myDataSource'});
 
     dataSource.name.should.equal('myDataSource');
     dataSource.connector.should.equal(mockConnector);
   });
 
   it('should set states correctly with eager connect', function(done) {
-    var mockConnector = {
+    const mockConnector = {
       name: 'loopback-connector-mock',
       initialize: function(ds, cb) {
         ds.connector = mockConnector;
@@ -169,7 +169,7 @@ describe('DataSource', function() {
         });
       },
     };
-    var dataSource = new DataSource(mockConnector);
+    const dataSource = new DataSource(mockConnector);
     // DataSource is instantiated
     // connected: false, connecting: false, initialized: false
     dataSource.connected.should.be.false();
@@ -211,7 +211,7 @@ describe('DataSource', function() {
   });
 
   it('should set states correctly with deferred connect', function(done) {
-    var mockConnector = {
+    const mockConnector = {
       name: 'loopback-connector-mock',
       initialize: function(ds, cb) {
         ds.connector = mockConnector;
@@ -227,7 +227,7 @@ describe('DataSource', function() {
         });
       },
     };
-    var dataSource = new DataSource(mockConnector);
+    const dataSource = new DataSource(mockConnector);
     // DataSource is instantiated
     // connected: false, connecting: false, initialized: false
     dataSource.connected.should.be.false();
@@ -267,7 +267,7 @@ describe('DataSource', function() {
   });
 
   it('should set states correctly with lazyConnect = true', function(done) {
-    var mockConnector = {
+    const mockConnector = {
       name: 'loopback-connector-mock',
       initialize: function(ds, cb) {
         ds.connector = mockConnector;
@@ -282,7 +282,7 @@ describe('DataSource', function() {
         });
       },
     };
-    var dataSource = new DataSource(mockConnector, {lazyConnect: true});
+    const dataSource = new DataSource(mockConnector, {lazyConnect: true});
     // DataSource is instantiated
     // connected: false, connecting: false, initialized: false
     dataSource.connected.should.be.false();

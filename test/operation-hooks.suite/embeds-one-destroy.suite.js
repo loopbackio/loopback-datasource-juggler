@@ -5,26 +5,26 @@
 
 'use strict';
 
-var ValidationError = require('../..').ValidationError;
+const ValidationError = require('../..').ValidationError;
 
-var contextTestHelpers = require('../helpers/context-test-helpers');
-var ContextRecorder = contextTestHelpers.ContextRecorder;
-var aCtxForModel = contextTestHelpers.aCtxForModel;
+const contextTestHelpers = require('../helpers/context-test-helpers');
+const ContextRecorder = contextTestHelpers.ContextRecorder;
+const aCtxForModel = contextTestHelpers.aCtxForModel;
 
-var uid = require('../helpers/uid-generator');
-var HookMonitor = require('../helpers/hook-monitor');
+const uid = require('../helpers/uid-generator');
+const HookMonitor = require('../helpers/hook-monitor');
 
 module.exports = function(dataSource, should, connectorCapabilities) {
   describe('EmbedsOne - destroy', function() {
-    var ctxRecorder, hookMonitor, expectedError;
+    let ctxRecorder, hookMonitor, expectedError;
     beforeEach(function sharedSetup() {
       ctxRecorder = new ContextRecorder('hook not called');
       hookMonitor = new HookMonitor({includeModelName: true});
       expectedError = new Error('test error');
     });
 
-    var Owner, Embedded;
-    var migrated = false;
+    let Owner, Embedded;
+    let migrated = false;
     beforeEach(function setupDatabase() {
       Embedded = dataSource.createModel('Embedded', {
         // Set id.generated to false to honor client side values
@@ -47,14 +47,14 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       }
     });
 
-    var ownerInstance, existingInstance, existingItem;
+    let ownerInstance, existingInstance, existingItem;
     beforeEach(function setupData() {
       return Owner.create({})
         .then(function(inst) {
           ownerInstance = inst;
         })
         .then(function() {
-          var item = new Embedded({name: 'created'});
+          const item = new Embedded({name: 'created'});
           return ownerInstance.embeddedItem.create(item).then(function(it) {
             existingItem = it;
           });

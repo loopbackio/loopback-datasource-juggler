@@ -5,17 +5,17 @@
 
 'use strict';
 
-var jdb = require('../');
-var DataSource = jdb.DataSource;
-var should = require('./init.js');
+const jdb = require('../');
+const DataSource = jdb.DataSource;
+const should = require('./init.js');
 
 describe('Memory connector with mocked discovery', function() {
-  var ds;
+  let ds;
 
   before(function() {
     ds = new DataSource({connector: 'memory'});
 
-    var models = [{type: 'table', name: 'CUSTOMER', owner: 'STRONGLOOP'},
+    const models = [{type: 'table', name: 'CUSTOMER', owner: 'STRONGLOOP'},
       {type: 'table', name: 'INVENTORY', owner: 'STRONGLOOP'},
       {type: 'table', name: 'LOCATION', owner: 'STRONGLOOP'}];
 
@@ -25,7 +25,7 @@ describe('Memory connector with mocked discovery', function() {
       });
     };
 
-    var modelProperties = [{
+    const modelProperties = [{
       owner: 'STRONGLOOP',
       tableName: 'INVENTORY',
       columnName: 'PRODUCT_ID',
@@ -77,7 +77,7 @@ describe('Memory connector with mocked discovery', function() {
     ds.discoverSchemas('INVENTORY', {}, function(err, schemas) {
       if (err) return done(err);
       schemas.should.have.property('STRONGLOOP.INVENTORY');
-      var s = schemas['STRONGLOOP.INVENTORY'];
+      const s = schemas['STRONGLOOP.INVENTORY'];
       s.name.should.be.eql('Inventory');
       Object.keys(s.properties).should.be.eql(
         ['productId', 'locationId', 'available', 'total']
@@ -95,7 +95,7 @@ describe('Memory connector with mocked discovery', function() {
     }, function(err, schemas) {
       if (err) return done(err);
       schemas.should.have.property('STRONGLOOP.INVENTORY');
-      var s = schemas['STRONGLOOP.INVENTORY'];
+      const s = schemas['STRONGLOOP.INVENTORY'];
       s.name.should.be.eql('inventory');
       Object.keys(s.properties).should.be.eql(
         ['product_id', 'location_id', 'available', 'total']
@@ -109,7 +109,7 @@ describe('Memory connector with mocked discovery', function() {
       ds.discoverSchemas('INVENTORY', {nameMapper: null}, function(err, schemas) {
         if (err) return done(err);
         schemas.should.have.property('STRONGLOOP.INVENTORY');
-        var s = schemas['STRONGLOOP.INVENTORY'];
+        const s = schemas['STRONGLOOP.INVENTORY'];
         s.name.should.be.eql('INVENTORY');
         Object.keys(s.properties).should.be.eql(
           ['PRODUCT_ID', 'LOCATION_ID', 'AVAILABLE', 'TOTAL']
@@ -120,7 +120,7 @@ describe('Memory connector with mocked discovery', function() {
 
   it('should honor connector\'s discoverSchemas implementation',
     function(done) {
-      var models = {
+      const models = {
         inventory: {
           product: {type: 'string'},
           location: {type: 'string'},
@@ -140,7 +140,7 @@ describe('Memory connector with mocked discovery', function() {
 
   it('should callback function, passed as options parameter',
     function(done) {
-      var models = {
+      const models = {
         inventory: {
           product: {type: 'string'},
           location: {type: 'string'},
@@ -152,7 +152,7 @@ describe('Memory connector with mocked discovery', function() {
         });
       };
 
-      var options = function(err, schemas) {
+      const options = function(err, schemas) {
         if (err) return done(err);
         schemas.should.be.eql(models);
         done();
@@ -168,7 +168,7 @@ describe('Memory connector with mocked discovery', function() {
         .then(function(schemas) {
           schemas.should.have.property('STRONGLOOP.INVENTORY');
 
-          var s = schemas['STRONGLOOP.INVENTORY'];
+          const s = schemas['STRONGLOOP.INVENTORY'];
           s.name.should.be.eql('Inventory');
 
           Object.keys(s.properties).should.be.eql(
@@ -182,8 +182,8 @@ describe('Memory connector with mocked discovery', function() {
     });
 
   describe('discoverSchema', function() {
-    var models;
-    var schema;
+    let models;
+    let schema;
     before(function() {
       schema = {
         name: 'Inventory',
@@ -265,7 +265,7 @@ describe('Memory connector with mocked discovery', function() {
     });
 
     it('should callback function, passed as options parameter', function(done) {
-      var options = function(err, schemas) {
+      const options = function(err, schemas) {
         if (err) return done(err);
         schemas.should.be.eql(schema);
         done();
@@ -288,11 +288,11 @@ describe('Memory connector with mocked discovery', function() {
 });
 
 describe('discoverModelDefinitions', function() {
-  var ds;
+  let ds;
   before(function() {
     ds = new DataSource({connector: 'memory'});
 
-    var models = [{type: 'table', name: 'CUSTOMER', owner: 'STRONGLOOP'},
+    const models = [{type: 'table', name: 'CUSTOMER', owner: 'STRONGLOOP'},
       {type: 'table', name: 'INVENTORY', owner: 'STRONGLOOP'},
       {type: 'table', name: 'LOCATION', owner: 'STRONGLOOP'}];
 
@@ -307,7 +307,7 @@ describe('discoverModelDefinitions', function() {
     ds.discoverModelDefinitions({}, function(err, schemas) {
       if (err) return done(err);
 
-      var tableNames = schemas.map(function(s) {
+      const tableNames = schemas.map(function(s) {
         return s.name;
       });
 
@@ -319,10 +319,10 @@ describe('discoverModelDefinitions', function() {
   });
 
   it('should callback function, passed as options parameter', function(done) {
-    var options = function(err, schemas) {
+    const options = function(err, schemas) {
       if (err) return done(err);
 
-      var tableNames = schemas.map(function(s) {
+      const tableNames = schemas.map(function(s) {
         return s.name;
       });
 
@@ -338,7 +338,7 @@ describe('discoverModelDefinitions', function() {
   it('should discover model using `discoverModelDefinitions` - promise variant', function(done) {
     ds.discoverModelDefinitions({})
       .then(function(schemas) {
-        var tableNames = schemas.map(function(s) {
+        const tableNames = schemas.map(function(s) {
           return s.name;
         });
 
@@ -354,8 +354,8 @@ describe('discoverModelDefinitions', function() {
 });
 
 describe('discoverModelProperties', function() {
-  var ds;
-  var modelProperties;
+  let ds;
+  let modelProperties;
   before(function() {
     ds = new DataSource({connector: 'memory'});
 
@@ -408,7 +408,7 @@ describe('discoverModelProperties', function() {
   });
 
   it('should callback function, passed as options parameter', function(done) {
-    var options = function(err, schemas) {
+    const options = function(err, schemas) {
       if (err) return done(err);
 
       schemas.should.be.eql(modelProperties);
@@ -440,8 +440,8 @@ describe('discoverModelProperties', function() {
 });
 
 describe('discoverPrimaryKeys', function() {
-  var ds;
-  var modelProperties, primaryKeys;
+  let ds;
+  let modelProperties, primaryKeys;
   before(function() {
     ds = new DataSource({connector: 'memory'});
 
@@ -478,7 +478,7 @@ describe('discoverPrimaryKeys', function() {
   });
 
   it('should callback function, passed as options parameter', function(done) {
-    var options = function(err, modelPrimaryKeys) {
+    const options = function(err, modelPrimaryKeys) {
       if (err) return done(err);
 
       modelPrimaryKeys.should.be.eql(primaryKeys);
@@ -500,8 +500,8 @@ describe('discoverPrimaryKeys', function() {
 });
 
 describe('discoverForeignKeys', function() {
-  var ds;
-  var modelProperties, foreignKeys;
+  let ds;
+  let modelProperties, foreignKeys;
   before(function() {
     ds = new DataSource({connector: 'memory'});
 
@@ -534,7 +534,7 @@ describe('discoverForeignKeys', function() {
   });
 
   it('should callback function, passed as options parameter', function(done) {
-    var options = function(err, modelForeignKeys) {
+    const options = function(err, modelForeignKeys) {
       if (err) return done(err);
 
       modelForeignKeys.should.be.eql(foreignKeys);
@@ -557,8 +557,8 @@ describe('discoverForeignKeys', function() {
 });
 
 describe('discoverExportedForeignKeys', function() {
-  var ds;
-  var modelProperties, exportedForeignKeys;
+  let ds;
+  let modelProperties, exportedForeignKeys;
   before(function() {
     ds = new DataSource({connector: 'memory'});
 
@@ -591,7 +591,7 @@ describe('discoverExportedForeignKeys', function() {
   });
 
   it('should callback function, passed as options parameter', function(done) {
-    var options = function(err, modelForeignKeys) {
+    const options = function(err, modelForeignKeys) {
       if (err) return done(err);
 
       modelForeignKeys.should.be.eql(exportedForeignKeys);
@@ -615,9 +615,9 @@ describe('discoverExportedForeignKeys', function() {
 });
 
 describe('Mock connector', function() {
-  var mockConnectors = require('./mock-connectors');
+  const mockConnectors = require('./mock-connectors');
   describe('customFieldSettings', function() {
-    var ds = new DataSource(mockConnectors.customFieldSettings);
+    const ds = new DataSource(mockConnectors.customFieldSettings);
 
     it('should be present in discoverSchemas', function(done) {
       ds.discoverSchemas('person', function(err, schemas) {
@@ -632,7 +632,8 @@ describe('Mock connector', function() {
 });
 
 describe('Default memory connector', function() {
-  var ds, nonExistantError = 'Table \'NONEXISTENT\' does not exist.';
+  const nonExistantError = 'Table \'NONEXISTENT\' does not exist.';
+  let ds;
 
   before(function() {
     ds = new DataSource({connector: 'memory'});

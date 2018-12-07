@@ -1,23 +1,23 @@
 'use strict';
 
-var asyncIterators = require('async-iterators');
-var bdd = require('../helpers/bdd-if');
-var helpers = require('./_helpers');
-var Promise = require('bluebird');
-var should = require('should');
-var toArray = Promise.promisify(asyncIterators.toArray);
+const asyncIterators = require('async-iterators');
+const bdd = require('../helpers/bdd-if');
+const helpers = require('./_helpers');
+const Promise = require('bluebird');
+const should = require('should');
+const toArray = Promise.promisify(asyncIterators.toArray);
 
 module.exports = function(dataSourceFactory, connectorCapabilities) {
-  var canIterateKeys = connectorCapabilities.canIterateKeys !== false;
+  const canIterateKeys = connectorCapabilities.canIterateKeys !== false;
 
   bdd.describeIf(canIterateKeys, 'iterateKeys', function() {
-    var CacheItem;
+    let CacheItem;
     beforeEach(setupCacheItem);
 
     it('returns AsyncIterator covering all keys', function() {
       return helpers.givenKeys(CacheItem, ['key1', 'key2'])
         .then(function() {
-          var it = CacheItem.iterateKeys();
+          const it = CacheItem.iterateKeys();
           should(it).have.property('next');
           return toArray(it);
         })
@@ -28,7 +28,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     });
 
     it('returns AsyncIterator supporting Promises', function() {
-      var iterator;
+      let iterator;
       return helpers.givenKeys(CacheItem, ['key'])
         .then(function() {
           iterator = CacheItem.iterateKeys();
@@ -49,6 +49,6 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
     function setupCacheItem() {
       return helpers.givenCacheItem(dataSourceFactory)
         .then(ModelCtor => CacheItem = ModelCtor);
-    };
+    }
   });
 };

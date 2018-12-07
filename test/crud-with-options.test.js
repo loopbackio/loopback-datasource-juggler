@@ -7,9 +7,9 @@
 'use strict';
 
 /* global getSchema:false */
-var should = require('./init.js');
-var async = require('async');
-var db, User, options, filter;
+const should = require('./init.js');
+const async = require('async');
+let db, User, options, filter;
 
 describe('crud-with-options', function() {
   before(function(done) {
@@ -193,7 +193,7 @@ describe('crud-with-options', function() {
 
   describe('findByIds', function() {
     before(function(done) {
-      var people = [
+      const people = [
         {id: 1, name: 'a', vip: true},
         {id: 2, name: 'b'},
         {id: 3, name: 'c'},
@@ -213,7 +213,7 @@ describe('crud-with-options', function() {
       User.findByIds([3, 2, 1], function(err, users) {
         should.exist(users);
         should.not.exist(err);
-        var names = users.map(function(u) { return u.name; });
+        const names = users.map(function(u) { return u.name; });
         names.should.eql(['c', 'b', 'a']);
         done();
       });
@@ -225,7 +225,7 @@ describe('crud-with-options', function() {
           {where: {vip: true}}, options, function(err, users) {
             should.exist(users);
             should.not.exist(err);
-            var names = users.map(function(u) {
+            const names = users.map(function(u) {
               return u.name;
             });
             names.should.eql(['d', 'a']);
@@ -407,15 +407,15 @@ describe('crud-with-options', function() {
 
   describe('save', function() {
     it('should allow save(options, cb)', function(done) {
-      var options = {foo: 'bar'};
-      var opts;
+      const options = {foo: 'bar'};
+      let opts;
 
       User.observe('after save', function(ctx, next) {
         opts = ctx.options;
         next();
       });
 
-      var u = new User();
+      const u = new User();
       u.save(options, function(err) {
         should.not.exist(err);
         options.should.equal(opts);
@@ -605,7 +605,7 @@ describe('upsertWithWhere', function() {
 });
 
 function seed(done) {
-  var beatles = [
+  const beatles = [
     {
       id: 0,
       seq: 0,

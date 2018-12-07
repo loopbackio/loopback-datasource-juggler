@@ -5,10 +5,10 @@
 
 'use strict';
 
-var jdb = require('../index');
+const jdb = require('../index');
 
-var User, Post, Passport, City, Street, Building;
-var nbSchemaRequests = 0;
+let User, Post, Passport, City, Street, Building;
+const nbSchemaRequests = 0;
 
 setup(function() {
   Passport.find({include: 'owner'}, function(err, passports) {
@@ -35,7 +35,7 @@ setup(function() {
 });
 
 function setup(done) {
-  var db = new jdb.DataSource({connector: 'memory'});
+  const db = new jdb.DataSource({connector: 'memory'});
   City = db.define('City');
   Street = db.define('Street');
   Building = db.define('Building');
@@ -56,9 +56,9 @@ function setup(done) {
   Post.belongsTo('author', {model: User, foreignKey: 'userId'});
 
   db.automigrate(function() {
-    var createdUsers = [];
-    var createdPassports = [];
-    var createdPosts = [];
+    let createdUsers = [];
+    let createdPassports = [];
+    let createdPosts = [];
     createUsers();
     function createUsers() {
       clearAndCreate(
@@ -112,12 +112,12 @@ function setup(done) {
 }
 
 function clearAndCreate(model, data, callback) {
-  var createdItems = [];
+  const createdItems = [];
   model.destroyAll(function() {
     nextItem(null, null);
   });
 
-  var itemIndex = 0;
+  let itemIndex = 0;
 
   function nextItem(err, lastItem) {
     if (lastItem !== null) {

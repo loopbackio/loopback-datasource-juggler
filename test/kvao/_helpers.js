@@ -1,6 +1,6 @@
 'use strict';
 
-var Promise = require('bluebird');
+const Promise = require('bluebird');
 
 exports.givenCacheItem = givenCacheItem;
 exports.givenKeys = givenKeys;
@@ -12,7 +12,7 @@ function givenCacheItem(dataSourceFactory) {
     value: 'Any',
   };
   return givenModel(dataSourceFactory, 'CacheItem', modelProperties);
-};
+}
 
 function givenModel(dataSourceFactory, modelName,
   modelProperties, options) {
@@ -21,10 +21,10 @@ function givenModel(dataSourceFactory, modelName,
   const p = 'deleteAll' in dataSource.connector ?
     Model.deleteAll() : Promise.resolve();
   return p.then(() => Model);
-};
+}
 
 function givenKeys(Model, keys, cb) {
-  var p = Promise.all(
+  let p = Promise.all(
     keys.map(function(k) {
       return Model.set(k, 'value-' + k);
     })
@@ -33,4 +33,4 @@ function givenKeys(Model, keys, cb) {
     p = p.then(function(r) { cb(null, r); }, cb);
   }
   return p;
-};
+}

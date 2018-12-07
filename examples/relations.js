@@ -5,22 +5,22 @@
 
 'use strict';
 
-var DataSource = require('../index').DataSource;
-var ds = new DataSource('memory');
+const DataSource = require('../index').DataSource;
+const ds = new DataSource('memory');
 
-var Order = ds.createModel('Order', {
+const Order = ds.createModel('Order', {
   items: [String],
   orderDate: Date,
   qty: Number,
 });
 
-var Customer = ds.createModel('Customer', {
+const Customer = ds.createModel('Customer', {
   name: String,
 });
 
 Order.belongsTo(Customer);
 
-var order1, order2, order3;
+let order1, order2, order3;
 
 Customer.create({name: 'John'}, function(err, customer) {
   Order.create({customerId: customer.id, orderDate: new Date(), items: ['Book']}, function(err, order) {
@@ -42,7 +42,7 @@ Customer.create({name: 'John'}, function(err, customer) {
       });
     });
 
-    var customer3 = order.customer.build({name: 'Tom'});
+    const customer3 = order.customer.build({name: 'Tom'});
     console.log('Customer 3', customer3);
   });
 });
@@ -67,15 +67,15 @@ Customer.create({name: 'Ray'}, function(err, customer) {
   });
 });
 
-var Physician = ds.createModel('Physician', {
+const Physician = ds.createModel('Physician', {
   name: String,
 });
 
-var Patient = ds.createModel('Patient', {
+const Patient = ds.createModel('Patient', {
   name: String,
 });
 
-var Appointment = ds.createModel('Appointment', {
+const Appointment = ds.createModel('Appointment', {
   physicianId: Number,
   patientId: Number,
   appointmentDate: Date,
@@ -102,7 +102,7 @@ Physician.create({name: 'Dr John'}, function(err, physician1) {
                 patient1.physicians(console.log);
 
                 // Build an appointment?
-                var patient3 = patient1.physicians.build({name: 'Dr X'});
+                const patient3 = patient1.physicians.build({name: 'Dr X'});
                 console.log('Physician 3: ', patient3, patient3.constructor.modelName);
 
                 // Create a physician?
@@ -118,11 +118,11 @@ Physician.create({name: 'Dr John'}, function(err, physician1) {
   });
 });
 
-var Assembly = ds.createModel('Assembly', {
+const Assembly = ds.createModel('Assembly', {
   name: String,
 });
 
-var Part = ds.createModel('Part', {
+const Part = ds.createModel('Part', {
   partNumber: String,
 });
 
@@ -137,7 +137,7 @@ Assembly.create({name: 'car'}, function(err, assembly) {
       });
 
       // Build an part?
-      var part3 = assembly.parts.build({partNumber: 'door'});
+      const part3 = assembly.parts.build({partNumber: 'door'});
       console.log('Part3: ', part3, part3.constructor.modelName);
 
       // Create a part?

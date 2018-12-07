@@ -4,7 +4,7 @@
 // License text available at https://opensource.org/licenses/MIT
 'use strict';
 
-var SG = require('strong-globalize');
+const SG = require('strong-globalize');
 SG.SetRootDir(__dirname);
 
 exports.ModelBuilder = exports.LDL = require('./lib/model-builder.js').ModelBuilder;
@@ -17,7 +17,7 @@ Object.defineProperty(exports, 'version', {
   get: function() { return require('./package.json').version; },
 });
 
-var commonTest = './test/common_test';
+const commonTest = './test/common_test';
 Object.defineProperty(exports, 'test', {
   get: function() { return require(commonTest); },
 });
