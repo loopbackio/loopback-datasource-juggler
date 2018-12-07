@@ -5,19 +5,19 @@
 
 // This test written in mocha+should.js
 'use strict';
-var should = require('./init.js');
-var assert = require('assert');
-var async = require('async');
+const should = require('./init.js');
+const assert = require('assert');
+const async = require('async');
 
-var jdb = require('../');
-var ModelBuilder = jdb.ModelBuilder;
-var DataSource = jdb.DataSource;
+const jdb = require('../');
+const ModelBuilder = jdb.ModelBuilder;
+const DataSource = jdb.DataSource;
 
 describe('ModelBuilder', function() {
   it('supports plain models', function(done) {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
-    var User = modelBuilder.define('User', {
+    const User = modelBuilder.define('User', {
       name: String,
       bio: ModelBuilder.Text,
       approved: Boolean,
@@ -33,7 +33,7 @@ describe('ModelBuilder', function() {
     modelBuilder.models.should.be.type('object').and.have.property('User').exactly(User);
     modelBuilder.definitions.should.be.type('object').and.have.property('User');
 
-    var user = new User({name: 'Joe', age: 20, xyz: false});
+    const user = new User({name: 'Joe', age: 20, xyz: false});
 
     User.modelName.should.equal('User');
     user.should.be.type('object').and.have.property('name', 'Joe');
@@ -45,11 +45,11 @@ describe('ModelBuilder', function() {
   });
 
   it('ignores unknown properties in strict mode', function(done) {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
-    var User = modelBuilder.define('User', {name: String, bio: String}, {strict: true});
+    const User = modelBuilder.define('User', {name: String, bio: String}, {strict: true});
 
-    var user = new User({name: 'Joe', age: 20});
+    const user = new User({name: 'Joe', age: 20});
 
     User.modelName.should.equal('User');
     user.should.be.type('object');
@@ -62,11 +62,11 @@ describe('ModelBuilder', function() {
   });
 
   it('ignores non-predefined properties in strict mode', function(done) {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
-    var User = modelBuilder.define('User', {name: String, bio: String}, {strict: true});
+    const User = modelBuilder.define('User', {name: String, bio: String}, {strict: true});
 
-    var user = new User({name: 'Joe'});
+    const user = new User({name: 'Joe'});
     user.age = 10;
     user.bio = 'me';
 
@@ -86,12 +86,12 @@ describe('ModelBuilder', function() {
   });
 
   it('throws an error when unknown properties are used if strict=throw', function(done) {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
-    var User = modelBuilder.define('User', {name: String, bio: String}, {strict: 'throw'});
+    const User = modelBuilder.define('User', {name: String, bio: String}, {strict: 'throw'});
 
     try {
-      var user = new User({name: 'Joe', age: 20});
+      const user = new User({name: 'Joe', age: 20});
       assert(false, 'The code should have thrown an error');
     } catch (e) {
       assert(true, 'The code is expected to throw an error');
@@ -100,11 +100,11 @@ describe('ModelBuilder', function() {
   });
 
   it('supports open models', function(done) {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
-    var User = modelBuilder.define('User', {}, {strict: false});
+    const User = modelBuilder.define('User', {}, {strict: false});
 
-    var user = new User({name: 'Joe', age: 20});
+    const user = new User({name: 'Joe', age: 20});
 
     User.modelName.should.equal('User');
     user.should.be.type('object').and.have.property('name', 'Joe');
@@ -115,11 +115,11 @@ describe('ModelBuilder', function() {
   });
 
   it('accepts non-predefined properties in non-strict mode', function(done) {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
-    var User = modelBuilder.define('User', {name: String, bio: String}, {strict: false});
+    const User = modelBuilder.define('User', {name: String, bio: String}, {strict: false});
 
-    var user = new User({name: 'Joe'});
+    const user = new User({name: 'Joe'});
     user.age = 10;
     user.bio = 'me';
 
@@ -140,11 +140,11 @@ describe('ModelBuilder', function() {
   });
 
   it('uses non-strict mode by default', function(done) {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
-    var User = modelBuilder.define('User', {});
+    const User = modelBuilder.define('User', {});
 
-    var user = new User({name: 'Joe', age: 20});
+    const user = new User({name: 'Joe', age: 20});
 
     User.modelName.should.equal('User');
     user.should.be.type('object').and.have.property('name', 'Joe');
@@ -155,10 +155,10 @@ describe('ModelBuilder', function() {
   });
 
   it('supports nested model definitions', function(done) {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
     // simplier way to describe model
-    var User = modelBuilder.define('User', {
+    const User = modelBuilder.define('User', {
       name: String,
       bio: ModelBuilder.Text,
       approved: Boolean,
@@ -188,7 +188,7 @@ describe('ModelBuilder', function() {
     modelBuilder.models.should.be.type('object').and.have.property('User', User);
     modelBuilder.definitions.should.be.type('object').and.have.property('User');
 
-    var user = new User({
+    let user = new User({
       name: 'Joe', age: 20,
       address: {street: '123 Main St', 'city': 'San Jose', state: 'CA'},
       emails: [
@@ -217,11 +217,11 @@ describe('ModelBuilder', function() {
   });
 
   it('allows models to be referenced by name before they are defined', function(done) {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
-    var User = modelBuilder.define('User', {name: String, address: 'Address'});
+    const User = modelBuilder.define('User', {name: String, address: 'Address'});
 
-    var user;
+    let user;
     try {
       user = new User({name: 'Joe', address: {street: '123 Main St', 'city': 'San Jose', state: 'CA'}});
       assert(false, 'An exception should have been thrown');
@@ -229,7 +229,7 @@ describe('ModelBuilder', function() {
       // Ignore
     }
 
-    var Address = modelBuilder.define('Address', {
+    const Address = modelBuilder.define('Address', {
       street: String,
       city: String,
       state: String,
@@ -249,28 +249,28 @@ describe('ModelBuilder', function() {
   });
 
   it('defines an id property for composite ids', function() {
-    var modelBuilder = new ModelBuilder();
-    var Follow = modelBuilder.define('Follow', {
+    const modelBuilder = new ModelBuilder();
+    const Follow = modelBuilder.define('Follow', {
       followerId: {type: String, id: 1},
       followeeId: {type: String, id: 2},
       followAt: Date,
     });
-    var follow = new Follow({followerId: 1, followeeId: 2});
+    const follow = new Follow({followerId: 1, followeeId: 2});
 
     follow.should.have.property('id');
     assert.deepEqual(follow.id, {followerId: 1, followeeId: 2});
   });
 
   it('instantiates model from data with no constructor', function(done) {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
-    var User = modelBuilder.define('User', {name: String, age: Number});
+    const User = modelBuilder.define('User', {name: String, age: Number});
 
     try {
-      var data = Object.create(null);
+      const data = Object.create(null);
       data.name = 'Joe';
       data.age = 20;
-      var user = new User(data);
+      const user = new User(data);
       assert(true, 'The code is expected to pass');
     } catch (e) {
       assert(false, 'The code should have not thrown an error');
@@ -279,21 +279,21 @@ describe('ModelBuilder', function() {
   });
 
   it('instantiates model from data with non function constructor', function(done) {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
-    var User = modelBuilder.define('User', {name: String, age: Number});
+    const User = modelBuilder.define('User', {name: String, age: Number});
 
     try {
-      var Person = function(name, age) {
+      const Person = function(name, age) {
         this.name = name;
         this.age = age;
       };
 
       Person.prototype.constructor = 'constructor';
 
-      var data = new Person('Joe', 20);
+      const data = new Person('Joe', 20);
 
-      var user = new User(data);
+      const user = new User(data);
       assert(false, 'The code should have thrown an error');
     } catch (e) {
       e.message.should.equal('Property name "constructor" is not allowed in User data');
@@ -304,7 +304,7 @@ describe('ModelBuilder', function() {
 });
 
 describe('DataSource ping', function() {
-  var ds = new DataSource('memory');
+  const ds = new DataSource('memory');
   ds.settings.connectionTimeout = 50; // ms
   ds.connector.connect = function(cb) {
     // Mock up the long delay
@@ -324,7 +324,7 @@ describe('DataSource ping', function() {
 
   it('cancels invocation after timeout', function(done) {
     ds.connected = false; // Force connect
-    var Post = ds.define('Post', {
+    const Post = ds.define('Post', {
       title: {type: String, length: 255},
     });
     Post.create(function(err) {
@@ -337,10 +337,10 @@ describe('DataSource ping', function() {
 
 describe('DataSource define model', function() {
   it('supports plain model definitions', function() {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
 
     // define models
-    var Post = ds.define('Post', {
+    const Post = ds.define('Post', {
       title: {type: String, length: 255},
       content: {type: ModelBuilder.Text},
       date: {type: Date, default: function() {
@@ -351,7 +351,7 @@ describe('DataSource define model', function() {
     });
 
     // simpler way to describe model
-    var User = ds.define('User', {
+    const User = ds.define('User', {
       name: String,
       bio: ModelBuilder.Text,
       approved: Boolean,
@@ -359,7 +359,7 @@ describe('DataSource define model', function() {
       age: Number,
     });
 
-    var Group = ds.define('Group', {group: String});
+    const Group = ds.define('Group', {group: String});
     User.mixin(Group);
 
     // define any custom method
@@ -367,7 +367,7 @@ describe('DataSource define model', function() {
       return this.name + ', ' + this.age;
     };
 
-    var user = new User({name: 'Joe', group: 'G1'});
+    const user = new User({name: 'Joe', group: 'G1'});
     assert.equal(user.name, 'Joe');
     assert.equal(user.group, 'G1');
 
@@ -380,9 +380,9 @@ describe('DataSource define model', function() {
 
     User.hasAndBelongsToMany('groups');
 
-    var user2 = new User({name: 'Smith'});
+    const user2 = new User({name: 'Smith'});
     user2.save(function(err) {
-      var post = user2.posts.build({title: 'Hello world'});
+      const post = user2.posts.build({title: 'Hello world'});
       post.save(function(err, data) {
         // console.log(err ? err : data);
       });
@@ -396,15 +396,15 @@ describe('DataSource define model', function() {
       if (err) {
         return;
       }
-      var post = data.posts.build({title: 'My Post'});
+      const post = data.posts.build({title: 'My Post'});
     });
 
     User.create({name: 'Ray'}, function(err, data) {
       // console.log(data);
     });
 
-    var Article = ds.define('Article', {title: String});
-    var Tag = ds.define('Tag', {name: String});
+    const Article = ds.define('Article', {title: String});
+    const Tag = ds.define('Tag', {name: String});
     Article.hasAndBelongsToMany('tags');
 
     Article.create(function(e, article) {
@@ -418,9 +418,9 @@ describe('DataSource define model', function() {
     });
 
     // should be able to attach a data source to an existing model
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
-    var Color = modelBuilder.define('Color', {
+    const Color = modelBuilder.define('Color', {
       name: String,
     });
 
@@ -440,16 +440,16 @@ describe('DataSource define model', function() {
   });
 
   it('emits events during attach', function() {
-    var ds = new DataSource('memory');
-    var modelBuilder = new ModelBuilder();
+    const ds = new DataSource('memory');
+    const modelBuilder = new ModelBuilder();
 
-    var User = modelBuilder.define('User', {
+    const User = modelBuilder.define('User', {
       name: String,
     });
 
-    var seq = 0;
-    var dataAccessConfigured = -1;
-    var dataSourceAttached = -1;
+    let seq = 0;
+    let dataAccessConfigured = -1;
+    let dataSourceAttached = -1;
 
     User.on('dataAccessConfigured', function(model) {
       dataAccessConfigured = seq++;
@@ -468,9 +468,9 @@ describe('DataSource define model', function() {
   });
 
   it('ignores unknown properties in strict mode', function(done) {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
 
-    var User = ds.define('User', {name: String, bio: String}, {strict: true});
+    const User = ds.define('User', {name: String, bio: String}, {strict: true});
 
     User.create({name: 'Joe', age: 20}, function(err, user) {
       User.modelName.should.equal('User');
@@ -485,12 +485,12 @@ describe('DataSource define model', function() {
   });
 
   it('throws an error when unknown properties are used if strict=throw', function(done) {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
 
-    var User = ds.define('User', {name: String, bio: String}, {strict: 'throw'});
+    const User = ds.define('User', {name: String, bio: String}, {strict: 'throw'});
 
     try {
-      var user = new User({name: 'Joe', age: 20});
+      const user = new User({name: 'Joe', age: 20});
       assert(false, 'The code should have thrown an error');
     } catch (e) {
       assert(true, 'The code is expected to throw an error');
@@ -500,19 +500,19 @@ describe('DataSource define model', function() {
 
   describe('strict mode "validate"', function() {
     it('reports validation errors for unknown properties', function() {
-      var ds = new DataSource('memory');
-      var User = ds.define('User', {name: String}, {strict: 'validate'});
-      var user = new User({name: 'Joe', age: 20});
+      const ds = new DataSource('memory');
+      const User = ds.define('User', {name: String}, {strict: 'validate'});
+      const user = new User({name: 'Joe', age: 20});
       user.isValid().should.be.false;
-      var codes = user.errors && user.errors.codes || {};
+      const codes = user.errors && user.errors.codes || {};
       codes.should.have.property('age').eql(['unknown-property']);
     });
   });
 
   it('supports open model definitions', function(done) {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
 
-    var User = ds.define('User', {}, {strict: false});
+    const User = ds.define('User', {}, {strict: false});
     User.modelName.should.equal('User');
 
     User.create({name: 'Joe', age: 20}, function(err, user) {
@@ -532,9 +532,9 @@ describe('DataSource define model', function() {
   });
 
   it('uses non-strict mode by default', function(done) {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
 
-    var User = ds.define('User', {});
+    const User = ds.define('User', {});
 
     User.create({name: 'Joe', age: 20}, function(err, user) {
       User.modelName.should.equal('User');
@@ -547,12 +547,12 @@ describe('DataSource define model', function() {
   });
 
   it('uses strict mode by default for relational DBs', function(done) {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
     ds.connector.relational = true; // HACK
 
-    var User = ds.define('User', {name: String, bio: String}, {strict: true});
+    const User = ds.define('User', {name: String, bio: String}, {strict: true});
 
-    var user = new User({name: 'Joe', age: 20});
+    const user = new User({name: 'Joe', age: 20});
 
     User.modelName.should.equal('User');
     user.should.be.type('object');
@@ -565,13 +565,13 @@ describe('DataSource define model', function() {
   });
 
   it('throws an error with unknown properties in non-strict mode for relational DBs', function(done) {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
     ds.connector.relational = true; // HACK
 
-    var User = ds.define('User', {name: String, bio: String}, {strict: 'throw'});
+    const User = ds.define('User', {name: String, bio: String}, {strict: 'throw'});
 
     try {
-      var user = new User({name: 'Joe', age: 20});
+      const user = new User({name: 'Joe', age: 20});
       assert(false, 'The code should have thrown an error');
     } catch (e) {
       assert(true, 'The code is expected to throw an error');
@@ -580,8 +580,8 @@ describe('DataSource define model', function() {
   });
 
   it('changes the property value for save in non-strict mode', function(done) {
-    var ds = new DataSource('memory');// define models
-    var Post = ds.define('Post');
+    const ds = new DataSource('memory');// define models
+    const Post = ds.define('Post');
 
     Post.create({price: 900}, function(err, post) {
       assert.equal(post.price, 900);
@@ -594,11 +594,11 @@ describe('DataSource define model', function() {
   });
 
   it('supports instance level strict mode', function() {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
 
-    var User = ds.define('User', {name: String, bio: String}, {strict: true});
+    const User = ds.define('User', {name: String, bio: String}, {strict: true});
 
-    var user = new User({name: 'Joe', age: 20}, {strict: false});
+    const user = new User({name: 'Joe', age: 20}, {strict: false});
 
     user.should.have.property('__strict', false);
     user.should.be.type('object');
@@ -614,9 +614,8 @@ describe('DataSource define model', function() {
   });
 
   it('updates instances with unknown properties in non-strict mode', function(done) {
-    var ds = new DataSource('memory');// define models
-    var Post;
-    Post = ds.define('Post', {
+    const ds = new DataSource('memory');// define models
+    const Post = ds.define('Post', {
       title: {type: String, length: 255, index: true},
       content: {type: String},
     });
@@ -640,9 +639,9 @@ describe('DataSource define model', function() {
   });
 
   it('injects id by default', function(done) {
-    var ds = new ModelBuilder();
+    const ds = new ModelBuilder();
 
-    var User = ds.define('User', {});
+    const User = ds.define('User', {});
     assert.deepEqual(User.definition.properties.id,
       {type: Number, id: 1, generated: true, updateOnly: true});
 
@@ -650,21 +649,21 @@ describe('DataSource define model', function() {
   });
 
   it('disables idInjection if the value is false', function(done) {
-    var ds = new ModelBuilder();
+    const ds = new ModelBuilder();
 
-    var User1 = ds.define('User', {}, {idInjection: false});
+    const User1 = ds.define('User', {}, {idInjection: false});
     assert(!User1.definition.properties.id);
     done();
   });
 
   it('updates generated id type by the connector', function(done) {
-    var builder = new ModelBuilder();
+    const builder = new ModelBuilder();
 
-    var User = builder.define('User', {id: {type: String, generated: true, id: true}});
+    const User = builder.define('User', {id: {type: String, generated: true, id: true}});
     assert.deepEqual(User.definition.properties.id,
       {type: String, id: 1, generated: true, updateOnly: true});
 
-    var ds = new DataSource('memory');// define models
+    const ds = new DataSource('memory');// define models
     User.attachTo(ds);
 
     assert.deepEqual(User.definition.properties.id,
@@ -674,18 +673,18 @@ describe('DataSource define model', function() {
   });
 
   it('allows an explicit remoting path', function() {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
 
-    var User = ds.define('User', {name: String, bio: String}, {
+    const User = ds.define('User', {name: String, bio: String}, {
       http: {path: 'accounts'},
     });
     User.http.path.should.equal('/accounts');
   });
 
   it('allows an explicit remoting path with leading /', function() {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
 
-    var User = ds.define('User', {name: String, bio: String}, {
+    const User = ds.define('User', {name: String, bio: String}, {
       http: {path: '/accounts'},
     });
     User.http.path.should.equal('/accounts');
@@ -694,16 +693,16 @@ describe('DataSource define model', function() {
 
 describe('Model loaded with a base', function() {
   it('has a base class according to the base option', function() {
-    var ds = new ModelBuilder();
+    const ds = new ModelBuilder();
 
-    var User = ds.define('User', {name: String});
+    const User = ds.define('User', {name: String});
 
     User.staticMethod = function staticMethod() {
     };
     User.prototype.instanceMethod = function instanceMethod() {
     };
 
-    var Customer = ds.define('Customer', {vip: Boolean}, {base: 'User'});
+    const Customer = ds.define('Customer', {vip: Boolean}, {base: 'User'});
 
     assert(Customer.prototype instanceof User);
     assert(Customer.staticMethod === User.staticMethod);
@@ -712,30 +711,30 @@ describe('Model loaded with a base', function() {
     assert.equal(Customer.base, Customer.super_);
 
     try {
-      var Customer1 = ds.define('Customer1', {vip: Boolean}, {base: 'User1'});
+      const Customer1 = ds.define('Customer1', {vip: Boolean}, {base: 'User1'});
     } catch (e) {
       assert(e);
     }
   });
 
   it('inherits properties from base model', function() {
-    var ds = new ModelBuilder();
+    const ds = new ModelBuilder();
 
-    var User = ds.define('User', {name: String});
+    const User = ds.define('User', {name: String});
 
-    var Customer = ds.define('Customer', {vip: Boolean}, {base: 'User'});
+    const Customer = ds.define('Customer', {vip: Boolean}, {base: 'User'});
 
     Customer.definition.properties.should.have.property('name');
     Customer.definition.properties.name.should.have.property('type', String);
   });
 
   it('inherits properties by clone from base model', function() {
-    var ds = new ModelBuilder();
+    const ds = new ModelBuilder();
 
-    var User = ds.define('User', {name: String});
+    const User = ds.define('User', {name: String});
 
-    var Customer1 = ds.define('Customer1', {vip: Boolean}, {base: 'User'});
-    var Customer2 = ds.define('Customer2', {vip: Boolean}, {base: 'User'});
+    const Customer1 = ds.define('Customer1', {vip: Boolean}, {base: 'User'});
+    const Customer2 = ds.define('Customer2', {vip: Boolean}, {base: 'User'});
 
     Customer1.definition.properties.should.have.property('name');
     Customer2.definition.properties.should.have.property('name');
@@ -748,11 +747,11 @@ describe('Model loaded with a base', function() {
   });
 
   it('can remove properties from base model', function() {
-    var ds = new ModelBuilder();
+    const ds = new ModelBuilder();
 
-    var User = ds.define('User', {username: String, email: String});
+    const User = ds.define('User', {username: String, email: String});
 
-    var Customer = ds.define('Customer',
+    const Customer = ds.define('Customer',
       {name: String, username: null, email: false},
       {base: 'User'});
 
@@ -760,27 +759,27 @@ describe('Model loaded with a base', function() {
     // username/email are now shielded
     Customer.definition.properties.should.not.have.property('username');
     Customer.definition.properties.should.not.have.property('email');
-    var c = new Customer({name: 'John'});
+    const c = new Customer({name: 'John'});
     c.should.have.property('username', undefined);
     c.should.have.property('email', undefined);
     c.should.have.property('name', 'John');
-    var u = new User({username: 'X', email: 'x@y.com'});
+    const u = new User({username: 'X', email: 'x@y.com'});
     u.should.not.have.property('name');
     u.should.have.property('username', 'X');
     u.should.have.property('email', 'x@y.com');
   });
 
   it('can configure base class via parent argument', function() {
-    var ds = new ModelBuilder();
+    const ds = new ModelBuilder();
 
-    var User = ds.define('User', {name: String});
+    const User = ds.define('User', {name: String});
 
     User.staticMethod = function staticMethod() {
     };
     User.prototype.instanceMethod = function instanceMethod() {
     };
 
-    var Customer = ds.define('Customer', {vip: Boolean}, {}, User);
+    const Customer = ds.define('Customer', {vip: Boolean}, {}, User);
 
     Customer.definition.properties.should.have.property('name');
     Customer.definition.properties.name.should.have.property('type', String);
@@ -794,9 +793,9 @@ describe('Model loaded with a base', function() {
 });
 
 describe('Models attached to a dataSource', function() {
-  var Post;
+  let Post;
   before(function() {
-    var ds = new DataSource('memory');// define models
+    const ds = new DataSource('memory');// define models
     Post = ds.define('Post', {
       title: {type: String, length: 255, index: true},
       content: {type: String},
@@ -854,7 +853,7 @@ describe('Models attached to a dataSource', function() {
     });
 
     it('creates a new instance if it does not exist', function(done) {
-      var post = {id: 123, title: 'a', content: 'AAA'};
+      const post = {id: 123, title: 'a', content: 'AAA'};
       Post.updateOrCreate(post, function(err, p) {
         should.not.exist(err);
         p.title.should.be.equal(post.title);
@@ -915,7 +914,7 @@ describe('Models attached to a dataSource', function() {
     });
 
     it('creates a new instance if it does not exist', function(done) {
-      var post = new Post({id: '123', title: 'a', content: 'AAA'});
+      const post = new Post({id: '123', title: 'a', content: 'AAA'});
       post.save(post, function(err, p) {
         should.not.exist(err);
         p.title.should.be.equal(post.title);
@@ -937,33 +936,33 @@ describe('Models attached to a dataSource', function() {
 
 describe('DataSource connector types', function() {
   it('returns an array of types using getTypes', function() {
-    var ds = new DataSource('memory');
-    var types = ds.getTypes();
+    const ds = new DataSource('memory');
+    const types = ds.getTypes();
     assert.deepEqual(types, ['db', 'nosql', 'memory']);
   });
 
   describe('supportTypes', function() {
     it('tests supported types by string', function() {
-      var ds = new DataSource('memory');
-      var result = ds.supportTypes('db');
+      const ds = new DataSource('memory');
+      const result = ds.supportTypes('db');
       assert(result);
     });
 
     it('tests supported types by array', function() {
-      var ds = new DataSource('memory');
-      var result = ds.supportTypes(['db', 'memory']);
+      const ds = new DataSource('memory');
+      const result = ds.supportTypes(['db', 'memory']);
       assert(result);
     });
 
     it('tests unsupported types by string', function() {
-      var ds = new DataSource('memory');
-      var result = ds.supportTypes('rdbms');
+      const ds = new DataSource('memory');
+      const result = ds.supportTypes('rdbms');
       assert(!result);
     });
 
     it('tests unsupported types by array', function() {
-      var ds = new DataSource('memory');
-      var result = ds.supportTypes(['rdbms', 'memory']);
+      const ds = new DataSource('memory');
+      let result = ds.supportTypes(['rdbms', 'memory']);
       assert(!result);
 
       result = ds.supportTypes(['rdbms']);
@@ -974,7 +973,7 @@ describe('DataSource connector types', function() {
 
 describe('DataSource._resolveConnector', function() {
   // Mocked require
-  var loader = function(name) {
+  const loader = function(name) {
     if (name.indexOf('./connectors/') !== -1) {
       // ./connectors/<name> doesn't exist
       return null;
@@ -989,48 +988,48 @@ describe('DataSource._resolveConnector', function() {
   };
 
   it('resolves connector by path', function() {
-    var connector = DataSource._resolveConnector(__dirname + '/../lib/connectors/memory');
+    const connector = DataSource._resolveConnector(__dirname + '/../lib/connectors/memory');
     assert(connector.connector);
   });
   it('resolves connector by internal name', function() {
-    var connector = DataSource._resolveConnector('memory');
+    const connector = DataSource._resolveConnector('memory');
     assert(connector.connector);
   });
   it('resolves connector by module name starting with loopback-connector-', function() {
-    var connector = DataSource._resolveConnector('loopback-connector-xyz', loader);
+    const connector = DataSource._resolveConnector('loopback-connector-xyz', loader);
     assert(connector.connector);
   });
   it('resolves connector by short module name with full name first', function() {
-    var connector = DataSource._resolveConnector('xyz', loader);
+    const connector = DataSource._resolveConnector('xyz', loader);
     assert(connector.connector);
     assert.equal(connector.connector.name, 'loopback-connector-xyz');
   });
   it('resolves connector by short module name', function() {
-    var connector = DataSource._resolveConnector('abc', loader);
+    const connector = DataSource._resolveConnector('abc', loader);
     assert(connector.connector);
     assert.equal(connector.connector.name, 'abc');
   });
   it('resolves connector by short module name for known connectors', function() {
-    var connector = DataSource._resolveConnector('oracle', loader);
+    const connector = DataSource._resolveConnector('oracle', loader);
     assert(connector.connector);
     assert.equal(connector.connector.name, 'loopback-connector-oracle');
   });
   it('resolves connector by full module name', function() {
-    var connector = DataSource._resolveConnector('loopback-xyz', loader);
+    const connector = DataSource._resolveConnector('loopback-xyz', loader);
     assert(connector.connector);
   });
   it('fails to resolve connector by module name starting with loopback-connector-', function() {
-    var connector = DataSource._resolveConnector('loopback-connector-xyz');
+    const connector = DataSource._resolveConnector('loopback-connector-xyz');
     assert(!connector.connector);
     assert(connector.error.indexOf('loopback-connector-xyz') !== -1);
   });
   it('fails resolve invalid connector by short module name', function() {
-    var connector = DataSource._resolveConnector('xyz');
+    const connector = DataSource._resolveConnector('xyz');
     assert(!connector.connector);
     assert(connector.error.indexOf('loopback-connector-xyz') !== -1);
   });
   it('fails to resolve invalid connector by full module name', function() {
-    var connector = DataSource._resolveConnector('loopback-xyz');
+    const connector = DataSource._resolveConnector('loopback-xyz');
     assert(!connector.connector);
     assert(connector.error.indexOf('loopback-connector-loopback-xyz') !== -1);
   });
@@ -1038,10 +1037,10 @@ describe('DataSource._resolveConnector', function() {
 
 describe('Model define with relations configuration', function() {
   it('sets up hasMany relations', function(done) {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
 
-    var Post = ds.define('Post', {userId: Number, content: String});
-    var User = ds.define('User', {name: String}, {
+    const Post = ds.define('Post', {userId: Number, content: String});
+    const User = ds.define('User', {name: String}, {
       relations: {posts: {type: 'hasMany', model: 'Post'}},
     });
 
@@ -1050,10 +1049,10 @@ describe('Model define with relations configuration', function() {
   });
 
   it('sets up belongsTo relations', function(done) {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
 
-    var User = ds.define('User', {name: String});
-    var Post = ds.define('Post', {userId: Number, content: String}, {
+    const User = ds.define('User', {name: String});
+    const Post = ds.define('Post', {userId: Number, content: String}, {
       relations: {user: {type: 'belongsTo', model: 'User'}},
     });
 
@@ -1062,10 +1061,10 @@ describe('Model define with relations configuration', function() {
   });
 
   it('sets up referencesMany relations', function(done) {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
 
-    var Post = ds.define('Post', {userId: Number, content: String});
-    var User = ds.define('User', {name: String}, {
+    const Post = ds.define('Post', {userId: Number, content: String});
+    const User = ds.define('User', {name: String}, {
       relations: {posts: {type: 'referencesMany', model: 'Post'}},
     });
 
@@ -1074,10 +1073,10 @@ describe('Model define with relations configuration', function() {
   });
 
   it('sets up embedsMany relations', function(done) {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
 
-    var Post = ds.define('Post', {userId: Number, content: String});
-    var User = ds.define('User', {name: String}, {
+    const Post = ds.define('Post', {userId: Number, content: String});
+    const User = ds.define('User', {name: String}, {
       relations: {posts: {type: 'embedsMany', model: 'Post'}},
     });
 
@@ -1086,12 +1085,12 @@ describe('Model define with relations configuration', function() {
   });
 
   it('sets up belongsTo polymorphic relation with `{polymorphic: true}`', function(done) {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
 
-    var Product = ds.define('Product', {name: String}, {relations: {
+    const Product = ds.define('Product', {name: String}, {relations: {
       pictures: {type: 'hasMany', model: 'Picture', polymorphic: 'imageable'},
     }});
-    var Picture = ds.define('Picture', {name: String}, {relations: {
+    const Picture = ds.define('Picture', {name: String}, {relations: {
       imageable: {type: 'belongsTo', polymorphic: true},
     }});
 
@@ -1114,12 +1113,12 @@ describe('Model define with relations configuration', function() {
   });
 
   it('sets up hasMany polymorphic relation with `{polymorphic: belongsToRelationName}`', function(done) {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
 
-    var Picture = ds.define('Picture', {name: String}, {relations: {
+    const Picture = ds.define('Picture', {name: String}, {relations: {
       imageable: {type: 'belongsTo', polymorphic: true},
     }});
-    var Product = ds.define('Product', {name: String}, {relations: {
+    const Product = ds.define('Product', {name: String}, {relations: {
       pictures: {type: 'hasMany', model: 'Picture', polymorphic: 'imageable'},
     }});
 
@@ -1142,14 +1141,14 @@ describe('Model define with relations configuration', function() {
   });
 
   it('creates a foreign key with the correct type', function(done) {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
 
-    var User = ds.define('User', {name: String, id: {type: String, id: true}});
-    var Post = ds.define('Post', {content: String}, {relations: {
+    const User = ds.define('User', {name: String, id: {type: String, id: true}});
+    const Post = ds.define('Post', {content: String}, {relations: {
       user: {type: 'belongsTo', model: 'User'}},
     });
 
-    var fk = Post.definition.properties['userId'];
+    const fk = Post.definition.properties['userId'];
     assert(fk, 'The foreign key should be added');
     assert(fk.type === String, 'The foreign key should be the same type as primary key');
     assert(Post.relations['user'], 'User relation should be set');
@@ -1157,9 +1156,9 @@ describe('Model define with relations configuration', function() {
   });
 
   it('sets up related hasMany and belongsTo relations', function(done) {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
 
-    var User = ds.define('User', {name: String}, {
+    const User = ds.define('User', {name: String}, {
       relations: {
         posts: {type: 'hasMany', model: 'Post'},
         accounts: {type: 'hasMany', model: 'Account'},
@@ -1169,11 +1168,11 @@ describe('Model define with relations configuration', function() {
     assert(!User.relations['posts']);
     assert(!User.relations['accounts']);
 
-    var Post = ds.define('Post', {userId: Number, content: String}, {
+    const Post = ds.define('Post', {userId: Number, content: String}, {
       relations: {user: {type: 'belongsTo', model: 'User'}},
     });
 
-    var Account = ds.define('Account', {userId: Number, type: String}, {
+    const Account = ds.define('Account', {userId: Number, type: String}, {
       relations: {user: {type: 'belongsTo', model: 'User'}},
     });
 
@@ -1212,12 +1211,12 @@ describe('Model define with relations configuration', function() {
   });
 
   it('throws an error if a relation is missing type', function(done) {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
 
-    var Post = ds.define('Post', {userId: Number, content: String});
+    const Post = ds.define('Post', {userId: Number, content: String});
 
     try {
-      var User = ds.define('User', {name: String}, {
+      const User = ds.define('User', {name: String}, {
         relations: {posts: {model: 'Post'}},
       });
     } catch (e) {
@@ -1226,12 +1225,12 @@ describe('Model define with relations configuration', function() {
   });
 
   it('throws an error if a relation type is invalid', function(done) {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
 
-    var Post = ds.define('Post', {userId: Number, content: String});
+    const Post = ds.define('Post', {userId: Number, content: String});
 
     try {
-      var User = ds.define('User', {name: String}, {
+      const User = ds.define('User', {name: String}, {
         relations: {posts: {type: 'hasXYZ', model: 'Post'}},
       });
     } catch (e) {
@@ -1240,8 +1239,8 @@ describe('Model define with relations configuration', function() {
   });
 
   it('sets up hasMany through relations', function(done) {
-    var ds = new DataSource('memory');
-    var Physician = ds.createModel('Physician', {
+    const ds = new DataSource('memory');
+    const Physician = ds.createModel('Physician', {
       name: String,
     }, {
       relations: {
@@ -1249,7 +1248,7 @@ describe('Model define with relations configuration', function() {
       },
     });
 
-    var Patient = ds.createModel('Patient', {
+    const Patient = ds.createModel('Patient', {
       name: String,
     }, {
       relations: {
@@ -1260,7 +1259,7 @@ describe('Model define with relations configuration', function() {
     assert(!Physician.relations['patients']); // Appointment hasn't been resolved yet
     assert(!Patient.relations['physicians']); // Appointment hasn't been resolved yet
 
-    var Appointment = ds.createModel('Appointment', {
+    const Appointment = ds.createModel('Appointment', {
       physicianId: Number,
       patientId: Number,
       appointmentDate: Date,
@@ -1277,8 +1276,8 @@ describe('Model define with relations configuration', function() {
   });
 
   it('sets up hasMany through relations with options', function(done) {
-    var ds = new DataSource('memory');
-    var Physician = ds.createModel('Physician', {
+    const ds = new DataSource('memory');
+    const Physician = ds.createModel('Physician', {
       name: String,
     }, {
       relations: {
@@ -1286,7 +1285,7 @@ describe('Model define with relations configuration', function() {
       },
     });
 
-    var Patient = ds.createModel('Patient', {
+    const Patient = ds.createModel('Patient', {
       name: String,
     }, {
       relations: {
@@ -1294,7 +1293,7 @@ describe('Model define with relations configuration', function() {
       },
     });
 
-    var Appointment = ds.createModel('Appointment', {
+    const Appointment = ds.createModel('Appointment', {
       physicianId: Number,
       patientId: Number,
       appointmentDate: Date,
@@ -1311,11 +1310,11 @@ describe('Model define with relations configuration', function() {
   });
 
   it('sets up relations after attach', function(done) {
-    var ds = new DataSource('memory');
-    var modelBuilder = new ModelBuilder();
+    const ds = new DataSource('memory');
+    const modelBuilder = new ModelBuilder();
 
-    var Post = modelBuilder.define('Post', {userId: Number, content: String});
-    var User = modelBuilder.define('User', {name: String}, {
+    const Post = modelBuilder.define('Post', {userId: Number, content: String});
+    const User = modelBuilder.define('User', {name: String}, {
       relations: {posts: {type: 'hasMany', model: 'Post'},
       }});
 
@@ -1329,12 +1328,12 @@ describe('Model define with relations configuration', function() {
 
 describe('Model define with scopes configuration', function() {
   it('creates scopes', function(done) {
-    var ds = new DataSource('memory');
-    var User = ds.define('User', {name: String, vip: Boolean, age: Number},
+    const ds = new DataSource('memory');
+    const User = ds.define('User', {name: String, vip: Boolean, age: Number},
       {scopes: {vips: {where: {vip: true}}, top5: {limit: 5, order: 'age'}}});
 
-    var users = [];
-    for (var i = 0; i < 10; i++) {
+    const users = [];
+    for (let i = 0; i < 10; i++) {
       users.push({name: 'User' + i, vip: i % 3 === 0, age: 20 + i * 2});
     }
     async.each(users, function(user, callback) {
@@ -1355,7 +1354,7 @@ describe('Model define with scopes configuration', function() {
 });
 
 describe('DataAccessObject', function() {
-  var ds, model, where, error, filter;
+  let ds, model, where, error, filter;
 
   before(function() {
     ds = new DataSource('memory');
@@ -1418,7 +1417,7 @@ describe('DataAccessObject', function() {
   });
 
   it('coerces where clause for date types', function() {
-    var d = new Date();
+    const d = new Date();
     where = model._coerce({date: d});
     assert.deepEqual(where, {date: d});
 
@@ -1460,7 +1459,7 @@ describe('DataAccessObject', function() {
   });
 
   it('continues to coerce properties after a logical operator', function() {
-    var clause = {and: [{age: '10'}], vip: 'true'};
+    const clause = {and: [{age: '10'}], vip: 'true'};
 
     // Key order is predictable but not guaranteed. We prefer false negatives (failure) to false positives.
     assert(Object.keys(clause)[0] === 'and', 'Unexpected key order.');
@@ -1497,7 +1496,7 @@ describe('DataAccessObject', function() {
   ];
 
   COERCIONS.forEach(coercion => {
-    var inStr = JSON.stringify(coercion.in);
+    const inStr = JSON.stringify(coercion.in);
     it('coerces where clause with array-like objects ' + inStr, () => {
       assert.deepEqual(model._coerce(coercion.in), coercion.out);
     });
@@ -1510,7 +1509,7 @@ describe('DataAccessObject', function() {
   ];
 
   INVALID_CLAUSES.forEach((where) => {
-    var whereStr = JSON.stringify(where);
+    const whereStr = JSON.stringify(where);
     it('throws an error on malformed array-like object ' + whereStr, () => {
       assert.throws(() => model._coerce(where), /property has invalid clause/);
     });
@@ -1569,7 +1568,7 @@ describe('DataAccessObject', function() {
   });
 
   it('throws an error when malformed logical operators follow valid logical clauses', function() {
-    var invalid = {and: [{x: 1}], or: 'bogus'};
+    const invalid = {and: [{x: 1}], or: 'bogus'};
 
     // Key order is predictable but not guaranteed. We prefer false negatives (failure) to false positives.
     assert(Object.keys(invalid)[0] !== 'or', 'Unexpected key order.');
@@ -1583,7 +1582,7 @@ describe('DataAccessObject', function() {
   });
 
   it('throws an error if the filter property is not an object', function() {
-    var filter = null;
+    let filter = null;
     try {
       // The filter clause has to be an object
       filter = model._normalize('abc');
@@ -1730,7 +1729,7 @@ describe('DataAccessObject', function() {
 });
 
 describe('ModelBuilder processing json files', function() {
-  var path = require('path'),
+  const path = require('path'),
     fs = require('fs');
 
   /**
@@ -1739,7 +1738,7 @@ describe('ModelBuilder processing json files', function() {
    * @returns A map of schemas keyed by name
    */
   function loadSchemasSync(schemaFile, dataSource) {
-    var modelBuilder, createModel;
+    let modelBuilder, createModel;
     // Set up the data source
     if (!dataSource) {
       modelBuilder = new ModelBuilder();
@@ -1749,17 +1748,17 @@ describe('ModelBuilder processing json files', function() {
     }
 
     // Read the dataSource JSON file
-    var schemas = JSON.parse(fs.readFileSync(schemaFile));
+    const schemas = JSON.parse(fs.readFileSync(schemaFile));
     return modelBuilder.buildModels(schemas, createModel);
   }
 
   it('defines models', function() {
-    var models = loadSchemasSync(path.join(__dirname, 'test1-schemas.json'));
+    let models = loadSchemasSync(path.join(__dirname, 'test1-schemas.json'));
 
     models.should.have.property('AnonymousModel_0');
     models.AnonymousModel_0.should.have.property('modelName', 'AnonymousModel_0');
 
-    var m1 = new models.AnonymousModel_0({title: 'Test'});
+    const m1 = new models.AnonymousModel_0({title: 'Test'});
     m1.should.have.property('title', 'Test');
     m1.should.have.property('author', 'Raymond');
 
@@ -1767,16 +1766,16 @@ describe('ModelBuilder processing json files', function() {
     models.should.have.property('Address');
     models.should.have.property('Account');
     models.should.have.property('Customer');
-    for (var s in models) {
-      var m = models[s];
+    for (const s in models) {
+      const m = models[s];
       assert(new m());
     }
   });
 
   it('attaches models to a specified dataSource', function() {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
 
-    var models = loadSchemasSync(path.join(__dirname, 'test2-schemas.json'), ds);
+    const models = loadSchemasSync(path.join(__dirname, 'test2-schemas.json'), ds);
     models.should.have.property('Address');
     models.should.have.property('Account');
     models.should.have.property('Customer');
@@ -1784,9 +1783,9 @@ describe('ModelBuilder processing json files', function() {
   });
 
   it('allows customization of default model base class', function() {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
-    var User = modelBuilder.define('User', {
+    const User = modelBuilder.define('User', {
       name: String,
       bio: ModelBuilder.Text,
       approved: Boolean,
@@ -1796,14 +1795,14 @@ describe('ModelBuilder processing json files', function() {
 
     modelBuilder.defaultModelBaseClass = User;
 
-    var Customer = modelBuilder.define('Customer', {customerId: {type: String, id: true}});
+    const Customer = modelBuilder.define('Customer', {customerId: {type: String, id: true}});
     assert(Customer.prototype instanceof User);
   });
 
   it('accepts a model base class', function() {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
-    var User = modelBuilder.define('User', {
+    const User = modelBuilder.define('User', {
       name: String,
       bio: ModelBuilder.Text,
       approved: Boolean,
@@ -1811,7 +1810,7 @@ describe('ModelBuilder processing json files', function() {
       age: Number,
     });
 
-    var Customer = modelBuilder.define('Customer',
+    const Customer = modelBuilder.define('Customer',
       {customerId: {type: String, id: true}}, {}, User);
     assert(Customer.prototype instanceof User);
   });
@@ -1819,31 +1818,31 @@ describe('ModelBuilder processing json files', function() {
 
 describe('DataSource constructor', function() {
   it('takes url as the settings', function() {
-    var ds = new DataSource('memory://localhost/mydb?x=1');
+    const ds = new DataSource('memory://localhost/mydb?x=1');
     assert.equal(ds.connector.name, 'memory');
   });
 
   it('takes connector name', function() {
-    var ds = new DataSource('memory');
+    const ds = new DataSource('memory');
     assert.equal(ds.connector.name, 'memory');
   });
 
   it('takes settings object', function() {
-    var ds = new DataSource({connector: 'memory'});
+    const ds = new DataSource({connector: 'memory'});
     assert.equal(ds.connector.name, 'memory');
   });
 
   it('takes settings object and name', function() {
-    var ds = new DataSource('x', {connector: 'memory'});
+    const ds = new DataSource('x', {connector: 'memory'});
     assert.equal(ds.connector.name, 'memory');
   });
 });
 
 describe('ModelBuilder options.models', function() {
   it('injects model classes from models', function() {
-    var builder = new ModelBuilder();
-    var M1 = builder.define('M1');
-    var M2 = builder.define('M2', {}, {models: {
+    const builder = new ModelBuilder();
+    const M1 = builder.define('M1');
+    const M2 = builder.define('M2', {}, {models: {
       'M1': M1,
     }});
 
@@ -1851,9 +1850,9 @@ describe('ModelBuilder options.models', function() {
   });
 
   it('injects model classes by name in the models', function() {
-    var builder = new ModelBuilder();
-    var M1 = builder.define('M1');
-    var M2 = builder.define('M2', {}, {models: {
+    const builder = new ModelBuilder();
+    const M1 = builder.define('M1');
+    const M2 = builder.define('M2', {}, {models: {
       'M1': 'M1',
     }});
 
@@ -1862,25 +1861,25 @@ describe('ModelBuilder options.models', function() {
 
   it('injects model classes by name in the models before the class is defined',
     function() {
-      var builder = new ModelBuilder();
-      var M2 = builder.define('M2', {}, {models: {
+      const builder = new ModelBuilder();
+      const M2 = builder.define('M2', {}, {models: {
         'M1': 'M1',
       }});
       assert(M2.M1, 'M1 should be injected to M2');
       assert(M2.M1.settings.unresolved, 'M1 is still a proxy');
-      var M1 = builder.define('M1');
+      const M1 = builder.define('M1');
       assert.equal(M2.M1, M1, 'M1 should be injected to M2');
     });
 
   it('uses non-strict mode for embedded models by default', function() {
-    var builder = new ModelBuilder();
-    var M1 = builder.define('testEmbedded', {
+    const builder = new ModelBuilder();
+    const M1 = builder.define('testEmbedded', {
       name: 'string',
       address: {
         street: 'string',
       },
     });
-    var m1 = new M1({
+    const m1 = new M1({
       name: 'Jim',
       address: {
         street: 'washington st',
@@ -1891,15 +1890,15 @@ describe('ModelBuilder options.models', function() {
   });
 
   it('uses the strictEmbeddedModels setting (true) when applied on modelBuilder', function() {
-    var builder = new ModelBuilder();
+    const builder = new ModelBuilder();
     builder.settings.strictEmbeddedModels = true;
-    var M1 = builder.define('testEmbedded', {
+    const M1 = builder.define('testEmbedded', {
       name: 'string',
       address: {
         street: 'string',
       },
     });
-    var m1 = new M1({
+    const m1 = new M1({
       name: 'Jim',
       address: {
         street: 'washington st',
@@ -1908,15 +1907,15 @@ describe('ModelBuilder options.models', function() {
     });
     assert.equal(m1.address.number, undefined, 'm1 should not contain number property in address');
     assert.equal(m1.address.isValid(), false, 'm1 address should not validate with extra property');
-    var codes = m1.address.errors && m1.address.errors.codes || {};
+    const codes = m1.address.errors && m1.address.errors.codes || {};
     assert.deepEqual(codes.number, ['unknown-property']);
   });
 });
 
 describe('updateOnly', function() {
   it('sets forceId to true when model id is generated', function(done) {
-    var ds = new DataSource('memory');
-    var Post = ds.define('Post', {
+    const ds = new DataSource('memory');
+    const Post = ds.define('Post', {
       title: {type: String, length: 255},
       date: {type: Date, default: function() {
         return new Date();
@@ -1930,8 +1929,8 @@ describe('updateOnly', function() {
   });
 
   it('flags id as updateOnly when forceId is undefined', function(done) {
-    var ds = new DataSource('memory');
-    var Post = ds.define('Post', {
+    const ds = new DataSource('memory');
+    const Post = ds.define('Post', {
       title: {type: String, length: 255},
       date: {type: Date, default: function() {
         return new Date();
@@ -1945,8 +1944,8 @@ describe('updateOnly', function() {
   });
 
   it('does not flag id as updateOnly when forceId is false', function(done) {
-    var ds = new DataSource('memory');
-    var Person = ds.define('Person', {
+    const ds = new DataSource('memory');
+    const Person = ds.define('Person', {
       name: String,
       gender: String,
     }, {forceId: false});
@@ -1958,8 +1957,8 @@ describe('updateOnly', function() {
   });
 
   it('flags id as updateOnly when forceId is true', function(done) {
-    var ds = new DataSource('memory');
-    var Person = ds.define('Person', {
+    const ds = new DataSource('memory');
+    const Person = ds.define('Person', {
       name: String,
       gender: String,
     }, {forceId: true});

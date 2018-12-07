@@ -23,7 +23,7 @@ function givenModel(dataSourceFactory, modelName,
 }
 
 function givenKeys(Model, keys, cb) {
-  var p = Promise.all(
+  let p = Promise.all(
     keys.map(function(k) {
       return Model.set(k, 'value-' + k);
     })

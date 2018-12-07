@@ -7,11 +7,12 @@
 'use strict';
 
 /* global getSchema:false */
-var should = require('./init.js');
-var async = require('async');
+const should = require('./init.js');
+const async = require('async');
 
-var j = require('../'), db, User;
-var ValidationError = j.ValidationError;
+const j = require('../');
+let db, User;
+const ValidationError = j.ValidationError;
 
 function getValidAttributes() {
   return {
@@ -26,7 +27,7 @@ function getValidAttributes() {
 }
 
 describe('validations', function() {
-  var User, Entry, Employee;
+  let User, Entry, Employee;
 
   before(function(done) {
     db = getSchema();
@@ -76,7 +77,7 @@ describe('validations', function() {
     describe('skipping', function() {
       it('should NOT skip when `if` is fulfilled', function() {
         User.validatesPresenceOf('pendingPeriod', {if: 'createdByAdmin'});
-        var user = new User;
+        const user = new User;
         user.createdByAdmin = true;
         user.isValid().should.be.false();
         user.errors.pendingPeriod.should.eql(['can\'t be blank']);
@@ -86,7 +87,7 @@ describe('validations', function() {
 
       it('should skip when `if` is NOT fulfilled', function() {
         User.validatesPresenceOf('pendingPeriod', {if: 'createdByAdmin'});
-        var user = new User;
+        const user = new User;
         user.createdByAdmin = false;
         user.isValid().should.be.true();
         user.errors.should.be.false();
@@ -96,7 +97,7 @@ describe('validations', function() {
 
       it('should NOT skip when `unless` is fulfilled', function() {
         User.validatesPresenceOf('pendingPeriod', {unless: 'createdByAdmin'});
-        var user = new User;
+        const user = new User;
         user.createdByAdmin = false;
         user.isValid().should.be.false();
         user.errors.pendingPeriod.should.eql(['can\'t be blank']);
@@ -106,7 +107,7 @@ describe('validations', function() {
 
       it('should skip when `unless` is NOT fulfilled', function() {
         User.validatesPresenceOf('pendingPeriod', {unless: 'createdByAdmin'});
-        var user = new User;
+        const user = new User;
         user.createdByAdmin = true;
         user.isValid().should.be.true();
         user.errors.should.be.false();
@@ -121,7 +122,7 @@ describe('validations', function() {
           if (!this.pendingPeriod) err();
           done();
         }, {if: 'createdByAdmin', code: 'presence', message: 'can\'t be blank'});
-        var user = new User;
+        const user = new User;
         user.createdByAdmin = false;
         user.isValid(function(valid) {
           valid.should.be.true();
@@ -135,7 +136,7 @@ describe('validations', function() {
           if (!this.pendingPeriod) err();
           done();
         }, {if: 'createdByAdmin', code: 'presence', message: 'can\'t be blank'});
-        var user = new User;
+        const user = new User;
         user.createdByAdmin = true;
         user.isValid(function(valid) {
           valid.should.be.false();
@@ -149,7 +150,7 @@ describe('validations', function() {
           if (!this.pendingPeriod) err();
           done();
         }, {unless: 'createdByAdmin', code: 'presence', message: 'can\'t be blank'});
-        var user = new User;
+        const user = new User;
         user.createdByAdmin = true;
         user.isValid(function(valid) {
           valid.should.be.true();
@@ -163,7 +164,7 @@ describe('validations', function() {
           if (!this.pendingPeriod) err();
           done();
         }, {unless: 'createdByAdmin', code: 'presence', message: 'can\'t be blank'});
-        var user = new User;
+        const user = new User;
         user.createdByAdmin = false;
         user.isValid(function(valid) {
           valid.should.be.false();
@@ -214,7 +215,7 @@ describe('validations', function() {
       });
 
       it('should be skipped by upsert when disabled via settings', function(done) {
-        var Customer = User.extend('Customer');
+        const Customer = User.extend('Customer');
         Customer.attachTo(db);
         db.autoupdate(function(err) {
           if (err) return done(err);
@@ -296,10 +297,10 @@ describe('validations', function() {
       });
 
       it('should return validation metadata', function() {
-        var expected = {name: [{validation: 'presence', options: {}}]};
+        const expected = {name: [{validation: 'presence', options: {}}]};
         delete User.validations;
         User.validatesPresenceOf('name');
-        var validations = User.validations;
+        const validations = User.validations;
         validations.should.eql(expected);
       });
     });
@@ -412,11 +413,11 @@ describe('validations', function() {
     it('should validate presence', function() {
       User.validatesPresenceOf('name', 'email');
 
-      var validations = User.validations;
+      const validations = User.validations;
       validations.name.should.eql([{validation: 'presence', options: {}}]);
       validations.email.should.eql([{validation: 'presence', options: {}}]);
 
-      var u = new User;
+      const u = new User;
       u.isValid().should.not.be.true();
       u.name = 1;
       u.isValid().should.not.be.true();
@@ -426,7 +427,7 @@ describe('validations', function() {
 
     it('should reject NaN value as a number', function() {
       User.validatesPresenceOf('age');
-      var u = new User();
+      const u = new User();
       u.isValid().should.be.false();
       u.age = NaN;
       u.isValid().should.be.false();
@@ -436,7 +437,7 @@ describe('validations', function() {
 
     it('should allow "NaN" value as a string', function() {
       User.validatesPresenceOf('name');
-      var u = new User();
+      const u = new User();
       u.isValid().should.be.false();
       u.name = 'NaN';
       u.isValid().should.be.true();
@@ -445,7 +446,7 @@ describe('validations', function() {
     it('should skip validation by property (if/unless)', function() {
       User.validatesPresenceOf('domain', {unless: 'createdByScript'});
 
-      var user = new User(getValidAttributes());
+      const user = new User(getValidAttributes());
       user.isValid().should.be.true();
 
       user.createdByScript = false;
@@ -474,7 +475,7 @@ describe('validations', function() {
       });
 
       it('succeeds when validate condition is met', function(done) {
-        var data = {name: 'Foo-new', age: 5};
+        const data = {name: 'Foo-new', age: 5};
         Employee.updateAll({id: 1}, data,
           function(err, emp) {
             should.not.exist(err);
@@ -506,7 +507,7 @@ describe('validations', function() {
   describe('absence', function() {
     it('should validate absence', function() {
       User.validatesAbsenceOf('reserved', {if: 'locked'});
-      var u = new User({reserved: 'foo', locked: true});
+      let u = new User({reserved: 'foo', locked: true});
       u.isValid().should.not.be.true();
       u.reserved = null;
       u.isValid().should.be.true();
@@ -532,7 +533,7 @@ describe('validations', function() {
       });
 
       it('succeeds when validate condition is met', function(done) {
-        var data = {age: 5};
+        const data = {age: 5};
         Employee.updateAll({id: 1}, data,
           function(err, emp) {
             should.not.exist(err);
@@ -565,11 +566,11 @@ describe('validations', function() {
   describe('uniqueness', function() {
     it('should validate uniqueness', function(done) {
       User.validatesUniquenessOf('email');
-      var u = new User({email: 'hey'});
+      const u = new User({email: 'hey'});
       Boolean(u.isValid(function(valid) {
         valid.should.be.true();
         u.save(function() {
-          var u2 = new User({email: 'hey'});
+          const u2 = new User({email: 'hey'});
           u2.isValid(function(valid) {
             valid.should.be.false();
             done();
@@ -580,7 +581,7 @@ describe('validations', function() {
 
     it('should handle same object modification', function(done) {
       User.validatesUniquenessOf('email');
-      var u = new User({email: 'hey'});
+      const u = new User({email: 'hey'});
       Boolean(u.isValid(function(valid) {
         valid.should.be.true();
         u.save(function() {
@@ -595,8 +596,8 @@ describe('validations', function() {
     });
 
     it('should support multi-key constraint', function(done) {
-      var EMAIL = 'user@xample.com';
-      var SiteUser = db.define('SiteUser', {
+      const EMAIL = 'user@xample.com';
+      const SiteUser = db.define('SiteUser', {
         siteId: String,
         email: String,
       });
@@ -618,7 +619,7 @@ describe('validations', function() {
           );
         },
         function validateDuplicateUser(user2, next) {
-          var user3 = new SiteUser({siteId: 1, email: EMAIL});
+          const user3 = new SiteUser({siteId: 1, email: EMAIL});
           user3.isValid(function(valid) {
             valid.should.be.false();
             next();
@@ -634,11 +635,11 @@ describe('validations', function() {
 
     it('should skip blank values', function(done) {
       User.validatesUniquenessOf('email');
-      var u = new User({email: '  '});
+      const u = new User({email: '  '});
       Boolean(u.isValid(function(valid) {
         valid.should.be.true();
         u.save(function() {
-          var u2 = new User({email: null});
+          const u2 = new User({email: null});
           u2.isValid(function(valid) {
             valid.should.be.true();
             done();
@@ -652,7 +653,7 @@ describe('validations', function() {
         if: function() { return true; },
         unless: function() { return false; },
       });
-      var u = new User({email: 'hello'});
+      const u = new User({email: 'hello'});
       Boolean(u.isValid(function(valid) {
         valid.should.be.true();
         done();
@@ -661,7 +662,7 @@ describe('validations', function() {
 
     it('should work with id property on create', function(done) {
       Entry.create({id: 'entry'}, function(err, entry) {
-        var e = new Entry({id: 'entry'});
+        const e = new Entry({id: 'entry'});
         Boolean(e.isValid(function(valid) {
           valid.should.be.false();
           done();
@@ -680,12 +681,12 @@ describe('validations', function() {
 
     it('passes case insensitive validation', function(done) {
       User.validatesUniquenessOf('email', {ignoreCase: true});
-      var u = new User({email: 'hey'});
+      const u = new User({email: 'hey'});
       Boolean(u.isValid(function(valid) {
         valid.should.be.true();
         u.save(function(err) {
           if (err) return done(err);
-          var u2 = new User({email: 'HEY'});
+          const u2 = new User({email: 'HEY'});
           u2.isValid(function(valid) {
             valid.should.be.false();
             done();
@@ -696,12 +697,12 @@ describe('validations', function() {
 
     it('passed case sensitive validation', function(done) {
       User.validatesUniquenessOf('email', {ignoreCase: false});
-      var u = new User({email: 'hey'});
+      const u = new User({email: 'hey'});
       Boolean(u.isValid(function(valid) {
         valid.should.be.true();
         u.save(function(err) {
           if (err) return done(err);
-          var u2 = new User({email: 'HEY'});
+          const u2 = new User({email: 'HEY'});
           u2.isValid(function(valid) {
             valid.should.be.true();
             done();
@@ -712,12 +713,12 @@ describe('validations', function() {
 
     it('passes case insensitive validation with string that needs escaping', function(done) {
       User.validatesUniquenessOf('email', {ignoreCase: true});
-      var u = new User({email: 'me+me@my.com'});
+      const u = new User({email: 'me+me@my.com'});
       Boolean(u.isValid(function(valid) {
         valid.should.be.true();
         u.save(function(err) {
           if (err) return done(err);
-          var u2 = new User({email: 'ME+ME@MY.COM'});
+          const u2 = new User({email: 'ME+ME@MY.COM'});
           u2.isValid(function(valid) {
             valid.should.be.false();
             done();
@@ -728,12 +729,12 @@ describe('validations', function() {
 
     it('passed case sensitive validation with string that needs escaping', function(done) {
       User.validatesUniquenessOf('email', {ignoreCase: false});
-      var u = new User({email: 'me+me@my.com'});
+      const u = new User({email: 'me+me@my.com'});
       Boolean(u.isValid(function(valid) {
         valid.should.be.true();
         u.save(function(err) {
           if (err) return done(err);
-          var u2 = new User({email: 'ME+ME@MY.COM'});
+          const u2 = new User({email: 'ME+ME@MY.COM'});
           u2.isValid(function(valid) {
             valid.should.be.true();
             done();
@@ -744,12 +745,12 @@ describe('validations', function() {
 
     it('passes partial case insensitive validation with string that needs escaping', function(done) {
       User.validatesUniquenessOf('email', {ignoreCase: true});
-      var u = new User({email: 'also+me@my.com'});
+      const u = new User({email: 'also+me@my.com'});
       Boolean(u.isValid(function(valid) {
         valid.should.be.true();
         u.save(function(err) {
           if (err) return done(err);
-          var u2 = new User({email: 'Me@My.com'});
+          const u2 = new User({email: 'Me@My.com'});
           u2.isValid(function(valid) {
             valid.should.be.true();
             done();
@@ -760,12 +761,12 @@ describe('validations', function() {
 
     it('passes partial case sensitive validation with string that needs escaping', function(done) {
       User.validatesUniquenessOf('email', {ignoreCase: false});
-      var u = new User({email: 'also+me@my.com'});
+      const u = new User({email: 'also+me@my.com'});
       Boolean(u.isValid(function(valid) {
         valid.should.be.true();
         u.save(function(err) {
           if (err) return done(err);
-          var u2 = new User({email: 'Me@My.com'});
+          const u2 = new User({email: 'Me@My.com'});
           u2.isValid(function(valid) {
             valid.should.be.true();
             done();
@@ -792,7 +793,7 @@ describe('validations', function() {
       });
 
       it('succeeds when validate condition is met', function(done) {
-        var data = {name: 'Foo-new', age: 5};
+        const data = {name: 'Foo-new', age: 5};
         Employee.updateAll({id: 1}, data,
           function(err, emp) {
             should.not.exist(err);
@@ -824,32 +825,32 @@ describe('validations', function() {
   describe('format', function() {
     it('should validate the format of valid strings', function() {
       User.validatesFormatOf('name', {with: /[a-z][A-Z]*$/});
-      var u = new User({name: 'valid name'});
+      const u = new User({name: 'valid name'});
       u.isValid().should.be.true();
     });
 
     it('should validate the format of invalid strings', function() {
       User.validatesFormatOf('name', {with: /[a-z][A-Z]*$/});
-      var u = new User({name: 'invalid name!'});
+      const u = new User({name: 'invalid name!'});
       u.isValid().should.be.false();
     });
 
     it('should validate the format of valid numbers', function() {
       User.validatesFormatOf('age', {with: /^\d+$/});
-      var u = new User({age: 30});
+      const u = new User({age: 30});
       u.isValid().should.be.true();
     });
 
     it('should validate the format of invalid numbers', function() {
       User.validatesFormatOf('age', {with: /^\d+$/});
-      var u = new User({age: 'thirty'});
+      const u = new User({age: 'thirty'});
       u.isValid().should.be.false();
     });
 
     it('should overwrite default blank message with custom format message', function() {
-      var CUSTOM_MESSAGE = 'custom validation message';
+      const CUSTOM_MESSAGE = 'custom validation message';
       User.validatesFormatOf('name', {with: /[a-z][A-Z]*$/, message: CUSTOM_MESSAGE});
-      var u = new User({name: 'invalid name string 123'});
+      const u = new User({name: 'invalid name string 123'});
       u.isValid().should.be.false();
       u.errors.should.containEql({
         name: [CUSTOM_MESSAGE],
@@ -861,25 +862,25 @@ describe('validations', function() {
 
     it('should skip missing values when allowing blank', function() {
       User.validatesFormatOf('email', {with: /^\S+@\S+\.\S+$/, allowBlank: true});
-      var u = new User({});
+      const u = new User({});
       u.isValid().should.be.true();
     });
 
     it('should skip null values when allowing null', function() {
       User.validatesFormatOf('email', {with: /^\S+@\S+\.\S+$/, allowNull: true});
-      var u = new User({email: null});
+      const u = new User({email: null});
       u.isValid().should.be.true();
     });
 
     it('should not skip missing values', function() {
       User.validatesFormatOf('email', {with: /^\S+@\S+\.\S+$/});
-      var u = new User({});
+      const u = new User({});
       u.isValid().should.be.false();
     });
 
     it('should not skip null values', function() {
       User.validatesFormatOf('email', {with: /^\S+@\S+\.\S+$/});
-      var u = new User({email: null});
+      const u = new User({email: null});
       u.isValid().should.be.false();
     });
 
@@ -935,7 +936,7 @@ describe('validations', function() {
       });
 
       it('succeeds when validate condition is met', function(done) {
-        var data = {name: 'Foo Mo', age: 5};
+        const data = {name: 'Foo Mo', age: 5};
         Employee.updateAll({id: 1}, data,
           function(err, emp) {
             should.not.exist(err);
@@ -967,59 +968,59 @@ describe('validations', function() {
   describe('numericality', function() {
     it('passes when given numeric values', function() {
       User.validatesNumericalityOf('age');
-      var user = new User({age: 10});
+      const user = new User({age: 10});
       user.isValid().should.be.true();
     });
 
     it('fails when given non-numeric values', function() {
       User.validatesNumericalityOf('age');
-      var user = new User({age: 'notanumber'});
+      const user = new User({age: 'notanumber'});
       user.isValid().should.be.false();
       user.errors.should.containEql({age: ['is not a number']});
     });
 
     it('fails when given undefined values', function() {
       User.validatesNumericalityOf('age');
-      var user = new User({});
+      const user = new User({});
       user.isValid().should.be.false();
       user.errors.should.containEql({age: ['is blank']});
     });
 
     it('skips undefined values when allowBlank option is true', function() {
       User.validatesNumericalityOf('age', {allowBlank: true});
-      var user = new User({});
+      const user = new User({});
       user.isValid().should.be.true();
     });
 
     it('fails when given non-numeric values when allowBlank option is true', function() {
       User.validatesNumericalityOf('age', {allowBlank: true});
-      var user = new User({age: 'test'});
+      const user = new User({age: 'test'});
       user.isValid().should.be.false();
       user.errors.should.containEql({age: ['is not a number']});
     });
 
     it('fails when given null values', function() {
       User.validatesNumericalityOf('age');
-      var user = new User({age: null});
+      const user = new User({age: null});
       user.isValid().should.be.false();
       user.errors.should.containEql({age: ['is null']});
     });
 
     it('passes when given null values when allowNull option is true', function() {
       User.validatesNumericalityOf('age', {allowNull: true});
-      var user = new User({age: null});
+      const user = new User({age: null});
       user.isValid().should.be.true();
     });
 
     it('passes when given float values', function() {
       User.validatesNumericalityOf('age');
-      var user = new User({age: 13.37});
+      const user = new User({age: 13.37});
       user.isValid().should.be.true();
     });
 
     it('fails when given non-integer values when int option is true', function() {
       User.validatesNumericalityOf('age', {int: true});
-      var user = new User({age: 13.37});
+      const user = new User({age: 13.37});
       user.isValid().should.be.false();
       user.errors.should.match({age: /is not an integer/});
     });
@@ -1042,7 +1043,7 @@ describe('validations', function() {
       });
 
       it('succeeds when validate condition is met', function(done) {
-        var data = {name: 'Foo-new', age: 5};
+        const data = {name: 'Foo-new', age: 5};
         Employee.updateAll({id: 1}, data,
           function(err, emp) {
             should.not.exist(err);
@@ -1159,7 +1160,7 @@ describe('validations', function() {
       });
 
       it('succeeds when validate condition is met', function(done) {
-        var data = {name: 'Foo-new', age: 5};
+        const data = {name: 'Foo-new', age: 5};
         Employee.updateAll({id: 1}, data,
           function(err, emp) {
             should.not.exist(err);
@@ -1258,7 +1259,7 @@ describe('validations', function() {
       });
 
       it('succeeds when validate condition is met', function(done) {
-        var data = {name: 'Foo-new', age: 5};
+        const data = {name: 'Foo-new', age: 5};
         Employee.updateAll({id: 1}, data,
           function(err, emp) {
             should.not.exist(err);
@@ -1308,7 +1309,7 @@ describe('validations', function() {
       });
 
       it('succeeds when validate condition is met', function(done) {
-        var data = {name: 'Foo-new', age: 5};
+        const data = {name: 'Foo-new', age: 5};
         Employee.updateAll({id: 1}, data,
           function(err, emp) {
             should.not.exist(err);
@@ -1342,7 +1343,7 @@ describe('validations', function() {
       User.validate('email', function(err) {
         if (this.email === 'hello') err();
       }, {code: 'invalid-email'});
-      var u = new User({email: 'hello'});
+      const u = new User({email: 'hello'});
       Boolean(u.isValid()).should.be.false();
       u.errors.codes.should.eql({email: ['invalid-email']});
     });
@@ -1354,7 +1355,7 @@ describe('validations', function() {
           err(false); // false: prevent global error message
         }
       });
-      var u = new User({email: 'hello'});
+      const u = new User({email: 'hello'});
       Boolean(u.isValid()).should.be.false();
       u.errors.should.containEql({email: ['Cannot be `hello`']});
       u.errors.codes.should.eql({email: ['invalid-email']});
@@ -1367,7 +1368,7 @@ describe('validations', function() {
         if: function() { return true; },
         unless: function() { return false; },
       });
-      var u = new User({email: 'hello'});
+      const u = new User({email: 'hello'});
       Boolean(u.isValid(function(valid) {
         valid.should.be.true();
         done();
@@ -1376,7 +1377,7 @@ describe('validations', function() {
   });
 
   describe('invalid value formatting', function() {
-    var origMaxLen;
+    let origMaxLen;
     beforeEach(function saveAndSetMaxLen() {
       origMaxLen = ValidationError.maxPropertyStringLength;
     });
@@ -1387,53 +1388,53 @@ describe('validations', function() {
 
     it('should truncate long strings', function() {
       ValidationError.maxPropertyStringLength = 9;
-      var err = givenValidationError('prop', '1234567890abc', 'is invalid');
+      const err = givenValidationError('prop', '1234567890abc', 'is invalid');
       getErrorDetails(err)
         .should.equal('`prop` is invalid (value: "12...abc").');
     });
 
     it('should truncate long objects', function() {
       ValidationError.maxPropertyStringLength = 12;
-      var err = givenValidationError('prop', {foo: 'bar'}, 'is invalid');
+      const err = givenValidationError('prop', {foo: 'bar'}, 'is invalid');
       getErrorDetails(err)
         .should.equal('`prop` is invalid (value: { foo:... }).');
     });
 
     it('should truncate long arrays', function() {
       ValidationError.maxPropertyStringLength = 12;
-      var err = givenValidationError('prop', [{a: 1, b: 2}], 'is invalid');
+      const err = givenValidationError('prop', [{a: 1, b: 2}], 'is invalid');
       getErrorDetails(err)
         .should.equal('`prop` is invalid (value: [ { a...} ]).');
     });
 
     it('should print only top-level object properties', function() {
-      var err = givenValidationError('prop', {a: {b: 'c'}}, 'is invalid');
+      const err = givenValidationError('prop', {a: {b: 'c'}}, 'is invalid');
       getErrorDetails(err)
         .should.equal('`prop` is invalid (value: { a: [Object] }).');
     });
 
     it('should print only top-level props of objects in array', function() {
-      var err = givenValidationError('prop', [{a: {b: 'c'}}], 'is invalid');
+      const err = givenValidationError('prop', [{a: {b: 'c'}}], 'is invalid');
       getErrorDetails(err)
         .should.equal('`prop` is invalid (value: [ { a: [Object] } ]).');
     });
 
     it('should exclude colors from Model values', function() {
-      var obj = new User();
+      const obj = new User();
       obj.email = 'test@example.com';
-      var err = givenValidationError('user', obj, 'is invalid');
+      const err = givenValidationError('user', obj, 'is invalid');
       getErrorDetails(err).should.equal(
         '`user` is invalid (value: { email: \'test@example.com\' }).'
       );
     });
 
     function givenValidationError(propertyName, propertyValue, errorMessage) {
-      var jsonVal = {};
+      const jsonVal = {};
       jsonVal[propertyName] = propertyValue;
-      var errorVal = {};
+      const errorVal = {};
       errorVal[propertyName] = [errorMessage];
 
-      var obj = {
+      const obj = {
         errors: errorVal,
         toJSON: function() { return jsonVal; },
       };
@@ -1448,31 +1449,31 @@ describe('validations', function() {
   describe('date', function() {
     it('should validate a date object', function() {
       User.validatesDateOf('updatedAt');
-      var u = new User({updatedAt: new Date()});
+      const u = new User({updatedAt: new Date()});
       u.isValid().should.be.true();
     });
 
     it('should validate a date string', function() {
       User.validatesDateOf('updatedAt');
-      var u = new User({updatedAt: '2000-01-01'});
+      const u = new User({updatedAt: '2000-01-01'});
       u.isValid().should.be.true();
     });
 
     it('should validate a null date', function() {
       User.validatesDateOf('updatedAt');
-      var u = new User({updatedAt: null});
+      const u = new User({updatedAt: null});
       u.isValid().should.be.true();
     });
 
     it('should validate an undefined date', function() {
       User.validatesDateOf('updatedAt');
-      var u = new User({updatedAt: undefined});
+      const u = new User({updatedAt: undefined});
       u.isValid().should.be.true();
     });
 
     it('should validate an invalid date string', function() {
       User.validatesDateOf('updatedAt');
-      var u = new User({updatedAt: 'invalid date string'});
+      const u = new User({updatedAt: 'invalid date string'});
       u.isValid().should.not.be.true();
       u.errors.should.containEql({
         updatedAt: ['is not a valid date'],
@@ -1483,7 +1484,7 @@ describe('validations', function() {
     });
 
     it('should attach validation by default to all date properties', function() {
-      var AnotherUser = db.define('User', {
+      const AnotherUser = db.define('User', {
         email: String,
         name: String,
         password: String,
@@ -1496,7 +1497,7 @@ describe('validations', function() {
         createdByScript: Boolean,
         updatedAt: Date,
       });
-      var u = new AnotherUser({updatedAt: 'invalid date string'});
+      const u = new AnotherUser({updatedAt: 'invalid date string'});
       u.isValid().should.not.be.true();
       u.errors.should.containEql({
         updatedAt: ['is not a valid date'],
@@ -1507,9 +1508,9 @@ describe('validations', function() {
     });
 
     it('should overwrite default blank message with custom format message', function() {
-      var CUSTOM_MESSAGE = 'custom validation message';
+      const CUSTOM_MESSAGE = 'custom validation message';
       User.validatesDateOf('updatedAt', {message: CUSTOM_MESSAGE});
-      var u = new User({updatedAt: 'invalid date string'});
+      const u = new User({updatedAt: 'invalid date string'});
       u.isValid().should.not.be.true();
       u.errors.should.containEql({
         updatedAt: [CUSTOM_MESSAGE],
@@ -1521,7 +1522,7 @@ describe('validations', function() {
   });
 });
 
-var empData = [{
+const empData = [{
   id: 1,
   name: 'Foo',
   age: 1,

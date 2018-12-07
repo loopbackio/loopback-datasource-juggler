@@ -4,12 +4,12 @@
 // License text available at https://opensource.org/licenses/MIT
 'use strict';
 
-var should = require('./init.js');
+const should = require('./init.js');
 
-var jdb = require('../');
-var DataSource = jdb.DataSource;
+const jdb = require('../');
+const DataSource = jdb.DataSource;
 
-var ds, Item, Variant;
+let ds, Item, Variant;
 describe('Datasource-specific field types for foreign keys', function() {
   before(function() {
     ds = new DataSource('memory');
@@ -35,7 +35,7 @@ describe('Datasource-specific field types for foreign keys', function() {
   });
 
   it('should create foreign key with database-specific field type', function(done) {
-    var VariantDefinition = ds.getModelDefinition('Variant');
+    const VariantDefinition = ds.getModelDefinition('Variant');
     should.exist(VariantDefinition);
     should.exist(VariantDefinition.properties.myProp.memory);
     should.exist(VariantDefinition.properties.myProp.memory.dataType);

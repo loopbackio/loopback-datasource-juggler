@@ -60,7 +60,7 @@ describe('allowExtendedOperators', () => {
 
     all(model, filter, options, callback) {
       // return the raw "value" query
-      let instanceFound = {
+      const instanceFound = {
         value: filter.where.value,
       };
       callback(null, [instanceFound]);

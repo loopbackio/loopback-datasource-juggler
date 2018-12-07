@@ -4,15 +4,15 @@
 // License text available at https://opensource.org/licenses/MIT
 
 'use strict';
-var jdb = require('../');
-var DataSource = jdb.DataSource;
-var assert = require('assert');
-var async = require('async');
-var should = require('./init.js');
+const jdb = require('../');
+const DataSource = jdb.DataSource;
+const assert = require('assert');
+const async = require('async');
+const should = require('./init.js');
 
-var db, TransientModel, Person, Widget, Item;
+let db, TransientModel, Person, Widget, Item;
 
-var getTransientDataSource = function(settings) {
+const getTransientDataSource = function(settings) {
   return new DataSource('transient', settings);
 };
 

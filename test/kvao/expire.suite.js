@@ -1,18 +1,18 @@
 'use strict';
 
-var bdd = require('../helpers/bdd-if');
-var should = require('should');
-var helpers = require('./_helpers');
+const bdd = require('../helpers/bdd-if');
+const should = require('should');
+const helpers = require('./_helpers');
 
 module.exports = function(dataSourceFactory, connectorCapabilities) {
   // While we support millisecond precision, for the purpose of tests
   // it's better to use intervals at least 10ms long.
-  var ttlPrecision = connectorCapabilities.ttlPrecision || 10;
+  const ttlPrecision = connectorCapabilities.ttlPrecision || 10;
 
-  var canExpire = connectorCapabilities.canExpire !== false;
+  const canExpire = connectorCapabilities.canExpire !== false;
 
   bdd.describeIf(canExpire, 'expire', function() {
-    var CacheItem;
+    let CacheItem;
     beforeEach(setupCacheItem);
 
     it('sets key ttl - Callback API', function(done) {

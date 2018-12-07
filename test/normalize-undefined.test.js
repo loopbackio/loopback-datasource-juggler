@@ -4,23 +4,23 @@
 // License text available at https://opensource.org/licenses/MIT
 
 'use strict';
-var jdb = require('../');
-var DataSource = jdb.DataSource;
-var path = require('path');
-var fs = require('fs');
-var assert = require('assert');
-var async = require('async');
-var should = require('./init.js');
-var Memory = require('../lib/connectors/memory').Memory;
+const jdb = require('../');
+const DataSource = jdb.DataSource;
+const path = require('path');
+const fs = require('fs');
+const assert = require('assert');
+const async = require('async');
+const should = require('./init.js');
+const Memory = require('../lib/connectors/memory').Memory;
 
 describe('normalizeUndefinedInQuery', function() {
   describe('with setting "throw"', function() {
-    var ds = new DataSource({
+    const ds = new DataSource({
       connector: 'memory',
       normalizeUndefinedInQuery: 'throw',
     });
 
-    var User = ds.define('User', {
+    const User = ds.define('User', {
       seq: {type: Number, index: true},
       name: {type: String, index: true, sort: true},
       email: {type: String, index: true},
@@ -87,11 +87,11 @@ describe('normalizeUndefinedInQuery', function() {
   });
 
   describe('with setting "nullify"', function() {
-    var ds = new DataSource({
+    const ds = new DataSource({
       connector: 'memory',
     });
 
-    var User = ds.define('User', {
+    const User = ds.define('User', {
       seq: {type: Number, index: true},
       name: {type: String, index: true, sort: true},
       email: {type: String, index: true},
@@ -165,11 +165,11 @@ describe('normalizeUndefinedInQuery', function() {
   });
 
   describe('with setting "ignore"', function() {
-    var ds = new DataSource({
+    const ds = new DataSource({
       connector: 'memory',
     });
 
-    var User = ds.define('User', {
+    const User = ds.define('User', {
       seq: {type: Number, index: true},
       name: {type: String, index: true, sort: true},
       email: {type: String, index: true},
@@ -244,7 +244,7 @@ describe('normalizeUndefinedInQuery', function() {
 });
 
 function seed(User, done) {
-  var beatles = [
+  const beatles = [
     {
       seq: 0,
       name: 'John Lennon',

@@ -5,16 +5,16 @@
 
 'use strict';
 
-var DataSource = require('../../loopback-datasource-juggler').DataSource;
-var ModelBuilder = require('../../loopback-datasource-juggler').ModelBuilder;
-var introspectType = require('../lib/introspection')(ModelBuilder);
+const DataSource = require('../../loopback-datasource-juggler').DataSource;
+const ModelBuilder = require('../../loopback-datasource-juggler').ModelBuilder;
+const introspectType = require('../lib/introspection')(ModelBuilder);
 
-var ds = new DataSource('memory');
+const ds = new DataSource('memory');
 
 // Create a open model that doesn't require a schema
-var Application = ds.createModel('Schemaless', {}, {strict: false});
+const Application = ds.createModel('Schemaless', {}, {strict: false});
 
-var application = {
+const application = {
   owner: 'rfeng',
   name: 'MyApp1',
   description: 'My first app',
@@ -47,7 +47,7 @@ Application.create(application, function(err, app1) {
 });
 
 // Instance JSON document
-var user = {
+const user = {
   name: 'Joe',
   age: 30,
   birthday: new Date(),
@@ -68,13 +68,13 @@ var user = {
 };
 
 // Introspect the JSON document to generate a schema
-var schema = introspectType(user);
+const schema = introspectType(user);
 
 // Create a model for the generated schema
-var User = ds.createModel('User', schema, {idInjection: true});
+const User = ds.createModel('User', schema, {idInjection: true});
 
 // Use the model for CRUD
-var obj = new User(user);
+const obj = new User(user);
 
 console.log(obj.toObject());
 

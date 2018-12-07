@@ -7,15 +7,15 @@
 'use strict';
 
 /* global getSchema:false, connectorCapabilities:false */
-var async = require('async');
-var bdd = require('./helpers/bdd-if');
-var should = require('./init.js');
-var uid = require('./helpers/uid-generator');
+const async = require('async');
+const bdd = require('./helpers/bdd-if');
+const should = require('./init.js');
+const uid = require('./helpers/uid-generator');
 
-var db, Person;
-var ValidationError = require('..').ValidationError;
+let db, Person;
+const ValidationError = require('..').ValidationError;
 
-var UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 describe('manipulation', function() {
   before(function(done) {
@@ -36,19 +36,19 @@ describe('manipulation', function() {
   // A simplified implementation of LoopBack's User model
   // to reproduce problems related to properties with dynamic setters
   // For the purpose of the tests, we use a counter instead of a hash fn.
-  var StubUser;
-  var stubPasswordCounter;
+  let StubUser;
+  let stubPasswordCounter;
 
   before(function setupStubUserModel(done) {
     StubUser = db.createModel('StubUser', {password: String}, {forceId: true});
     StubUser.setter.password = function(plain) {
       if (plain.length === 0) throw new Error('password cannot be empty');
-      var hashed = false;
+      let hashed = false;
       if (!plain) return;
-      var pos = plain.indexOf('-');
+      const pos = plain.indexOf('-');
       if (pos !== -1) {
-        var head = plain.substr(0, pos);
-        var tail = plain.substr(pos + 1, plain.length);
+        const head = plain.substr(0, pos);
+        const tail = plain.substr(pos + 1, plain.length);
         hashed = head.toUpperCase() === tail;
       }
       if (hashed) return;
@@ -67,7 +67,7 @@ describe('manipulation', function() {
     });
 
     describe('forceId', function() {
-      var TestForceId;
+      let TestForceId;
       before(function(done) {
         TestForceId = db.define('TestForceId');
         db.automigrate('TestForceId', done);
@@ -112,7 +112,7 @@ describe('manipulation', function() {
     });
 
     it('should instantiate an object', function(done) {
-      var p = new Person({name: 'Anatoliy'});
+      const p = new Person({name: 'Anatoliy'});
       p.name.should.equal('Anatoliy');
       p.isNewRecord().should.be.true;
       p.save(function(err, inst) {
@@ -124,7 +124,7 @@ describe('manipulation', function() {
     });
 
     it('should instantiate an object (promise variant)', function(done) {
-      var p = new Person({name: 'Anatoliy'});
+      const p = new Person({name: 'Anatoliy'});
       p.name.should.equal('Anatoliy');
       p.isNewRecord().should.be.true;
       p.save()
@@ -137,7 +137,7 @@ describe('manipulation', function() {
     });
 
     it('should not return instance of object', function(done) {
-      var person = Person.create(function(err, p) {
+      const person = Person.create(function(err, p) {
         if (err) return done(err);
         should.exist(p.id);
         if (person) person.should.not.be.an.instanceOf(Person);
@@ -170,7 +170,7 @@ describe('manipulation', function() {
     });
 
     it('should not allow user-defined value for the id of object - save', function(done) {
-      var p = new Person({id: 123456});
+      const p = new Person({id: 123456});
       p.isNewRecord().should.be.true;
       p.save(function(err, inst) {
         err.should.be.instanceof(ValidationError);
@@ -182,7 +182,7 @@ describe('manipulation', function() {
     });
 
     it('should not allow user-defined value for the id of object - save (promise variant)', function(done) {
-      var p = new Person({id: 123456});
+      const p = new Person({id: 123456});
       p.isNewRecord().should.be.true;
       p.save()
         .then(function(inst) {
@@ -249,12 +249,12 @@ describe('manipulation', function() {
     });
 
     it('should create batch of objects', function(done) {
-      var batch = [
+      const batch = [
         {name: 'Shaltay'},
         {name: 'Boltay'},
         {},
       ];
-      var res = Person.create(batch, function(e, ps) {
+      const res = Person.create(batch, function(e, ps) {
         if (res) res.should.not.be.instanceOf(Array);
         should.not.exist(e);
         should.exist(ps);
@@ -279,7 +279,7 @@ describe('manipulation', function() {
     });
 
     it('should create batch of objects (promise variant)', function(done) {
-      var batch = [
+      const batch = [
         {name: 'ShaltayPromise'},
         {name: 'BoltayPromise'},
         {},
@@ -314,7 +314,7 @@ describe('manipulation', function() {
           return next();
         }
       };
-      var batch = [
+      const batch = [
         {name: 'A'},
         {name: 'B'},
         undefined,
@@ -342,7 +342,7 @@ describe('manipulation', function() {
 
           Person.findById(created.id, function(err, found) {
             if (err) return done(err);
-            var result = found.toObject();
+            const result = found.toObject();
             result.should.containEql({
               id: created.id,
               name: 'a-name',
@@ -359,7 +359,7 @@ describe('manipulation', function() {
     'object with duplicate id', function(done) {
       // NOTE(bajtos) We cannot reuse Person model here,
       // `settings.forceId` aborts the CREATE request at the validation step.
-      var Product = db.define('ProductTest', {name: String}, {forceId: false});
+      const Product = db.define('ProductTest', {name: String}, {forceId: false});
       db.automigrate('ProductTest', function(err) {
         if (err) return done(err);
 
@@ -379,7 +379,7 @@ describe('manipulation', function() {
 
   describe('save', function() {
     it('should save new object', function(done) {
-      var p = new Person;
+      const p = new Person;
       should.not.exist(p.id);
       p.save(function(err) {
         if (err) return done(err);
@@ -389,7 +389,7 @@ describe('manipulation', function() {
     });
 
     it('should save new object (promise variant)', function(done) {
-      var p = new Person;
+      const p = new Person;
       should.not.exist(p.id);
       p.save()
         .then(function() {
@@ -515,7 +515,7 @@ describe('manipulation', function() {
   });
 
   describe('updateAttributes', function() {
-    var person;
+    let person;
 
     before(function(done) {
       Person.destroyAll(function(err) {
@@ -727,7 +727,7 @@ describe('manipulation', function() {
 
     it('should allow same stringified id value on updateAttributes',
       function(done) {
-        var pid = person.id;
+        let pid = person.id;
         if (typeof person.id === 'object' || typeof person.id === 'number') {
           // For example MongoDB ObjectId
           pid = person.id.toString();
@@ -785,7 +785,7 @@ describe('manipulation', function() {
     });
 
     it('should raises on connector error', function(done) {
-      var fakeConnector = {
+      const fakeConnector = {
         updateAttributes: function(model, id, data, options, cb) {
           cb(new Error('Database Error'));
         },
@@ -799,7 +799,7 @@ describe('manipulation', function() {
   });
 
   describe('updateOrCreate', function() {
-    var Post, Todo;
+    let Post, Todo;
 
     before('prepare "Post" and "Todo" models', function(done) {
       Post = db.define('Post', {
@@ -896,7 +896,7 @@ describe('manipulation', function() {
     it('should preserve properties with dynamic setters on update', function(done) {
       StubUser.create({password: 'foo'}, function(err, created) {
         if (err) return done(err);
-        var data = {id: created.id, password: 'bar'};
+        const data = {id: created.id, password: 'bar'};
         StubUser.updateOrCreate(data, function(err, updated) {
           if (err) return done(err);
           updated.password.should.equal('bar-BAR');
@@ -914,7 +914,7 @@ describe('manipulation', function() {
         {name: 'a-name', gender: undefined},
         function(err, instance) {
           if (err) return done(err);
-          var result = instance.toObject();
+          const result = instance.toObject();
           result.id.should.eql(instance.id);
           should.equal(result.name, 'a-name');
           should.equal(result.gender, undefined);
@@ -923,7 +923,7 @@ describe('manipulation', function() {
             {id: instance.id, name: 'updated name'},
             function(err, updated) {
               if (err) return done(err);
-              var result = updated.toObject();
+              const result = updated.toObject();
               result.id.should.eql(instance.id);
               should.equal(result.name, 'updated name');
               should.equal(result.gender, null);
@@ -938,7 +938,7 @@ describe('manipulation', function() {
     it('updates specific instances when PK is not an auto-generated id', function(done) {
       // skip the test if the connector is mssql
       // https://github.com/strongloop/loopback-connector-mssql/pull/92#r72853474
-      var dsName = Post.dataSource.name;
+      const dsName = Post.dataSource.name;
       if (dsName === 'mssql') return done();
 
       Post.create([
@@ -952,7 +952,7 @@ describe('manipulation', function() {
         }, function(err, instance) {
           if (err) return done(err);
 
-          var result = instance.toObject();
+          const result = instance.toObject();
           result.should.have.properties({
             title: 'postA',
             content: 'newContent',
@@ -972,7 +972,7 @@ describe('manipulation', function() {
     });
 
     it('should allow save() of the created instance', function(done) {
-      var unknownId = uid.fromConnector(db) || 999;
+      const unknownId = uid.fromConnector(db) || 999;
       Person.updateOrCreate(
         {id: unknownId, name: 'a-name'},
         function(err, inst) {
@@ -985,9 +985,9 @@ describe('manipulation', function() {
 
   bdd.describeIf(connectorCapabilities.supportForceId !== false,
     'updateOrCreate when forceId is true', function() {
-      var Post;
+      let Post;
       before(function definePostModel(done) {
-        var ds = getSchema();
+        const ds = getSchema();
         Post = ds.define('Post', {
           title: {type: String, length: 255},
           content: {type: String},
@@ -996,8 +996,8 @@ describe('manipulation', function() {
       });
 
       it('fails when id does not exist in db & validate is true', function(done) {
-        var unknownId = uid.fromConnector(db) || 123;
-        var post = {id: unknownId, title: 'a', content: 'AAA'};
+        const unknownId = uid.fromConnector(db) || 123;
+        const post = {id: unknownId, title: 'a', content: 'AAA'};
         Post.updateOrCreate(post, {validate: true}, (err) => {
           should(err).have.property('statusCode', 404);
           done();
@@ -1005,8 +1005,8 @@ describe('manipulation', function() {
       });
 
       it('fails when id does not exist in db & validate is false', function(done) {
-        var unknownId = uid.fromConnector(db) || 123;
-        var post = {id: unknownId, title: 'a', content: 'AAA'};
+        const unknownId = uid.fromConnector(db) || 123;
+        const post = {id: unknownId, title: 'a', content: 'AAA'};
         Post.updateOrCreate(post, {validate: false}, (err) => {
           should(err).have.property('statusCode', 404);
           done();
@@ -1015,8 +1015,8 @@ describe('manipulation', function() {
 
       it('fails when id does not exist in db & validate is false when using updateAttributes',
         function(done) {
-          var unknownId = uid.fromConnector(db) || 123;
-          var post = new Post({id: unknownId});
+          const unknownId = uid.fromConnector(db) || 123;
+          const post = new Post({id: unknownId});
           post.updateAttributes({title: 'updated title', content: 'AAA'}, {validate: false}, (err) => {
             should(err).have.property('statusCode', 404);
             done();
@@ -1024,7 +1024,7 @@ describe('manipulation', function() {
         });
 
       it('works on create if the request does not include an id', function(done) {
-        var post = {title: 'a', content: 'AAA'};
+        const post = {title: 'a', content: 'AAA'};
         Post.updateOrCreate(post, (err, p) => {
           if (err) return done(err);
           p.title.should.equal(post.title);
@@ -1049,14 +1049,14 @@ describe('manipulation', function() {
       });
     });
 
-  var hasReplaceById = connectorCapabilities.cloudantCompatible !== false &&
+  const hasReplaceById = connectorCapabilities.cloudantCompatible !== false &&
     !!getSchema().connector.replaceById;
 
   if (!hasReplaceById) {
     describe.skip('replaceById - not implemented', function() {});
   } else {
     describe('replaceOrCreate', function() {
-      var Post, unknownId;
+      let Post, unknownId;
       before(function(done) {
         db = getSchema();
         unknownId = uid.fromConnector(db) || 123;
@@ -1069,7 +1069,7 @@ describe('manipulation', function() {
       });
 
       it('works without options on create (promise variant)', function(done) {
-        var post = {id: unknownId, title: 'a', content: 'AAA'};
+        const post = {id: unknownId, title: 'a', content: 'AAA'};
         Post.replaceOrCreate(post)
           .then(function(p) {
             should.exist(p);
@@ -1091,7 +1091,7 @@ describe('manipulation', function() {
       });
 
       it('works with options on create (promise variant)', function(done) {
-        var post = {id: unknownId, title: 'a', content: 'AAA'};
+        const post = {id: unknownId, title: 'a', content: 'AAA'};
         Post.replaceOrCreate(post, {validate: false})
           .then(function(p) {
             should.exist(p);
@@ -1113,7 +1113,7 @@ describe('manipulation', function() {
       });
 
       it('works without options on update (promise variant)', function(done) {
-        var post = {title: 'a', content: 'AAA', comments: ['Comment1']};
+        const post = {title: 'a', content: 'AAA', comments: ['Comment1']};
         Post.create(post)
           .then(function(created) {
             created = created.toObject();
@@ -1144,7 +1144,7 @@ describe('manipulation', function() {
       });
 
       it('works with options on update (promise variant)', function(done) {
-        var post = {title: 'a', content: 'AAA', comments: ['Comment1']};
+        const post = {title: 'a', content: 'AAA', comments: ['Comment1']};
         Post.create(post)
           .then(function(created) {
             created = created.toObject();
@@ -1234,7 +1234,7 @@ describe('manipulation', function() {
       });
 
       it('works without options on create (callback variant)', function(done) {
-        var post = {id: unknownId, title: 'a', content: 'AAA'};
+        const post = {id: unknownId, title: 'a', content: 'AAA'};
         Post.replaceOrCreate(post, function(err, p) {
           if (err) return done(err);
           p.id.should.eql(post.id);
@@ -1254,7 +1254,7 @@ describe('manipulation', function() {
       });
 
       it('works with options on create (callback variant)', function(done) {
-        var post = {id: unknownId, title: 'a', content: 'AAA'};
+        const post = {id: unknownId, title: 'a', content: 'AAA'};
         Post.replaceOrCreate(post, {validate: false}, function(err, p) {
           if (err) return done(err);
           p.id.should.eql(post.id);
@@ -1277,7 +1277,7 @@ describe('manipulation', function() {
 
   bdd.describeIf(hasReplaceById && connectorCapabilities.supportForceId !== false, 'replaceOrCreate ' +
   'when forceId is true', function() {
-    var Post, unknownId;
+    let Post, unknownId;
     before(function(done) {
       db = getSchema();
       unknownId = uid.fromConnector(db) || 123;
@@ -1289,7 +1289,7 @@ describe('manipulation', function() {
     });
 
     it('fails when id does not exist in db', function(done) {
-      var post = {id: unknownId, title: 'a', content: 'AAA'};
+      const post = {id: unknownId, title: 'a', content: 'AAA'};
 
       Post.replaceOrCreate(post, function(err, p) {
         err.statusCode.should.equal(404);
@@ -1299,7 +1299,7 @@ describe('manipulation', function() {
 
     // eslint-disable-next-line mocha/no-identical-title
     it('works on create if the request does not include an id', function(done) {
-      var post = {title: 'a', content: 'AAA'};
+      const post = {title: 'a', content: 'AAA'};
       Post.replaceOrCreate(post, function(err, p) {
         if (err) return done(err);
         p.title.should.equal(post.title);
@@ -1329,9 +1329,9 @@ describe('manipulation', function() {
     describe.skip('replaceAttributes/replaceById - not implemented', function() {});
   } else {
     describe('replaceAttributes', function() {
-      var postInstance;
-      var Post;
-      var ds = getSchema();
+      let postInstance;
+      let Post;
+      const ds = getSchema();
       before(function(done) {
         Post = ds.define('Post', {
           title: {type: String, length: 255, index: true},
@@ -1486,12 +1486,12 @@ describe('manipulation', function() {
       });
 
       it('should fail when changing id', function(done) {
-        var unknownId = uid.fromConnector(db) || 999;
+        const unknownId = uid.fromConnector(db) || 999;
         Post.findById(postInstance.id, function(err, p) {
           if (err) return done(err);
           p.replaceAttributes({title: 'b', id: unknownId}, function(err, p) {
             should.exist(err);
-            var expectedErrMsg = 'id property (id) cannot be updated from ' +
+            const expectedErrMsg = 'id property (id) cannot be updated from ' +
               postInstance.id + ' to ' + unknownId;
             err.message.should.equal(expectedErrMsg);
             done();
@@ -1533,7 +1533,7 @@ describe('manipulation', function() {
   }
 
   bdd.describeIf(hasReplaceById, 'replaceById', function() {
-    var Post;
+    let Post;
     before(function(done) {
       db = getSchema();
       Post = db.define('Post', {
@@ -1545,8 +1545,8 @@ describe('manipulation', function() {
 
     bdd.itIf(connectorCapabilities.supportForceId !== false, 'fails when id does not exist in db ' +
     'using replaceById', function(done) {
-      var unknownId = uid.fromConnector(db) || 123;
-      var post = {id: unknownId, title: 'a', content: 'AAA'};
+      const unknownId = uid.fromConnector(db) || 123;
+      const post = {id: unknownId, title: 'a', content: 'AAA'};
       Post.replaceById(post.id, post, function(err, p) {
         err.statusCode.should.equal(404);
         done();
@@ -1590,8 +1590,8 @@ describe('manipulation', function() {
           should.exist(res);
           res.should.be.instanceOf(Array);
           res.should.have.lengthOf(2);
-          var p = res[0];
-          var created = res[1];
+          const p = res[0];
+          const created = res[1];
           p.should.be.instanceOf(Person);
           p.name.should.equal('Jed');
           p.gender.should.equal('male');
@@ -1609,8 +1609,8 @@ describe('manipulation', function() {
         .then(function(res) {
           res.should.be.instanceOf(Array);
           res.should.have.lengthOf(2);
-          var p = res[0];
-          var created = res[1];
+          const p = res[0];
+          const created = res[1];
           p.should.be.instanceOf(Person);
           p.name.should.equal('Jed');
           p.gender.should.equal('male');
@@ -1757,7 +1757,7 @@ describe('manipulation', function() {
 
   bdd.describeIf(connectorCapabilities.reportDeletedCount === false &&
   connectorCapabilities.deleteWithOtherThanId === false, 'deleteAll/destroyAll case 2', function() {
-    var idJohn, idJane;
+    let idJohn, idJane;
     beforeEach(function clearOldData(done) {
       Person.deleteAll(done);
     });
@@ -1807,7 +1807,7 @@ describe('manipulation', function() {
     // eslint-disable-next-line mocha/no-identical-title
     it('should report zero deleted instances when no matches are found',
       function(done) {
-        var unknownId = uid.fromConnector(db) || 1234567890;
+        const unknownId = uid.fromConnector(db) || 1234567890;
         Person.deleteAll({id: unknownId}, function(err, info) {
           if (err) return done(err);
           should.not.exist(info.count);
@@ -1855,7 +1855,7 @@ describe('manipulation', function() {
     });
 
     it('should allow deleteById(id) - fail', function(done) {
-      var unknownId = uid.fromConnector(db) || 9999;
+      const unknownId = uid.fromConnector(db) || 9999;
       Person.settings.strictDelete = false;
       Person.deleteById(unknownId, function(err, info) {
         if (err) return done(err);
@@ -1869,8 +1869,8 @@ describe('manipulation', function() {
     });
 
     it('should allow deleteById(id) - fail with error', function(done) {
-      var unknownId = uid.fromConnector(db) || 9999;
-      var errMsg = 'No instance with id ' + unknownId.toString() + ' found for Person';
+      const unknownId = uid.fromConnector(db) || 9999;
+      const errMsg = 'No instance with id ' + unknownId.toString() + ' found for Person';
       Person.settings.strictDelete = true;
       Person.deleteById(unknownId, function(err) {
         should.exist(err);
@@ -1949,7 +1949,7 @@ describe('manipulation', function() {
 
   describe('initialize', function() {
     it('should initialize object properly', function() {
-      var hw = 'Hello word',
+      const hw = 'Hello word',
         now = Date.now(),
         person = new Person({name: hw});
 
@@ -1960,7 +1960,7 @@ describe('manipulation', function() {
     });
 
     describe('Date $now function (type: Date)', function() {
-      var CustomModel;
+      let CustomModel;
 
       before(function(done) {
         CustomModel = db.define('CustomModel1', {
@@ -1971,7 +1971,7 @@ describe('manipulation', function() {
 
       it('should report current date as default value for date property',
         function(done) {
-          var now = Date.now();
+          const now = Date.now();
 
           CustomModel.create(function(err, model) {
             should.not.exists(err);
@@ -1984,7 +1984,7 @@ describe('manipulation', function() {
     });
 
     describe('Date $now function (type: String)', function() {
-      var CustomModel;
+      let CustomModel;
 
       before(function(done) {
         CustomModel = db.define('CustomModel2', {
@@ -2006,7 +2006,7 @@ describe('manipulation', function() {
     });
 
     describe('now defaultFn', function() {
-      var CustomModel;
+      let CustomModel;
 
       before(function(done) {
         CustomModel = db.define('CustomModel3', {
@@ -2017,7 +2017,7 @@ describe('manipulation', function() {
 
       it('should generate current time when "defaultFn" is "now"',
         function(done) {
-          var now = Date.now();
+          const now = Date.now();
           CustomModel.create(function(err, model) {
             if (err) return done(err);
             model.now.should.be.instanceOf(Date);
@@ -2028,7 +2028,7 @@ describe('manipulation', function() {
     });
 
     describe('guid defaultFn', function() {
-      var CustomModel;
+      let CustomModel;
 
       before(function(done) {
         CustomModel = db.define('CustomModel4', {
@@ -2047,7 +2047,7 @@ describe('manipulation', function() {
     });
 
     describe('uuid defaultFn', function() {
-      var CustomModel;
+      let CustomModel;
 
       before(function(done) {
         CustomModel = db.define('CustomModel5', {
@@ -2066,7 +2066,7 @@ describe('manipulation', function() {
     });
 
     describe('uuidv4 defaultFn', function() {
-      var CustomModel;
+      let CustomModel;
 
       before(function(done) {
         CustomModel = db.define('CustomModel5', {
@@ -2085,11 +2085,11 @@ describe('manipulation', function() {
     });
 
     describe('shortid defaultFn', function() {
-      var ModelWithShortId;
+      let ModelWithShortId;
       before(createModelWithShortId);
 
       it('should generate a new id when "defaultFn" is "shortid"', function(done) {
-        var SHORTID_REGEXP = /^[0-9a-z_\-]{7,14}$/i;
+        const SHORTID_REGEXP = /^[0-9a-z_\-]{7,14}$/i;
         ModelWithShortId.create(function(err, modelWithShortId) {
           if (err) return done(err);
           modelWithShortId.shortid.should.match(SHORTID_REGEXP);
@@ -2114,7 +2114,7 @@ describe('manipulation', function() {
 
   describe('property value coercion', function() {
     it('should coerce boolean types properly', function() {
-      var p1 = new Person({name: 'John', married: 'false'});
+      let p1 = new Person({name: 'John', married: 'false'});
       p1.married.should.equal(false);
 
       p1 = new Person({name: 'John', married: 'true'});
@@ -2155,7 +2155,7 @@ describe('manipulation', function() {
     });
 
     it('should coerce date types properly', function() {
-      var p1 = new Person({name: 'John', dob: '2/1/2015'});
+      let p1 = new Person({name: 'John', dob: '2/1/2015'});
       p1.dob.should.eql(new Date('2/1/2015'));
 
       p1 = new Person({name: 'John', dob: '2/1/2015'});
@@ -2180,8 +2180,8 @@ describe('manipulation', function() {
   });
 
   describe('update/updateAll', function() {
-    var idBrett, idCarla, idDonna, idFrank, idGrace, idHarry;
-    var filterBrett, filterHarry;
+    let idBrett, idCarla, idDonna, idFrank, idGrace, idHarry;
+    let filterBrett, filterHarry;
 
     beforeEach(function clearOldData(done) {
       db = getSchema();
@@ -2230,7 +2230,7 @@ describe('manipulation', function() {
     it('should not update instances that do not satisfy the where condition',
       function(done) {
         idHarry = uid.fromConnector(db) || undefined;
-        var filter = connectorCapabilities.updateWithOtherThanId === false ?
+        const filter = connectorCapabilities.updateWithOtherThanId === false ?
           {id: idHarry} : {name: 'Harry Hoe'};
         Person.update(filter, {name: 'Marta Moe'}, function(err,
           info) {
@@ -2250,7 +2250,7 @@ describe('manipulation', function() {
 
     it('should only update instances that satisfy the where condition',
       function(done) {
-        var filter = connectorCapabilities.deleteWithOtherThanId === false ?
+        const filter = connectorCapabilities.deleteWithOtherThanId === false ?
           {id: idBrett} : {name: 'Brett Boe'};
         Person.update(filter, {name: 'Harry Hoe'}, function(err,
           info) {
@@ -2325,7 +2325,7 @@ describe('manipulation', function() {
   });
 
   describe('upsertWithWhere', function() {
-    var ds, Person;
+    let ds, Person;
     before('prepare "Person" model', function(done) {
       ds = getSchema();
       Person = ds.define('Person', {
@@ -2355,7 +2355,7 @@ describe('manipulation', function() {
     it('should preserve properties with dynamic setters on update', function(done) {
       StubUser.create({password: 'foo'}, function(err, created) {
         if (err) return done(err);
-        var data = {password: 'bar'};
+        const data = {password: 'bar'};
         StubUser.upsertWithWhere({id: created.id}, data, function(err, updated) {
           if (err) return done(err);
           updated.password.should.equal('bar-BAR');
@@ -2383,7 +2383,7 @@ describe('manipulation', function() {
             {name: 'updated name'},
             function(err, updated) {
               if (err) return done(err);
-              var result = updated.toObject();
+              const result = updated.toObject();
               result.should.have.properties({
                 id: instance.id,
                 name: 'updated name',
@@ -2406,7 +2406,7 @@ describe('manipulation', function() {
     });
 
     it('works without options on create (promise variant)', function(done) {
-      var person = {id: 123, name: 'a', city: 'city a'};
+      const person = {id: 123, name: 'a', city: 'city a'};
       Person.upsertWithWhere({id: 123}, person)
         .then(function(p) {
           should.exist(p);
@@ -2428,7 +2428,7 @@ describe('manipulation', function() {
     });
 
     it('works with options on create (promise variant)', function(done) {
-      var person = {id: 234, name: 'b', city: 'city b'};
+      const person = {id: 234, name: 'b', city: 'city b'};
       Person.upsertWithWhere({id: 234}, person, {validate: false})
         .then(function(p) {
           should.exist(p);
@@ -2450,7 +2450,7 @@ describe('manipulation', function() {
     });
 
     it('works without options on update (promise variant)', function(done) {
-      var person = {id: 456, name: 'AAA', city: 'city AAA'};
+      const person = {id: 456, name: 'AAA', city: 'city AAA'};
       Person.create(person)
         .then(function(created) {
           created = created.toObject();
@@ -2477,7 +2477,7 @@ describe('manipulation', function() {
     });
 
     it('works with options on update (promise variant)', function(done) {
-      var person = {id: 789, name: 'CCC', city: 'city CCC'};
+      const person = {id: 789, name: 'CCC', city: 'city CCC'};
       Person.create(person)
         .then(function(created) {
           created = created.toObject();
@@ -2504,7 +2504,7 @@ describe('manipulation', function() {
     });
 
     it('fails the upsertWithWhere operation when data object is empty', function(done) {
-      var options = {};
+      const options = {};
       Person.upsertWithWhere({name: 'John Lennon'}, {}, options,
         function(err) {
           err.message.should.equal('data object cannot be empty!');
@@ -2567,7 +2567,7 @@ describe('manipulation', function() {
 });
 
 function givenSomePeople(done) {
-  var beatles = [
+  const beatles = [
     {name: 'John Lennon', gender: 'male'},
     {name: 'Paul McCartney', gender: 'male'},
     {name: 'George Harrison', gender: 'male'},

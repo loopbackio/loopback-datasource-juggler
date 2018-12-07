@@ -5,26 +5,26 @@
 
 // This test written in mocha+should.js
 'use strict';
-var should = require('./init.js');
-var assert = require('assert');
+const should = require('./init.js');
+const assert = require('assert');
 
-var jdb = require('../');
-var ModelBuilder = jdb.ModelBuilder;
-var DataSource = jdb.DataSource;
-var Memory = require('../lib/connectors/memory');
+const jdb = require('../');
+const ModelBuilder = jdb.ModelBuilder;
+const DataSource = jdb.DataSource;
+const Memory = require('../lib/connectors/memory');
 
-var ModelDefinition = require('../lib/model-definition');
+const ModelDefinition = require('../lib/model-definition');
 
 describe('ModelDefinition class', function() {
-  var memory;
+  let memory;
   beforeEach(function() {
     memory = new DataSource({connector: Memory});
   });
 
   it('should be able to define plain models', function(done) {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
-    var User = new ModelDefinition(modelBuilder, 'User', {
+    const User = new ModelDefinition(modelBuilder, 'User', {
       name: 'string',
       bio: ModelBuilder.Text,
       approved: Boolean,
@@ -39,7 +39,7 @@ describe('ModelDefinition class', function() {
     assert.equal(User.properties.joinedAt.type, Date);
     assert.equal(User.properties.age.type, Number);
 
-    var json = User.toJSON();
+    const json = User.toJSON();
     assert.equal(json.name, 'User');
     assert.equal(json.properties.name.type, 'String');
     assert.equal(json.properties.bio.type, 'Text');
@@ -53,9 +53,9 @@ describe('ModelDefinition class', function() {
   });
 
   it('should be able to define additional properties', function(done) {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
-    var User = new ModelDefinition(modelBuilder, 'User', {
+    const User = new ModelDefinition(modelBuilder, 'User', {
       name: 'string',
       bio: ModelBuilder.Text,
       approved: Boolean,
@@ -65,7 +65,7 @@ describe('ModelDefinition class', function() {
 
     User.build();
 
-    var json = User.toJSON();
+    let json = User.toJSON();
 
     User.defineProperty('id', {type: 'number', id: true});
     assert.equal(User.properties.name.type, String);
@@ -83,9 +83,9 @@ describe('ModelDefinition class', function() {
   });
 
   it('should be able to define nesting models', function(done) {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
-    var User = new ModelDefinition(modelBuilder, 'User', {
+    const User = new ModelDefinition(modelBuilder, 'User', {
       name: String,
       bio: ModelBuilder.Text,
       approved: Boolean,
@@ -107,7 +107,7 @@ describe('ModelDefinition class', function() {
     assert.equal(User.properties.age.type, Number);
     assert.equal(typeof User.properties.address.type, 'function');
 
-    var json = User.toJSON();
+    const json = User.toJSON();
     assert.equal(json.name, 'User');
     assert.equal(json.properties.name.type, 'String');
     assert.equal(json.properties.bio.type, 'Text');
@@ -124,15 +124,15 @@ describe('ModelDefinition class', function() {
   });
 
   it('should be able to define referencing models', function(done) {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
-    var Address = modelBuilder.define('Address', {
+    const Address = modelBuilder.define('Address', {
       street: String,
       city: String,
       zipCode: String,
       state: String,
     });
-    var User = new ModelDefinition(modelBuilder, 'User', {
+    const User = new ModelDefinition(modelBuilder, 'User', {
       name: String,
       bio: ModelBuilder.Text,
       approved: Boolean,
@@ -150,7 +150,7 @@ describe('ModelDefinition class', function() {
     assert.equal(User.properties.age.type, Number);
     assert.equal(User.properties.address.type, Address);
 
-    var json = User.toJSON();
+    const json = User.toJSON();
     assert.equal(json.name, 'User');
     assert.equal(json.properties.name.type, 'String');
     assert.equal(json.properties.bio.type, 'Text');
@@ -164,15 +164,15 @@ describe('ModelDefinition class', function() {
   });
 
   it('should be able to define referencing models by name', function(done) {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
-    var Address = modelBuilder.define('Address', {
+    const Address = modelBuilder.define('Address', {
       street: String,
       city: String,
       zipCode: String,
       state: String,
     });
-    var User = new ModelDefinition(modelBuilder, 'User', {
+    const User = new ModelDefinition(modelBuilder, 'User', {
       name: String,
       bio: ModelBuilder.Text,
       approved: Boolean,
@@ -190,7 +190,7 @@ describe('ModelDefinition class', function() {
     assert.equal(User.properties.age.type, Number);
     assert.equal(User.properties.address.type, Address);
 
-    var json = User.toJSON();
+    const json = User.toJSON();
     assert.equal(json.name, 'User');
     assert.equal(json.properties.name.type, 'String');
     assert.equal(json.properties.bio.type, 'Text');
@@ -204,9 +204,9 @@ describe('ModelDefinition class', function() {
   });
 
   it('should report correct id names', function(done) {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
-    var User = new ModelDefinition(modelBuilder, 'User', {
+    const User = new ModelDefinition(modelBuilder, 'User', {
       userId: {type: String, id: true},
       name: 'string',
       bio: ModelBuilder.Text,
@@ -221,9 +221,9 @@ describe('ModelDefinition class', function() {
   });
 
   it('should sort id properties by its index', function() {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
-    var User = new ModelDefinition(modelBuilder, 'User', {
+    const User = new ModelDefinition(modelBuilder, 'User', {
       userId: {type: String, id: 2},
       userType: {type: String, id: 1},
       name: 'string',
@@ -233,7 +233,7 @@ describe('ModelDefinition class', function() {
       age: 'number',
     });
 
-    var ids = User.ids();
+    const ids = User.ids();
     assert.ok(Array.isArray(ids));
     assert.equal(ids.length, 2);
     assert.equal(ids[0].id, 1);
@@ -243,9 +243,9 @@ describe('ModelDefinition class', function() {
   });
 
   it('should report correct table/column names', function(done) {
-    var modelBuilder = new ModelBuilder();
+    const modelBuilder = new ModelBuilder();
 
-    var User = new ModelDefinition(modelBuilder, 'User', {
+    const User = new ModelDefinition(modelBuilder, 'User', {
       userId: {type: String, id: true, oracle: {column: 'ID'}},
       name: 'string',
     }, {oracle: {table: 'USER'}});
@@ -259,11 +259,11 @@ describe('ModelDefinition class', function() {
 
   describe('maxDepthOfQuery', function() {
     it('should report errors for deep query than maxDepthOfQuery', function(done) {
-      var MyModel = memory.createModel('my-model', {}, {
+      const MyModel = memory.createModel('my-model', {}, {
         maxDepthOfQuery: 5,
       });
 
-      var filter = givenComplexFilter();
+      const filter = givenComplexFilter();
 
       MyModel.find(filter, function(err) {
         should.exist(err);
@@ -273,11 +273,11 @@ describe('ModelDefinition class', function() {
     });
 
     it('should honor maxDepthOfQuery setting', function(done) {
-      var MyModel = memory.createModel('my-model', {}, {
+      const MyModel = memory.createModel('my-model', {}, {
         maxDepthOfQuery: 20,
       });
 
-      var filter = givenComplexFilter();
+      const filter = givenComplexFilter();
 
       MyModel.find(filter, function(err) {
         should.not.exist(err);
@@ -286,11 +286,11 @@ describe('ModelDefinition class', function() {
     });
 
     it('should honor maxDepthOfQuery in options', function(done) {
-      var MyModel = memory.createModel('my-model', {}, {
+      const MyModel = memory.createModel('my-model', {}, {
         maxDepthOfQuery: 5,
       });
 
-      var filter = givenComplexFilter();
+      const filter = givenComplexFilter();
 
       MyModel.find(filter, {maxDepthOfQuery: 20}, function(err) {
         should.not.exist(err);
@@ -299,28 +299,28 @@ describe('ModelDefinition class', function() {
     });
 
     function givenComplexFilter() {
-      var filter = {where: {and: [{and: [{and: [{and: [{and: [{and:
+      const filter = {where: {and: [{and: [{and: [{and: [{and: [{and:
         [{and: [{and: [{and: [{x: 1}]}]}]}]}]}]}]}]}]}};
       return filter;
     }
   });
 
   it('should serialize protected properties into JSON', function() {
-    var ProtectedModel = memory.createModel('protected', {}, {
+    const ProtectedModel = memory.createModel('protected', {}, {
       protected: ['protectedProperty'],
     });
-    var pm = new ProtectedModel({
+    const pm = new ProtectedModel({
       id: 1, foo: 'bar', protectedProperty: 'protected',
     });
-    var serialized = pm.toJSON();
+    const serialized = pm.toJSON();
     assert.deepEqual(serialized, {
       id: 1, foo: 'bar', protectedProperty: 'protected',
     });
   });
 
   it('should not serialize protected properties of nested models into JSON', function(done) {
-    var Parent = memory.createModel('parent');
-    var Child = memory.createModel('child', {}, {protected: ['protectedProperty']});
+    const Parent = memory.createModel('parent');
+    const Child = memory.createModel('child', {}, {protected: ['protectedProperty']});
     Parent.hasMany(Child);
     Parent.create({
       name: 'parent',
@@ -333,8 +333,8 @@ describe('ModelDefinition class', function() {
         if (err) return done(err);
         Parent.find({include: 'children'}, function(err, parents) {
           if (err) return done(err);
-          var serialized = parents[0].toJSON();
-          var child = serialized.children[0];
+          const serialized = parents[0].toJSON();
+          const child = serialized.children[0];
           assert.equal(child.name, 'child');
           assert.notEqual(child.protectedProperty, 'protectedValue');
           done();
@@ -344,15 +344,15 @@ describe('ModelDefinition class', function() {
   });
 
   it('should not serialize hidden properties into JSON', function() {
-    var HiddenModel = memory.createModel('hidden', {}, {
+    const HiddenModel = memory.createModel('hidden', {}, {
       hidden: ['secret'],
     });
-    var hm = new HiddenModel({
+    const hm = new HiddenModel({
       id: 1,
       foo: 'bar',
       secret: 'secret',
     });
-    var serialized = hm.toJSON();
+    const serialized = hm.toJSON();
     assert.deepEqual(serialized, {
       id: 1,
       foo: 'bar',
@@ -360,8 +360,8 @@ describe('ModelDefinition class', function() {
   });
 
   it('should not serialize hidden properties of nested models into JSON', function(done) {
-    var Parent = memory.createModel('parent');
-    var Child = memory.createModel('child', {}, {hidden: ['secret']});
+    const Parent = memory.createModel('parent');
+    const Child = memory.createModel('child', {}, {hidden: ['secret']});
     Parent.hasMany(Child);
     Parent.create({
       name: 'parent',
@@ -374,8 +374,8 @@ describe('ModelDefinition class', function() {
         if (err) return done(err);
         Parent.find({include: 'children'}, function(err, parents) {
           if (err) return done(err);
-          var serialized = parents[0].toJSON();
-          var child = serialized.children[0];
+          const serialized = parents[0].toJSON();
+          const child = serialized.children[0];
           assert.equal(child.name, 'child');
           assert.notEqual(child.secret, 'secret');
           done();
@@ -385,7 +385,7 @@ describe('ModelDefinition class', function() {
   });
 
   describe('hidden properties', function() {
-    var Child;
+    let Child;
 
     describe('with hidden array', function() {
       beforeEach(function() { givenChildren(); });
@@ -493,7 +493,7 @@ describe('ModelDefinition class', function() {
   };
 
   describe('hidden nested properties', function() {
-    var Child;
+    let Child;
     beforeEach(givenChildren);
 
     it('should be removed if used in where as a composite key - x.secret', function() {
@@ -515,7 +515,7 @@ describe('ModelDefinition class', function() {
     });
 
     function givenChildren() {
-      var hiddenProps = {hidden: ['secret']};
+      const hiddenProps = {hidden: ['secret']};
       Child = memory.createModel('child', {
         name: String,
         x: {
@@ -555,8 +555,8 @@ describe('ModelDefinition class', function() {
   }
 
   describe('protected properties', function() {
-    var Parent;
-    var Child;
+    let Parent;
+    let Child;
     beforeEach(givenParentAndChild);
 
     it('should be removed if used in include scope', function() {
@@ -614,8 +614,8 @@ describe('ModelDefinition class', function() {
   });
 
   describe('hidden properties in include', function() {
-    var Parent;
-    var Child;
+    let Parent;
+    let Child;
     beforeEach(givenParentAndChildWithHiddenProperty);
 
     it('should be rejected if used in scope', function() {
@@ -653,7 +653,7 @@ describe('ModelDefinition class', function() {
   });
 
   it('should report deprecation warning for property named constructor', function() {
-    var message = 'deprecation not reported';
+    let message = 'deprecation not reported';
     process.once('deprecation', function(err) { message = err.message; });
 
     memory.createModel('Ctor', {'constructor': String});
@@ -663,7 +663,7 @@ describe('ModelDefinition class', function() {
 
   it('should throw error for dynamic property names containing dot',
     function(done) {
-      var Model = memory.createModel('DynamicDotted');
+      const Model = memory.createModel('DynamicDotted');
       Model.create({'dot.name': 'dot.value'}, function(err) {
         err.should.be.instanceOf(Error);
         err.message.should.match(/dot\(s\).*DynamicDotted.*dot\.name/);
@@ -672,7 +672,7 @@ describe('ModelDefinition class', function() {
     });
 
   it('should throw error for dynamic property named constructor', function(done) {
-    var Model = memory.createModel('DynamicCtor');
+    const Model = memory.createModel('DynamicCtor');
     Model.create({'constructor': 'myCtor'}, function(err) {
       assert.equal(err.message, 'Property name "constructor" is not allowed in DynamicCtor data');
       done();
@@ -680,18 +680,18 @@ describe('ModelDefinition class', function() {
   });
 
   it('should support "array" type shortcut', function() {
-    var Model = memory.createModel('TwoArrays', {
+    const Model = memory.createModel('TwoArrays', {
       regular: Array,
       sugar: 'array',
     });
 
-    var props = Model.definition.properties;
+    const props = Model.definition.properties;
     props.regular.type.should.equal(props.sugar.type);
   });
 
   context('hasPK', function() {
     context('with primary key defined', function() {
-      var Todo;
+      let Todo;
       before(function prepModel() {
         Todo = new ModelDefinition(new ModelBuilder(), 'Todo', {
           content: 'string',
@@ -709,7 +709,7 @@ describe('ModelDefinition class', function() {
     });
 
     context('without primary key defined', function() {
-      var Todo;
+      let Todo;
       before(function prepModel() {
         Todo = new ModelDefinition(new ModelBuilder(), 'Todo', {
           content: 'string',

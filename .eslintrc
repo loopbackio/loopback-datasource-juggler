@@ -4,6 +4,9 @@
     "ecmaVersion": 2017
   },
   "rules": {
+    // TODO(bajtos) move these two rules to eslint-config-loopback
+    "no-var": "error",
+    "prefer-const": "error",
     "max-len": ["error", 110, 4, {
       "ignoreComments": true,
       "ignoreUrls": true,

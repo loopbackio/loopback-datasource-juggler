@@ -16,12 +16,12 @@ function HookMonitor(opts) {
 }
 
 HookMonitor.prototype.install = function(ObservedModel, hookNames) {
-  var monitor = this;
+  const monitor = this;
   this.names = [];
   ObservedModel._notify = ObservedModel.notifyObserversOf;
   ObservedModel.notifyObserversOf = function(operation, context, callback) {
     if (!Array.isArray(hookNames) || hookNames.indexOf(operation) !== -1) {
-      var item = monitor.options.includeModelName ?
+      const item = monitor.options.includeModelName ?
         ObservedModel.modelName + ':' + operation :
         operation;
       monitor.names.push(item);

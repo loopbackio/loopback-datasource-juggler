@@ -1,13 +1,13 @@
 'use strict';
 
-var should = require('should');
-var helpers = require('./_helpers');
+const should = require('should');
+const helpers = require('./_helpers');
 
 module.exports = function(dataSourceFactory, connectorCapabilities) {
-  var TTL_PRECISION = connectorCapabilities.ttlPrecision;
+  const TTL_PRECISION = connectorCapabilities.ttlPrecision;
 
   describe('get/set', function() {
-    var CacheItem;
+    let CacheItem;
     beforeEach(setupCacheItem);
 
     it('works for string values - Callback API', function(done) {

@@ -10,36 +10,36 @@
 
 require('should');
 
-var GeoPoint = require('../lib/geo').GeoPoint;
-var nearFilter = require('../lib/geo').nearFilter;
-var geoFilter = require('../lib/geo').filter;
-var DELTA = 0.0000001;
+const GeoPoint = require('../lib/geo').GeoPoint;
+const nearFilter = require('../lib/geo').nearFilter;
+const geoFilter = require('../lib/geo').filter;
+const DELTA = 0.0000001;
 
 describe('GeoPoint', function() {
   describe('constructor', function() {
     it('should support a valid array', function() {
-      var point = new GeoPoint([-34, 150]);
+      const point = new GeoPoint([-34, 150]);
 
       point.lat.should.equal(-34);
       point.lng.should.equal(150);
     });
 
     it('should support a valid object', function() {
-      var point = new GeoPoint({lat: -34, lng: 150});
+      const point = new GeoPoint({lat: -34, lng: 150});
 
       point.lat.should.equal(-34);
       point.lng.should.equal(150);
     });
 
     it('should support valid string geo coordinates', function() {
-      var point = new GeoPoint('-34,150');
+      const point = new GeoPoint('-34,150');
 
       point.lat.should.equal(-34);
       point.lng.should.equal(150);
     });
 
     it('should support coordinates as inline parameters', function() {
-      var point = new GeoPoint(-34, 150);
+      const point = new GeoPoint(-34, 150);
 
       point.lat.should.equal(-34);
       point.lng.should.equal(150);
@@ -47,7 +47,7 @@ describe('GeoPoint', function() {
 
     it('should reject invalid parameters', function() {
       /* jshint -W024 */
-      var fn = function() {
+      let fn = function() {
         new GeoPoint('150,-34');
       };
       fn.should.throw();
@@ -84,17 +84,17 @@ describe('GeoPoint', function() {
 
   describe('toString()', function() {
     it('should return a string in the form "lat,lng"', function() {
-      var point = new GeoPoint({lat: -34, lng: 150});
+      const point = new GeoPoint({lat: -34, lng: 150});
       point.toString().should.equal('-34,150');
     });
   });
 
   describe('distance calculation between two points', function() {
-    var here = new GeoPoint({lat: 40.77492964101182, lng: -73.90950187151662});
-    var there = new GeoPoint({lat: 40.7753227, lng: -73.909217});
+    const here = new GeoPoint({lat: 40.77492964101182, lng: -73.90950187151662});
+    const there = new GeoPoint({lat: 40.7753227, lng: -73.909217});
 
     it('should return value in miles by default', function() {
-      var distance = GeoPoint.distanceBetween(here, there);
+      const distance = GeoPoint.distanceBetween(here, there);
       distance.should.be.a.Number;
       distance.should.be.approximately(0.03097916611592679, DELTA);
     });
@@ -109,7 +109,7 @@ describe('GeoPoint', function() {
        * - `degrees`
        */
 
-      var distance = here.distanceTo(there, {type: 'radians'});
+      let distance = here.distanceTo(there, {type: 'radians'});
       distance.should.be.a.Number;
       distance.should.be.approximately(0.000007825491914348416, DELTA);
 
@@ -137,7 +137,7 @@ describe('GeoPoint', function() {
 
   describe('nearFilter()', function() {
     it('should return a filter includes minDistance if where contains minDistance option', function() {
-      var where = {
+      const where = {
         location: {
           near: {
             lat: 40.77492964101182,
@@ -146,7 +146,7 @@ describe('GeoPoint', function() {
           minDistance: 100,
         },
       };
-      var filter = nearFilter(where);
+      const filter = nearFilter(where);
       filter[0].key.should.equal('location');
       filter[0].should.have.properties({
         key: 'location',
@@ -161,7 +161,7 @@ describe('GeoPoint', function() {
 
   describe('filter()', function() {
     it('should be able to filter geo points via minDistance', function() {
-      var points = [{
+      const points = [{
         location: {
           lat: 30.283552,
           lng: 120.126048,
@@ -187,7 +187,7 @@ describe('GeoPoint', function() {
           lng: 121.483687,
         },
       }];
-      var filter = [{
+      const filter = [{
         key: 'location',
         near: {
           lat: 30.278562,
@@ -196,7 +196,7 @@ describe('GeoPoint', function() {
         unit: 'meters',
         minDistance: 10000,
       }];
-      var results = geoFilter(points, filter);
+      const results = geoFilter(points, filter);
       results.length.should.be.equal(3);
     });
   });

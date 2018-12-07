@@ -5,9 +5,9 @@
 
 // This test written in mocha+should.js
 'use strict';
-var should = require('./init.js');
+const should = require('./init.js');
 
-var loopbackData = require('../');
+const loopbackData = require('../');
 
 describe('loopback-datasource-juggler', function() {
   it('should expose version', function() {

@@ -12,30 +12,30 @@
  *  $ open hooks.hml
  *
  */
-var Promise = global.Promise = require('bluebird');
-var DataSource = require('../').DataSource;
-var Memory = require('../lib/connectors/memory').Memory;
+const Promise = global.Promise = require('bluebird');
+const DataSource = require('../').DataSource;
+const Memory = require('../lib/connectors/memory').Memory;
 
-var HOOK_NAMES = [
+const HOOK_NAMES = [
   'access',
   'before save', 'persist', 'loaded', 'after save',
   'before delete', 'after delete',
 ];
 
-var dataSources = [
+const dataSources = [
   createOptimizedDataSource(),
   createUnoptimizedDataSource(),
 ];
 
-var observedContexts = [];
-var lastId = 0;
+const observedContexts = [];
+let lastId = 0;
 
 Promise.onPossiblyUnhandledRejection(function(err) {
   console.error('POSSIBLY UNHANDLED REJECTION', err.stack);
 });
 
 /* eslint-disable camelcase */
-var operations = [
+const operations = [
   function find(ds) {
     return ds.TestModel.find({where: {id: '1'}});
   },
@@ -112,7 +112,7 @@ var operations = [
 ];
 /* eslint-enable camelcase */
 
-var p = setupTestModels();
+let p = setupTestModels();
 operations.forEach(function(op) {
   p = p.then(runner(op));
 });
@@ -120,13 +120,13 @@ operations.forEach(function(op) {
 p.then(report, function(err) { console.error(err.stack); });
 
 function createOptimizedDataSource() {
-  var ds = new DataSource({connector: Memory});
+  const ds = new DataSource({connector: Memory});
   ds.name = 'Optimized';
   return ds;
 }
 
 function createUnoptimizedDataSource() {
-  var ds = new DataSource({connector: Memory});
+  const ds = new DataSource({connector: Memory});
   ds.name = 'Unoptimized';
 
   // disable optimized methods
@@ -139,7 +139,7 @@ function createUnoptimizedDataSource() {
 
 function setupTestModels() {
   dataSources.forEach(function setupOnDataSource(ds) {
-    var TestModel = ds.TestModel = ds.createModel('TestModel', {
+    const TestModel = ds.TestModel = ds.createModel('TestModel', {
       id: {type: String, id: true, default: uid},
       name: {type: String, required: true},
       extra: {type: String, required: false},
@@ -155,7 +155,7 @@ function uid() {
 
 function runner(fn) {
   return function() {
-    var res = Promise.resolve();
+    let res = Promise.resolve();
     dataSources.forEach(function(ds) {
       res = res.then(function() {
         return resetStorage(ds);
@@ -173,7 +173,7 @@ function runner(fn) {
 }
 
 function resetStorage(ds) {
-  var TestModel = ds.TestModel;
+  const TestModel = ds.TestModel;
   HOOK_NAMES.forEach(function(hook) {
     TestModel.clearObservers(hook);
   });
@@ -192,7 +192,7 @@ function resetStorage(ds) {
     .then(function() {
       HOOK_NAMES.forEach(function(hook) {
         TestModel.observe(hook, function(ctx, next) {
-          var row = observedContexts[observedContexts.length - 1];
+          const row = observedContexts[observedContexts.length - 1];
           row.hooks[hook] = Object.keys(ctx);
           next();
         });
@@ -212,7 +212,7 @@ function report() {
   // merge rows where Optimized and Unoptimized produce the same context
   observedContexts.forEach(function(row, ix) {
     if (!ix) return;
-    var last = observedContexts[ix - 1];
+    const last = observedContexts[ix - 1];
     if (row.operation != last.operation) return;
     if (JSON.stringify(row.hooks) !== JSON.stringify(last.hooks)) return;
     last.merge = true;
@@ -226,11 +226,11 @@ function report() {
 
   observedContexts.forEach(function(row) {
     if (row.skip) return;
-    var caption = row.operation;
+    let caption = row.operation;
     if (!row.merge) caption += ' (' + row.connector + ')';
     console.log('<tr><th>' + caption + '</th>');
     HOOK_NAMES.forEach(function(h) {
-      var text = row.hooks[h] ? row.hooks[h].join('<br/>') : '';
+      const text = row.hooks[h] ? row.hooks[h].join('<br/>') : '';
       console.log('  <td>' + text + '</td>');
     });
     console.log('</tr>');

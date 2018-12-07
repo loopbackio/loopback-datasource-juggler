@@ -5,12 +5,12 @@
 
 'use strict';
 
-var DataSource = require('../../loopback-datasource-juggler').DataSource;
-var ModelBuilder = require('../../loopback-datasource-juggler').ModelBuilder;
-var ds = new DataSource('memory');
+const DataSource = require('../../loopback-datasource-juggler').DataSource;
+const ModelBuilder = require('../../loopback-datasource-juggler').ModelBuilder;
+const ds = new DataSource('memory');
 
 // define models
-var Post = ds.define('Post', {
+const Post = ds.define('Post', {
   title: {type: String, length: 255},
   content: {type: DataSource.Text},
   date: {type: Date, default: function() {
@@ -21,7 +21,7 @@ var Post = ds.define('Post', {
 });
 
 // simplier way to describe model
-var User = ds.define('User', {
+const User = ds.define('User', {
   name: String,
   bio: DataSource.Text,
   approved: Boolean,
@@ -29,14 +29,14 @@ var User = ds.define('User', {
   age: Number,
 });
 
-var Group = ds.define('Group', {name: String});
+const Group = ds.define('Group', {name: String});
 
 // define any custom method
 User.prototype.getNameAndAge = function() {
   return this.name + ', ' + this.age;
 };
 
-var user = new User({name: 'Joe'});
+const user = new User({name: 'Joe'});
 console.log(user);
 
 // console.log(ds.models);
@@ -58,10 +58,10 @@ Post.belongsTo(User, {as: 'author', foreignKey: 'userId'});
 
 User.hasAndBelongsToMany('groups');
 
-var user2 = new User({name: 'Smith', age: 14});
+const user2 = new User({name: 'Smith', age: 14});
 user2.save(function(err) {
   console.log(user2);
-  var post = user2.posts.build({title: 'Hello world'});
+  const post = user2.posts.build({title: 'Hello world'});
   post.save(function(err, data) {
     console.log(err ? err : data);
   });
@@ -77,7 +77,7 @@ User.create({name: 'Jeff', age: 12}, function(err, data) {
     return;
   }
   console.log(data);
-  var post = data.posts.build({title: 'My Post'});
+  const post = data.posts.build({title: 'My Post'});
   console.log(post);
 });
 
@@ -90,8 +90,8 @@ User.minors(function(err, kids) {
   console.log('Kids: ', kids);
 });
 
-var Article = ds.define('Article', {title: String});
-var Tag = ds.define('Tag', {name: String});
+const Article = ds.define('Article', {title: String});
+const Tag = ds.define('Tag', {name: String});
 Article.hasAndBelongsToMany('tags');
 
 Article.create(function(e, article) {
@@ -105,7 +105,7 @@ Article.create(function(e, article) {
 });
 
 // should be able to attach a data source to an existing model
-var modelBuilder = new ModelBuilder();
+const modelBuilder = new ModelBuilder();
 
 const Color = modelBuilder.define('Color', {
   name: String,

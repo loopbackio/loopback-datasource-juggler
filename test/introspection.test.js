@@ -4,13 +4,13 @@
 // License text available at https://opensource.org/licenses/MIT
 
 'use strict';
-var assert = require('assert');
-var ModelBuilder = require('..').ModelBuilder;
-var DataSource = require('../').DataSource;
-var introspectType = require('../lib/introspection')(ModelBuilder);
-var traverse = require('traverse');
+const assert = require('assert');
+const ModelBuilder = require('..').ModelBuilder;
+const DataSource = require('../').DataSource;
+const introspectType = require('../lib/introspection')(ModelBuilder);
+const traverse = require('traverse');
 
-var json = {
+const json = {
   name: 'Joe',
   age: 30,
   birthday: new Date(),
@@ -40,7 +40,7 @@ describe('Introspection of model definitions from JSON', function() {
   });
 
   it('should handle array types', function() {
-    var type = introspectType(['123']);
+    let type = introspectType(['123']);
     assert.deepEqual(type, ['string'], 'type should be ["string"]');
     type = introspectType([1]);
     assert.deepEqual(type, ['number'], 'type should be ["number"]');
@@ -60,16 +60,16 @@ describe('Introspection of model definitions from JSON', function() {
   });
 
   it('should return a schema for object', function() {
-    var json = {a: 'str', b: 0, c: true};
-    var type = introspectType(json);
+    const json = {a: 'str', b: 0, c: true};
+    const type = introspectType(json);
     assert.equal(type.a, 'string');
     assert.equal(type.b, 'number');
     assert.equal(type.c, 'boolean');
   });
 
   it('should handle nesting objects', function() {
-    var json = {a: 'str', b: 0, c: true, d: {x: 10, y: 5}};
-    var type = introspectType(json);
+    const json = {a: 'str', b: 0, c: true, d: {x: 10, y: 5}};
+    const type = introspectType(json);
     assert.equal(type.a, 'string');
     assert.equal(type.b, 'number');
     assert.equal(type.c, 'boolean');
@@ -78,8 +78,8 @@ describe('Introspection of model definitions from JSON', function() {
   });
 
   it('should handle nesting arrays', function() {
-    var json = {a: 'str', b: 0, c: true, d: [1, 2]};
-    var type = introspectType(json);
+    const json = {a: 'str', b: 0, c: true, d: [1, 2]};
+    const type = introspectType(json);
     assert.equal(type.a, 'string');
     assert.equal(type.b, 'number');
     assert.equal(type.c, 'boolean');
@@ -87,15 +87,15 @@ describe('Introspection of model definitions from JSON', function() {
   });
 
   it('should build a model from the introspected schema', function(done) {
-    var copy = traverse(json).clone();
+    const copy = traverse(json).clone();
 
-    var schema = introspectType(json);
+    const schema = introspectType(json);
 
-    var builder = new ModelBuilder();
-    var Model = builder.define('MyModel', schema, {idInjection: false});
+    const builder = new ModelBuilder();
+    const Model = builder.define('MyModel', schema, {idInjection: false});
 
     // FIXME: [rfeng] The constructor mutates the arguments
-    var obj = new Model(json);
+    let obj = new Model(json);
 
     obj = obj.toObject();
 
@@ -104,27 +104,27 @@ describe('Introspection of model definitions from JSON', function() {
   });
 
   it('should build a model using buildModelFromInstance', function(done) {
-    var copy = traverse(json).clone();
+    const copy = traverse(json).clone();
 
-    var builder = new ModelBuilder();
-    var Model = builder.buildModelFromInstance('MyModel', copy, {idInjection: false});
+    const builder = new ModelBuilder();
+    const Model = builder.buildModelFromInstance('MyModel', copy, {idInjection: false});
 
-    var obj = new Model(json);
+    let obj = new Model(json);
     obj = obj.toObject();
     assert.deepEqual(obj, copy);
     done();
   });
 
   it('should build a model using DataSource.buildModelFromInstance', function(done) {
-    var copy = traverse(json).clone();
+    const copy = traverse(json).clone();
 
-    var builder = new DataSource('memory');
-    var Model = builder.buildModelFromInstance('MyModel', copy,
+    const builder = new DataSource('memory');
+    const Model = builder.buildModelFromInstance('MyModel', copy,
       {idInjection: false});
 
     assert.equal(Model.dataSource, builder);
 
-    var obj = new Model(json);
+    let obj = new Model(json);
     obj = obj.toObject();
     assert.deepEqual(obj, copy);
     done();

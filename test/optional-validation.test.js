@@ -7,16 +7,16 @@
 'use strict';
 
 /* global getSchema:false */
-var async = require('async');
-var should = require('./init.js');
-var db, User, options, ModelWithForceId, whereCount = 0;
-var j = require('../');
-var ValidationError = j.ValidationError;
+const async = require('async');
+const should = require('./init.js');
+let db, User, options, ModelWithForceId, whereCount = 0;
+const j = require('../');
+const ValidationError = j.ValidationError;
 
-var INITIAL_NAME = 'Bert';
-var NEW_NAME = 'Ernie';
-var INVALID_DATA = {name: null};
-var VALID_DATA = {name: INITIAL_NAME};
+const INITIAL_NAME = 'Bert';
+const NEW_NAME = 'Ernie';
+const INVALID_DATA = {name: null};
+const VALID_DATA = {name: INITIAL_NAME};
 
 describe('optional-validation', function() {
   before(function(done) {
@@ -103,7 +103,7 @@ describe('optional-validation', function() {
   function callUpdateOrCreateWithExistingUserId(name, options, cb) {
     User.create({'name': 'Groover'}, function(err, user) {
       if (err) return cb(err);
-      var data = {name: name};
+      const data = {name: name};
       data.id = user.id;
       User.updateOrCreate(data, options, cb);
     });

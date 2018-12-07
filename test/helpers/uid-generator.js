@@ -5,7 +5,7 @@
 
 'use strict';
 
-var lastId = 0;
+let lastId = 0;
 
 exports.next = function() {
   lastId++;

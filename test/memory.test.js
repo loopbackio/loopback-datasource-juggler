@@ -4,21 +4,21 @@
 // License text available at https://opensource.org/licenses/MIT
 
 'use strict';
-var jdb = require('../');
-var DataSource = jdb.DataSource;
-var path = require('path');
-var fs = require('fs');
-var assert = require('assert');
-var async = require('async');
-var should = require('./init.js');
-var Memory = require('../lib/connectors/memory').Memory;
+const jdb = require('../');
+const DataSource = jdb.DataSource;
+const path = require('path');
+const fs = require('fs');
+const assert = require('assert');
+const async = require('async');
+const should = require('./init.js');
+const Memory = require('../lib/connectors/memory').Memory;
 
 describe('Memory connector', function() {
-  var file = path.join(__dirname, 'memory.json');
+  const file = path.join(__dirname, 'memory.json');
 
   function readModels(done) {
     fs.readFile(file, function(err, data) {
-      var json = JSON.parse(data.toString());
+      const json = JSON.parse(data.toString());
       assert(json.models);
       assert(json.ids.User);
       done(err, json);
@@ -34,15 +34,15 @@ describe('Memory connector', function() {
   });
 
   describe('with file', function() {
-    var ds;
+    let ds;
 
     function createUserModel() {
-      var ds = new DataSource({
+      const ds = new DataSource({
         connector: 'memory',
         file: file,
       });
 
-      var User = ds.createModel('User', {
+      const User = ds.createModel('User', {
         id: {
           type: Number,
           id: true,
@@ -57,8 +57,8 @@ describe('Memory connector', function() {
       return User;
     }
 
-    var User;
-    var ids = [];
+    let User;
+    const ids = [];
 
     before(function() {
       User = createUserModel();
@@ -73,7 +73,7 @@ describe('Memory connector', function() {
     });
 
     it('should persist create', function(done) {
-      var count = 0;
+      let count = 0;
       async.eachSeries(['John1', 'John2', 'John3'], function(item, cb) {
         User.create({name: item}, function(err, result) {
           ids.push(result.id);
@@ -95,8 +95,8 @@ describe('Memory connector', function() {
     it('should not have out of sequence read/write', function(done) {
       // Create the new data source with the same file to simulate
       // existing records
-      var User = createUserModel();
-      var ds = User.dataSource;
+      const User = createUserModel();
+      const ds = User.dataSource;
 
       async.times(10, function(n, next) {
         if (n === 10) {
@@ -107,7 +107,7 @@ describe('Memory connector', function() {
         next();
       }, function(err) {
         async.eachSeries(['John4', 'John5'], function(item, cb) {
-          var count = 0;
+          const count = 0;
           User.create({name: item}, function(err, result) {
             ids.push(result.id);
             cb(err);
@@ -152,7 +152,7 @@ describe('Memory connector', function() {
             return done(err);
           }
           assert.equal(Object.keys(json.models.User).length, 4);
-          var user = JSON.parse(json.models.User[ids[1]]);
+          const user = JSON.parse(json.models.User[ids[1]]);
           assert.equal(user.name, 'John');
           assert(user.id === ids[1]);
           done();
@@ -171,7 +171,7 @@ describe('Memory connector', function() {
               return done(err);
             }
             assert.equal(Object.keys(json.models.User).length, 4);
-            var user = JSON.parse(json.models.User[ids[1]]);
+            const user = JSON.parse(json.models.User[ids[1]]);
             assert.equal(user.name, 'John1');
             assert(user.id === ids[1]);
             done();
@@ -190,11 +190,11 @@ describe('Memory connector', function() {
   });
 
   describe('Query for memory connector', function() {
-    var ds = new DataSource({
+    const ds = new DataSource({
       connector: 'memory',
     });
 
-    var User = ds.define('User', {
+    const User = ds.define('User', {
       seq: {type: Number, index: true},
       name: {type: String, index: true, sort: true},
       email: {type: String, index: true},
@@ -471,7 +471,7 @@ describe('Memory connector', function() {
       User.find({where: {seq: {neq: 4}}}, function(err, users) {
         should.not.exist(err);
         users.length.should.be.equal(5);
-        for (var i = 0; i < users.length; i++) {
+        for (let i = 0; i < users.length; i++) {
           users[i].seq.should.not.be.equal(4);
         }
         done();
@@ -482,7 +482,7 @@ describe('Memory connector', function() {
       User.find({where: {role: {neq: 'lead'}}}, function(err, users) {
         should.not.exist(err);
         users.length.should.be.equal(4);
-        for (var i = 0; i < users.length; i++) {
+        for (let i = 0; i < users.length; i++) {
           if (users[i].role) {
             users[i].role.not.be.equal('lead');
           }
@@ -495,7 +495,7 @@ describe('Memory connector', function() {
       User.find({where: {role: {neq: null}}}, function(err, users) {
         should.not.exist(err);
         users.length.should.be.equal(2);
-        for (var i = 0; i < users.length; i++) {
+        for (let i = 0; i < users.length; i++) {
           should.exist(users[i].role);
         }
         done();
@@ -554,7 +554,7 @@ describe('Memory connector', function() {
     });
 
     function seed(done) {
-      var beatles = [
+      const beatles = [
         {
           seq: 0,
           name: 'John Lennon',
@@ -616,19 +616,19 @@ describe('Memory connector', function() {
   });
 
   it('should use collection setting', function(done) {
-    var ds = new DataSource({
+    const ds = new DataSource({
       connector: 'memory',
     });
 
-    var Product = ds.createModel('Product', {
+    const Product = ds.createModel('Product', {
       name: String,
     });
 
-    var Tool = ds.createModel('Tool', {
+    const Tool = ds.createModel('Tool', {
       name: String,
     }, {memory: {collection: 'Product'}});
 
-    var Widget = ds.createModel('Widget', {
+    const Widget = ds.createModel('Widget', {
       name: String,
     }, {memory: {collection: 'Product'}});
 
@@ -658,8 +658,8 @@ describe('Memory connector', function() {
   });
 
   it('should refuse to create object with duplicate id', function(done) {
-    var ds = new DataSource({connector: 'memory'});
-    var Product = ds.define('ProductTest', {name: String}, {forceId: false});
+    const ds = new DataSource({connector: 'memory'});
+    const Product = ds.define('ProductTest', {name: String}, {forceId: false});
     ds.automigrate('ProductTest', function(err) {
       if (err) return done(err);
 
@@ -678,7 +678,7 @@ describe('Memory connector', function() {
   });
 
   describe('automigrate', function() {
-    var ds;
+    let ds;
     beforeEach(function() {
       ds = new DataSource({
         connector: 'memory',
@@ -757,7 +757,7 @@ describe('Memory connector', function() {
   });
 
   describe('findOrCreate', function() {
-    var ds, Cars;
+    let ds, Cars;
     before(function() {
       ds = new DataSource({connector: 'memory'});
       Cars = ds.define('Cars', {
@@ -766,10 +766,10 @@ describe('Memory connector', function() {
     });
 
     it('should create a specific object once and in the subsequent calls it should find it', function(done) {
-      var creationNum = 0;
+      let creationNum = 0;
       async.times(100, function(n, next) {
-        var initialData = {color: 'white'};
-        var query = {'where': initialData};
+        const initialData = {color: 'white'};
+        const query = {'where': initialData};
         Cars.findOrCreate(query, initialData, function(err, car, created) {
           if (created) creationNum++;
           next(err, car);
@@ -788,7 +788,7 @@ describe('Memory connector', function() {
   });
 
   describe('automigrate when NO models are attached', function() {
-    var ds;
+    let ds;
     beforeEach(function() {
       ds = new DataSource({
         connector: 'memory',
@@ -811,7 +811,7 @@ describe('Memory connector', function() {
   });
 
   describe('With mocked autoupdate', function() {
-    var ds, model;
+    let ds, model;
     beforeEach(function() {
       ds = new DataSource({
         connector: 'memory',
@@ -902,7 +902,7 @@ describe('Memory connector', function() {
 });
 
 describe('Optimized connector', function() {
-  var ds = new DataSource({connector: Memory});
+  const ds = new DataSource({connector: Memory});
 
   require('./persistence-hooks.suite')(ds, should, {
     replaceOrCreateReportsNewInstance: true,
@@ -910,7 +910,7 @@ describe('Optimized connector', function() {
 });
 
 describe('Unoptimized connector', function() {
-  var ds = new DataSource({connector: Memory});
+  const ds = new DataSource({connector: Memory});
 
   // disable optimized methods
   ds.connector.updateOrCreate = false;
@@ -923,7 +923,8 @@ describe('Unoptimized connector', function() {
 });
 
 describe('Memory connector with options', function() {
-  var ds, savedOptions = {}, Post;
+  const savedOptions = {};
+  let ds, Post;
 
   before(function() {
     ds = new DataSource({connector: 'memory'});
@@ -955,7 +956,7 @@ describe('Memory connector with options', function() {
   });
 
   it('should receive options from the find method', function(done) {
-    var opts = {transaction: 'tx1'};
+    const opts = {transaction: 'tx1'};
     Post.find({where: {title: 't1'}}, opts, function(err, p) {
       savedOptions.find.should.be.eql(opts);
       done(err);
@@ -963,7 +964,7 @@ describe('Memory connector with options', function() {
   });
 
   it('should treat first object arg as filter for find', function(done) {
-    var filter = {title: 't1'};
+    const filter = {title: 't1'};
     Post.find(filter, function(err, p) {
       savedOptions.find.should.be.eql({});
       done(err);
@@ -971,7 +972,7 @@ describe('Memory connector with options', function() {
   });
 
   it('should receive options from the create method', function(done) {
-    var opts = {transaction: 'tx3'};
+    const opts = {transaction: 'tx3'};
     Post.create({title: 't1', content: 'c1'}, opts, function(err, p) {
       savedOptions.create.should.be.eql(opts);
       done(err);
@@ -979,7 +980,7 @@ describe('Memory connector with options', function() {
   });
 
   it('should receive options from the update method', function(done) {
-    var opts = {transaction: 'tx4'};
+    const opts = {transaction: 'tx4'};
     Post.update({title: 't1'}, {content: 'c1 --> c2'},
       opts, function(err, p) {
         savedOptions.update.should.be.eql(opts);
@@ -989,7 +990,7 @@ describe('Memory connector with options', function() {
 });
 
 describe('Memory connector with observers', function() {
-  var ds = new DataSource({
+  const ds = new DataSource({
     connector: 'memory',
   });
 
@@ -999,10 +1000,10 @@ describe('Memory connector with observers', function() {
   });
 
   it('should notify observers', function(done) {
-    var events = [];
+    const events = [];
     ds.connector.execute = function(command, params, options, cb) {
-      var self = this;
-      var context = {command: command, params: params, options: options};
+      const self = this;
+      const context = {command: command, params: params, options: options};
       self.notifyObserversOf('before execute', context, function(err) {
         process.nextTick(function() {
           if (err) return cb(err);
