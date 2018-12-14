@@ -1,3 +1,25 @@
+2018-12-14, Version 5.0.0
+=========================
+
+ * Upgrade eslint-config-loopback to latest (Miroslav Bajtoš)
+
+ * manually fix remaining problems (Miroslav Bajtoš)
+
+ * autofix eslint errors (Miroslav Bajtoš)
+
+ * eslint: enable no-var and prefer-const rules (Miroslav Bajtoš)
+
+ * Update eslint-config-loopback to latest (Miroslav Bajtoš)
+
+ * Update dependencies to latest versions (Miroslav Bajtoš)
+
+ * Upgrade bson to 4.x (latest) (Miroslav Bajtoš)
+
+ * feat: dataSource.execute(cmd, args, opts, cb) (Miroslav Bajtoš)
+
+ * eslint: enable ES2017 (async functions) (Miroslav Bajtoš)
+
+
 2018-11-15, Version 4.4.0
 =========================
 
