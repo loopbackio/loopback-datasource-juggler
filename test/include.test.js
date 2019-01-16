@@ -77,7 +77,7 @@ describe('include', function() {
   });
 
   it('should report errors if the PK is excluded', function(done) {
-    User.find({include: 'posts', fields: 'posts'}, function(err) {
+    User.find({include: 'posts', fields: 'name'}, function(err) {
       should.exist(err);
       err.message.should.match(/ID property "id" is missing/);
       done();
