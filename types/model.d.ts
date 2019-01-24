@@ -19,8 +19,8 @@ export type PropertyType =
  * Property definition
  */
 export interface PropertyDefinition extends AnyObject {
-  name: string;
   type?: PropertyType;
+  id?: boolean | number;
 }
 
 /**
@@ -28,8 +28,8 @@ export interface PropertyDefinition extends AnyObject {
  */
 export interface Schema {
   name: string;
-  properties: {[property: string]: PropertyDefinition};
-  settings?: AnyObject;
+  properties: ModelProperties;
+  settings?: ModelSettings;
 }
 
 /**
@@ -54,20 +54,45 @@ export interface ColumnMetadata extends AnyObject {
 }
 
 /**
+ * Definition of model properties, for example
+ * ```ts
+ * {
+ *   name: {type: String, required: true},
+ * }
+ * ```
+ */
+export interface ModelProperties {
+  [name: string]: PropertyDefinition
+}
+
+/**
+ * Model settings, for example
+ * ```ts
+ * {
+ *   strict: true,
+ * }
+ * ```
+ */
+export interface ModelSettings extends AnyObject {
+  strict?: boolean;
+  forceId?: boolean;
+}
+
+/**
  * Model definition
  */
 export declare class ModelDefinition extends EventEmitter implements Schema {
   name: string;
-  properties: AnyObject;
+  properties: ModelProperties;
   rawProperties: AnyObject;
-  settings?: AnyObject;
+  settings?: ModelSettings;
   relations?: AnyObject[];
 
   constructor(
     modelBuilder: ModelBuilder | null | undefined,
     name: string,
-    properties?: {[name: string]: PropertyDefinition},
-    settings?: AnyObject,
+    properties?: ModelProperties,
+    settings?: ModelSettings,
   );
   constructor(modelBuilder: ModelBuilder | null | undefined, schema: Schema);
 
@@ -96,6 +121,30 @@ export declare class ModelBase {
   static dataSource?: DataSource;
   static modelName: string;
   static definition: ModelDefinition;
+  static readonly base: typeof ModelBase;
+
+  /**
+   * Extend the model with the specified model, properties, and other settings.
+   * For example, to extend an existing model:
+   *
+   * ```js
+   * const Customer = User.extend('Customer', {
+   *   accountId: String,
+   *   vip: Boolean
+   * });
+   * ```
+   *
+   * @param className Name of the new model being defined.
+   * @param subClassProperties child model properties, added to base model
+   *   properties.
+   * @param subClassSettings child model settings such as relations and acls,
+   *   merged with base model settings.
+   */
+  static extend<ChildModel extends typeof ModelBase = typeof ModelBase>(
+    modelName: string,
+    properties?: ModelProperties,
+    settings?: ModelSettings,
+  ): ChildModel;
 
   /**
    * Attach the model class to a data source
@@ -203,7 +252,9 @@ export declare class ModelBuilder extends EventEmitter {
 
   models: {[name: string]: ModelBaseClass};
   definitions: {[name: string]: ModelDefinition};
-  settings: AnyObject;
+  settings: ModelSettings;
+
+  defaultModelBaseClass: typeof ModelBase;
 
   getModel(name: string, forceCreate?: boolean): ModelBaseClass;
 
@@ -211,8 +262,8 @@ export declare class ModelBuilder extends EventEmitter {
 
   define(
     className: string,
-    properties?: AnyObject,
-    settings?: AnyObject,
+    properties?: ModelProperties,
+    settings?: ModelSettings,
     parent?: ModelBaseClass,
   ): ModelBaseClass;
 
