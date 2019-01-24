@@ -1,3 +1,11 @@
+2019-01-24, Version 4.5.2
+=========================
+
+ * Improve Model type definitions (Miroslav Bajtoš)
+
+ * fix: use existing field in exclude test (biniam)
+
+
 2018-12-14, Version 4.5.0
 =========================
 
