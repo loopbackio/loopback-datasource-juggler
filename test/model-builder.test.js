@@ -48,9 +48,37 @@ describe('ModelBuilder', () => {
       });
     });
 
+    describe('model with nested properties as function', () => {
+      const Role = function(roleName) {};
+      it('sets correct nested properties', () => {
+        const User = builder.define('User', {
+          role: {
+            type: typeof Role,
+            default: null,
+          },
+        });
+        should.equal(User.getPropertyType('role'), 'ModelConstructor');
+      });
+    });
+
+    describe('model with nested properties as class', () => {
+      class Role {
+        constructor(roleName) {}
+      }
+      it('sets correct nested properties', () => {
+        const User = builder.define('UserWithClass', {
+          role: {
+            type: Role,
+            default: null,
+          },
+        });
+        User.registerProperty('role');
+        should.equal(User.getPropertyType('role'), 'Role');
+      });
+    });
+
     function givenModelBuilderInstance() {
       builder = new ModelBuilder();
     }
   });
 });
-

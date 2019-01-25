@@ -11,6 +11,12 @@ const should = require('./init.js');
 
 let db, Model;
 
+class NestedClass {
+  constructor(roleName) {
+    this.roleName = roleName;
+  }
+}
+
 describe('datatypes', function() {
   before(function(done) {
     db = getSchema();
@@ -23,6 +29,7 @@ describe('datatypes', function() {
       list: {type: [String]},
       arr: Array,
       nested: Nested,
+      nestedClass: NestedClass,
     };
     Model = db.define('Model', modelTableSchema);
     db.automigrate(['Model'], done);
@@ -99,6 +106,30 @@ describe('datatypes', function() {
         done();
       });
     }
+  });
+
+  it('should create nested object defined by a class when reading data from db', async () => {
+    const d = new Date('2015-01-01T12:00:00');
+    let id;
+    const created = await Model.create({
+      date: d,
+      list: ['test'],
+      arr: [1, 'str'],
+      nestedClass: new NestedClass('admin'),
+    });
+    created.list.should.deepEqual(['test']);
+    created.arr.should.deepEqual([1, 'str']);
+    created.date.should.be.an.instanceOf(Date);
+    created.date.toString().should.equal(d.toString(), 'Time must match');
+    created.nestedClass.should.have.property('roleName', 'admin');
+
+    const found = await Model.findById(created.id);
+    should.exist(found);
+    found.list.should.deepEqual(['test']);
+    found.arr.should.deepEqual([1, 'str']);
+    found.date.should.be.an.instanceOf(Date);
+    found.date.toString().should.equal(d.toString(), 'Time must match');
+    found.nestedClass.should.have.property('roleName', 'admin');
   });
 
   it('should respect data types when updating attributes', function(done) {
