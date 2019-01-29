@@ -1,3 +1,9 @@
+2019-01-29, Version 4.5.3
+=========================
+
+ * Support nested properties with class type (Miroslav Bajtoš)
+
+
 2019-01-24, Version 4.5.2
 =========================
 
