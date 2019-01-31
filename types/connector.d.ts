@@ -15,6 +15,7 @@ export interface Connector {
   disconnect(callback?: Callback): PromiseOrVoid; // Disconnect from the underlying system
   ping(callback?: Callback): PromiseOrVoid; // Ping the underlying system
   execute?(...args: any[]): Promise<any>;
+  [property: string]: any; // Other properties that vary by connectors
 }
 
 /**
