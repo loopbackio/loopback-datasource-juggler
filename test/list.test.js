@@ -12,15 +12,17 @@ const List = require('../lib/list');
  * Phone as a class
  */
 class Phone {
-  constructor(label, num) {
+  constructor(label, num, date) {
     this.label = label;
     this.num = num;
+    this.date = date;
   }
 
   toJSON() {
     return {
       label: this.label,
       num: this.num,
+      date: this.date,
     };
   }
 }
@@ -29,13 +31,15 @@ class Phone {
  * Phone as a constructor function
  * @param {string} label
  * @param {number} num
+ * @param {Date} date
  */
-function PhoneCtor(label, num) {
+function PhoneCtor(label, num, date) {
   if (!(this instanceof PhoneCtor)) {
-    return new PhoneCtor(label, num);
+    return new PhoneCtor(label, num, date);
   }
   this.label = label;
   this.num = num;
+  this.date = date;
 }
 
 describe('list of items typed by a class', function() {
@@ -104,21 +108,21 @@ describe('list of items typed by a ctor', function() {
 
 function givenPhones() {
   return [
-    new Phone('home', '111-222-3333'),
-    new Phone('work', '111-222-5555'),
+    new Phone('home', '111-222-3333', '1995-12-17T03:24:00'),
+    new Phone('work', '111-222-5555', '1996-12-17T03:24:00'),
   ];
 }
 
 function givenPhonesWithCtor() {
   return [
-    new PhoneCtor('home', '111-222-3333'),
-    PhoneCtor('work', '111-222-5555'),
+    new PhoneCtor('home', '111-222-3333', '1995-12-17T03:24:00'),
+    PhoneCtor('work', '111-222-5555', '1996-12-17T03:24:00'),
   ];
 }
 
 function givenPhonesAsJSON() {
   return [
-    {label: 'home', num: '111-222-3333'},
-    {label: 'work', num: '111-222-5555'},
+    {label: 'home', num: '111-222-3333', date: '1995-12-17T03:24:00'},
+    {label: 'work', num: '111-222-5555', date: '1996-12-17T03:24:00'},
   ];
 }
