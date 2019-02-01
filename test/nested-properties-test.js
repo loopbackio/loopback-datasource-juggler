@@ -40,7 +40,6 @@ describe('nested properties', function() {
       })
         .then(created => {
 		  should.exist(created.id);
-		  console.log(created);
           return Model.find({
             where: {
               'nested.happenedOn': {
@@ -52,7 +51,10 @@ describe('nested properties', function() {
         .then(found => {
           should.exist(found);
           found.should.not.be.empty();
+          found.length.should.equal(1);
           found[0].should.be.an.instanceOf(Model);
+          found[0].nested.duration.should.equal(2);
+          found[0].nested.happenedOn.toISOString().should.equal('2017-10-30T06:07:31.805Z');
         });
     });
   });
