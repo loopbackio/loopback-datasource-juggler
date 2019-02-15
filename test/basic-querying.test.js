@@ -654,6 +654,7 @@ describe('basic-querying', function() {
             if (err) done(err);
             users.should.have.property('length', 3);
             users[0].name.should.equal('John Lennon');
+            users[0].should.be.instanceOf(User);
             users[0].addressLoc.should.not.be.null();
             done();
           });
@@ -677,6 +678,7 @@ describe('basic-querying', function() {
             if (err) done(err);
             users.should.have.property('length', 2);
             users[0].name.should.equal('John Lennon');
+            users[0].should.be.instanceOf(User);
             users[0].addressLoc.should.not.be.null();
             users[0].vip.should.be.true();
             done();
@@ -708,6 +710,7 @@ describe('basic-querying', function() {
             if (err) done(err);
             users.should.have.property('length', 1);
             users[0].name.should.equal('John Lennon');
+            users[0].should.be.instanceOf(User);
             users[0].addressLoc.should.not.be.null();
             users[0].vip.should.be.true();
             users[0].order.should.equal(2);
@@ -738,6 +741,7 @@ describe('basic-querying', function() {
             users.should.have.property('length', 2);
             users[0].addressLoc.should.not.be.null();
             users[0].name.should.equal('Paul McCartney');
+            users[0].should.be.instanceOf(User);
             users[1].addressLoc.should.not.equal(null);
             users[1].name.should.equal('John Lennon');
             done();
@@ -775,6 +779,7 @@ describe('basic-querying', function() {
             users.should.have.property('length', 1);
             users[0].addressLoc.should.not.be.null();
             users[0].name.should.equal('John Lennon');
+            users[0].should.be.instanceOf(User);
             users[0].vip.should.be.true();
             done();
           });
