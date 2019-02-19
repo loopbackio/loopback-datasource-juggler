@@ -1,3 +1,11 @@
+2019-02-19, Version 4.5.4
+=========================
+
+ * fix: use correct callback for geo find queries (biniam)
+
+ * fix: update typescript declarations (biniam)
+
+
 2019-01-29, Version 4.5.3
 =========================
 
