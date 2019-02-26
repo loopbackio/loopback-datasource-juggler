@@ -1,5 +1,7 @@
-2019-02-19, Version 4.5.4
+2019-02-26, Version 4.6.0
 =========================
+
+ * feat: Support "type" key in sub-properties (Hage Yaapa)
 
  * fix: use correct callback for geo find queries (biniam)
 
