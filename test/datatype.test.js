@@ -26,6 +26,24 @@ describe('datatypes', function() {
     db.automigrate(['Model'], done);
   });
 
+  it('should resolve top-level "type" property correctly', function() {
+    var Account = db.define('Account', {
+      type: String,
+      id: String,
+    });
+    Account.definition.properties.type.type.should.equal(String);
+  });
+
+  it('should resolve "type" sub-property correctly', function() {
+    var Account = db.define('Account', {
+      item: {type: {
+        itemname: {type: String},
+        type: {type: String},
+      }},
+    });
+    Account.definition.properties.item.type.should.not.equal(String);
+  });
+
   it('should return 400 when property of type array is set to string value',
     function(done) {
       var myModel = db.define('myModel', {
