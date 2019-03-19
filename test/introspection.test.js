@@ -27,6 +27,9 @@ const json = {
     {label: 'work', id: 'x@sample.com'},
     {label: 'home', id: 'x@home.com'},
   ],
+  nestedArray: [
+    [{msg: 'Hi'}],
+  ],
   tags: [],
 };
 
