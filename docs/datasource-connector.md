@@ -350,7 +350,7 @@ source.
          * static and prototype methods to be mixed into the model constructor. The property can be defined
          * on the prototype.
          */
-        connector.DataAccessObject = function {};
+        connector.DataAccessObject = function() {};
 
         /**
          * Connector instance can have an optional function to be called to handle data model definitions.
