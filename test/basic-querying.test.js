@@ -917,6 +917,75 @@ describe('basic-querying', function() {
           });
         });
     });
+
+    it('applies default values by default', () => {
+      // Backwards compatibility, see
+      // https://github.com/strongloop/loopback-datasource-juggler/issues/1692
+
+      // Initially, all Players were always active, no property was needed
+      const Player = db.define('Player', {name: String});
+      let created;
+      return db.automigrate('Player')
+        .then(() => Player.create({name: 'Pen'}))
+        .then(result => {
+          created = result;
+
+          // Later on, we decide to introduce `active` property
+          Player.defineProperty('active', {
+            type: Boolean,
+            default: false,
+          });
+          return db.autoupdate('Player');
+        })
+        .then(() => {
+          // And query existing data
+          return Player.findOne();
+        })
+        .then(found => {
+          should(found.toObject().active).be.oneOf([
+            // For databases supporting `undefined` value,
+            // we convert `undefined` to property default.
+            false,
+            // For databases representing `undefined` as `null` (e.g. SQL),
+            // we treat `null` as a defined value and don't apply defaults.
+            null,
+          ]);
+        });
+    });
+
+    it('preserves empty values from the database when "applyDefaultsOnReads" is false', () => {
+      // https://github.com/strongloop/loopback-datasource-juggler/issues/1692
+
+      // Initially, all Players were always active, no property was needed
+      const Player = db.define(
+        'Player',
+        {name: String},
+        {applyDefaultsOnReads: false}
+      );
+      let created;
+      return db.automigrate('Player')
+        .then(() => Player.create({name: 'Pen'}))
+        .then(result => {
+          created = result;
+
+          // Later on, we decide to introduce `active` property
+          Player.defineProperty('active', {
+            type: Boolean,
+            default: false,
+          });
+          return db.autoupdate('Player');
+        })
+        .then(() => {
+          // And query existing data
+          return Player.findOne();
+        })
+        .then(found => {
+          should(found.toObject().active).be.oneOf([
+            undefined, // databases supporting `undefined` value
+            null, // databases representing `undefined` as `null`
+          ]);
+        });
+    });
   });
 
   describe('count', function() {
