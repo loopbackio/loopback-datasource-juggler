@@ -981,6 +981,30 @@ describe('manipulation', function() {
         }
       );
     });
+
+    it('preserves empty values from the database', async () => {
+      // https://github.com/strongloop/loopback-datasource-juggler/issues/1692
+
+      // Initially, all Products were always active, no property was needed
+      const Product = db.define('Product', {name: String});
+
+      await db.automigrate('Product');
+      const created = await Product.create({name: 'Pen'});
+
+      // Later on, we decide to introduce `active` property
+      Product.defineProperty('active', {
+        type: Boolean,
+        default: false,
+      });
+
+      // And updateOrCreate an existing record
+      const found = await Product.updateOrCreate({id: created.id, name: 'updated'});
+      found.toObject().should.eql({
+        id: created.id,
+        name: 'updated',
+        active: undefined,
+      });
+    });
   });
 
   bdd.describeIf(connectorCapabilities.supportForceId !== false,
@@ -1618,6 +1642,30 @@ describe('manipulation', function() {
           done();
         })
         .catch(done);
+    });
+
+    it('preserves empty values from the database', async () => {
+      // https://github.com/strongloop/loopback-datasource-juggler/issues/1692
+
+      // Initially, all Products were always active, no property was needed
+      const Product = db.define('Product', {name: String});
+
+      await db.automigrate('Product');
+      const created = await Product.create({name: 'Pen'});
+
+      // Later on, we decide to introduce `active` property
+      Product.defineProperty('active', {
+        type: Boolean,
+        default: false,
+      });
+
+      // And findOrCreate an existing record
+      const [found] = await Product.findOrCreate({id: created.id}, {name: 'updated'});
+      found.toObject().should.eql({
+        id: created.id,
+        name: 'Pen',
+        active: undefined,
+      });
     });
   });
 
@@ -2561,6 +2609,30 @@ describe('manipulation', function() {
             done();
           });
         });
+      });
+    });
+
+    it('preserves empty values from the database', async () => {
+      // https://github.com/strongloop/loopback-datasource-juggler/issues/1692
+
+      // Initially, all Products were always active, no property was needed
+      const Product = db.define('Product', {name: String});
+
+      await db.automigrate('Product');
+      const created = await Product.create({name: 'Pen'});
+
+      // Later on, we decide to introduce `active` property
+      Product.defineProperty('active', {
+        type: Boolean,
+        default: false,
+      });
+
+      // And upsertWithWhere an existing record
+      const found = await Product.upsertWithWhere({id: created.id}, {name: 'updated'});
+      found.toObject().should.eql({
+        id: created.id,
+        name: 'updated',
+        active: undefined,
       });
     });
   });

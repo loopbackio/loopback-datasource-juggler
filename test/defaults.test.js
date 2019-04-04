@@ -34,13 +34,13 @@ describe('defaults', function() {
     });
   });
 
-  it('should apply defaults on read', function(done) {
+  it('should NOT apply defaults on read', function(done) {
     db.defineProperty('Server', 'host', {
       type: String,
       default: 'localhost',
     });
     Server.all(function(err, servers) {
-      (new String('localhost')).should.equal(servers[0].host);
+      should(servers[0].host).be.undefined();
       done();
     });
   });
@@ -49,10 +49,9 @@ describe('defaults', function() {
     Server.create({host: 'localhost', port: 8080}, function(err, s) {
       should.not.exist(err);
       s.port.should.equal(8080);
-      Server.find({fields: ['host']}, function(err, servers) {
-        servers[0].host.should.equal('localhost');
-        servers[0].should.have.property('host');
-        servers[0].should.have.property('port', undefined);
+      Server.findById(s.id, {fields: ['host']}, function(err, server) {
+        server.should.have.property('host', 'localhost');
+        server.should.have.property('port', undefined);
         done();
       });
     });
