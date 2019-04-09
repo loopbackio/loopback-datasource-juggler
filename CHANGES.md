@@ -1,3 +1,11 @@
+2019-04-09, Version 2.59.0
+==========================
+
+ * Do not apply default values on data from database (Miroslav Bajtoš)
+
+ * feat: Support "type" key in sub-properties (Hage Yaapa)
+
+
 2018-10-08, Version 2.58.1
 ==========================
 
