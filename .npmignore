@@ -3,7 +3,7 @@ doc
 coverage.html
 coverage
 v8.log
-
+.git
 .DS_Store
 benchmark.js
 analyse.r
