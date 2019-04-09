@@ -1240,6 +1240,82 @@ describe('manipulation', function() {
       })
       .catch(done);
     });
+
+    it('applies default values on returned data', function() {
+      // Backwards compatibility, see
+      // https://github.com/strongloop/loopback-datasource-juggler/issues/1692
+
+      // Initially, all Players were always active, no property was needed
+      var Player = db.define('Player', {name: String});
+      var created;
+      return db.automigrate('Player')
+        .then(function() { return Player.create({name: 'Pen'}); })
+        .then(function(result) {
+          created = result;
+
+          // Later on, we decide to introduce `active` property
+          Player.defineProperty('active', {
+            type: Boolean,
+            default: false,
+          });
+          return db.autoupdate('Player');
+        })
+        .then(function() {
+          // and findOrCreate an existing record
+          return Player.findOrCreate({id: created.id}, {name: 'updated'});
+        })
+        .then(function(result) {
+          var found = result[0];
+
+          // Backwards-compatibility
+          // When Pen does not have "active" flag set, we change it to default
+          should(found.toObject().active).be.oneOf([
+            // For databases supporting `undefined` value,
+            // we convert `undefined` to property default.
+            false,
+            // For databases representing `undefined` as `null` (e.g. SQL),
+            // we treat `null` as a defined value and don't apply defaults.
+            null,
+          ]);
+        });
+    });
+
+    it('preserves empty values from the database when "applyDefaultsOnReads" is false', function() {
+      // https://github.com/strongloop/loopback-datasource-juggler/issues/1692
+
+      // Initially, all Players were always active, no property was needed
+      var Player = db.define(
+        'Player',
+        {name: String},
+        {applyDefaultsOnReads: false}
+      );
+      var created;
+
+      return db.automigrate('Player')
+        .then(function() { return Player.create({name: 'Pen'}); })
+        .then(function(result) {
+          created = result;
+
+          // Later on, we decide to introduce `active` property
+          Player.defineProperty('active', {
+            type: Boolean,
+            default: false,
+          });
+          return db.autoupdate('Player');
+        })
+        .then(function() {
+          // And findOrCreate an existing record
+          return Player.findOrCreate({id: created.id}, {name: 'updated'});
+        })
+        .then(function(result) {
+          var found = result[0];
+
+          should(found.toObject().active).be.oneOf([
+            undefined, // databases supporting `undefined` value
+            null, // databases representing `undefined` as `null`
+          ]);
+        });
+    });
   });
 
   describe('destroy', function() {

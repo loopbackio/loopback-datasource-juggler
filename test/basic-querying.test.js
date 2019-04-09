@@ -579,6 +579,75 @@ describe('basic-querying', function() {
       sample(['id']).expect(['id']);
       sample(['email']).expect(['email']);
     });
+
+    it('applies default values by default', function() {
+      // Backwards compatibility, see
+      // https://github.com/strongloop/loopback-datasource-juggler/issues/1692
+
+      // Initially, all Players were always active, no property was needed
+      var Player = db.define('Player', {name: String});
+      var created;
+      return db.automigrate('Player')
+        .then(function() { return Player.create({name: 'Pen'}); })
+        .then(function(result) {
+          created = result;
+
+          // Later on, we decide to introduce `active` property
+          Player.defineProperty('active', {
+            type: Boolean,
+            default: false,
+          });
+          return db.autoupdate('Player');
+        })
+        .then(function() {
+          // And query existing data
+          return Player.findOne();
+        })
+        .then(function(found) {
+          should(found.toObject().active).be.oneOf([
+            // For databases supporting `undefined` value,
+            // we convert `undefined` to property default.
+            false,
+            // For databases representing `undefined` as `null` (e.g. SQL),
+            // we treat `null` as a defined value and don't apply defaults.
+            null,
+          ]);
+        });
+    });
+
+    it('preserves empty values from the database when "applyDefaultsOnReads" is false', function() {
+      // https://github.com/strongloop/loopback-datasource-juggler/issues/1692
+
+      // Initially, all Players were always active, no property was needed
+      var Player = db.define(
+        'Player',
+        {name: String},
+        {applyDefaultsOnReads: false}
+      );
+      var created;
+      return db.automigrate('Player')
+        .then(function() { return Player.create({name: 'Pen'}); })
+        .then(function(result) {
+          created = result;
+
+          // Later on, we decide to introduce `active` property
+          Player.defineProperty('active', {
+            type: Boolean,
+            default: false,
+          });
+          return db.autoupdate('Player');
+        })
+        .then(function() {
+          // And query existing data
+          return Player.findOne();
+        })
+        .then(function(found) {
+          should(found.toObject().active).be.oneOf([
+            undefined, // databases supporting `undefined` value
+            null, // databases representing `undefined` as `null`
+          ]);
+        });
+    });
   });
 
   describe('count', function() {
