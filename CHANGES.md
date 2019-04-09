@@ -1,3 +1,21 @@
+2019-04-09, Version 3.29.0
+==========================
+
+ * Do not apply default values on data from database (Miroslav Bajtoš)
+
+ * feat: support array within array in 3.x (Hage Yaapa)
+
+ * feat: Support "type" key in sub-properties in 3.x (Hage Yaapa)
+
+ * fix: use existing field in exclude test (biniam)
+
+ * eslint: manually fix remaining problems (Miroslav Bajtoš)
+
+ * eslint: autofix linting errors (Miroslav Bajtoš)
+
+ * eslint: upgrade eslint-config-loobpack to latest (Miroslav Bajtoš)
+
+
 2018-11-15, Version 3.28.0
 ==========================
 
