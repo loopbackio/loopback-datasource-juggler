@@ -5,6 +5,7 @@ coverage
 v8.log
 .idea
 .DS_Store
+.git
 benchmark.js
 analyse.r
 docs/html
@@ -12,4 +13,3 @@ docs/man
 npm-debug.log
 .project
 test/memory.json
-
