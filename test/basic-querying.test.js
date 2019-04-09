@@ -926,25 +926,25 @@ describe('basic-querying', function() {
     it('preserves empty values from the database', async () => {
       // https://github.com/strongloop/loopback-datasource-juggler/issues/1692
 
-      // Initially, all Products were always active, no property was needed
-      const Product = db.define('Product', {name: String});
+      // Initially, all Players were always active, no property was needed
+      const Player = db.define('Player', {name: String});
 
-      await db.automigrate('Product');
-      const created = await Product.create({name: 'Pen'});
+      await db.automigrate('Player');
+      const created = await Player.create({name: 'Pen'});
 
       // Later on, we decide to introduce `active` property
-      Product.defineProperty('active', {
+      Player.defineProperty('active', {
         type: Boolean,
         default: false,
       });
+      await db.autoupdate('Player');
 
       // And query existing data
-      const found = await Product.findOne();
-      found.toObject().should.eql({
-        id: created.id,
-        name: 'Pen',
-        active: undefined,
-      });
+      const found = await Player.findOne();
+      should(found.toObject().active).be.oneOf([
+        undefined, // databases supporting `undefined` value
+        null, // databases representing `undefined` as `null` (e.g. SQL)
+      ]);
     });
   });
 
