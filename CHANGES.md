@@ -1,3 +1,17 @@
+2019-04-09, Version 4.6.1
+=========================
+
+ * Improve tests for empty vs. default values (Miroslav Bajtoš)
+
+ * Do not apply default values on data from database (Miroslav Bajtoš)
+
+ * Update datasource-connector.md (#1703) (Jam Risser)
+
+ * feat: support array within array (Hage Yaapa)
+
+ * fix: update lodash (#1696) (Janny)
+
+
 2019-02-26, Version 4.6.0
 =========================
 
