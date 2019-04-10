@@ -1,3 +1,13 @@
+2019-04-10, Version 4.6.2
+=========================
+
+ * chore: update CODEOWNERS (#1712) (Diana Lau)
+
+ * fix: ignore git file (#1714) (Janny)
+
+ * remove kv-extreme-scale ctor from downstream test (#1710) (Diana Lau)
+
+
 2019-04-09, Version 4.6.1
 =========================
 
