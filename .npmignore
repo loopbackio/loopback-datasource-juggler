@@ -3,7 +3,7 @@ doc
 coverage.html
 coverage
 v8.log
-
+.git
 .DS_Store
 benchmark.js
 analyse.r
@@ -12,4 +12,3 @@ npm-debug.log
 .travis.yml
 .nyc_output
 dist
-
