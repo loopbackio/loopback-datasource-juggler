@@ -1254,6 +1254,43 @@ describe('include', function() {
     });
   });
 
+  it('should not throw on fetch User if include is boolean equals true', function(done) {
+    User.find({include: true}, function(err, users) {
+      if (err) return done(err);
+      should.exist(users);
+      users.should.not.be.empty();
+      done();
+    });
+  });
+
+  it('should not throw on fetch User if include is number', function(done) {
+    User.find({include: 1}, function(err, users) {
+      if (err) return done(err);
+      should.exist(users);
+      users.should.not.be.empty();
+      done();
+    });
+  });
+
+  it('should not throw on fetch User if include is symbol', function(done) {
+    User.find({include: Symbol('include')}, function(err, users) {
+      if (err) return done(err);
+      should.exist(users);
+      users.should.not.be.empty();
+      done();
+    });
+  });
+
+  it('should not throw on fetch User if include is function', function(done) {
+    const include = () => {};
+    User.find({include}, function(err, users) {
+      if (err) return done(err);
+      should.exist(users);
+      users.should.not.be.empty();
+      done();
+    });
+  });
+
   // Not implemented correctly, see: loopback-datasource-juggler/issues/166
   // fixed by DB optimization
   it('should support include scope on hasAndBelongsToMany', function(done) {
