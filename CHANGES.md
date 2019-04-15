@@ -1,3 +1,9 @@
+2019-04-15, Version 2.59.2
+==========================
+
+ * fix: normalize include with boolean or number (spurreiter)
+
+
 2019-04-09, Version 2.59.1
 ==========================
 
