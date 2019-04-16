@@ -1055,6 +1055,40 @@ describe('basic-querying', function() {
     });
   });
 
+  describe('updateAll', function() {
+    it('coerces primitive datatypes on update', async () => {
+      const numAndDateModel = db.define('numAndDateModel', {
+        dateProp: Date,
+        dateArray: [Date],
+        numProp: Number,
+        numArray: [Number],
+      });
+      const createDate = new Date('2019-02-21T12:00:00').toISOString();
+      const createData = {
+        dateProp: createDate,
+        dateArray: [createDate, createDate],
+        numProp: '1',
+        numArray: ['1', '2'],
+      };
+      const updateDate = new Date('2019-04-15T12:00:00').toISOString();
+      const updateData = {
+        dateProp: updateDate,
+        dateArray: [updateDate, updateDate],
+        numProp: '3',
+        numArray: ['3', '4'],
+      };
+      const created = await numAndDateModel.create(createData);
+      const updated = await numAndDateModel.updateAll({id: created.id}, updateData);
+      const found = await numAndDateModel.findById(created.id);
+      found.dateProp.should.deepEqual(new Date(updateDate));
+      found.dateArray[0].should.deepEqual(new Date(updateDate));
+      found.dateArray[1].should.deepEqual(new Date(updateDate));
+      found.numProp.should.equal(3);
+      found.numArray[0].should.equal(3);
+      found.numArray[1].should.equal(4);
+    });
+  });
+
   context('regexp operator', function() {
     const invalidDataTypes = [0, true, {}, [], Function, null];
 
