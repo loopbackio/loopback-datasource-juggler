@@ -9,7 +9,7 @@
 /* global getSchema:false */
 const should = require('./init.js');
 
-let db, Model;
+let db, Model, modelWithDecimalArray, dateArrayModel, numArrayModel;
 
 describe('datatypes', function() {
   before(function(done) {
@@ -25,7 +25,24 @@ describe('datatypes', function() {
       nested: Nested,
     };
     Model = db.define('Model', modelTableSchema);
-    db.automigrate(['Model'], done);
+    modelWithDecimalArray = db.define('modelWithDecimalArray', {
+      randomReview: {
+        type: [String],
+        mongodb: {
+          dataType: 'Decimal128',
+        },
+      },
+    });
+    dateArrayModel = db.define('dateArrayModel', {
+      bunchOfDates: [Date],
+      bunchOfOtherDates: {
+        type: [Date],
+      },
+    });
+    numArrayModel = db.define('numArrayModel', {
+      bunchOfNums: [Number],
+    });
+    db.automigrate(['Model', 'modelWithDecimalArray', 'dateArrayModel', 'numArrayModel'], done);
   });
 
   it('should resolve top-level "type" property correctly', function() {
@@ -46,52 +63,39 @@ describe('datatypes', function() {
     Account.definition.properties.item.type.should.not.equal(String);
   });
   it('should resolve array prop with connector specific metadata', function() {
-    const model = db.define('test', {
-      randomReview: {
-        type: [String],
-        mongodb: {
-          dataType: 'Decimal128',
-        },
-      },
-    });
-    model.definition.properties.randomReview.type.should.deepEqual(Array(String));
-    model.definition.properties.randomReview.mongodb.should.deepEqual({dataType: 'Decimal128'});
+    const props = modelWithDecimalArray.definition.properties;
+    props.randomReview.type.should.deepEqual(Array(String));
+    props.randomReview.mongodb.should.deepEqual({dataType: 'Decimal128'});
   });
 
-  it('should coerce array of dates from string', async () => {
-    const dateArrayModel = db.define('dateArrayModel', {
-      bunchOfDates: [Date],
-      bunchOfOtherDates: {
-        type: [Date],
-      },
-    });
+  it('should coerce array of dates from string', function() {
     const dateVal = new Date('2019-02-21T12:00:00').toISOString();
-    const created = await dateArrayModel.create({
+    return dateArrayModel.create({
       bunchOfDates: [dateVal,
         dateVal,
         dateVal],
       bunchOfOtherDates: [dateVal,
         dateVal,
         dateVal],
+    }).then((created) => {
+      created.bunchOfDates[0].should.be.an.instanceOf(Date);
+      created.bunchOfDates[0].should.deepEqual(new Date(dateVal));
+      created.bunchOfOtherDates[0].should.be.an.instanceOf(Date);
+      created.bunchOfOtherDates[0].should.deepEqual(new Date(dateVal));
     });
-    created.bunchOfDates[0].should.be.an.instanceOf(Date);
-    created.bunchOfDates[0].should.deepEqual(new Date(dateVal));
-    created.bunchOfOtherDates[0].should.be.an.instanceOf(Date);
-    created.bunchOfOtherDates[0].should.deepEqual(new Date(dateVal));
   });
 
-  it('should coerce array of numbers from string', async () => {
-    const numArrayModel = db.define('numArrayModel', {
-      bunchOfNums: [Number],
-    });
+  it('should coerce array of numbers from string', function() {
     const dateVal = new Date('2019-02-21T12:00:00').toISOString();
-    const created = await numArrayModel.create({
+    return numArrayModel.create({
       bunchOfNums: ['1',
         '2',
         '3'],
-    });
-    created.bunchOfNums[0].should.be.an.instanceOf(Number);
-    created.bunchOfNums[0].should.equal(1);
+    })
+      .then((created) => {
+        created.bunchOfNums[0].should.be.an.instanceOf(Number);
+        created.bunchOfNums[0].should.equal(1);
+      });
   });
 
   it('should return 400 when property of type array is set to string value',
