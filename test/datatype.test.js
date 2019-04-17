@@ -9,7 +9,7 @@
 /* global getSchema:false */
 const should = require('./init.js');
 
-let db, Model;
+let db, Model, modelWithDecimalArray, dateArrayModel, numArrayModel;
 
 class NestedClass {
   constructor(roleName) {
@@ -32,7 +32,24 @@ describe('datatypes', function() {
       nestedClass: NestedClass,
     };
     Model = db.define('Model', modelTableSchema);
-    db.automigrate(['Model'], done);
+    modelWithDecimalArray = db.define('modelWithDecimalArray', {
+      randomReview: {
+        type: [String],
+        mongodb: {
+          dataType: 'Decimal128',
+        },
+      },
+    });
+    dateArrayModel = db.define('dateArrayModel', {
+      bunchOfDates: [Date],
+      bunchOfOtherDates: {
+        type: [Date],
+      },
+    });
+    numArrayModel = db.define('numArrayModel', {
+      bunchOfNums: [Number],
+    });
+    db.automigrate(['Model', 'modelWithDecimalArray', 'dateArrayModel', 'numArrayModel'], done);
   });
 
   it('should resolve top-level "type" property correctly', function() {
@@ -53,25 +70,12 @@ describe('datatypes', function() {
     Account.definition.properties.item.type.should.not.equal(String);
   });
   it('should resolve array prop with connector specific metadata', function() {
-    const model = db.define('test', {
-      randomReview: {
-        type: [String],
-        mongodb: {
-          dataType: 'Decimal128',
-        },
-      },
-    });
-    model.definition.properties.randomReview.type.should.deepEqual(Array(String));
-    model.definition.properties.randomReview.mongodb.should.deepEqual({dataType: 'Decimal128'});
+    const props = modelWithDecimalArray.definition.properties;
+    props.randomReview.type.should.deepEqual(Array(String));
+    props.randomReview.mongodb.should.deepEqual({dataType: 'Decimal128'});
   });
 
   it('should coerce array of dates from string', async () => {
-    const dateArrayModel = db.define('dateArrayModel', {
-      bunchOfDates: [Date],
-      bunchOfOtherDates: {
-        type: [Date],
-      },
-    });
     const dateVal = new Date('2019-02-21T12:00:00').toISOString();
     const created = await dateArrayModel.create({
       bunchOfDates: [dateVal,
@@ -88,9 +92,6 @@ describe('datatypes', function() {
   });
 
   it('should coerce array of numbers from string', async () => {
-    const numArrayModel = db.define('numArrayModel', {
-      bunchOfNums: [Number],
-    });
     const dateVal = new Date('2019-02-21T12:00:00').toISOString();
     const created = await numArrayModel.create({
       bunchOfNums: ['1',

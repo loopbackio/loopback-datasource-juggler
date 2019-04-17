@@ -1056,37 +1056,59 @@ describe('basic-querying', function() {
   });
 
   describe('updateAll', function() {
-    it('coerces primitive datatypes on update', async () => {
-      const numAndDateModel = db.define('numAndDateModel', {
+    let numAndDateModel, numAndDateArrayModel;
+
+    before(function() {
+      numAndDateModel = db.define('numAndDateModel', {
         dateProp: Date,
-        dateArray: [Date],
         numProp: Number,
+      });
+      numAndDateArrayModel = db.define('numAndDateArrayModel', {
+        dateArray: [Date],
         numArray: [Number],
       });
+      return db.automigrate(['numAndDateModel', 'numAndDateArrayModel']);
+    });
+
+    it('coerces primitive datatypes on update', async () => {
       const createDate = new Date('2019-02-21T12:00:00').toISOString();
       const createData = {
         dateProp: createDate,
-        dateArray: [createDate, createDate],
         numProp: '1',
-        numArray: ['1', '2'],
       };
       const updateDate = new Date('2019-04-15T12:00:00').toISOString();
       const updateData = {
         dateProp: updateDate,
-        dateArray: [updateDate, updateDate],
         numProp: '3',
-        numArray: ['3', '4'],
       };
       const created = await numAndDateModel.create(createData);
       const updated = await numAndDateModel.updateAll({id: created.id}, updateData);
       const found = await numAndDateModel.findById(created.id);
       found.dateProp.should.deepEqual(new Date(updateDate));
-      found.dateArray[0].should.deepEqual(new Date(updateDate));
-      found.dateArray[1].should.deepEqual(new Date(updateDate));
       found.numProp.should.equal(3);
-      found.numArray[0].should.equal(3);
-      found.numArray[1].should.equal(4);
     });
+
+    // PostgreSQL connector does not support arrays at the moment
+    bdd.itIf(connectorCapabilities.supportsArrays !== false,
+      'coerces primitive array datatypes on update', async () => {
+        const createDate = new Date('2019-02-21T12:00:00').toISOString();
+        const createData = {
+          dateArray: [createDate, createDate],
+          numArray: ['1', '2'],
+        };
+        const updateDate = new Date('2019-04-15T12:00:00').toISOString();
+        const updateData = {
+          dateArray: [updateDate, updateDate],
+          numArray: ['3', '4'],
+        };
+        const created = await numAndDateArrayModel.create(createData);
+        const updated = await numAndDateArrayModel.updateAll({id: created.id}, updateData);
+        const found = await numAndDateArrayModel.findById(created.id);
+        found.dateArray[0].should.deepEqual(new Date(updateDate));
+        found.dateArray[1].should.deepEqual(new Date(updateDate));
+        found.numArray[0].should.equal(3);
+        found.numArray[1].should.equal(4);
+      });
   });
 
   context('regexp operator', function() {
