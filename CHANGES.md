@@ -1,3 +1,13 @@
+2019-04-18, Version 3.30.0
+==========================
+
+ * fix: coerce primitive properties on update (biniam)
+
+ * fix: coerce date array properties (biniam)
+
+ * fix: add index for couchdb tests (#1720) (Janny)
+
+
 2019-04-15, Version 3.29.2
 ==========================
 
