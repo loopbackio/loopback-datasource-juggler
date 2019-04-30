@@ -1,3 +1,15 @@
+2019-04-30, Version 4.6.3
+=========================
+
+ * Add support for Node.js 12.x (Miroslav Bajtoš)
+
+ * fix: coerce primitive properties on update (biniam)
+
+ * fix: coerce date array properties (biniam)
+
+ * fix: normalize include with boolean or number (spurreiter)
+
+
 2019-04-10, Version 4.6.2
 =========================
 
