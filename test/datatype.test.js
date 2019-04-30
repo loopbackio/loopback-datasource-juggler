@@ -183,16 +183,16 @@ describe('datatypes', function() {
       arr: [1, 'str'],
       nestedClass: new NestedClass('admin'),
     });
-    created.list.should.deepEqual(['test']);
-    created.arr.should.deepEqual([1, 'str']);
+    created.list.toJSON().should.deepEqual(['test']);
+    created.arr.toJSON().should.deepEqual([1, 'str']);
     created.date.should.be.an.instanceOf(Date);
     created.date.toString().should.equal(d.toString(), 'Time must match');
     created.nestedClass.should.have.property('roleName', 'admin');
 
     const found = await Model.findById(created.id);
     should.exist(found);
-    found.list.should.deepEqual(['test']);
-    found.arr.should.deepEqual([1, 'str']);
+    found.list.toJSON().should.deepEqual(['test']);
+    found.arr.toJSON().should.deepEqual([1, 'str']);
     found.date.should.be.an.instanceOf(Date);
     found.date.toString().should.equal(d.toString(), 'Time must match');
     found.nestedClass.should.have.property('roleName', 'admin');
