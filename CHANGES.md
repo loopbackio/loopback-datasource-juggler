@@ -1,3 +1,9 @@
+2019-05-03, Version 4.7.0
+=========================
+
+ * fix: allow coercion of nested properties (biniam)
+
+
 2019-05-03, Version 4.6.4
 =========================
 
