@@ -1,3 +1,13 @@
+2019-05-03, Version 3.31.0
+==========================
+
+ * fix: allow coercion of nested properties (biniam)
+
+ * Add support for Node.js 12.x (Miroslav Bajtoš)
+
+ * chore: remove kv-extreme-scale from downstream (#1722) (Diana Lau)
+
+
 2019-04-18, Version 3.30.0
 ==========================
 
