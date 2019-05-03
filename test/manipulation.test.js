@@ -2366,7 +2366,7 @@ describe('manipulation', function() {
     it('should not coerce invalid values provided in where conditions', function(done) {
       Person.update({name: 'Brett Boe'}, {dob: 'notadate'}, function(err) {
         should.exist(err);
-        err.message.should.equal('Invalid date: Invalid Date');
+        err.message.should.equal('Invalid date: notadate');
         done();
       });
     });
