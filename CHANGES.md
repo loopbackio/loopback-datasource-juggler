@@ -1,3 +1,17 @@
+2019-05-03, Version 4.6.4
+=========================
+
+ * Fix tests for empty/default values to pass on SQL (Miroslav Bajtoš)
+
+ * Update nyc to 14.0.0 (Miroslav Bajtoš)
+
+ * test: define models in before hooks (biniam)
+
+ * Update `should` to `13.2.3` (Miroslav Bajtoš)
+
+ * Update `mocha` to `6.1.4` (Miroslav Bajtoš)
+
+
 2019-04-30, Version 4.6.3
 =========================
 
