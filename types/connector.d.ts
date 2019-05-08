@@ -1,3 +1,8 @@
+// Copyright IBM Corp. 2018. All Rights Reserved.
+// Node module: loopback-datasource-juggler
+// This file is licensed under the MIT License.
+// License text available at https://opensource.org/licenses/MIT
+
 import {Callback, DataSource, Options, PromiseOrVoid} from '..';
 
 // Copyright IBM Corp. 2018. All Rights Reserved.
