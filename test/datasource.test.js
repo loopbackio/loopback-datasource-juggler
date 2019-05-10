@@ -9,6 +9,15 @@ const should = require('./init.js');
 const DataSource = require('../lib/datasource.js').DataSource;
 
 describe('DataSource', function() {
+  it('clones settings to prevent surprising changes in passed args', () => {
+    const config = {connector: 'memory'};
+
+    const ds = new DataSource(config);
+    ds.settings.extra = true;
+
+    config.should.eql({connector: 'memory'});
+  });
+
   it('reports helpful error when connector init throws', function() {
     const throwingConnector = {
       name: 'loopback-connector-throwing',
