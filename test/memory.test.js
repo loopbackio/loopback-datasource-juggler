@@ -917,6 +917,9 @@ describe('Unoptimized connector', function() {
   ds.connector.findOrCreate = false;
   ds.connector.upsertWithWhere = false;
 
+  // disable native location queries
+  ds.connector.buildNearFilter = false;
+
   require('./persistence-hooks.suite')(ds, should, {
     replaceOrCreateReportsNewInstance: true,
   });
