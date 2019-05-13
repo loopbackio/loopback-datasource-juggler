@@ -44,6 +44,13 @@ describe('DateString', function() {
       // The internal date representation should also be updated!
       date._date.toString().should.eql(d.toString());
     });
+
+    it('should accept DateString instance', function() {
+      const input = new DateString('2015-01-01');
+      const inst = new DateString(input);
+      inst.toString().should.equal('2015-01-01');
+    });
+
     it('should return custom inspect output', function() {
       const date = new DateString('2015-01-01');
       const result = inspect(date);
