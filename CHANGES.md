@@ -1,3 +1,21 @@
+2019-05-14, Version 4.7.1
+=========================
+
+ * Fix "access" hook for unoptimized "near" queries (Miroslav Bajtoš)
+
+ * Fix "loaded" hook for unoptimized "near" queries (Miroslav Bajtoš)
+
+ * Test "near" queries executed in memory (Miroslav Bajtoš)
+
+ * Fix DateString ctor to accept DateString instances (Miroslav Bajtoš)
+
+ * datasource: copy settings object in constructor (Miroslav Bajtoš)
+
+ * chore: update copyrights years (#1737) (Agnes Lin)
+
+ * chore: update LTS status (#1734) (Diana Lau)
+
+
 2019-05-03, Version 4.7.0
 =========================
 
