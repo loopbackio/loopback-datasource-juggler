@@ -4980,6 +4980,72 @@ describe('relations', function() {
       });
     });
 
+    it('should pass options when removed by id', function(done) {
+      const verifyOptions = function(ctx, next) {
+        if (!ctx.options || !ctx.options.verify) {
+          return next(new Error('options or options.verify is missing'));
+        }
+        return next();
+      };
+      Person.observe('before save', verifyOptions);
+      Person.findOne(function(err, p) {
+        p.addressList.create({street: 'options 1'}, {verify: true}, function(err, address) {
+          if (err) {
+            Person.clearObservers('before save');
+            return done(err);
+          }
+          p.addressList.destroy(address.id, {verify: true}, function(err) {
+            if (err) {
+              Person.clearObservers('before save');
+              return done(err);
+            }
+            Person.findById(p.id, function(err, verify) {
+              if (err) {
+                Person.clearObservers('before save');
+                return done(err);
+              }
+              verify.addresses.should.have.length(1);
+              Person.clearObservers('before save');
+              done();
+            });
+          });
+        });
+      });
+    });
+
+    it('should pass options when removed by where', function(done) {
+      const verifyOptions = function(ctx, next) {
+        if (!ctx.options || !ctx.options.verify) {
+          return next(new Error('options or options.verify is missing'));
+        }
+        return next();
+      };
+      Person.observe('before save', verifyOptions);
+      Person.findOne(function(err, p) {
+        p.addressList.create({street: 'options 2'}, {verify: true}, function(err, address) {
+          if (err) {
+            Person.clearObservers('before save');
+            return done(err);
+          }
+          p.addressList.destroyAll({street: 'options 2'}, {verify: true}, function(err) {
+            if (err) {
+              Person.clearObservers('before save');
+              return done(err);
+            }
+            Person.findById(p.id, function(err, verify) {
+              if (err) {
+                Person.clearObservers('before save');
+                return done(err);
+              }
+              verify.addresses.should.have.length(1);
+              Person.clearObservers('before save');
+              done();
+            });
+          });
+        });
+      });
+    });
+
     // eslint-disable-next-line mocha/no-identical-title
     it('should create embedded items on scope', function(done) {
       Person.findOne(function(err, p) {
