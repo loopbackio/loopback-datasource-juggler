@@ -325,6 +325,86 @@ describe('async observer', function() {
       }
     );
   });
+
+  it('should call after operation hook on error', function(done) {
+    const context = {
+      req: {},
+    };
+    const operationError = new Error('The operation failed without result');
+    let callCount = 0;
+
+    function fail(context, done) {
+      process.nextTick(() => {
+        done(operationError);
+      });
+    }
+
+    TestModel.observe('after execute error', function(ctx, next) {
+      callCount++;
+      next();
+    });
+
+    TestModel.notifyObserversAround('execute', context, fail, (err, ctx) => {
+      callCount.should.eql(1);
+      err.message.should.eql(operationError.message);
+      ctx.error.message.should.eql(operationError.message);
+      done();
+    });
+  });
+
+  it('should call after operation hook on error while overwriting error', function(done) {
+    const context = {
+      req: {},
+    };
+    const operationError = new Error('The operation failed without result');
+    const overwriteError = new Error('Overwriting the original error');
+    let callCount = 0;
+
+    function fail(context, done) {
+      process.nextTick(() => {
+        done(operationError);
+      });
+    }
+
+    TestModel.observe('after execute error', function(ctx, next) {
+      callCount++;
+      next(overwriteError);
+    });
+
+    TestModel.notifyObserversAround('execute', context, fail, (err, ctx) => {
+      callCount.should.eql(1);
+      err.message.should.eql(overwriteError.message);
+      ctx.error.message.should.eql(operationError.message);
+      done();
+    });
+  });
+
+  it('should call after operation hook on error while allowing to change err', function(done) {
+    const context = {
+      req: {},
+    };
+    const operationError = new Error('The operation failed without result');
+    let callCount = 0;
+
+    function fail(context, done) {
+      process.nextTick(() => {
+        done(operationError);
+      });
+    }
+
+    TestModel.observe('after execute error', function(ctx, next) {
+      callCount++;
+      const err = ctx.error;
+      next(err, ctx);
+    });
+
+    TestModel.notifyObserversAround('execute', context, fail, (err, ctx) => {
+      callCount.should.eql(1);
+      err.message.should.eql(operationError.message);
+      ctx.error.message.should.eql(operationError.message);
+      done();
+    });
+  });
 });
 
 function pushAndNext(array, value) {
