@@ -23,6 +23,6 @@ export type Callback<T = any> = (err?: any | null, result?: T) => void;
 /**
  * Return export type for promisified Node.js async methods.
  *
- * Note that juggler uses Bluebird, not the native Promise.
+ * Note that starting with version 4.0, juggler uses native Promises.
  */
-export type PromiseOrVoid<T = any> = PromiseLike<T> | void;
+export type PromiseOrVoid<T = any> = Promise<T> | void;
