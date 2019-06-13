@@ -1,3 +1,13 @@
+2019-06-13, Version 4.8.0
+=========================
+
+ * Fix types to describe native Promise (Miroslav Bajtoš)
+
+ * feat: after operation hook in case of errors (spurreiter)
+
+ * Fix for #1724 - Added options to attribute updates (#1725) (Bill Matson)
+
+
 2019-05-14, Version 4.7.1
 =========================
 
