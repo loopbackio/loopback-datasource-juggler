@@ -1554,7 +1554,7 @@ function setup(done) {
     expirationDate: Date,
   });
   Post = db.define('Post', {
-    title: String,
+    title: {type: String, index: true},
   });
 
   Passport.belongsTo('owner', {model: User});
