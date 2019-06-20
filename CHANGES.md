@@ -1,3 +1,9 @@
+2019-06-20, Version 4.8.1
+=========================
+
+ * test: add property index to support cloudant (#1750) (Janny)
+
+
 2019-06-13, Version 4.8.0
 =========================
 
