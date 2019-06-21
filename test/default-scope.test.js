@@ -8,7 +8,7 @@
 var should = require('./init.js');
 var async = require('async');
 
-var db, Category, Product, Tool, Widget, Thing, Person;
+var db, Category, Product, Tool, Widget, Thing, Person, FavoriteTool;
 
 // This test requires a connector that can
 // handle a custom collection or table name
@@ -67,6 +67,11 @@ describe('default scope', function() {
     }, {
       scope: {order: 'name'},
       scopes: {active: {where: {active: true}}},
+    });
+
+    FavoriteTool = db.define('FavoriteTool', {
+      name: String,
+      tool: {type: 'Tool'},
     });
 
     Product.lookupModel = function(data) {
@@ -208,6 +213,159 @@ describe('default scope', function() {
         p.name.should.equal('Product A');
         p.kind.should.equal('Tool');
         p.description.should.equal('Anything...');
+        done();
+      });
+    });
+
+    //
+    // Prototype pollution is dangerous. If __proto__ is specified as a regular
+    // key then spread over the object, you can risk overwriting Object.prototype.
+    //
+    // It's not possible to do this by passing an object literal, as __proto__ will not
+    // be enumerable. But it *is* possible to do this when it comes in through JSON.parse()
+    // (i.e. through body-parser or the equivalent), which can lead to crazy errors,
+    // where the underlying ModelConstructor gets overridden and interal methods disappear.
+    //
+    // You'll see errors like `this.trigger is not a function`.
+    //
+    // At that point, anything goes. So we need to block it anywhere we might take input.
+    //
+
+    it('security: prototype pollution - updateAttributes', function(done) {
+      Tool.create({name: 'Product A'}, function(err, p) {
+        p.updateAttributes({__proto__: {'evil': 'foo'}, good: 'bar'}, function(err, inst) {
+          should.not.exist(err);
+          should.not.exist(inst.evil);
+          should.not.exist(inst.__proto__.evil);
+          inst.good.should.equal('bar');
+          done();
+        });
+      });
+    });
+
+    // Really dangerous: this will overwrite ModelConstructor attributes
+    // So this won't even save, it'll throw a crazy error while it attempts to validate
+    it('security: prototype pollution - updateAttributes with JSON.parse()', function(done) {
+      Tool.create({name: 'Product A'}, function(err, p) {
+        p.updateAttributes(JSON.parse('{"__proto__": {"evil": "foo"}, "good": "bar"}'), function(err, inst) {
+          should.not.exist(err);
+          should.not.exist(inst.evil);
+          inst.good.should.equal('bar');
+          done();
+        });
+      });
+    });
+
+    it('security: prototype pollution - updateAttributes on nested object', function(done) {
+      FavoriteTool.create({name: 'Product A', tool: {name: 'Product A'}}, function(err, p) {
+        p.updateAttributes({tool: {__proto__: {evil: 'foo'}, good: 'bar'}}, function(err, inst) {
+          should.not.exist(err);
+          should.not.exist(inst.tool.evil);
+          inst.tool.good.should.equal('bar');
+          done();
+        });
+      });
+    });
+
+    it('security: prototype pollution - updateAttributes on nested object with JSON.parse()', function(done) {
+      FavoriteTool.create({name: 'Product A', tool: {name: 'Product A'}}, function(err, p) {
+        p.updateAttributes(JSON.parse('{"tool": {"__proto__": {"evil": "foo"}, "good": "bar"}}'),
+        function(err, inst) {
+          should.not.exist(err);
+          should.not.exist(inst.tool.evil);
+          inst.tool.good.should.equal('bar');
+          done();
+        });
+      });
+    });
+
+    it('security: prototype pollution - constructor', function() {
+      var p = new Tool({__proto__: {bar: 'danger'}});
+      should.not.exist(p.__proto__.bar);
+      should.not.exist(p.bar);
+    });
+
+    it('security: prototype pollution - constructor with JSON.parse()', function() {
+      var p = new Tool(JSON.parse('{"__proto__": {"bar": "danger"}}'));
+      should.not.exist(p.__proto__.bar);
+      should.not.exist(p.bar);
+    });
+
+    it('security: prototype pollution - setAttribute', function() {
+      var p = new Tool();
+      p.setAttributes({__proto__: {bar: 'danger'}});
+      should.not.exist(p.__proto__.bar);
+      should.not.exist(p.bar);
+      p.setAttribute('__proto__', {bar: 'danger'});
+      should.not.exist(p.__proto__.bar);
+      should.not.exist(p.bar);
+    });
+
+    it('security: prototype pollution - setAttribute with JSON.parse()', function() {
+      var p = new Tool();
+      p.setAttributes(JSON.parse('{"__proto__": {"bar": "danger"}}'));
+      should.not.exist(p.__proto__.bar);
+      should.not.exist(p.bar);
+    });
+
+    it('security: prototype pollution - nested setAttribute', function() {
+      var p = new Tool();
+      p.setAttributes({baz: {__proto__: {bar: 'danger'}}});
+      // should not leak to model prototype
+      should.not.exist(p.__proto__.bar);
+      should.not.exist(p.bar);
+      // But should be on nested object on prototype, as we created a raw
+      // object and __proto__ is not enumerable, and thus won't be removed.
+      p.baz.bar.should.equal('danger');
+      p.baz.__proto__.bar.should.equal('danger');
+
+      p.setAttribute('biff', {__proto__: {bar: 'danger'}});
+      should.not.exist(p.__proto__.bar);
+      should.not.exist(p.bar);
+      // But should be on nested object on prototype
+      p.biff.bar.should.equal('danger');
+      p.biff.__proto__.bar.should.equal('danger');
+    });
+
+    it('security: prototype pollution - nested setAttribute with JSON.parse()', function() {
+      var p = new Tool();
+      p.setAttributes({baz: JSON.parse('{"__proto__": {"bar": "danger"}}')});
+      // should not leak to model prototype or nested object's prototype
+      should.not.exist(p.__proto__.bar);
+      should.not.exist(p.bar);
+      // and should not be on nested object
+      should.not.exist(p.baz.bar);
+      should.not.exist(p.baz.__proto__.bar);
+
+      p.setAttribute('biff', JSON.parse('{"__proto__": {"bar": "danger"}}'));
+      should.not.exist(p.__proto__.bar);
+      should.not.exist(p.bar);
+      // and should not be on nested object
+      should.not.exist(p.biff.bar);
+      should.not.exist(p.baz.__proto__.bar);
+    });
+
+    it('security: prototype pollution - create', function(done) {
+      Tool.create({foo: {__proto__: {bar: 'danger'}}}, function(err, p) {
+        should.not.exist(err);
+        should.not.exist(p.__proto__.bar);
+        should.not.exist(p.bar);
+        // Will be on nested object's proto
+        p.foo.bar.should.equal('danger');
+        p.foo.__proto__.bar.should.equal('danger');
+        done();
+      });
+    });
+
+    it('security: prototype pollution - create with JSON.parse()', function(done) {
+      Tool.create({foo: JSON.parse('{"__proto__": {"bar": "danger"}}')}, function(err, p) {
+        should.not.exist(err);
+        should.not.exist(p.__proto__.bar);
+        should.not.exist(p.bar);
+        // Will be on nested object's as enumerable key
+        should.not.exist(p.foo.bar);
+        // Removed in removeUndefined() called in create
+        should.not.exist(p.foo.__proto__.bar);
         done();
       });
     });
