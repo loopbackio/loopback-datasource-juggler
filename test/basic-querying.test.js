@@ -12,7 +12,7 @@ const bdd = require('./helpers/bdd-if');
 const should = require('./init.js');
 const uid = require('./helpers/uid-generator');
 
-let db, User;
+let db, User, Product;
 
 describe('basic-querying', function() {
   before(function(done) {
@@ -52,6 +52,11 @@ describe('basic-querying', function() {
     (db.adapter.name != 'informix') && (db.adapter.name != 'cassandra');
     if (connectorCapabilities.geoPoint) userModelDef.addressLoc = {type: 'GeoPoint'};
     User = db.define('User', userModelDef);
+
+    Product = db.define('Product', {
+      name: {type: String, required: true},
+    });
+
     db.automigrate(done);
   });
 
@@ -1125,6 +1130,71 @@ describe('basic-querying', function() {
           cb();
         });
       }, done);
+    });
+  });
+
+  bdd.describeIf(connectorCapabilities.supportInq !== false, 'inq query', () => {
+    let originalInqLimit;
+    let originalAll;
+    let observedCalls;
+
+    before(async function setupTestModels() {
+      Product = db.define('Product', {
+        name: {type: String, required: true},
+      });
+
+      await db.automigrate(Product.modelName);
+
+      originalInqLimit = db.settings.inqLimit;
+      originalAll = db.connector.all;
+
+      if ((db.settings.inqLimit || Infinity) > 5) {
+        // artificially reduce the inqLimit to a small number to trigger
+        // inq splitting even for connectors that support arbitrarily-long
+        // inq lists and also to keep the test fast
+        db.settings.inqLimit = 3;
+      }
+    });
+
+    afterEach(function restoreOriginalState() {
+      db.settings.inqLimit = originalInqLimit;
+      db.connector.all = originalAll;
+    });
+
+    it('rejects geo queries with inq splitting', function() {
+      const where = {
+        id: {inq: [1, 2, 3]},
+        location: {near: {lat: 29.9, lng: -90.07}},
+      };
+      return Product.find({where}, {splitLongInq: true})
+        .should.be.rejectedWith(/splitLongInq.*not supported/);
+    });
+
+    it('splits large inq list', async function() {
+      const observedCalls = [];
+      db.connector.all = function(modelName, query, options, cb) {
+        observedCalls.push({modelName, query, options});
+        originalAll.apply(this, arguments);
+      };
+
+      const created = [];
+      // Notice that 10 is not divisible by inqLimit
+      for (let i = 0; i < 10; i++) {
+        // Create a product that we will look for
+        created.push(await Product.create({name: `a-product-${i}`}));
+        // Create also a product that won't be matched by the query
+        await Product.create({name: `another-product-${i}`});
+      }
+
+      const found = await Product.find(
+        {where: {id: {inq: created.map(u => u.id)}}},
+        {splitLongInq: true}
+      );
+
+      // Records were found correctly
+      found.map(u => u.name).should.eql(created.map(u => u.name));
+      // Multiple database queries were sent
+      observedCalls.length.should.be.greaterThan(1);
     });
   });
 });
