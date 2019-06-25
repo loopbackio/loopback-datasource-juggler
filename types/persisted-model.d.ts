@@ -6,7 +6,6 @@
 import {Callback, Options, PromiseOrVoid} from './common';
 import {ModelBase, ModelData} from './model';
 import {Filter, Where} from './query';
-import {Transaction} from './transaction-mixin';
 
 /**
  * Data object for persisted models
@@ -477,58 +476,6 @@ export declare class PersistedModel extends ModelBase {
     options?: Options,
     callback?: Callback<boolean>,
   ): PromiseOrVoid<boolean>;
-
-/**
- * Begin a new transaction.
- *
- * A transaction can be committed or rolled back. If timeout happens, the
- * transaction will be rolled back. Please note a transaction is typically
- * associated with a pooled connection. Committing or rolling back a transaction
- * will release the connection back to the pool.
- *
- * Once the transaction is committed or rolled back, the connection property
- * will be set to null to mark the transaction to be inactive. Trying to commit
- * or rollback an inactive transaction will receive an error from the callback.
- *
- * Please also note that the transaction is only honored with the same data
- * source/connector instance. CRUD methods will not join the current transaction
- * if its model is not attached the same data source.
- *
- * Example:
- *
- * To pass the transaction context to one of the CRUD methods, use the `options`
- * argument with `transaction` property, for example,
- *
- * ```js
- * MyModel.beginTransaction('READ COMMITTED', function(err, tx) {
-  *   MyModel.create({x: 1, y: 'a'}, {transaction: tx}, function(err, inst) {
-  *     MyModel.find({x: 1}, {transaction: tx}, function(err, results) {
-  *       // ...
-  *       tx.commit(function(err) {...});
-  *     });
-  *   });
-  * });
-  * ```
-  *
-  * @param {Object|String} options Options to be passed upon transaction.
-  *
-  * Can be one of the forms:
-  *  - Object: {isolationLevel: '...', timeout: 1000}
-  *  - String: isolationLevel
-  *
-  * Valid values of `isolationLevel` are:
-  *
-  * - Transaction.READ_COMMITTED = 'READ COMMITTED'; // default
-  * - Transaction.READ_UNCOMMITTED = 'READ UNCOMMITTED';
-  * - Transaction.SERIALIZABLE = 'SERIALIZABLE';
-  * - Transaction.REPEATABLE_READ = 'REPEATABLE READ';
-  * @callback {Function} cb Callback function.
-  * @returns {Promise|undefined} Returns a callback promise.
-  */
-  beginTransaction(
-    options?: string | Options,
-    callback?: Callback<Transaction>,
-  ): PromiseOrVoid<Transaction>;
 
   /**
    * Reload object from persistence.  Requires `id` member of `object` to be able to call `find`.
