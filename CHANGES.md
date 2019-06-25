@@ -1,3 +1,11 @@
+2019-06-25, Version 4.8.2
+=========================
+
+ * chore: expose beginTransaction API (Biniam Admikew)
+
+ * update LTS in README (#1751) (Diana Lau)
+
+
 2019-06-20, Version 4.8.1
 =========================
 
