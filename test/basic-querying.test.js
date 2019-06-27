@@ -1067,6 +1067,19 @@ describe('basic-querying', function() {
         });
       });
     });
+
+    it('should work for or operator', function() {
+      const query = {
+        where: {
+          or: [{name: 'Paul McCartney'}, {email: 'abc@xyz.com'}],
+        },
+      };
+      return User.findOne(query, function(err, user) {
+        should.not.exist(err);
+        should.exist(user);
+        user.toObject().name.should.equal('Paul McCartney');
+      });
+    });
   });
 
   describe('exists', function() {
