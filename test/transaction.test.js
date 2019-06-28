@@ -71,6 +71,13 @@ describe('Transactions on test connector without execute()', () => {
     }, done);
   });
 
+  it('beginTransaction returns a transaction', async () => {
+    const promise = db.beginTransaction(Transaction.READ_UNCOMMITTED);
+    promise.should.be.Promise();
+    const transaction = await promise;
+    transaction.should.be.instanceof(EventEmitter);
+  });
+
   it('exposes and caches slave models', done => {
     testModelCaching(tx.models, db.models);
     done();

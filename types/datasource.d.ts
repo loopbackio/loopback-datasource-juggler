@@ -12,6 +12,7 @@ import {
   PropertyDefinition,
 } from './model';
 import {EventEmitter} from 'events';
+import {IsolationLevel, Transaction} from './transaction-mixin';
 
 /**
  * LoopBack models can manipulate data via the DataSource object.
@@ -185,4 +186,15 @@ export declare class DataSource extends EventEmitter {
     args?: any[] | object,
     options?: Options
   ): Promise<any>;
+
+/**
+ * Begin a new transaction.
+ *
+ *
+ * @param [options] Options {isolationLevel: '...', timeout: 1000}
+ * @returns Promise A promise which resolves to a Transaction object
+ */
+  beginTransaction(
+    options?: IsolationLevel | Options,
+  ): PromiseOrVoid<Transaction>;
 }
