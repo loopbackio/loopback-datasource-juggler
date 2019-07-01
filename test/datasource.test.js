@@ -352,4 +352,176 @@ describe('DataSource', function() {
         .should.not.containEql('TestModel');
     });
   });
+
+  describe('execute', () => {
+    let ds;
+    beforeEach(() => ds = new DataSource('ds', {connector: 'memory'}));
+
+    it('calls connnector to execute the command', async () => {
+      let called = 'not called';
+      ds.connector.execute = function(command, args, options, callback) {
+        called = {command, args, options};
+        callback(null, 'a-result');
+      };
+
+      const result = await ds.execute(
+        'command',
+        ['arg1', 'arg2'],
+        {'a-flag': 'a-value'}
+      );
+
+      result.should.be.equal('a-result');
+      called.should.be.eql({
+        command: 'command',
+        args: ['arg1', 'arg2'],
+        options: {'a-flag': 'a-value'},
+      });
+    });
+
+    it('supports shorthand version (cmd)', async () => {
+      let called = 'not called';
+      ds.connector.execute = function(command, args, options, callback) {
+        called = {command, args, options};
+        callback(null, 'a-result');
+      };
+
+      const result = await ds.execute('command');
+      result.should.be.equal('a-result');
+      called.should.be.eql({
+        command: 'command',
+        args: [],
+        options: {},
+      });
+    });
+
+    it('supports shorthand version (cmd, args)', async () => {
+      let called = 'not called';
+      ds.connector.execute = function(command, args, options, callback) {
+        called = {command, args, options};
+        callback(null, 'a-result');
+      };
+
+      await ds.execute('command', ['arg1', 'arg2']);
+      called.should.be.eql({
+        command: 'command',
+        args: ['arg1', 'arg2'],
+        options: {},
+      });
+    });
+
+    it('converts multiple callbacks arguments into a promise resolved with an array', async () => {
+      ds.connector.execute = function(command, args, options, callback) {
+        callback(null, 'result1', 'result2');
+      };
+      const result = await ds.execute('command');
+      result.should.eql(['result1', 'result2']);
+    });
+
+    it('allows args as object', async () => {
+      let called = 'not called';
+      ds.connector.execute = function(command, args, options, callback) {
+        called = {command, args, options};
+        callback();
+      };
+
+      // See https://www.npmjs.com/package/loopback-connector-neo4j-graph
+      const command = 'MATCH (u:User {email: {email}}) RETURN u';
+      await ds.execute(command, {email: 'alice@example.com'});
+      called.should.be.eql({
+        command,
+        args: {email: 'alice@example.com'},
+        options: {},
+      });
+    });
+
+    it('throws NOT_IMPLEMENTED when no connector is provided', () => {
+      ds.connector = undefined;
+      return ds.execute('command').should.be.rejectedWith({
+        code: 'NOT_IMPLEMENTED',
+      });
+    });
+
+    it('throws NOT_IMPLEMENTED for connectors not implementing execute', () => {
+      ds.connector.execute = undefined;
+      return ds.execute('command').should.be.rejectedWith({
+        code: 'NOT_IMPLEMENTED',
+      });
+    });
+  });
+
+  describe('automigrate', () => {
+    it('reports connection errors (immediate connect)', async () => {
+      const dataSource = new DataSource({
+        connector: givenConnectorFailingOnConnect(),
+      });
+      dataSource.define('MyModel');
+      await dataSource.automigrate().should.be.rejectedWith(/test failure/);
+    });
+
+    it('reports connection errors (lazy connect)', () => {
+      const dataSource = new DataSource({
+        connector: givenConnectorFailingOnConnect(),
+        lazyConnect: true,
+      });
+      dataSource.define('MyModel');
+      return dataSource.automigrate().should.be.rejectedWith(/test failure/);
+    });
+
+    function givenConnectorFailingOnConnect() {
+      return givenMockConnector({
+        connect: function(cb) {
+          process.nextTick(() => cb(new Error('test failure')));
+        },
+        automigrate: function(models, cb) {
+          cb(new Error('automigrate should not have been called'));
+        },
+      });
+    }
+  });
+
+  describe('autoupdate', () => {
+    it('reports connection errors (immediate connect)', async () => {
+      const dataSource = new DataSource({
+        connector: givenConnectorFailingOnConnect(),
+      });
+      dataSource.define('MyModel');
+      await dataSource.autoupdate().should.be.rejectedWith(/test failure/);
+    });
+
+    it('reports connection errors (lazy connect)', () => {
+      const dataSource = new DataSource({
+        connector: givenConnectorFailingOnConnect(),
+        lazyConnect: true,
+      });
+      dataSource.define('MyModel');
+      return dataSource.autoupdate().should.be.rejectedWith(/test failure/);
+    });
+
+    function givenConnectorFailingOnConnect() {
+      return givenMockConnector({
+        connect: function(cb) {
+          process.nextTick(() => cb(new Error('test failure')));
+        },
+        autoupdate: function(models, cb) {
+          cb(new Error('autoupdate should not have been called'));
+        },
+      });
+    }
+  });
 });
+
+function givenMockConnector(props) {
+  const connector = {
+    name: 'loopback-connector-mock',
+    initialize: function(ds, cb) {
+      ds.connector = connector;
+      if (ds.settings.lazyConnect) {
+        cb(null, false);
+      } else {
+        connector.connect(cb);
+      }
+    },
+    ...props,
+  };
+  return connector;
+}
