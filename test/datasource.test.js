@@ -457,4 +457,80 @@ describe('DataSource', function() {
       });
     });
   });
+
+  describe('automigrate', () => {
+    it('reports connection errors (immediate connect)', async () => {
+      const dataSource = new DataSource({
+        connector: givenConnectorFailingOnConnect(),
+      });
+      dataSource.define('MyModel');
+      await dataSource.automigrate().should.be.rejectedWith(/test failure/);
+    });
+
+    it('reports connection errors (lazy connect)', () => {
+      const dataSource = new DataSource({
+        connector: givenConnectorFailingOnConnect(),
+        lazyConnect: true,
+      });
+      dataSource.define('MyModel');
+      return dataSource.automigrate().should.be.rejectedWith(/test failure/);
+    });
+
+    function givenConnectorFailingOnConnect() {
+      return givenMockConnector({
+        connect: function(cb) {
+          process.nextTick(() => cb(new Error('test failure')));
+        },
+        automigrate: function(models, cb) {
+          cb(new Error('automigrate should not have been called'));
+        },
+      });
+    }
+  });
+
+  describe('autoupdate', () => {
+    it('reports connection errors (immediate connect)', async () => {
+      const dataSource = new DataSource({
+        connector: givenConnectorFailingOnConnect(),
+      });
+      dataSource.define('MyModel');
+      await dataSource.autoupdate().should.be.rejectedWith(/test failure/);
+    });
+
+    it('reports connection errors (lazy connect)', () => {
+      const dataSource = new DataSource({
+        connector: givenConnectorFailingOnConnect(),
+        lazyConnect: true,
+      });
+      dataSource.define('MyModel');
+      return dataSource.autoupdate().should.be.rejectedWith(/test failure/);
+    });
+
+    function givenConnectorFailingOnConnect() {
+      return givenMockConnector({
+        connect: function(cb) {
+          process.nextTick(() => cb(new Error('test failure')));
+        },
+        autoupdate: function(models, cb) {
+          cb(new Error('autoupdate should not have been called'));
+        },
+      });
+    }
+  });
 });
+
+function givenMockConnector(props) {
+  const connector = {
+    name: 'loopback-connector-mock',
+    initialize: function(ds, cb) {
+      ds.connector = connector;
+      if (ds.settings.lazyConnect) {
+        cb(null, false);
+      } else {
+        connector.connect(cb);
+      }
+    },
+    ...props,
+  };
+  return connector;
+}
