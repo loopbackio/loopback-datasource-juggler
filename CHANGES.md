@@ -1,4 +1,14 @@
-2019-06-25, Version 4.8.2
+2019-07-15, Version 4.9.0
+=========================
+
+ * fix: report errors from automigrate/autoupdate (Miroslav Bajtoš)
+
+ * feat: add beginTransaction API on datasource (Biniam Admikew)
+
+ * Revert "chore: expose beginTransaction API" (Biniam Admikew)
+
+
+2019-06-24, Version 4.8.2
 =========================
 
  * chore: expose beginTransaction API (Biniam Admikew)
