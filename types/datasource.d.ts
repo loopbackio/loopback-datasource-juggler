@@ -209,5 +209,5 @@ export declare class DataSource extends EventEmitter {
  */
   beginTransaction(
     options?: IsolationLevel | Options,
-  ): PromiseOrVoid<Transaction>;
+  ): Promise<Transaction>;
 }
