@@ -517,6 +517,34 @@ describe('DataSource', function() {
       });
     }
   });
+
+  describe('deleteAllModels', () => {
+    it('removes all model definitions', () => {
+      const ds = new DataSource({connector: 'memory'});
+      ds.define('Category');
+      ds.define('Product');
+
+      Object.keys(ds.modelBuilder.definitions)
+        .should.deepEqual(['Category', 'Product']);
+      Object.keys(ds.modelBuilder.models)
+        .should.deepEqual(['Category', 'Product']);
+      Object.keys(ds.connector._models)
+        .should.deepEqual(['Category', 'Product']);
+
+      ds.deleteAllModels();
+
+      Object.keys(ds.modelBuilder.definitions).should.be.empty();
+      Object.keys(ds.modelBuilder.models).should.be.empty();
+      Object.keys(ds.connector._models).should.be.empty();
+    });
+
+    it('preserves the connector instance', () => {
+      const ds = new DataSource({connector: 'memory'});
+      const connector = ds.connector;
+      ds.deleteAllModels();
+      ds.connector.should.equal(connector);
+    });
+  });
 });
 
 function givenMockConnector(props) {
