@@ -111,6 +111,19 @@ export declare class DataSource extends EventEmitter {
   getModel(modelName: string): ModelBaseClass | undefined;
 
   /**
+   * Remove a model from the registry.
+   *
+   * @param modelName
+   */
+  deleteModelByName(modelName: string): void;
+
+  /**
+   * Remove all models from the registry, but keep the connector instance
+   * (including the pool of database connections).
+   */
+  deleteAllModels(): void;
+
+  /**
    * Attach an existing model to a data source.
    * This will mixin all of the data access object functions (DAO) into your
    * modelClass definition.
