@@ -1,3 +1,11 @@
+2019-07-23, Version 4.10.0
+==========================
+
+ * fix: use only promises for beginTransaction (Biniam Admikew)
+
+ * feat: add DataSource.deleteAllModels() API (Miroslav Bajtoš)
+
+
 2019-07-15, Version 4.9.0
 =========================
 
