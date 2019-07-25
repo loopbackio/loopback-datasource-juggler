@@ -1576,6 +1576,33 @@ describe('manipulation', function() {
         done();
       });
     });
+
+    it('correctly coerces the PK value', async () => {
+      const created = await Post.create({
+        title: 'a title',
+        content: 'a content',
+      });
+
+      // Emulate what happens when model instance is received by REST API clients
+      const data = JSON.parse(JSON.stringify(created));
+
+      // Modify some of the data
+      data.title = 'Draft';
+
+      // Call replaceById to modify the database record
+      await Post.replaceById(data.id, data);
+
+      // Verify what has been stored
+      const found = await Post.findById(data.id);
+      found.toObject().should.eql({
+        id: created.id,
+        title: 'Draft',
+        content: 'a content',
+      });
+
+      // Verify that no warnings were triggered
+      Object.keys(Post._warned).should.be.empty();
+    });
   });
 
   describe('findOrCreate', function() {
