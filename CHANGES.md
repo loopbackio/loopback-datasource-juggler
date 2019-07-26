@@ -1,3 +1,11 @@
+2019-07-26, Version 4.10.1
+==========================
+
+ * Fix coercion of PK value in `replaceById` method (Miroslav Bajtoš)
+
+ * Fix autoupdate queueing automigrate instead (#1762) (darthmaim)
+
+
 2019-07-23, Version 4.10.0
 ==========================
 
