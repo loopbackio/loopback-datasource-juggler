@@ -983,6 +983,7 @@ describe('basic-querying', function() {
           should(found.toObject().active).be.oneOf([
             undefined, // databases supporting `undefined` value
             null, // databases representing `undefined` as `null`
+            false, // database supports default for boolean
           ]);
         });
     });
