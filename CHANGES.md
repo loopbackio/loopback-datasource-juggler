@@ -1,3 +1,9 @@
+2019-08-09, Version 4.11.0
+==========================
+
+ * fix: prevent max listeners warning (Dominique Emond)
+
+
 2019-07-26, Version 4.10.1
 ==========================
 
