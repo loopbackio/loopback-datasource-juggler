@@ -1,3 +1,11 @@
+2019-08-13, Version 3.32.0
+==========================
+
+ * fix: prevent max listeners warning (Nora)
+
+ * drop support for Node.js 6 (Nora)
+
+
 2019-05-31, Version 3.31.1
 ==========================
 
