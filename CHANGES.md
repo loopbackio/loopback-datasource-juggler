@@ -1,3 +1,11 @@
+2019-08-19, Version 4.12.0
+==========================
+
+ * feat: add applyDefaultOnWrites property (Hage Yaapa)
+
+ * Fix polymorphic hasMany inverse relation (#1621) (Ayeni Olusegun)
+
+
 2019-08-09, Version 4.11.0
 ==========================
 
