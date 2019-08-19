@@ -1,3 +1,9 @@
+2019-08-19, Version 3.33.0
+==========================
+
+ * feat: add applyDefaultOnWrites property (Hage Yaapa)
+
+
 2019-08-13, Version 3.32.0
 ==========================
 
