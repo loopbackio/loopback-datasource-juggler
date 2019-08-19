@@ -75,4 +75,29 @@ describe('defaults', function() {
       });
     });
   });
+
+  context('applyDefaultOnWrites', function() {
+    it('does not affect default behavior when not set', async () => {
+      const Apple = db.define('Apple', {
+        color: {type: String, default: 'red'},
+        taste: {type: String, default: 'sweet'},
+      }, {applyDefaultsOnReads: false});
+
+      const apple = await Apple.create();
+      apple.color.should.equal('red');
+      apple.taste.should.equal('sweet');
+    });
+
+    it('removes the property when set to `false`', async () => {
+      const Apple = db.define('Apple', {
+        color: {type: String, default: 'red', applyDefaultOnWrites: false},
+        taste: {type: String, default: 'sweet'},
+      }, {applyDefaultsOnReads: false});
+
+      const apple = await Apple.create({color: 'red', taste: 'sweet'});
+      const found = await Apple.findById(apple.id);
+      should(found.color).be.undefined();
+      found.taste.should.equal('sweet');
+    });
+  });
 });
