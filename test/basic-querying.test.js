@@ -1103,11 +1103,12 @@ describe('basic-querying', function() {
         dateProp: Date,
         numProp: Number,
       });
-      numAndDateArrayModel = db.define('numAndDateArrayModel', {
+      // 'numAndDateArrayModel' is too long an identifier name for Oracle DB
+      numAndDateArrayModel = db.define('numAndDateArrMod', {
         dateArray: [Date],
         numArray: [Number],
       });
-      return db.automigrate(['numAndDateModel', 'numAndDateArrayModel']);
+      return db.automigrate(['numAndDateModel', 'numAndDateArrMod']);
     });
 
     it('coerces primitive datatypes on update', function() {
