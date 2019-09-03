@@ -32,7 +32,8 @@ describe('datatypes', function() {
       nestedClass: NestedClass,
     };
     Model = db.define('Model', modelTableSchema);
-    modelWithDecimalArray = db.define('modelWithDecimalArray', {
+    // 'modelWithDecimalArray' is too long an identifier name for Oracle DB
+    modelWithDecimalArray = db.define('modelWithDecArr', {
       randomReview: {
         type: [String],
         mongodb: {
@@ -49,7 +50,7 @@ describe('datatypes', function() {
     numArrayModel = db.define('numArrayModel', {
       bunchOfNums: [Number],
     });
-    db.automigrate(['Model', 'modelWithDecimalArray', 'dateArrayModel', 'numArrayModel'], done);
+    db.automigrate(['Model', 'modelWithDecArr', 'dateArrayModel', 'numArrayModel'], done);
   });
 
   it('should resolve top-level "type" property correctly', function() {
