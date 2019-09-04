@@ -1,3 +1,9 @@
+2019-09-04, Version 4.12.1
+==========================
+
+ * chore: reduce identifier length (Hage Yaapa)
+
+
 2019-08-19, Version 4.12.0
 ==========================
 
