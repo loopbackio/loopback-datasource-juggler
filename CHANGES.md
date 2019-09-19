@@ -1,3 +1,9 @@
+2019-09-19, Version 4.13.0
+==========================
+
+ * Fix typescript typing for DataSource.getModel (Raymond Feng)
+
+
 2019-09-04, Version 4.12.1
 ==========================
 
