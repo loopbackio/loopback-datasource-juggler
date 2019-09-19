@@ -108,7 +108,15 @@ export declare class DataSource extends EventEmitter {
     options?: Options,
   ): T;
 
-  getModel(modelName: string): ModelBaseClass | undefined;
+  /**
+   * Look up a model class by name
+   * @param modelName Model name
+   * @param forceCreate A flag to force creation of a model if not found
+   */
+  getModel(
+    modelName: string,
+    forceCreate?: boolean,
+  ): ModelBaseClass | undefined;
 
   /**
    * Remove a model from the registry.
@@ -197,17 +205,15 @@ export declare class DataSource extends EventEmitter {
   execute(
     command: string | object,
     args?: any[] | object,
-    options?: Options
+    options?: Options,
   ): Promise<any>;
 
-/**
- * Begin a new transaction.
- *
- *
- * @param [options] Options {isolationLevel: '...', timeout: 1000}
- * @returns Promise A promise which resolves to a Transaction object
- */
-  beginTransaction(
-    options?: IsolationLevel | Options,
-  ): Promise<Transaction>;
+  /**
+   * Begin a new transaction.
+   *
+   *
+   * @param [options] Options {isolationLevel: '...', timeout: 1000}
+   * @returns Promise A promise which resolves to a Transaction object
+   */
+  beginTransaction(options?: IsolationLevel | Options): Promise<Transaction>;
 }
