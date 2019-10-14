@@ -115,6 +115,28 @@ describe('util.sanitizeQuery', function() {
     sanitizeQuery(q2, {prohibitedKeys: ['secret']});
     q2.should.eql({and: [{}, {x: 1}]});
   });
+
+  it('should allow proper structured regexp string', () => {
+    const q1 = {where: {name: {like: '^J'}}};
+    sanitizeQuery(q1).should.eql({where: {name: {like: '^J'}}});
+  });
+
+  it('should properly sanitize regexp string operators', () => {
+    const q1 = {where: {name: {like: '['}}};
+    sanitizeQuery(q1).should.eql({where: {name: {like: '\\['}}});
+
+    const q2 = {where: {name: {nlike: '['}}};
+    sanitizeQuery(q2).should.eql({where: {name: {nlike: '\\['}}});
+
+    const q3 = {where: {name: {ilike: '['}}};
+    sanitizeQuery(q3).should.eql({where: {name: {ilike: '\\['}}});
+
+    const q4 = {where: {name: {nilike: '['}}};
+    sanitizeQuery(q4).should.eql({where: {name: {nilike: '\\['}}});
+
+    const q5 = {where: {name: {regexp: '['}}};
+    sanitizeQuery(q5).should.eql({where: {name: {regexp: '\\['}}});
+  });
 });
 
 describe('util.parseSettings', function() {
