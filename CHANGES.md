@@ -1,3 +1,13 @@
+2019-10-21, Version 4.14.0
+==========================
+
+ * fix #1781 (#1782) (Dimitris Halatsis)
+
+ * Introduce issue templates for bugs, features, etc. (Miroslav Bajtoš)
+
+ * Improve PULL_REQUEST_TEMPLATE (Miroslav Bajtoš)
+
+
 2019-09-19, Version 4.13.0
 ==========================
 
