@@ -201,6 +201,7 @@ describe('Memory connector', function() {
       birthday: {type: Date, index: true},
       role: {type: String, index: true},
       order: {type: Number, index: true, sort: true},
+      tag: {type: String, index: true},
       vip: {type: Boolean},
       address: {
         street: String,
@@ -229,6 +230,12 @@ describe('Memory connector', function() {
       });
     });
 
+    it('should properly sanitize like  invalid query', async () => {
+      const users = await User.find({where: {tag: {like: '['}}});
+      users.should.have.length(1);
+      users[0].should.have.property('name', 'John Lennon');
+    });
+
     it('should allow to find using like with regexp', function(done) {
       User.find({where: {name: {like: /.*St.*/}}}, function(err, posts) {
         should.not.exist(err);
@@ -251,6 +258,11 @@ describe('Memory connector', function() {
         posts.should.have.property('length', 4);
         done();
       });
+    });
+
+    it('should sanitize nlike invalid query', async () => {
+      const users = await User.find({where: {name: {nlike: '['}}});
+      users.should.have.length(6);
     });
 
     it('should allow to find using nlike with regexp', function(done) {
@@ -513,7 +525,7 @@ describe('Memory connector', function() {
       });
 
     it('should support the regexp operator with regex strings', function(done) {
-      User.find({where: {name: {regexp: '^J'}}}, function(err, users) {
+      User.find({where: {name: {regexp: 'non$'}}}, function(err, users) {
         should.not.exist(err);
         users.length.should.equal(1);
         users[0].name.should.equal('John Lennon');
@@ -562,6 +574,7 @@ describe('Memory connector', function() {
           role: 'lead',
           birthday: new Date('1980-12-08'),
           vip: true,
+          tag: '[singer]',
           address: {
             street: '123 A St',
             city: 'San Jose',
