@@ -7,6 +7,10 @@
 
 const should = require('./init.js');
 const List = require('../lib/list');
+const parentRefHelper = require('./helpers/setup-parent-ref');
+const {ModelBuilder} = require('../lib/model-builder');
+
+const builder = new ModelBuilder(); // dummy builder instance for tests
 
 /**
  * Phone as a class
@@ -26,6 +30,12 @@ class Phone {
 }
 
 /**
+ * Dummy property for testing parent reference
+ * @type {ModelBuilder}
+ */
+Phone.modelBuilder = builder;
+
+/**
  * Phone as a constructor function
  * @param {string} label
  * @param {number} num
@@ -38,6 +48,12 @@ function PhoneCtor(label, num) {
   this.num = num;
 }
 
+/**
+ * Dummy property for testing parent reference
+ * @type {ModelBuilder}
+ */
+PhoneCtor.modelBuilder = builder;
+
 describe('Does not break default Array functionality', function() {
   it('allows creating an empty length with a specified length', function() {
     const list = new List(4);
@@ -49,6 +65,7 @@ describe('Does not break default Array functionality', function() {
 });
 
 describe('list of items typed by a class', function() {
+  parentRefHelper(() => builder);
   it('allows itemType to be a class', function() {
     const phones = givenPhones();
 
@@ -78,9 +95,29 @@ describe('list of items typed by a class', function() {
     list.push(phones[0]);
     list[0].should.be.an.instanceOf(Phone);
   });
+
+  it('should assign the list\'s parent as parent to every child element', () => {
+    const phones = givenPhones();
+    const listParent = {name: 'PhoneBook'};
+    const list = new List(phones, Phone, listParent);
+    list.forEach((listItem) => {
+      listItem.should.have.property('__parent').which.equals(listParent);
+    });
+  });
+
+  it('should assign the list\'s parent as element parent with push', () => {
+    const phones = givenPhonesAsJSON();
+    const listParent = {name: 'PhoneBook'};
+    const list = new List([], Phone, listParent);
+    list.push(phones[0], phones[1]);
+    list.forEach((listItem) => {
+      listItem.should.have.property('__parent').which.equals(listParent);
+    });
+  });
 });
 
 describe('list of items typed by a ctor', function() {
+  parentRefHelper(() => builder);
   it('allows itemType to be a ctor', function() {
     const phones = givenPhonesWithCtor();
 
@@ -109,6 +146,25 @@ describe('list of items typed by a ctor', function() {
     const list = new List([], PhoneCtor);
     list.push(phones[0]);
     list[0].should.be.an.instanceOf(PhoneCtor);
+  });
+
+  it('should assign the list\'s parent as parent to every child element', () => {
+    const phones = givenPhones();
+    const listParent = {name: 'PhoneBook'};
+    const list = new List(phones, PhoneCtor, listParent);
+    list.forEach((listItem) => {
+      listItem.should.have.property('__parent').which.equals(listParent);
+    });
+  });
+
+  it('should assign the list\'s parent as element parent with push', () => {
+    const phones = givenPhonesAsJSON();
+    const listParent = {name: 'PhoneBook'};
+    const list = new List([], PhoneCtor, listParent);
+    list.push(phones[0], phones[1]);
+    list.forEach((listItem) => {
+      listItem.should.have.property('__parent').which.equals(listParent);
+    });
   });
 });
 

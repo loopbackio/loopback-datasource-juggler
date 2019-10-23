@@ -11,6 +11,7 @@ const async = require('async');
 const bdd = require('./helpers/bdd-if');
 const should = require('./init.js');
 const uid = require('./helpers/uid-generator');
+const createTestSetupForParentRef = require('./helpers/setup-parent-ref');
 
 let db, User;
 
@@ -957,6 +958,29 @@ describe('basic-querying', function() {
         undefined, // databases supporting `undefined` value
         null, // databases representing `undefined` as `null` (e.g. SQL)
       ]);
+    });
+
+    describe('check __parent relationship in embedded models', () => {
+      createTestSetupForParentRef(() => User.modelBuilder);
+      it('should fill the parent in embedded model', async () => {
+        const user = await User.findOne({where: {name: 'John Lennon'}});
+        user.should.have.property('address');
+        should(user.address).have.property('__parent');
+        should(user.address.__parent).be.instanceof(User).and.equal(user);
+      });
+      it('should assign the container model as parent in list property', async () => {
+        const user = await User.findOne({where: {name: 'John Lennon'}});
+        user.should.have.property('friends');
+        should(user.friends).have.property('parent');
+        should(user.friends.parent).be.instanceof(User).and.equal(user);
+      });
+      it('should have the complete chain of parents available in embedded list element', async () => {
+        const user = await User.findOne({where: {name: 'John Lennon'}});
+        user.friends.forEach((userFriend) => {
+          userFriend.should.have.property('__parent');
+          should(userFriend.__parent).equal(user);
+        });
+      });
     });
   });
 
