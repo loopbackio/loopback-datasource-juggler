@@ -77,6 +77,62 @@ describe('ModelBuilder', () => {
       });
     });
 
+    describe.only('model with nested properties as embedded model', () => {
+      let AddressModel, Person;
+      beforeEach('Define models', () => {
+        AddressModel = builder.define('Address', {
+          street: {type: 'string'},
+          number: {type: 'number'},
+        });
+        Person = builder.define('Person', {
+          name: {type: 'string'},
+          address: {type: 'Address'},
+        });
+      });
+      it('should properly add the __parent relationship when instantiating parent model', () => {
+        const person = new Person({
+          name: 'Mitsos',
+          address: {street: 'kopria', number: 11},
+        });
+        person.should.have.propertyByPath('address.__parent').which.equals(person);
+      });
+      it('should add _parent property when setting embedded model after instantiation', () => {
+        const person = new Person({
+          name: 'Mitsos',
+        });
+        person.address = {street: 'kopria', number: 11};
+        person.should.have.propertyByPath('address.__parent').which.equals(person);
+      });
+      it('should handle nullish embedded property values', () => {
+        const person = new Person({
+          name: 'Mitsos',
+          address: null,
+        });
+        person.should.have.property('address').which.equals(null);
+      });
+      it('should properly re-set the parent property when moving a child instance to an other parent', () => {
+        const person1 = new Person({
+          name: 'Mitsos',
+          address: {street: 'kopria', number: 11},
+        });
+        const {address} = person1;
+        address.should.be.instanceof(AddressModel).and.have.property('__parent').which.equals(person1);
+        const person2 = new Person({
+          name: 'Allos',
+          address,
+        });
+        address.should.have.property('__parent').which.equals(person2);
+      });
+      it('should NOT provide the __parent property to any serialization of the instance', () => {
+        const person = new Person({
+          name: 'Mitsos',
+          address: {street: 'kopria', number: 11},
+        });
+        person.toJSON().should.not.have.propertyByPath('address.__parent');
+        person.toObject().should.not.have.propertyByPath('address.__parent');
+      });
+    });
+
     function givenModelBuilderInstance() {
       builder = new ModelBuilder();
     }
