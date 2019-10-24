@@ -77,7 +77,7 @@ describe('ModelBuilder', () => {
       });
     });
 
-    describe.only('model with nested properties as embedded model', () => {
+    describe('model with nested properties as embedded model', () => {
       let AddressModel, Person;
       beforeEach('Define models', () => {
         AddressModel = builder.define('Address', {
@@ -94,14 +94,14 @@ describe('ModelBuilder', () => {
           name: 'Mitsos',
           address: {street: 'kopria', number: 11},
         });
-        person.should.have.propertyByPath('address.__parent').which.equals(person);
+        person.should.have.propertyByPath('address', '__parent').which.equals(person);
       });
       it('should add _parent property when setting embedded model after instantiation', () => {
         const person = new Person({
           name: 'Mitsos',
         });
         person.address = {street: 'kopria', number: 11};
-        person.should.have.propertyByPath('address.__parent').which.equals(person);
+        person.should.have.propertyByPath('address', '__parent').which.equals(person);
       });
       it('should handle nullish embedded property values', () => {
         const person = new Person({
@@ -128,8 +128,8 @@ describe('ModelBuilder', () => {
           name: 'Mitsos',
           address: {street: 'kopria', number: 11},
         });
-        person.toJSON().should.not.have.propertyByPath('address.__parent');
-        person.toObject().should.not.have.propertyByPath('address.__parent');
+        person.toJSON().should.not.have.propertyByPath('address', '__parent');
+        person.toObject().should.not.have.propertyByPath('address', '__parent');
       });
     });
 
