@@ -958,6 +958,26 @@ describe('basic-querying', function() {
         null, // databases representing `undefined` as `null` (e.g. SQL)
       ]);
     });
+
+    describe('check __parent relationship in embedded models', () => {
+      it('should fill the parent in embedded model', async () => {
+        console.log();
+        const [user] = await User.find({where: {name: 'John Lennon'}});
+        user.should.have.property('address').which.has.property('__parent').which.is
+          .instanceof(User).and.equals(user);
+      });
+      it('should assign the container model as parent in list property', async () => {
+        const [user] = await User.find({where: {name: 'John Lennon'}});
+        user.should.have.property('friends').which.has.property('parent').which.is
+          .instanceof(User).and.equals(user);
+      });
+      it('should have the complete chain of parents available in embedded list element', async () => {
+        const [user] = await User.find({where: {name: 'John Lennon'}});
+        user.friends.forEach((userFriend) => {
+          userFriend.should.have.property('__parent').which.equals(user.friends);
+        });
+      });
+    });
   });
 
   describe('count', function() {
