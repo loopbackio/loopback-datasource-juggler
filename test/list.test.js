@@ -78,6 +78,23 @@ describe('list of items typed by a class', function() {
     list.push(phones[0]);
     list[0].should.be.an.instanceOf(Phone);
   });
+
+  it('should assign the list as parent to every child element', () => {
+    const phones = givenPhones();
+    const list = new List(phones, Phone);
+    list.forEach((listItem) => {
+      listItem.should.have.property('__parent').which.equals(list);
+    });
+  });
+
+  it('should assign the list as parent with push', () => {
+    const phones = givenPhonesAsJSON();
+    const list = new List([], Phone);
+    list.push(phones[0], phones[1]);
+    list.forEach((listItem) => {
+      listItem.should.have.property('__parent').which.equals(list);
+    });
+  });
 });
 
 describe('list of items typed by a ctor', function() {
@@ -109,6 +126,23 @@ describe('list of items typed by a ctor', function() {
     const list = new List([], PhoneCtor);
     list.push(phones[0]);
     list[0].should.be.an.instanceOf(PhoneCtor);
+  });
+
+  it('should assign the list as parent to every child element', () => {
+    const phones = givenPhones();
+    const list = new List(phones, PhoneCtor);
+    list.forEach((listItem) => {
+      listItem.should.have.property('__parent').which.equals(list);
+    });
+  });
+
+  it('should assign the list as parent with push', () => {
+    const phones = givenPhonesAsJSON();
+    const list = new List([], PhoneCtor);
+    list.push(phones[0], phones[1]);
+    list.forEach((listItem) => {
+      listItem.should.have.property('__parent').which.equals(list);
+    });
   });
 });
 
