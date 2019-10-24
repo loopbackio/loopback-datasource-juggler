@@ -78,9 +78,9 @@ describe('ModelBuilder', () => {
     });
 
     describe('model with nested properties as embedded model', () => {
-      let AddressModel, Person;
+      let Address, Person;
       beforeEach('Define models', () => {
-        AddressModel = builder.define('Address', {
+        Address = builder.define('Address', {
           street: {type: 'string'},
           number: {type: 'number'},
         });
@@ -116,7 +116,7 @@ describe('ModelBuilder', () => {
           address: {street: 'kopria', number: 11},
         });
         const {address} = person1;
-        address.should.be.instanceof(AddressModel).and.have.property('__parent').which.equals(person1);
+        address.should.be.instanceof(Address).and.have.property('__parent').which.equals(person1);
         const person2 = new Person({
           name: 'Allos',
           address,
@@ -130,6 +130,43 @@ describe('ModelBuilder', () => {
         });
         person.toJSON().should.not.have.propertyByPath('address', '__parent');
         person.toObject().should.not.have.propertyByPath('address', '__parent');
+      });
+    });
+
+    describe('Model with properties as list of embedded models', () => {
+      let Person, Address;
+      beforeEach('Define models', () => {
+        Address = builder.define('Address', {
+          street: {type: 'string'},
+          number: {type: 'number'},
+        });
+        Person = builder.define('Person', {
+          name: {type: 'string'},
+          addresses: {type: ['Address']}, // array of addresses
+        });
+      });
+      it('should pass the container model instance as parent to the list item', () => {
+        const person = new Person({
+          name: 'mitsos',
+          addresses: [{
+            street: 'kapou oraia',
+            number: 100,
+          }],
+        });
+        person.should.have.property('addresses').which.has.property('parent')
+          .which.is.instanceof(Person).and.equals(person);
+      });
+      it('should pass the container model instance as parent to the list, when assigning to ' +
+        'the list property', () => {
+        const person = new Person({
+          name: 'mitsos',
+        });
+        person.addresses = [{
+          street: 'kapou oraia',
+          number: 100,
+        }];
+        person.should.have.property('addresses').which.has.property('parent')
+          .which.is.instanceof(Person).and.equals(person);
       });
     });
 
