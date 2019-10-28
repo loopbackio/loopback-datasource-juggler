@@ -23,6 +23,7 @@ describe('basic-querying', function() {
       birthday: {type: Date, index: true},
       role: {type: String, index: true},
       order: {type: Number, index: true, sort: true},
+      tag: {type: String, index: true},
       vip: {type: Boolean},
       address: {
         street: String,
@@ -591,6 +592,12 @@ describe('basic-querying', function() {
             });
         });
 
+      it('should sanitize invalid usage of like', async () => {
+        const users = await User.find({where: {tag: {like: '['}}});
+        users.should.have.length(1);
+        users[0].should.have.property('name', 'John Lennon');
+      });
+
       it('should support "like" that is not satisfied',
         function(done) {
           User.find({where: {name: {like: 'Bob'}}},
@@ -615,6 +622,11 @@ describe('basic-querying', function() {
           users.length.should.equal(0);
           done();
         });
+      });
+
+      it('should properly sanitize invalid ilike filter', async () => {
+        const users = await User.find({where: {name: {ilike: '['}}});
+        users.should.be.empty();
       });
     });
 
@@ -820,7 +832,7 @@ describe('basic-querying', function() {
 
       sample({name: true}).expect(['name']);
       sample({name: false}).expect([
-        'id', 'seq', 'email', 'role', 'order', 'birthday', 'vip', 'address', 'friends', 'addressLoc',
+        'id', 'seq', 'email', 'role', 'order', 'birthday', 'vip', 'address', 'friends', 'addressLoc', 'tag',
       ]);
       sample({name: false, id: true}).expect(['id']);
       sample({id: true}).expect(['id']);
@@ -1363,6 +1375,7 @@ function seed(done) {
       birthday: new Date('1980-12-08'),
       order: 2,
       vip: true,
+      tag: '[singer]',
       address: {
         street: '123 A St',
         city: 'San Jose',
