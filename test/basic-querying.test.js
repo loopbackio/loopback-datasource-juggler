@@ -961,7 +961,6 @@ describe('basic-querying', function() {
 
     describe('check __parent relationship in embedded models', () => {
       it('should fill the parent in embedded model', async () => {
-        console.log();
         const [user] = await User.find({where: {name: 'John Lennon'}});
         user.should.have.property('address').which.has.property('__parent').which.is
           .instanceof(User).and.equals(user);
