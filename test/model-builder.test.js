@@ -87,6 +87,7 @@ describe('ModelBuilder', () => {
         Person = builder.define('Person', {
           name: {type: 'string'},
           address: {type: 'Address'},
+          other: {type: 'object'},
         });
       });
       it('should properly add the __parent relationship when instantiating parent model', () => {
@@ -130,6 +131,15 @@ describe('ModelBuilder', () => {
         });
         person.toJSON().should.not.have.propertyByPath('address', '__parent');
         person.toObject().should.not.have.propertyByPath('address', '__parent');
+      });
+      it('should NOT provide __parent property in plain object properties', () => {
+        const person = new Person({
+          name: 'Mitsos',
+          address: {street: 'kopria', number: 11},
+          other: {some: 'object'},
+        });
+        person.should.have.property('other').which.eql({some: 'object'}).and.not.has
+          .property('__parent');
       });
     });
 
