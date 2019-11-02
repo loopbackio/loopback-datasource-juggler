@@ -17,6 +17,11 @@ const ValidationError = require('..').ValidationError;
 
 const UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+const throwingSetter = (value) => {
+  if (!value) return; // no-op
+  throw new Error('Intentional error triggered from a property setter');
+};
+
 describe('manipulation', function() {
   before(function(done) {
     db = getSchema();
@@ -28,7 +33,10 @@ describe('manipulation', function() {
       age: {type: Number, index: true},
       dob: Date,
       createdAt: {type: Date, default: Date},
+      throwingSetter: {type: String, default: null},
     }, {forceId: true, strict: true});
+
+    Person.setter.throwingSetter = throwingSetter;
 
     db.automigrate(['Person'], done);
   });
@@ -109,6 +117,11 @@ describe('manipulation', function() {
             });
         })
         .catch(done);
+    });
+
+    it('should return rejected promise when model initialization failed', async () => {
+      await Person.create({name: 'Sad Fail', age: 25, throwingSetter: 'something'}).should
+        .be.rejectedWith('Intentional error triggered from a property setter');
     });
 
     it('should instantiate an object', function(done) {
@@ -1563,7 +1576,9 @@ describe('manipulation', function() {
       Post = db.define('Post', {
         title: {type: String, length: 255},
         content: {type: String},
+        throwingSetter: {type: String, default: null},
       }, {forceId: true});
+      Post.setter.throwingSetter = throwingSetter;
       db.automigrate('Post', done);
     });
 
@@ -1598,10 +1613,18 @@ describe('manipulation', function() {
         id: created.id,
         title: 'Draft',
         content: 'a content',
+        throwingSetter: null,
       });
 
       // Verify that no warnings were triggered
       Object.keys(Post._warned).should.be.empty();
+    });
+
+    it('should return rejected promise when model initialization failed', async () => {
+      const firstNotFailedPost = await Post.create({title: 'Sad Post'}); // no property with failing setter
+      await Post.replaceById(firstNotFailedPost.id, {
+        title: 'Sad Post', throwingSetter: 'somethingElse',
+      }).should.be.rejectedWith('Intentional error triggered from a property setter');
     });
   });
 
