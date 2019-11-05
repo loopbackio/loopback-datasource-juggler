@@ -65,6 +65,7 @@
   "ci": {
     "downstreamIgnoreList": [
       "loopback-connector-db2z",
+      "loopback-connector-ibmi",
       "loopback-connector-informix",
       "loopback-connector-mqlight",
       "loopback-connector-kv-extreme-scale"
