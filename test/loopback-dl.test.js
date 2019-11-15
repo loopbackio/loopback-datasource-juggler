@@ -648,6 +648,16 @@ describe('DataSource define model', function() {
     done();
   });
 
+  it('injects id with useDefaultIdType to false', function(done) {
+    const ds = new ModelBuilder();
+
+    const User = ds.define('User', {id: {type: String, generated: true, id: true, useDefaultIdType: false}});
+    assert.deepEqual(User.definition.properties.id,
+      {type: String, id: true, generated: true, updateOnly: true, useDefaultIdType: false});
+
+    done();
+  });
+
   it('disables idInjection if the value is false', function(done) {
     const ds = new ModelBuilder();
 
