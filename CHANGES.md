@@ -1,3 +1,11 @@
+2019-11-18, Version 4.15.0
+==========================
+
+ * Fix generated string id's (Francisco Buceta)
+
+ * Remove loopback-connector-ibmi from downstream (Miroslav Bajtoš)
+
+
 2019-10-21, Version 4.14.0
 ==========================
 
