@@ -38,6 +38,16 @@ function PhoneCtor(label, num) {
   this.num = num;
 }
 
+describe('Does not break default Array functionality', function() {
+  it('allows creating an empty length with a specified length', function() {
+    const list = new List(4);
+    list.should.be.an.instanceOf(Array);
+    list.length.should.be.eql(4);
+    should.not.exist(list.itemType);
+    list.toJSON().should.eql([undefined, undefined, undefined, undefined]);
+  });
+});
+
 describe('list of items typed by a class', function() {
   it('allows itemType to be a class', function() {
     const phones = givenPhones();
