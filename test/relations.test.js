@@ -605,6 +605,424 @@ describe('relations', function() {
       db.automigrate(['Physician', 'Patient', 'Appointment', 'Address'], done);
     });
 
+    describe('scoped queries', function() {
+      describe('find', function() {
+        it('should allow to use fields on related model', async function() {
+          const physician = await Physician.create();
+          const patient = await physician.patients.create({name: 'a', age: 5});
+          const address = await Address.create({name: 'z'});
+          patient.address(address);
+          await patient.save();
+          const ch = await physician.patients({fields: 'age'});
+          should.exist(ch);
+          ch.should.have.lengthOf(1);
+          ch[0].age.should.eql(5);
+          should.not.exist(ch[0].name);
+        });
+
+        it('should find related model using model id', async function() {
+          const physician = await Physician.create();
+          const patient = await physician.patients.create({name: 'a', age: 5});
+          await physician.patients.create({name: 'b', age: 5});
+          await physician.patients.create({name: 'c', age: 5});
+          const ch = await physician.patients({where: {id: patient.id}});
+          should.exist(ch);
+          ch.should.have.lengthOf(1);
+          ch[0].age.should.eql(5);
+        });
+
+        it('should find related model using model id list', async function() {
+          const physician = await Physician.create();
+          const patient = await physician.patients.create({name: 'a', age: 5});
+          await physician.patients.create({name: 'b', age: 5});
+          await physician.patients.create({name: 'c', age: 5});
+          const ch = await physician.patients({where: {id: {inq: [patient.id]}}});
+          should.exist(ch);
+          ch.should.have.lengthOf(1);
+          ch[0].age.should.eql(5);
+        });
+
+        it('should find scoped record with promises based on related model properties', async function() {
+          const physician = await Physician.create();
+          await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const patients = await physician.patients({
+            where: {
+              name: 'a',
+            },
+          });
+          should.exist(patients);
+          patients.should.have.lengthOf(1);
+          patients[0].name.should.equal('a');
+        });
+
+        it('should find scoped record with promises based on related model' +
+          ' properties with empty results', async function() {
+          const physician = await Physician.create();
+          await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const patients = await physician.patients({
+            where: {
+              id: 'bar',
+            },
+          });
+          should.exist(patients);
+          patients.should.have.lengthOf(0);
+        });
+
+        it('should find scoped record with promises based on related model id', async function() {
+          const physician = await Physician.create();
+          const patient = await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const patients = await physician.patients({
+            where: {
+              id: patient.id,
+            },
+          });
+          should.exist(patients);
+          patients.should.have.lengthOf(1);
+          patients[0].name.should.equal('a');
+        });
+
+        it('should find scoped record with promises based on related model id list', async function() {
+          const physician = await Physician.create();
+          const patient = await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const patients = await physician.patients({
+            where: {
+              id: {
+                inq: [patient.id],
+              },
+            },
+          });
+          should.exist(patients);
+          patients.should.have.lengthOf(1);
+          patients[0].name.should.equal('a');
+        });
+      });
+
+      describe('find explicit', function() {
+        it('should find (explicit) scoped record with promises based on related' +
+          ' model properties', async function() {
+          const physician = await Physician.create();
+          await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const patients = await physician.patients({
+            where: {
+              name: 'a',
+            },
+          });
+          should.exist(patients);
+          patients.should.have.lengthOf(1);
+          patients[0].name.should.equal('a');
+        });
+
+        it('should find (explicit) scoped record with promises based on related model' +
+          ' properties with empty results', async function() {
+          const physician = await Physician.create();
+          await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const patients = await physician.patients({
+            where: {
+              id: 'bar',
+            },
+          });
+          should.exist(patients);
+          patients.should.have.lengthOf(0);
+        });
+
+        it('should find (explicit) scoped record with promises based on related model id', async function() {
+          const physician = await Physician.create();
+          const patient = await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const patients = await physician.patients({
+            where: {
+              id: patient.id,
+            },
+          });
+          should.exist(patients);
+          patients.should.have.lengthOf(1);
+          patients[0].name.should.equal('a');
+        });
+
+        it('should find (explicit) scoped record with promises based on ' +
+          'related model id list', async function() {
+          const physician = await Physician.create();
+          const patient = await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const patients = await physician.patients({
+            where: {
+              id: {
+                inq: [patient.id],
+              },
+            },
+          });
+          should.exist(patients);
+          patients.should.have.lengthOf(1);
+          patients[0].name.should.equal('a');
+        });
+      });
+
+      describe('count', function() {
+        it('should count scoped record with promises based on related model properties', async function() {
+          const physician = await Physician.create();
+          await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const count = await physician.patients.count({
+            name: 'a',
+          });
+          should.exist(count);
+          count.should.equal(1);
+        });
+
+        it('should count scoped record with promises based on related model ' +
+          'properties with no results', async function() {
+          const physician = await Physician.create();
+          await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const count = await physician.patients.count({
+            id: 'bar',
+          });
+          should.exist(count);
+          count.should.equal(0);
+        });
+
+        it('should count scoped record with promises based on related model id', async function() {
+          const physician = await Physician.create();
+          const patient = await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const count = await physician.patients.count({
+            id: patient.id,
+          });
+          should.exist(count);
+          count.should.equal(1);
+        });
+
+        it('should count scoped record with promises based on related model id list', async function() {
+          const physician = await Physician.create();
+          const patient = await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const count = await physician.patients.count({
+            id: {
+              inq: [patient.id],
+            },
+          });
+          should.exist(count);
+          count.should.equal(1);
+        });
+      });
+
+      describe('find one', function() {
+        it('should find one scoped record with promises based on related model properties', async function() {
+          const physician = await Physician.create();
+          await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const patient = await physician.patients.findOne({
+            where: {
+              name: 'a',
+            },
+          });
+          should.exist(patient);
+          patient.name.should.equal('a');
+        });
+
+        it('should find one scoped record with promises based on related model' +
+          ' properties with empty results', async function() {
+          const physician = await Physician.create();
+          await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const patient = await physician.patients.findOne({
+            where: {
+              id: 'bar',
+            },
+          });
+          should.not.exist(patient);
+        });
+
+        it('should find one scoped record with promises based on related model id', async function() {
+          const physician = await Physician.create();
+          const createdPatient = await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const patient = await physician.patients.findOne({
+            where: {
+              id: createdPatient.id,
+            },
+          });
+          should.exist(patient);
+          patient.name.should.equal('a');
+        });
+
+        it('should find one scoped record with promises based on related model id list', async function() {
+          const physician = await Physician.create();
+          const createdPatient = await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const patient = await physician.patients.findOne({
+            where: {
+              id: {
+                inq: [createdPatient.id],
+              },
+            },
+          });
+          should.exist(patient);
+          patient.name.should.equal('a');
+        });
+      });
+
+      describe('update all', function() {
+        it('should update all scoped record with promises based on related model properties',
+          async function() {
+            const physician = await Physician.create();
+            await physician.patients.create({name: 'a'});
+            await physician.patients.create({name: 'z'});
+            await physician.patients.create({name: 'c'});
+            const result = await physician.patients.updateAll({
+              name: 'a',
+            }, {
+              age: 5,
+            });
+            should.exist(result);
+            result.count.should.equal(1);
+            const patient = await physician.patients.findOne({
+              where: {
+                name: 'a',
+              },
+            });
+            should.exist(patient);
+            patient.age.should.equal(5);
+          });
+
+        it('should update all scoped record with promises based on related ' +
+          'model properties no results', async function() {
+          const physician = await Physician.create();
+          await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const result = await physician.patients.updateAll({
+            id: 'bar',
+          }, {
+            age: 5,
+          });
+          should.exist(result);
+          result.count.should.equal(0);
+        });
+
+        it('should update all scoped record with promises based on related model id', async function() {
+          const physician = await Physician.create();
+          const createdPatient = await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const result = await physician.patients.updateAll({
+            id: createdPatient.id,
+          }, {
+            age: 5,
+          });
+          should.exist(result);
+          result.count.should.equal(1);
+          const patient = await physician.patients.findOne({
+            where: {
+              name: 'a',
+            },
+          });
+          should.exist(patient);
+          patient.age.should.equal(5);
+        });
+
+        it('should update all scoped record with promises based on related model id list', async function() {
+          const physician = await Physician.create();
+          const createdPatient = await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const result = await physician.patients.updateAll({
+            id: {
+              inq: [createdPatient.id],
+            },
+          }, {
+            age: 5,
+          });
+          should.exist(result);
+          result.count.should.equal(1);
+          const patient = await physician.patients.findOne({
+            where: {
+              name: 'a',
+            },
+          });
+          should.exist(patient);
+          patient.age.should.equal(5);
+        });
+      });
+
+      describe('destroy all', function() {
+        it('should destroyAll all scoped record with promises based on ' +
+          'related model properties', async function() {
+          const physician = await Physician.create();
+          await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const result = await physician.patients.destroyAll({
+            name: 'a',
+          });
+          should.exist(result);
+          result.count.should.equal(1);
+        });
+
+        it('should destroyAll all scoped record with promises based on related ' +
+          'model properties no results', async function() {
+          const physician = await Physician.create();
+          await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const result = await physician.patients.destroyAll({
+            id: 'foo',
+          });
+          should.exist(result);
+          result.count.should.equal(0);
+        });
+
+        it('should destroyAll all scoped record with promises based on related model id', async function() {
+          const physician = await Physician.create();
+          const patient = await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const result = await physician.patients.destroyAll({
+            id: patient.id,
+          });
+          should.exist(result);
+          result.count.should.equal(1);
+        });
+
+        it('should destroyAll all scoped record with promises based on ' +
+          'related model id list', async function() {
+          const physician = await Physician.create();
+          const patient = await physician.patients.create({name: 'a'});
+          await physician.patients.create({name: 'z'});
+          await physician.patients.create({name: 'c'});
+          const result = await physician.patients.destroyAll({
+            id: {
+              inq: [patient.id],
+            },
+          });
+          should.exist(result);
+          result.count.should.equal(1);
+        });
+      });
+    });
+
     it('should build record on scope', function(done) {
       Physician.create(function(err, physician) {
         const patient = physician.patients.build();
