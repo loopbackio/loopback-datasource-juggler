@@ -1071,6 +1071,30 @@ describe('relations', function() {
       }
     });
 
+    it('should allow to use fields on related model', function(done) {
+      Physician.create(function(err, physician) {
+        physician.patients.create({name: 'a', age: 5}, function(err, patient) {
+          Address.create({name: 'z'}, function(err, address) {
+            if (err) return done(err);
+            patient.address(address);
+            patient.save(function() {
+              verify(physician, address.id);
+            });
+          });
+        });
+      });
+      function verify(physician, addressId) {
+        physician.patients({fields: 'age'}, function(err, ch) {
+          if (err) return done(err);
+          should.exist(ch);
+          ch.should.have.lengthOf(1);
+          ch[0].age.should.eql(5);
+          should.not.exist(ch[0].name);
+          done();
+        });
+      }
+    });
+
     it('should allow to use include syntax on related data with promises', function(done) {
       Physician.create()
         .then(function(physician) {
