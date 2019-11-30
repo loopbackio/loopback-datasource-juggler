@@ -1095,6 +1095,56 @@ describe('relations', function() {
       }
     });
 
+    it('should find related model using model id', function(done) {
+      Physician.create(function(err, physician) {
+        if (err) return done(err);
+        physician.patients.create({name: 'a', age: 5}, function(err, patient) {
+          if (err) return done(err);
+          physician.patients.create({name: 'b', age: 5}, function(err) {
+            if (err) return done(err);
+            physician.patients.create({name: 'c', age: 5}, function(err) {
+                if (err) return done(err);
+                verify(physician, patient.id);
+            });
+          });
+        });
+      });
+      function verify(physician, patientId) {
+        physician.patients({where: {id: patientId}}, function(err, ch) {
+          if (err) return done(err);
+          should.exist(ch);
+          ch.should.have.lengthOf(1);
+          ch[0].age.should.eql(5);
+          done();
+        });
+      }
+    });
+
+    it('should find related model using model id list', function(done) {
+      Physician.create(function(err, physician) {
+        if (err) return done(err);
+        physician.patients.create({name: 'a', age: 5}, function(err, patient) {
+          if (err) return done(err);
+          physician.patients.create({name: 'b', age: 5}, function(err) {
+            if (err) return done(err);
+            physician.patients.create({name: 'c', age: 5}, function(err) {
+                if (err) return done(err);
+                verify(physician, patient.id);
+            });
+          });
+        });
+      });
+      function verify(physician, patientId) {
+        physician.patients({where: {id: {inq: [patientId]}}}, function(err, ch) {
+          if (err) return done(err);
+          should.exist(ch);
+          ch.should.have.lengthOf(1);
+          ch[0].age.should.eql(5);
+          done();
+        });
+      }
+    });
+
     it('should allow to use include syntax on related data with promises', function(done) {
       Physician.create()
         .then(function(physician) {
