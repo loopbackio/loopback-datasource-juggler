@@ -1596,7 +1596,7 @@ function setup(done) {
           createdUsers = items;
           createPassports();
           createAccessTokens();
-        }
+        },
       );
     }
     function createAccessTokens() {
@@ -1606,7 +1606,7 @@ function setup(done) {
           {token: '1', userId: createdUsers[0].id},
           {token: '2', userId: createdUsers[1].id},
         ],
-        function(items) {}
+        function(items) {},
       );
     }
 
@@ -1622,7 +1622,7 @@ function setup(done) {
         function(items) {
           createdPassports = items;
           createPosts();
-        }
+        },
       );
     }
 
@@ -1637,7 +1637,7 @@ function setup(done) {
         function(items) {
           createdProfiles = items;
           done();
-        }
+        },
       );
     }
 
@@ -1654,7 +1654,7 @@ function setup(done) {
         function(items) {
           createdPosts = items;
           createProfiles();
-        }
+        },
       );
     }
   });

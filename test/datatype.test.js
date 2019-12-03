@@ -295,7 +295,7 @@ describe('datatypes', function() {
         },
         {
           persistUndefinedAsNull: true,
-        }
+        },
       );
 
       isStrict = TestModel.definition.settings.strict;
@@ -385,13 +385,13 @@ describe('datatypes', function() {
               TestModel.modelName,
               {where: {id: created.id}},
               {},
-              cb
+              cb,
             );
           } else {
             TestModel.dataSource.connector.all(
               TestModel.modelName,
               {where: {id: created.id}},
-              cb
+              cb,
             );
           }
         });

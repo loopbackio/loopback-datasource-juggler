@@ -31,7 +31,7 @@ function givenKeys(Model, keys, cb) {
   let p = Promise.all(
     keys.map(function(k) {
       return Model.set(k, 'value-' + k);
-    })
+    }),
   );
   if (cb) {
     p = p.then(function(r) { cb(null, r); }, cb);

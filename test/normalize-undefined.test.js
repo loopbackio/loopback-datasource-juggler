@@ -292,6 +292,6 @@ function seed(User, done) {
         async.each(beatles, User.create.bind(User), cb);
       },
     ],
-    done
+    done,
   );
 }

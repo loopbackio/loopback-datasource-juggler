@@ -73,7 +73,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, result) {
             if (err) reject(err);
             else resolve(result);
-          }
+          },
         );
       });
     }

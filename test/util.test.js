@@ -88,13 +88,13 @@ describe('util.sanitizeQuery', function() {
     const q7 = {where: {x: 1}};
     q7.where.y = q7;
     (function() { sanitizeQuery(q7); }).should.throw(
-      /The query object is circular/
+      /The query object is circular/,
     );
 
     const q8 = {where: {and: [{and: [{and: [{and: [{and: [{and:
       [{and: [{and: [{and: [{x: 1}]}]}]}]}]}]}]}]}]}};
     (function() { sanitizeQuery(q8, {maxDepth: 12}); }).should.throw(
-      /The query object exceeds maximum depth 12/
+      /The query object exceeds maximum depth 12/,
     );
 
     // maxDepth is default to maximum integer
@@ -102,7 +102,7 @@ describe('util.sanitizeQuery', function() {
 
     const q9 = {where: {and: [{and: [{and: [{and: [{x: 1}]}]}]}]}};
     (function() { sanitizeQuery(q8, {maxDepth: 4}); }).should.throw(
-      /The query object exceeds maximum depth 4/
+      /The query object exceeds maximum depth 4/,
     );
   });
 

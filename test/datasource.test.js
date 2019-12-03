@@ -376,7 +376,7 @@ describe('DataSource', function() {
       const result = await ds.execute(
         'command',
         ['arg1', 'arg2'],
-        {'a-flag': 'a-value'}
+        {'a-flag': 'a-value'},
       );
 
       result.should.be.equal('a-result');

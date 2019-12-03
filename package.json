@@ -39,7 +39,7 @@
     "async-iterators": "^0.2.2",
     "bson": "^4.0.1",
     "coveralls": "^3.0.1",
-    "eslint": "^5.1.0",
+    "eslint": "^6.7.2",
     "eslint-config-loopback": "^13.0.0",
     "loopback-connector-throwing": "file:./test/fixtures/loopback-connector-throwing",
     "mocha": "^6.1.4",

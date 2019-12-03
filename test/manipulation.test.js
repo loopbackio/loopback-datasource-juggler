@@ -364,7 +364,7 @@ describe('manipulation', function() {
             should.equal(result.gender, null);
             done();
           });
-        }
+        },
       );
     });
 
@@ -942,9 +942,9 @@ describe('manipulation', function() {
               should.equal(result.gender, null);
 
               done();
-            }
+            },
           );
-        }
+        },
       );
     });
 
@@ -991,7 +991,7 @@ describe('manipulation', function() {
         function(err, inst) {
           if (err) return done(err);
           inst.save(done);
-        }
+        },
       );
     });
 
@@ -1654,7 +1654,7 @@ describe('manipulation', function() {
           p.gender.should.equal('male');
           created.should.equal(false);
           done();
-        }
+        },
       );
     });
 
@@ -1678,7 +1678,7 @@ describe('manipulation', function() {
     it('should find a record if exists (promise variant)', function(done) {
       Person.findOrCreate(
         {where: {name: 'Jed'}},
-        {name: 'Jed', gender: 'male'}
+        {name: 'Jed', gender: 'male'},
       )
         .then(function(res) {
           res.should.be.instanceOf(Array);
@@ -2489,7 +2489,7 @@ describe('manipulation', function() {
               should.equal(result.city, null);
               done();
             });
-        }
+        },
       );
     });
 
