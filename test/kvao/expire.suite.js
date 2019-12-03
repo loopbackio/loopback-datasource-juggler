@@ -53,7 +53,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
           function(err) {
             err.message.should.match(/expired-key/);
             err.should.have.property('statusCode', 404);
-          }
+          },
         );
     });
 
@@ -63,7 +63,7 @@ module.exports = function(dataSourceFactory, connectorCapabilities) {
         function(err) {
           err.message.should.match(/key-does-not-exist/);
           err.should.have.property('statusCode', 404);
-        }
+        },
       );
     });
 

@@ -406,7 +406,7 @@ describe('ModelDefinition class', function() {
         return Child.update({name: 'childA'}, {secret: 'new-secret'}, optionsFromRemoteReq).then(
           function(result) {
             result.count.should.equal(1);
-          }
+          },
         );
       });
 

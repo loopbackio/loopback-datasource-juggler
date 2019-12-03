@@ -749,10 +749,10 @@ describe('Model loaded with a base', function() {
     Customer1.definition.properties.should.have.property('name');
     Customer2.definition.properties.should.have.property('name');
     Customer1.definition.properties.name.should.not.be.equal(
-      Customer2.definition.properties.name
+      Customer2.definition.properties.name,
     );
     Customer1.definition.properties.name.should.eql(
-      Customer2.definition.properties.name
+      Customer2.definition.properties.name,
     );
   });
 

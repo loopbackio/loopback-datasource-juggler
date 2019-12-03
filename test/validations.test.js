@@ -348,7 +348,7 @@ describe('validations', function() {
         if (options.testFlag !== 'someValue') {
           console.error(
             'Unexpected validation options: %j Expected %j',
-            options, {testFlag: 'someValue'}
+            options, {testFlag: 'someValue'},
           );
           err();
         }
@@ -609,13 +609,13 @@ describe('validations', function() {
         function createSite1User(next) {
           SiteUser.create(
             {siteId: 1, email: EMAIL},
-            next
+            next,
           );
         },
         function createSite2User(user1, next) {
           SiteUser.create(
             {siteId: 2, email: EMAIL},
-            next
+            next,
           );
         },
         function validateDuplicateUser(user2, next) {
@@ -1424,7 +1424,7 @@ describe('validations', function() {
       obj.email = 'test@example.com';
       const err = givenValidationError('user', obj, 'is invalid');
       getErrorDetails(err).should.equal(
-        '`user` is invalid (value: { email: \'test@example.com\' }).'
+        '`user` is invalid (value: { email: \'test@example.com\' }).',
       );
     });
 

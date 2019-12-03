@@ -2612,7 +2612,7 @@ describe('relations', function() {
           const actual = pics.map(
             function(pic) {
               return {imageName: pic.name, name: pic.imageable().name};
-            }
+            },
           );
 
           actual.should.containDeep([
@@ -6228,7 +6228,7 @@ describe('relations', function() {
             err.name.should.equal('ValidationError');
             err.details.codes.jobs.should.eql(['uniqueness']);
             done();
-          }
+          },
         );
     });
 
@@ -6616,7 +6616,7 @@ describe('relations', function() {
                 type: 'hasMany',
               },
             },
-          }
+          },
         );
       }).should.throw('Invalid relation name: trigger');
     });

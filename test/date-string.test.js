@@ -3,9 +3,6 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-/* global describe,it */
-/* jshint expr:true */
-
 'use strict';
 
 require('should');

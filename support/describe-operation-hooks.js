@@ -51,14 +51,14 @@ const operations = [
   function findOrCreate_found(ds) {
     return ds.TestModel.findOrCreate(
       {where: {name: ds.existingInstance.name}},
-      {name: ds.existingInstance.name}
+      {name: ds.existingInstance.name},
     );
   },
 
   function findOrCreate_create(ds) {
     return ds.TestModel.findOrCreate(
       {where: {name: 'new-record'}},
-      {name: 'new-record'}
+      {name: 'new-record'},
     );
   },
 
@@ -68,7 +68,7 @@ const operations = [
 
   function updateOrCreate_update(ds) {
     return ds.TestModel.updateOrCreate(
-      {id: ds.existingInstance.id, name: 'new name'}
+      {id: ds.existingInstance.id, name: 'new name'},
     );
   },
 
@@ -78,14 +78,14 @@ const operations = [
 
   function replaceOrCreate_update(ds) {
     return ds.TestModel.replaceOrCreate(
-      {id: ds.existingInstance.id, name: 'new name'}
+      {id: ds.existingInstance.id, name: 'new name'},
     );
   },
 
   function replaceById(ds) {
     return ds.TestModel.replaceById(
       ds.existingInstance.id,
-      {name: 'new name'}
+      {name: 'new name'},
     );
   },
 

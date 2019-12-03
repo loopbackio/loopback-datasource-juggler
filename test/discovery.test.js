@@ -80,7 +80,7 @@ describe('Memory connector with mocked discovery', function() {
       const s = schemas['STRONGLOOP.INVENTORY'];
       s.name.should.be.eql('Inventory');
       Object.keys(s.properties).should.be.eql(
-        ['productId', 'locationId', 'available', 'total']
+        ['productId', 'locationId', 'available', 'total'],
       );
       done();
     });
@@ -98,7 +98,7 @@ describe('Memory connector with mocked discovery', function() {
       const s = schemas['STRONGLOOP.INVENTORY'];
       s.name.should.be.eql('inventory');
       Object.keys(s.properties).should.be.eql(
-        ['product_id', 'location_id', 'available', 'total']
+        ['product_id', 'location_id', 'available', 'total'],
       );
       done();
     });
@@ -112,7 +112,7 @@ describe('Memory connector with mocked discovery', function() {
         const s = schemas['STRONGLOOP.INVENTORY'];
         s.name.should.be.eql('INVENTORY');
         Object.keys(s.properties).should.be.eql(
-          ['PRODUCT_ID', 'LOCATION_ID', 'AVAILABLE', 'TOTAL']
+          ['PRODUCT_ID', 'LOCATION_ID', 'AVAILABLE', 'TOTAL'],
         );
         done();
       });
@@ -172,7 +172,7 @@ describe('Memory connector with mocked discovery', function() {
           s.name.should.be.eql('Inventory');
 
           Object.keys(s.properties).should.be.eql(
-            ['productId', 'locationId', 'available', 'total']
+            ['productId', 'locationId', 'available', 'total'],
           );
           done();
         })
@@ -312,7 +312,7 @@ describe('discoverModelDefinitions', function() {
       });
 
       tableNames.should.be.eql(
-        ['CUSTOMER', 'INVENTORY', 'LOCATION']
+        ['CUSTOMER', 'INVENTORY', 'LOCATION'],
       );
       done();
     });
@@ -327,7 +327,7 @@ describe('discoverModelDefinitions', function() {
       });
 
       tableNames.should.be.eql(
-        ['CUSTOMER', 'INVENTORY', 'LOCATION']
+        ['CUSTOMER', 'INVENTORY', 'LOCATION'],
       );
       done();
     };
@@ -343,7 +343,7 @@ describe('discoverModelDefinitions', function() {
         });
 
         tableNames.should.be.eql(
-          ['CUSTOMER', 'INVENTORY', 'LOCATION']
+          ['CUSTOMER', 'INVENTORY', 'LOCATION'],
         );
         done();
       })

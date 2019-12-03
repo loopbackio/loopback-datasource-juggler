@@ -73,7 +73,7 @@ function setup(done) {
         function(items) {
           createdUsers = items;
           createPassports();
-        }
+        },
       );
     }
 
@@ -88,7 +88,7 @@ function setup(done) {
         function(items) {
           createdPassports = items;
           createPosts();
-        }
+        },
       );
     }
 
@@ -105,7 +105,7 @@ function setup(done) {
         function(items) {
           createdPosts = items;
           done();
-        }
+        },
       );
     }
   });

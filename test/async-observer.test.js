@@ -322,7 +322,7 @@ describe('async observer', function() {
       },
       function(err) {
         err.should.eql(testError);
-      }
+      },
     );
   });
 

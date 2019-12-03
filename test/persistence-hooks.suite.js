@@ -109,7 +109,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               'loaded',
             ]);
             done();
-          }
+          },
         );
       });
 
@@ -137,7 +137,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             if (err) return done(err);
             hookMonitor.names.should.be.empty();
             done();
-          }
+          },
         );
       });
 
@@ -243,7 +243,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               if (err) return done(err);
               hookMonitor.names.should.be.empty();
               done();
-            }
+            },
           );
         });
 
@@ -342,7 +342,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
             list[0].should.have.property('extra', 'hook data');
             done();
-          }
+          },
         );
       });
 
@@ -353,7 +353,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, list) {
             [err].should.eql([expectedError]);
             done();
-          }
+          },
         );
       });
     });
@@ -374,7 +374,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               'after save',
             ]);
             done();
-          }
+          },
         );
       });
 
@@ -451,7 +451,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               }),
             ]);
             done();
-          }
+          },
         );
       });
 
@@ -480,7 +480,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             }));
 
             done();
-          }
+          },
         );
       });
 
@@ -514,7 +514,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               });
               done();
             });
-          }
+          },
         );
       });
 
@@ -537,7 +537,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             }));
 
             done();
-          }
+          },
         );
       });
 
@@ -548,7 +548,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, instance) {
             [err].should.eql([expectedError]);
             done();
-          }
+          },
         );
       });
 
@@ -570,7 +570,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
             instance.should.have.property('extra', 'hook data');
             done();
-          }
+          },
         );
       });
 
@@ -636,7 +636,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               }),
             ]);
             done();
-          }
+          },
         );
       });
 
@@ -666,7 +666,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               isNewInstance: true,
             }));
             done();
-          }
+          },
         );
       });
     });
@@ -687,7 +687,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               skip: 0,
             }}));
             done();
-          }
+          },
         );
       });
 
@@ -710,7 +710,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 isNewInstance: true,
               }));
               done();
-            }
+            },
           );
         });
       }
@@ -732,7 +732,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               isNewInstance: true,
             }));
             done();
-          }
+          },
         );
       });
 
@@ -746,7 +746,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             (err || {}).should.be.instanceOf(ValidationError);
             (err.details.codes || {}).should.eql({name: ['presence']});
             done();
-          }
+          },
         );
       });
 
@@ -766,7 +766,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               'after save',
             ]);
             done();
-          }
+          },
         );
       });
 
@@ -793,7 +793,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               ]);
             }
             done();
-          }
+          },
         );
       });
 
@@ -806,7 +806,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, instance) {
             [err].should.eql([expectedError]);
             done();
-          }
+          },
         );
       });
 
@@ -819,7 +819,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, instance) {
             [err].should.eql([expectedError]);
             done();
-          }
+          },
         );
       });
 
@@ -856,7 +856,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               }));
 
               done();
-            }
+            },
           );
         });
       }
@@ -897,7 +897,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               }));
             }
             done();
-          }
+          },
         );
       });
 
@@ -932,7 +932,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               });
 
               done();
-            }
+            },
           );
         });
       }
@@ -972,7 +972,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               });
             }
             done();
-          }
+          },
         );
       });
 
@@ -1000,7 +1000,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               }));
 
               done();
-            }
+            },
           );
         });
       }
@@ -1023,7 +1023,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             }));
 
             done();
-          }
+          },
         );
       });
 
@@ -1035,7 +1035,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, instance) {
             [err].should.eql([expectedError]);
             done();
-          }
+          },
         );
       });
 
@@ -1055,7 +1055,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               instance.should.have.property('extra', 'hook data');
 
               done();
-            }
+            },
           );
         });
       }
@@ -1082,7 +1082,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
             instance.should.have.property('extra', 'hook data');
             done();
-          }
+          },
         );
       });
 
@@ -1103,7 +1103,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               isNewInstance: true,
             }));
             done();
-          }
+          },
         );
       });
 
@@ -1117,7 +1117,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             if (err) return done(err);
             ctxRecorder.records.should.eql('hook not called');
             done();
-          }
+          },
         );
       });
     });
@@ -1163,7 +1163,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               'after save',
             ]);
             done();
-          }
+          },
         );
       });
 
@@ -1282,7 +1282,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, instance) {
             [err].should.eql([expectedError]);
             done();
-          }
+          },
         );
       });
 
@@ -1326,7 +1326,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
         // PersistedModel.create and force it to call connector.save()
         const instance = new TestModel(
           {id: 'new-id', name: 'created'},
-          {persisted: true}
+          {persisted: true},
         );
 
         instance.save(function(err, instance) {
@@ -1383,7 +1383,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               'after save',
             ]);
             done();
-          }
+          },
         );
       });
 
@@ -1544,7 +1544,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                   });
                   done();
                 });
-              }
+              },
             );
           });
         });
@@ -1581,7 +1581,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, instance) {
             [err].should.eql([expectedError]);
             done();
-          }
+          },
         );
       });
 
@@ -1663,7 +1663,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 'after save',
               ]);
               done();
-            }
+            },
           );
         });
 
@@ -1807,7 +1807,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                     });
                     done();
                   });
-                }
+                },
               );
             });
           });
@@ -1836,7 +1836,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             function(err, instance) {
               [err].should.eql([expectedError]);
               done();
-            }
+            },
           );
         });
 
@@ -1912,7 +1912,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               'after save',
             ]);
             done();
-          }
+          },
         );
       });
 
@@ -1931,7 +1931,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               'after save',
             ]);
             done();
-          }
+          },
         );
       });
 
@@ -1946,7 +1946,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               where: {id: 'not-found'},
             }}));
             done();
-          }
+          },
         );
       });
 
@@ -1961,7 +1961,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               where: {id: existingInstance.id},
             }}));
             done();
-          }
+          },
         );
       });
 
@@ -1974,7 +1974,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             if (err) return done(err);
             ctxRecorder.records.should.equal('hook not called');
             done();
-          }
+          },
         );
       });
 
@@ -1996,7 +1996,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               ]);
               done();
             });
-          }
+          },
         );
       });
 
@@ -2019,7 +2019,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               ]);
               done();
             });
-          }
+          },
         );
       });
 
@@ -2037,7 +2037,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             if (err) return done(err);
             hookMonitor.names.should.eql(['access', 'before save']);
             done();
-          }
+          },
         );
       });
 
@@ -2067,7 +2067,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               }));
             }
             done();
-          }
+          },
         );
       });
 
@@ -2097,7 +2097,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             }
 
             done();
-          }
+          },
         );
       });
 
@@ -2114,7 +2114,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             if (err) return done(err);
             instance.name.should.equal('hooked');
             done();
-          }
+          },
         );
       });
 
@@ -2135,7 +2135,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             if (err) return done(err);
             instance.name.should.equal('hooked');
             done();
-          }
+          },
         );
       });
 
@@ -2150,7 +2150,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             (err || {}).should.be.instanceOf(ValidationError);
             (err.details.codes || {}).should.eql({name: ['presence']});
             done();
-          }
+          },
         );
       });
 
@@ -2165,7 +2165,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             (err || {}).should.be.instanceOf(ValidationError);
             (err.details.codes || {}).should.eql({name: ['presence']});
             done();
-          }
+          },
         );
       });
 
@@ -2202,7 +2202,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               }));
             }
             done();
-          }
+          },
         );
       });
 
@@ -2235,7 +2235,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
             ctxRecorder.records.should.eql(expectedContext);
             done();
-          }
+          },
         );
       });
 
@@ -2262,7 +2262,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               }));
             }
             done();
-          }
+          },
         );
       });
 
@@ -2281,7 +2281,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               isNewInstance: isNewInstanceFlag ? false : undefined,
             }));
             done();
-          }
+          },
         );
       });
 
@@ -2292,7 +2292,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           function(err, instance) {
             [err].should.eql([expectedError]);
             done();
-          }
+          },
         );
       });
 
@@ -2312,7 +2312,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               isNewInstance: isNewInstanceFlag ? false : undefined,
             }));
             done();
-          }
+          },
         );
       });
 
@@ -2343,7 +2343,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               isNewInstance: isNewInstanceFlag ? true : undefined,
             }));
             done();
-          }
+          },
         );
       });
     });
@@ -2367,7 +2367,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 'after save',
               ]);
               done();
-            }
+            },
           );
         });
 
@@ -2386,7 +2386,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 'after save',
               ]);
               done();
-            }
+            },
           );
         });
 
@@ -2401,7 +2401,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 where: {id: 'not-found'},
               }}));
               done();
-            }
+            },
           );
         });
 
@@ -2416,7 +2416,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 where: {id: existingInstance.id},
               }}));
               done();
-            }
+            },
           );
         });
 
@@ -2429,7 +2429,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               if (err) return done(err);
               ctxRecorder.records.should.equal('hook not called');
               done();
-            }
+            },
           );
         });
 
@@ -2451,7 +2451,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 ]);
                 done();
               });
-            }
+            },
           );
         });
 
@@ -2474,7 +2474,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 ]);
                 done();
               });
-            }
+            },
           );
         });
 
@@ -2492,7 +2492,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               if (err) return done(err);
               hookMonitor.names.should.eql(['access', 'before save']);
               done();
-            }
+            },
           );
         });
 
@@ -2535,7 +2535,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               ctxRecorder.records.should.eql(expectedContext);
 
               done();
-            }
+            },
           );
         });
 
@@ -2561,7 +2561,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               ctxRecorder.records.should.eql(expectedContext);
 
               done();
-            }
+            },
           );
         });
 
@@ -2577,7 +2577,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               if (err) return done(err);
               instance.name.should.equal('hooked');
               done();
-            }
+            },
           );
         });
 
@@ -2590,7 +2590,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               (err || {}).should.be.instanceOf(ValidationError);
               (err.details.codes || {}).should.eql({name: ['presence']});
               done();
-            }
+            },
           );
         });
 
@@ -2624,7 +2624,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               }
               ctxRecorder.records.should.eql(expectedContext);
               done();
-            }
+            },
           );
         });
 
@@ -2657,7 +2657,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
               ctxRecorder.records.should.eql(expectedContext);
               done();
-            }
+            },
           );
         });
 
@@ -2684,7 +2684,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 found.should.have.property('extra', 'hook data');
                 done();
               });
-            }
+            },
           );
         });
 
@@ -2730,7 +2730,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, expected));
               done();
-            }
+            },
           );
         });
 
@@ -2755,7 +2755,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, expected));
               done();
-            }
+            },
           );
         });
 
@@ -2766,7 +2766,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             function(err, instance) {
               [err].should.eql([expectedError]);
               done();
-            }
+            },
           );
         });
 
@@ -2792,7 +2792,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, expected));
               done();
-            }
+            },
           );
         });
 
@@ -2817,7 +2817,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
               ctxRecorder.records.should.eql(aCtxForModel(TestModel, expected));
               done();
-            }
+            },
           );
         });
       });
@@ -2843,7 +2843,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 'after save',
               ]);
               done();
-            }
+            },
           );
         });
 
@@ -2884,7 +2884,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
 
               ctxRecorder.records.should.eql(expectedContext);
               done();
-            }
+            },
           );
         });
 
@@ -2906,7 +2906,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
                 found.should.have.property('extra', 'hook data');
                 done();
               });
-            }
+            },
           );
         });
       });
@@ -3105,7 +3105,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
           TestModel.findById(existingInstance.id, function(err, inst) {
             if (err) return done(err);
             (inst ? inst.toObject() : 'null').should.eql(
-              existingInstance.toObject()
+              existingInstance.toObject(),
             );
             done();
           });
@@ -3204,7 +3204,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               where: {name: 'searched'},
             }}));
             done();
-          }
+          },
         );
       });
 
@@ -3227,7 +3227,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               ]);
               done();
             });
-          }
+          },
         );
       });
 
@@ -3244,7 +3244,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               data: {name: 'updated'},
             }));
             done();
-          }
+          },
         );
       });
 
@@ -3265,7 +3265,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               instance.should.have.property('extra', 'added');
               done();
             });
-          }
+          },
         );
       });
 
@@ -3284,7 +3284,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             }));
 
             done();
-          }
+          },
         );
       });
 
@@ -3303,7 +3303,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               instance.should.have.property('extra', 'hook data');
               done();
             });
-          }
+          },
         );
       });
 
@@ -3317,7 +3317,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
             if (err) return done(err);
             ctxRecorder.records.should.eql('hook not called');
             done();
-          }
+          },
         );
       });
 
@@ -3335,7 +3335,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               info: {count: 1},
             }));
             done();
-          }
+          },
         );
       });
 
@@ -3352,7 +3352,7 @@ module.exports = function(dataSource, should, connectorCapabilities) {
               foo: 'bar',
             });
             done();
-          }
+          },
         );
       });
     });
