@@ -3,7 +3,7 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {AnyObject, Callback, Options, PromiseOrVoid} from './common';
+import {AnyObject, Callback, Options} from './common';
 import {Connector} from './connector';
 import {
   ModelBaseClass,
@@ -140,56 +140,138 @@ export declare class DataSource extends EventEmitter {
    */
   attach(modelClass: ModelBaseClass): ModelBaseClass;
 
-  automigrate(models: string | string[], callback?: Callback): PromiseOrVoid;
+  automigrate(models: string | string[]): Promise<void>;
+  // legacy callback style
+  automigrate(models: string | string[], callback: Callback): void;
 
-  autoupdate(models: string | string[], callback?: Callback): PromiseOrVoid;
+  autoupdate(models: string | string[]): Promise<void>;
+  // legacy callback style
+  autoupdate(models: string | string[], callback: Callback): void;
 
   discoverModelDefinitions(
     options?: Options,
-    callback?: Callback<ModelDefinition[]>,
-  ): PromiseOrVoid<ModelDefinition[]>;
+  ): Promise<ModelDefinition[]>;
+  // legacy callback style (no options)
+  discoverModelDefinitions(
+    callback: Callback<ModelDefinition[]>,
+  ): void;
+  // legacy callback style (with options)
+  discoverModelDefinitions(
+    options: Options,
+    callback: Callback<ModelDefinition[]>,
+  ): void;
 
   discoverModelProperties(
     modelName: string,
     options?: Options,
-    callback?: Callback<PropertyDefinition[]>,
-  ): PromiseOrVoid<PropertyDefinition[]>;
+  ): Promise<PropertyDefinition[]>;
+  // legacy callback style (no options)
+  discoverModelProperties(
+    modelName: string,
+    callback: Callback<PropertyDefinition[]>,
+  ): void;
+  // legacy callback style (with options)
+  discoverModelProperties(
+    modelName: string,
+    options: Options,
+    callback: Callback<PropertyDefinition[]>,
+  ): void;
 
   discoverPrimaryKeys(
     modelName: string,
     options?: Options,
-    callback?: Callback<PropertyDefinition[]>,
-  ): PromiseOrVoid<PropertyDefinition[]>;
+  ): Promise<PropertyDefinition[]>;
+  // legacy callback style (no options)
+  discoverPrimaryKeys(
+    modelName: string,
+    callback: Callback<PropertyDefinition[]>,
+  ): void;
+  // legacy callback style (with options)
+  discoverPrimaryKeys(
+    modelName: string,
+    options: Options,
+    callback: Callback<PropertyDefinition[]>,
+  ): void;
 
   discoverForeignKeys(
     modelName: string,
     options?: Options,
-    callback?: Callback<PropertyDefinition[]>,
-  ): PromiseOrVoid<PropertyDefinition[]>;
+  ): Promise<PropertyDefinition[]>;
+  // legacy callback style (no options)
+  discoverForeignKeys(
+    modelName: string,
+    callback: Callback<PropertyDefinition[]>,
+  ): void;
+  // legacy callback style (no options)
+  discoverForeignKeys(
+    modelName: string,
+    options: Options,
+    callback: Callback<PropertyDefinition[]>,
+  ): void;
 
   discoverExportedForeignKeys(
     modelName: string,
     options?: Options,
-    callback?: Callback<PropertyDefinition[]>,
-  ): PromiseOrVoid<PropertyDefinition[]>;
+  ): Promise<PropertyDefinition[]>;
+  // legacy callback style (no options)
+  discoverExportedForeignKeys(
+    modelName: string,
+    callback: Callback<PropertyDefinition[]>,
+  ): void;
+  // legacy callback style (with options)
+  discoverExportedForeignKeys(
+    modelName: string,
+    options: Options,
+    callback: Callback<PropertyDefinition[]>,
+  ): void;
 
   discoverAndBuildModels(
     modelName: string,
     options?: Options,
-    callback?: Callback<{[name: string]: ModelBaseClass}>,
-  ): PromiseOrVoid<{[name: string]: ModelBaseClass}>;
+  ): Promise<{[name: string]: ModelBaseClass}>;
+  // legacy callback style (no options)
+  discoverAndBuildModels(
+    modelName: string,
+    callback: Callback<{[name: string]: ModelBaseClass}>,
+  ): void;
+  // legacy callback style (with options)
+  discoverAndBuildModels(
+    modelName: string,
+    options: Options,
+    callback: Callback<{[name: string]: ModelBaseClass}>,
+  ): void;
 
   discoverSchema(
     tableName: string,
     options?: Options,
-    callback?: Callback<AnyObject>,
-  ): PromiseOrVoid<AnyObject>;
+  ): Promise<AnyObject>;
+  // legacy callback style (no options)
+  discoverSchema(
+    tableName: string,
+    callback: Callback<AnyObject>,
+  ): void;
+  // legacy callback style (with options)
+  discoverSchema(
+    tableName: string,
+    options: Options,
+    callback: Callback<AnyObject>,
+  ): void;
 
   discoverSchemas(
     tableName: string,
     options?: Options,
-    callback?: Callback<AnyObject[]>,
-  ): PromiseOrVoid<AnyObject[]>;
+  ): Promise<AnyObject[]>;
+  // legacy callback style (no options)
+  discoverSchemas(
+    tableName: string,
+    callback: Callback<AnyObject[]>,
+  ): void;
+  // legacy callback style (with options)
+  discoverSchemas(
+    tableName: string,
+    options: Options,
+    callback: Callback<AnyObject[]>,
+  ): void;
 
   buildModelFromInstance(
     modelName: string,
@@ -197,9 +279,17 @@ export declare class DataSource extends EventEmitter {
     options?: Options,
   ): ModelBaseClass;
 
-  connect(callback?: Callback): PromiseOrVoid;
-  disconnect(callback?: Callback): PromiseOrVoid;
-  ping(callback?: Callback): PromiseOrVoid;
+  connect(): Promise<void>;
+  // legacy callback style
+  connect(callback: Callback): void;
+
+  disconnect(): Promise<void>;
+  // legacy callback style
+  disconnect(callback: Callback): void;
+
+  ping(): Promise<void>;
+  // legacy callback style
+  ping(callback: Callback): void;
 
   // Only promise variant, callback is intentionally not supported.
   execute(
