@@ -1,3 +1,21 @@
+2019-12-06, Version 4.17.0
+==========================
+
+ * Fix typo introduced by 19048cd7 (Miroslav Bajtoš)
+
+ * [BUGFIX] Fix issue with with array constructor (Jeremy Nagel)
+
+ * Fix Promise/Callback variants in datasource types (Miroslav Bajtoš)
+
+ * chore: update async to v3.x (Miroslav Bajtoš)
+
+ * chore: update strong-globalize to 5.x (Miroslav Bajtoš)
+
+ * chore: update eslint to 6.x (Miroslav Bajtoš)
+
+ * return failed promise on error (Dimitris Xalatsis)
+
+
 2019-11-28, Version 4.16.0
 ==========================
 
