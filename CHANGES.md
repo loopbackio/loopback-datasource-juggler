@@ -1,3 +1,11 @@
+2019-11-28, Version 4.16.0
+==========================
+
+ * feat: applyDefaultOnWrites in nested properties (Hage Yaapa)
+
+ * chore: disable security issue reporting (Nora)
+
+
 2019-11-18, Version 4.15.0
 ==========================
 
