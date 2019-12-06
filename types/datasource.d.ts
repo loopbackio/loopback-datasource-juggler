@@ -202,7 +202,7 @@ export declare class DataSource extends EventEmitter {
     modelName: string,
     callback: Callback<PropertyDefinition[]>,
   ): void;
-  // legacy callback style (no options)
+  // legacy callback style (with options)
   discoverForeignKeys(
     modelName: string,
     options: Options,
