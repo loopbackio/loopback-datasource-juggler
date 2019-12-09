@@ -49,7 +49,8 @@ describe('basic-querying', function() {
 
     db = getSchema();
     // connectors that do not support geo-point types
-    connectorCapabilities.geoPoint = (db.adapter.name != 'dashdb') && (db.adapter.name != 'db2') &&
+    connectorCapabilities.geoPoint = (db.adapter.name != 'dashdb') &&
+    (db.adapter.name != 'db2') && (db.adapter.name != 'ibmi') &&
     (db.adapter.name != 'informix') && (db.adapter.name != 'cassandra');
     if (connectorCapabilities.geoPoint) userModelDef.addressLoc = {type: 'GeoPoint'};
     User = db.define('User', userModelDef);
@@ -480,12 +481,23 @@ describe('basic-querying', function() {
       });
 
     it('should support string "gt" that is not satisfied', function(done) {
-      User.find({where: {name: {'gt': 'xyz'},
-      }}, function(err, users) {
-        should.not.exist(err);
-        users.should.have.property('length', 0);
-        done();
-      });
+      // IBM i tables are coded in EBCDIC by default, need to modify the query
+      // so that it returns no results
+      if (db.adapter.name === 'ibmi') {
+        User.find({where: {name: {'gt': 'XYZ'},
+        }}, function(err, users) {
+          should.not.exist(err);
+          users.should.have.property('length', 0);
+          done();
+        });
+      } else {
+        User.find({where: {name: {'gt': 'xyz'},
+        }}, function(err, users) {
+          should.not.exist(err);
+          users.should.have.property('length', 0);
+          done();
+        });
+      }
     });
 
     bdd.itIf(connectorCapabilities.cloudantCompatible !== false,
@@ -653,7 +665,7 @@ describe('basic-querying', function() {
       });
     });
 
-    describe('geo queries', function() {
+    bdd.describeIf(connectorCapabilities.geoPoint, 'geo queries', function() {
       describe('near filter', function() {
         it('supports a basic "near" query', function(done) {
           User.find({
