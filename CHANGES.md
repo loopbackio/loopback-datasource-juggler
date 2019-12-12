@@ -1,3 +1,11 @@
+2019-12-12, Version 3.34.0
+==========================
+
+ * feat: applyDefaultOnWrites in nested properties (Hage Yaapa)
+
+ * return failed promise on error (cherry-picked) (Dimitris Xalatsis)
+
+
 2019-10-28, Version 3.33.2
 ==========================
 
