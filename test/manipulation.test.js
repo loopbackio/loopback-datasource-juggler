@@ -382,11 +382,7 @@ describe('manipulation', function() {
             if (!err) {
               return done(new Error('Create should have rejected duplicate id.'));
             }
-            if (db.adapter.name === 'ibmi') {
-              err.odbcErrors[0].message.should.match(/duplicate/i);
-            } else {
-              err.message.should.match(/duplicate/i);
-            }
+            err.message.should.match(/duplicate/i);
             done();
           });
         });

@@ -481,23 +481,21 @@ describe('basic-querying', function() {
       });
 
     it('should support string "gt" that is not satisfied', function(done) {
-      // IBM i tables are coded in EBCDIC by default, need to modify the query
-      // so that it returns no results
-      if (db.adapter.name === 'ibmi') {
-        User.find({where: {name: {'gt': 'XYZ'},
-        }}, function(err, users) {
-          should.not.exist(err);
-          users.should.have.property('length', 0);
-          done();
-        });
-      } else {
-        User.find({where: {name: {'gt': 'xyz'},
-        }}, function(err, users) {
-          should.not.exist(err);
-          users.should.have.property('length', 0);
-          done();
-        });
+      // IBM i tables are coded in EBCDIC by default.
+      // In EBCDIC, capital letters come after lowercase letters (opposite of
+      // ASCII). This test expects no results but assumes ASCII encoding. Need
+      // to have a special case for ibmi, otherwise "'gt: 'xyz'" will return
+      // every name beginning with a capital letter, and the test will fail.
+      let compareString = 'xyz';
+      if (db.adapter.name === 'ibmi') { // i.e. "if EBCDIC encoding"
+        compareString = 'XYZ';
       }
+      User.find({where: {name: {'gt': compareString},
+      }}, function(err, users) {
+        should.not.exist(err);
+        users.should.have.property('length', 0);
+        done();
+      });
     });
 
     bdd.itIf(connectorCapabilities.cloudantCompatible !== false,
