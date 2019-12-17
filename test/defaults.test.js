@@ -130,4 +130,48 @@ describe('defaults', function() {
       found.qualities.length.should.equal(1);
     });
   });
+
+  context('persistDefaultValues', function() {
+    it('removes property if value matches default', async () => {
+      const Apple = db.define('Apple', {
+        color: {type: String, default: 'red', persistDefaultValues: false},
+        taste: {type: String, default: 'sweet'},
+      }, {applyDefaultsOnReads: false});
+
+      const apple = await Apple.create({color: 'red', taste: 'sweet'});
+      const found = await Apple.findById(apple.id);
+      should(found.color).be.undefined();
+      found.taste.should.equal('sweet');
+    });
+
+    it('removes property if value matches default in an object', async () => {
+      const Apple = db.define('Apple', {
+        name: {type: String},
+        qualities: {
+          color: {type: String, default: 'red', persistDefaultValues: false},
+          taste: {type: String, default: 'sweet'},
+        },
+      }, {applyDefaultsOnReads: false});
+
+      const apple = await Apple.create({name: 'Honeycrisp', qualities: {taste: 'sweet'}});
+      const found = await Apple.findById(apple.id);
+      should(found.qualities.color).be.undefined();
+      found.qualities.taste.should.equal('sweet');
+    });
+
+    it('removes property if value matches default in an array', async () => {
+      const Apple = db.define('Apple', {
+        name: {type: String},
+        qualities: [
+          {color: {type: String, default: 'red', persistDefaultValues: false}},
+          {taste: {type: String, default: 'sweet'}},
+        ],
+      }, {applyDefaultsOnReads: false});
+
+      const apple = await Apple.create({name: 'Honeycrisp', qualities: [{taste: 'sweet'}]});
+      const found = await Apple.findById(apple.id);
+      should(found.qualities[0].color).be.undefined();
+      found.qualities.length.should.equal(1);
+    });
+  });
 });
