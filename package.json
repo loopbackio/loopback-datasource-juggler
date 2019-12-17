@@ -1,6 +1,6 @@
 {
   "name": "loopback-datasource-juggler",
-  "version": "3.34.0",
+  "version": "3.35.0",
   "publishConfig": {
     "export-tests": true,
     "tag": "lts"

@@ -1,3 +1,9 @@
+2019-12-17, Version 3.35.0
+==========================
+
+ * feat: added persistDefaultValues (#1815) (Hage Yaapa)
+
+
 2019-12-12, Version 3.34.0
 ==========================
 
