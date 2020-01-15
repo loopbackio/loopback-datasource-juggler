@@ -79,20 +79,22 @@ describe('list of items typed by a class', function() {
     list[0].should.be.an.instanceOf(Phone);
   });
 
-  it('should assign the list as parent to every child element', () => {
+  it('should assign the list\'s parent as parent to every child element', () => {
     const phones = givenPhones();
-    const list = new List(phones, Phone);
+    const listParent = {name: 'PhoneBook'};
+    const list = new List(phones, Phone, listParent);
     list.forEach((listItem) => {
-      listItem.should.have.property('__parent').which.equals(list);
+      listItem.should.have.property('__parent').which.equals(listParent);
     });
   });
 
-  it('should assign the list as parent with push', () => {
+  it('should assign the list\'s parent as element parent with push', () => {
     const phones = givenPhonesAsJSON();
-    const list = new List([], Phone);
+    const listParent = {name: 'PhoneBook'};
+    const list = new List([], Phone, listParent);
     list.push(phones[0], phones[1]);
     list.forEach((listItem) => {
-      listItem.should.have.property('__parent').which.equals(list);
+      listItem.should.have.property('__parent').which.equals(listParent);
     });
   });
 });
@@ -128,20 +130,22 @@ describe('list of items typed by a ctor', function() {
     list[0].should.be.an.instanceOf(PhoneCtor);
   });
 
-  it('should assign the list as parent to every child element', () => {
+  it('should assign the list\'s parent as parent to every child element', () => {
     const phones = givenPhones();
-    const list = new List(phones, PhoneCtor);
+    const listParent = {name: 'PhoneBook'};
+    const list = new List(phones, PhoneCtor, listParent);
     list.forEach((listItem) => {
-      listItem.should.have.property('__parent').which.equals(list);
+      listItem.should.have.property('__parent').which.equals(listParent);
     });
   });
 
-  it('should assign the list as parent with push', () => {
+  it('should assign the list\'s parent as element parent with push', () => {
     const phones = givenPhonesAsJSON();
-    const list = new List([], PhoneCtor);
+    const listParent = {name: 'PhoneBook'};
+    const list = new List([], PhoneCtor, listParent);
     list.push(phones[0], phones[1]);
     list.forEach((listItem) => {
-      listItem.should.have.property('__parent').which.equals(list);
+      listItem.should.have.property('__parent').which.equals(listParent);
     });
   });
 });

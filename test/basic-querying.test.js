@@ -973,7 +973,7 @@ describe('basic-querying', function() {
       it('should have the complete chain of parents available in embedded list element', async () => {
         const [user] = await User.find({where: {name: 'John Lennon'}});
         user.friends.forEach((userFriend) => {
-          userFriend.should.have.property('__parent').which.equals(user.friends);
+          userFriend.should.have.property('__parent').which.equals(user);
         });
       });
     });
