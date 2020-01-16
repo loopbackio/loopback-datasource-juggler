@@ -178,11 +178,11 @@ There are a set of options to control the model definition.
 
 - strict:
     - true: Only properties defined in the model are accepted. Use this
-    mode if you want to make sure only predefined properties are accepted.
+    mode if you want to make sure only predefined properties are accepted. Relational databases only support this setting.
     - false: The model will be an open model. All properties are accepted,
     including the ones that not predefined with the model. This mode is useful
     if the mobile application just wants to store free form JSON data to
-    a schema-less database such as MongoDB.
+    a schema-less database such as MongoDB. For relational databases, the value will be converted back to true.
     - undefined: Default to false unless the data source is backed by a
     relational database such as Oracle or MySQL.
 
