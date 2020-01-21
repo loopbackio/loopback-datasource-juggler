@@ -1,3 +1,13 @@
+2020-01-21, Version 4.18.0
+==========================
+
+ * Update copyright year and CODEOWNERS (#1818) (Diana Lau)
+
+ * add warning strict cannot be false with SQL dbs (Agnes Lin)
+
+ * feat: add persistDefaultValues (#1813) (Hage Yaapa)
+
+
 2019-12-06, Version 4.17.0
 ==========================
 
