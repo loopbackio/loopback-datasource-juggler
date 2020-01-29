@@ -1,3 +1,9 @@
+2020-01-29, Version 4.18.1
+==========================
+
+ * allows diff db cols naming conventions 4 discover (Agnes Lin)
+
+
 2020-01-21, Version 4.18.0
 ==========================
 
