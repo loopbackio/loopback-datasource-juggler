@@ -73,7 +73,7 @@ describe('Memory connector with mocked discovery', function() {
     };
   });
 
-  it('should convert table/column names to camel cases', function(done) {
+  it('should convert table names to pascal cases and column names to camel case', function(done) {
     ds.discoverSchemas('INVENTORY', {}, function(err, schemas) {
       if (err) return done(err);
       schemas.should.have.property('STRONGLOOP.INVENTORY');
@@ -81,6 +81,19 @@ describe('Memory connector with mocked discovery', function() {
       s.name.should.be.eql('Inventory');
       Object.keys(s.properties).should.be.eql(
         ['productId', 'locationId', 'available', 'total'],
+      );
+      done();
+    });
+  });
+
+  it('should keep the column names the same as database', function(done) {
+    ds.discoverSchemas('INVENTORY', {disableCamelCase: true}, function(err, schemas) {
+      if (err) return done(err);
+      schemas.should.have.property('STRONGLOOP.INVENTORY');
+      const s = schemas['STRONGLOOP.INVENTORY'];
+      s.name.should.be.eql('Inventory');
+      Object.keys(s.properties).should.be.eql(
+        ['PRODUCT_ID', 'LOCATION_ID', 'AVAILABLE', 'TOTAL'],
       );
       done();
     });
