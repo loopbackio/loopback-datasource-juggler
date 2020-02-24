@@ -4,8 +4,22 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {Callback, PromiseOrVoid} from './common';
+import {PersistedModel, PersistedModelClass} from './persisted-model';
 
-export type Listener = (ctx: object, next: (err?: any) => void) => void;
+export interface OperationHookContext<T extends typeof PersistedModel> {
+  /**
+   * The constructor of the model that triggered the operation.
+   */
+  Model: T;
+
+  /**
+   * Additional context properties, not typed yet.
+   * See https://loopback.io/doc/en/lb3/Operation-hooks.html#hooks
+   */
+  [property: string]: any;
+}
+
+export type Listener<Ctx> = (ctx: Ctx, next: (err?: any) => void) => void;
 
 export interface ObserverMixin {
   /**
@@ -36,7 +50,7 @@ export interface ObserverMixin {
    * `this` set to the model constructor, e.g. `User`.
    * @end
    */
-  observe(operation: string, listener: Listener): void;
+  observe(operation: string, listener: Listener<OperationHookContext<PersistedModelClass>>): void;
 
   /**
    * Unregister an asynchronous observer for the given operation (event).
@@ -54,7 +68,7 @@ export interface ObserverMixin {
    * @callback {function} listener The listener function.
    * @end
    */
-  removeObserver(operation: string, listener: Listener): Listener | undefined;
+  removeObserver(operation: string, listener: Listener<OperationHookContext<PersistedModelClass>>): Listener<OperationHookContext<PersistedModelClass>> | undefined;
 
   /**
    * Unregister all asynchronous observers for the given operation (event).
