@@ -12,3 +12,4 @@ npm-debug.log
 .travis.yml
 .nyc_output
 dist
+types/__test__.ts
