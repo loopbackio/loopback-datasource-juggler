@@ -19,7 +19,9 @@ export interface OperationHookContext<T extends typeof PersistedModel> {
   [property: string]: any;
 }
 
-export type Listener<Ctx> = (ctx: Ctx, next: (err?: any) => void) => void;
+export type Listener<Ctx = OperationHookContext<PersistedModelClass>> = (
+  ctx: Ctx, next: (err?: any) => void
+) => void;
 
 export interface ObserverMixin {
   /**
