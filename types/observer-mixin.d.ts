@@ -4,9 +4,9 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {Callback, PromiseOrVoid} from './common';
-import {PersistedModel, PersistedModelClass} from './persisted-model';
+import {ModelBase} from './model';
 
-export interface OperationHookContext<T extends typeof PersistedModel> {
+export interface OperationHookContext<T extends typeof ModelBase> {
   /**
    * The constructor of the model that triggered the operation.
    */
@@ -19,7 +19,7 @@ export interface OperationHookContext<T extends typeof PersistedModel> {
   [property: string]: any;
 }
 
-export type Listener<Ctx = OperationHookContext<PersistedModelClass>> = (
+export type Listener<Ctx = OperationHookContext<typeof ModelBase>> = (
   ctx: Ctx, next: (err?: any) => void
 ) => void;
 
@@ -52,7 +52,11 @@ export interface ObserverMixin {
    * `this` set to the model constructor, e.g. `User`.
    * @end
    */
-  observe(operation: string, listener: Listener<OperationHookContext<PersistedModelClass>>): void;
+  observe<T extends typeof ModelBase>(
+    this: T,
+    operation: string,
+    listener: Listener<OperationHookContext<T>>,
+  ): void;
 
   /**
    * Unregister an asynchronous observer for the given operation (event).
@@ -70,7 +74,11 @@ export interface ObserverMixin {
    * @callback {function} listener The listener function.
    * @end
    */
-  removeObserver(operation: string, listener: Listener<OperationHookContext<PersistedModelClass>>): Listener<OperationHookContext<PersistedModelClass>> | undefined;
+  removeObserver<T extends typeof ModelBase>(
+    this: T,
+    operation: string,
+    listener: Listener<OperationHookContext<T>>,
+  ): Listener<OperationHookContext<T>> | undefined;
 
   /**
    * Unregister all asynchronous observers for the given operation (event).

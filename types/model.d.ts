@@ -6,6 +6,7 @@
 import {EventEmitter} from 'events';
 import {AnyObject, Options} from './common';
 import {DataSource} from './datasource';
+import {Listener, OperationHookContext} from './observer-mixin';
 
 /**
  * Property types
@@ -243,6 +244,90 @@ export declare class ModelBase {
     anotherClass: string | ModelBaseClass | object,
     options?: Options,
   ): ModelBaseClass;
+
+  // ObserverMixin members are added as static methods, this is difficult to
+  // describe in TypeScript in a way that's easy to use by consumers.
+  // As a workaround, we include a copy of ObserverMixin members here.
+  //
+  // Ideally, we want to describe the context argument as
+  // `OperationHookContext<this>`. Unfortunately, that's not supported by
+  // TypeScript for static members. A nice workaround is described in
+  // https://github.com/microsoft/TypeScript/issues/5863#issuecomment-410887254
+  // - Describe the context using a generic argument `T`.
+  // - Use `this: T` argument to let the compiler infer what's the target
+  //   model class we are going to observe.
+
+  /**
+   * Register an asynchronous observer for the given operation (event).
+   *
+   * Example:
+   *
+   * Registers a `before save` observer for a given model.
+   *
+   * ```javascript
+   * MyModel.observe('before save', function filterProperties(ctx, next) {
+   *   if (ctx.options && ctx.options.skipPropertyFilter) return next();
+   *     if (ctx.instance) {
+   *       FILTERED_PROPERTIES.forEach(function(p) {
+   *       ctx.instance.unsetAttribute(p);
+   *     });
+   *   } else {
+   *     FILTERED_PROPERTIES.forEach(function(p) {
+   *       delete ctx.data[p];
+   *     });
+   *   }
+   *   next();
+   * });
+   * ```
+   *
+   * @param {String} operation The operation name.
+   * @callback {function} listener The listener function. It will be invoked with
+   * `this` set to the model constructor, e.g. `User`.
+   * @end
+   */
+  static observe<T extends typeof ModelBase>(
+    this: T,
+    operation: string,
+    listener: Listener<OperationHookContext<T>>,
+  ): void;
+
+  /**
+   * Unregister an asynchronous observer for the given operation (event).
+   *
+   * Example:
+   *
+   * ```javascript
+   * MyModel.removeObserver('before save', function removedObserver(ctx, next) {
+   *   // some logic user want to apply to the removed observer...
+   *   next();
+   * });
+   * ```
+   *
+   * @param {String} operation The operation name.
+   * @callback {function} listener The listener function.
+   * @end
+   */
+  static removeObserver<T extends typeof ModelBase>(
+    this: T,
+    operation: string,
+    listener: Listener<OperationHookContext<T>>,
+  ): Listener<OperationHookContext<T>> | undefined;
+
+  /**
+   * Unregister all asynchronous observers for the given operation (event).
+   *
+   * Example:
+   *
+   * Remove all observers connected to the `before save` operation.
+   *
+   * ```javascript
+   * MyModel.clearObservers('before save');
+   * ```
+   *
+   * @param {String} operation The operation name.
+   * @end
+   */
+  static clearObservers(operation: string): void;
 }
 
 export type ModelBaseClass = typeof ModelBase;
