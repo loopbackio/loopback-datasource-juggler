@@ -249,8 +249,13 @@ export declare class ModelBase {
   // describe in TypeScript in a way that's easy to use by consumers.
   // As a workaround, we include a copy of ObserverMixin members here.
   //
-  // See also https://github.com/microsoft/TypeScript/issues/5863#issuecomment-410887254
-  // for more information about using `this` in static members.
+  // Ideally, we want to describe the context argument as
+  // `OperationHookContext<this>`. Unfortunately, that's not supported by
+  // TypeScript for static members. A nice workaround is described in
+  // https://github.com/microsoft/TypeScript/issues/5863#issuecomment-410887254
+  // - Describe the context using a generic argument `T`.
+  // - Use `this: T` argument to let the compiler infer what's the target
+  //   model class we are going to observe.
 
   /**
    * Register an asynchronous observer for the given operation (event).
