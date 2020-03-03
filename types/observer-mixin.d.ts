@@ -21,7 +21,7 @@ export interface OperationHookContext<T extends typeof ModelBase> {
 
 export type Listener<Ctx = OperationHookContext<typeof ModelBase>> = (
   ctx: Ctx, next: (err?: any) => void
-) => void;
+) => PromiseOrVoid<void>;
 
 export interface ObserverMixin {
   /**
