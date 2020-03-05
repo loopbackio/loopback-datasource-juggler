@@ -1,3 +1,11 @@
+2020-03-05, Version 4.19.2
+==========================
+
+ * README: move 3.x to Maintenance LTS (Miroslav Bajtoš)
+
+ * README: extend 4.x LTS to match Node.js 12.x (Miroslav Bajtoš)
+
+
 2020-03-05, Version 4.19.1
 ==========================
 
