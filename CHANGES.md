@@ -1,3 +1,15 @@
+2020-03-05, Version 4.19.0
+==========================
+
+ * fixup! improve comment for `this` & static members (Miroslav Bajtoš)
+
+ * Add ObserverMixin members to ModelBase typings (Miroslav Bajtoš)
+
+ * Add default generic arg value to `Listener` type (Miroslav Bajtoš)
+
+ * feat: add OperationHookContext interface (Hage Yaapa)
+
+
 2020-01-29, Version 4.18.1
 ==========================
 
