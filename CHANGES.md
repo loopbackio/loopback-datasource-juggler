@@ -1,3 +1,9 @@
+2020-03-05, Version 4.19.1
+==========================
+
+ * chore: improve Listener signature (Hage Yaapa)
+
+
 2020-03-05, Version 4.19.0
 ==========================
 
