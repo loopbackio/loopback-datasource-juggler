@@ -9,6 +9,7 @@ const should = require('./init.js');
 
 const juggler = require('../');
 const ModelBuilder = juggler.ModelBuilder;
+const {StrongGlobalize} = require('strong-globalize');
 
 describe('ModelBuilder', () => {
   describe('define()', () => {
@@ -79,6 +80,14 @@ describe('ModelBuilder', () => {
 
     describe('model with nested properties as embedded model', () => {
       let Address, Person;
+      const originalWarn = StrongGlobalize.prototype.warn;
+      before('create stub for warning check', () => {
+        StrongGlobalize.prototype.warn = function gWarnWrapper(...args) {
+          StrongGlobalize.prototype.warn.called++;
+          return originalWarn.apply(this, args);
+        };
+        StrongGlobalize.prototype.warn.called = 0;
+      });
       beforeEach('Define models', () => {
         Address = builder.define('Address', {
           street: {type: 'string'},
@@ -89,6 +98,9 @@ describe('ModelBuilder', () => {
           address: {type: 'Address'},
           other: {type: 'object'},
         });
+      });
+      after('restore warning stub', () => {
+        StrongGlobalize.prototype.warn = originalWarn;
       });
       it('should properly add the __parent relationship when instantiating parent model', () => {
         const person = new Person({
@@ -111,18 +123,20 @@ describe('ModelBuilder', () => {
         });
         person.should.have.property('address').which.equals(null);
       });
-      it('should properly re-set the parent property when moving a child instance to an other parent', () => {
+      it('should change __parent reference and WARN when moving a child instance to an other parent', () => {
         const person1 = new Person({
           name: 'Mitsos',
           address: {street: 'kopria', number: 11},
         });
         const {address} = person1;
         address.should.be.instanceof(Address).and.have.property('__parent').which.equals(person1);
+        StrongGlobalize.prototype.warn.should.have.property('called', 0); // check that no warn yet
         const person2 = new Person({
           name: 'Allos',
           address,
         });
         address.should.have.property('__parent').which.equals(person2);
+        StrongGlobalize.prototype.warn.should.have.property('called', 1); // check we had a warning
       });
       it('should NOT provide the __parent property to any serialization of the instance', () => {
         const person = new Person({
