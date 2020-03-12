@@ -10,6 +10,7 @@ const should = require('./init.js');
 const juggler = require('../');
 const ModelBuilder = juggler.ModelBuilder;
 const {StrongGlobalize} = require('strong-globalize');
+const parentRefHelper = require('./helpers/parentRef-helper');
 
 describe('ModelBuilder', () => {
   describe('define()', () => {
@@ -81,6 +82,7 @@ describe('ModelBuilder', () => {
     describe('model with nested properties as embedded model', () => {
       let Address, Person;
       const originalWarn = StrongGlobalize.prototype.warn;
+      parentRefHelper(() => builder);
       before('create stub for warning check', () => {
         StrongGlobalize.prototype.warn = function gWarnWrapper(...args) {
           StrongGlobalize.prototype.warn.called++;
