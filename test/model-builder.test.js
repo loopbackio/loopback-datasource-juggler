@@ -10,7 +10,7 @@ const should = require('./init.js');
 const juggler = require('../');
 const ModelBuilder = juggler.ModelBuilder;
 const {StrongGlobalize} = require('strong-globalize');
-const parentRefHelper = require('./helpers/parentRef-helper');
+const parentRefHelper = require('./helpers/setup-parent-ref');
 
 describe('ModelBuilder', () => {
   describe('define()', () => {

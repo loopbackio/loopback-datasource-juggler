@@ -11,7 +11,7 @@ const async = require('async');
 const bdd = require('./helpers/bdd-if');
 const should = require('./init.js');
 const uid = require('./helpers/uid-generator');
-const parentRefHelper = require('./helpers/parentRef-helper');
+const createTestSetupForParentRef = require('./helpers/setup-parent-ref');
 
 let db, User;
 
@@ -961,7 +961,7 @@ describe('basic-querying', function() {
     });
 
     describe('check __parent relationship in embedded models', () => {
-      parentRefHelper(() => User.modelBuilder);
+      createTestSetupForParentRef(() => User.modelBuilder);
       it('should fill the parent in embedded model', async () => {
         const user = await User.findOne({where: {name: 'John Lennon'}});
         user.should.have.property('address').which.has.property('__parent').which.is

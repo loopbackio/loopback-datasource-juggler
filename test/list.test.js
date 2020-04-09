@@ -7,7 +7,7 @@
 
 const should = require('./init.js');
 const List = require('../lib/list');
-const parentRefHelper = require('./helpers/parentRef-helper');
+const parentRefHelper = require('./helpers/setup-parent-ref');
 const {ModelBuilder} = require('../lib/model-builder');
 
 const builder = new ModelBuilder(); // dummy builder instance for tests
