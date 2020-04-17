@@ -1,3 +1,21 @@
+2020-04-17, Version 4.20.0
+==========================
+
+ * Add mocharc, remove mocha.opts (Miroslav Bajtoš)
+
+ * Update dev dependencies (Miroslav Bajtoš)
+
+ * Drop support for Node 8.x (Miroslav Bajtoš)
+
+ * Add support for Node.js 13.x (Miroslav Bajtoš)
+
+ * mark idColumnName as a deprecated function (Agnes Lin)
+
+ * Move List.prototype.toItem out of inner init (#1828) (Dimitris Halatsis)
+
+ * deps: update uuid to v7 (Miroslav Bajtoš)
+
+
 2020-03-05, Version 4.19.2
 ==========================
 
