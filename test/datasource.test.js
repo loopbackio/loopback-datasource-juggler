@@ -330,6 +330,31 @@ describe('DataSource', function() {
     });
   });
 
+  it('provides stop() API calling disconnect', function(done) {
+    const mockConnector = {
+      name: 'loopback-connector-mock',
+      initialize: function(ds, cb) {
+        ds.connector = mockConnector;
+        process.nextTick(function() {
+          cb(null);
+        });
+      },
+    };
+
+    const dataSource = new DataSource(mockConnector);
+    dataSource.on('connected', function() {
+      // DataSource is now connected
+      // connected: true, connecting: false
+      dataSource.connected.should.be.true();
+      dataSource.connecting.should.be.false();
+
+      dataSource.stop(() => {
+        dataSource.connected.should.be.false();
+        done();
+      });
+    });
+  });
+
   describe('deleteModelByName()', () => {
     it('removes the model from ModelBuilder registry', () => {
       const ds = new DataSource('ds', {connector: 'memory'});
