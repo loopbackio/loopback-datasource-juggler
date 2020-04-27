@@ -287,6 +287,9 @@ export declare class DataSource extends EventEmitter {
   // legacy callback style
   disconnect(callback: Callback): void;
 
+  // Only promise variant, callback is intentionally not described.
+  stop(): Promise<void>;
+
   ping(): Promise<void>;
   // legacy callback style
   ping(callback: Callback): void;
