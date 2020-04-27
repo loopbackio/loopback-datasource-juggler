@@ -1,3 +1,11 @@
+2020-04-27, Version 4.21.0
+==========================
+
+ * feat: implement DataSource.stop() (Miroslav Bajtoš)
+
+ * Add __parent reference to embedded models (Dimitris Xalatsis)
+
+
 2020-04-17, Version 4.20.0
 ==========================
 
