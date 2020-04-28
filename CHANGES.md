@@ -1,3 +1,9 @@
+2020-04-28, Version 4.21.1
+==========================
+
+ * types: make DataSource.stop compatible with LB4 (Miroslav Bajtoš)
+
+
 2020-04-27, Version 4.21.0
 ==========================
 
