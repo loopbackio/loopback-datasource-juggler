@@ -288,7 +288,10 @@ export declare class DataSource extends EventEmitter {
   disconnect(callback: Callback): void;
 
   // Only promise variant, callback is intentionally not described.
-  stop(): Promise<void>;
+  // Note we must use `void | PromiseLike<void>` to avoid breaking
+  // existing LoopBack 4 applications.
+  // TODO(semver-major): change the return type to `Promise<void>`
+  stop(): void | PromiseLike<void>;
 
   ping(): Promise<void>;
   // legacy callback style
