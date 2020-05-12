@@ -140,13 +140,13 @@ export declare class DataSource extends EventEmitter {
    */
   attach(modelClass: ModelBaseClass): ModelBaseClass;
 
-  automigrate(models: string | string[]): Promise<void>;
+  automigrate(models?: string | string[]): Promise<void>;
   // legacy callback style
-  automigrate(models: string | string[], callback: Callback): void;
+  automigrate(models: string | string[] | undefined, callback: Callback): void;
 
-  autoupdate(models: string | string[]): Promise<void>;
+  autoupdate(models?: string | string[]): Promise<void>;
   // legacy callback style
-  autoupdate(models: string | string[], callback: Callback): void;
+  autoupdate(models: string | string[] | undefined, callback: Callback): void;
 
   discoverModelDefinitions(
     options?: Options,
