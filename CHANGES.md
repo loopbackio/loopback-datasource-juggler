@@ -1,3 +1,9 @@
+2020-05-12, Version 4.21.2
+==========================
+
+ * types: allow no `models` argument for automigrate (Miroslav Bajtoš)
+
+
 2020-04-28, Version 4.21.1
 ==========================
 
