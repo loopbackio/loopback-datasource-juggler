@@ -9,7 +9,7 @@ import {
   ModelBaseClass,
   ModelBuilder,
   ModelDefinition,
-  PropertyDefinition,
+  PropertyDefinition
 } from './model';
 import {EventEmitter} from 'events';
 import {IsolationLevel, Transaction} from './transaction-mixin';
@@ -83,6 +83,8 @@ export declare class DataSource extends EventEmitter {
   connecting?: boolean;
 
   connector?: Connector;
+
+  definitions: {[modelName: string]: ModelDefinition};
 
   DataAccessObject: AnyObject & {prototype: AnyObject};
 
