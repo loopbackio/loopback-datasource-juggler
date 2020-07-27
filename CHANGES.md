@@ -1,3 +1,9 @@
+2020-07-27, Version 4.22.0
+==========================
+
+ * types: add `DataSource.definitions` property (khlilturki97@gmail.com)
+
+
 2020-05-12, Version 4.21.2
 ==========================
 
