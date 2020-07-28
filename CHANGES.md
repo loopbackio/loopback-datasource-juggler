@@ -1,3 +1,9 @@
+2020-07-28, Version 4.23.0
+==========================
+
+ * types: support no-SQL styles of `ds.execute` (Miroslav Bajtoš)
+
+
 2020-07-27, Version 4.22.0
 ==========================
 
