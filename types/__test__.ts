@@ -88,3 +88,30 @@ const db = new DataSource('db', {connector: 'memory'});
     await ctx.Model.expire('key', 100);
   });
 });
+
+//-------
+// DataSource supports different `execute` styles
+//-------
+(async function () {
+  // SQL style
+  const tx = await db.beginTransaction();
+  await db.execute('SELECT * FROM Product WHERE count > ?', [10], {
+    transaction: tx,
+  });
+  await tx.commit();
+
+  // MongoDB style
+  await db.execute('MyCollection', 'aggregate', [
+    {$lookup: { /* ... */ }},
+    {$unwind: '$data'},
+    {$out: 'tempData'}
+  ]);
+
+  // Neo4J style
+  await db.execute({
+    query: 'MATCH (u:User {email: {email}}) RETURN u',
+    params: {
+      email: 'alice@example.com',
+    },
+  });
+});
