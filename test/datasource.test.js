@@ -415,6 +415,14 @@ describe('DataSource', function() {
     it('supports shorthand version (cmd)', async () => {
       let called = 'not called';
       ds.connector.execute = function(command, args, options, callback) {
+        // copied from loopback-connector/lib/sql.js
+        if (typeof args === 'function' && options === undefined && callback === undefined) {
+          // execute(sql, callback)
+          options = {};
+          callback = args;
+          args = [];
+        }
+
         called = {command, args, options};
         callback(null, 'a-result');
       };
@@ -431,6 +439,13 @@ describe('DataSource', function() {
     it('supports shorthand version (cmd, args)', async () => {
       let called = 'not called';
       ds.connector.execute = function(command, args, options, callback) {
+        // copied from loopback-connector/lib/sql.js
+        if (typeof options === 'function' && callback === undefined) {
+          // execute(sql, params, callback)
+          callback = options;
+          options = {};
+        }
+
         called = {command, args, options};
         callback(null, 'a-result');
       };
@@ -444,7 +459,8 @@ describe('DataSource', function() {
     });
 
     it('converts multiple callbacks arguments into a promise resolved with an array', async () => {
-      ds.connector.execute = function(command, args, options, callback) {
+      ds.connector.execute = function() {
+        const callback = arguments[arguments.length - 1];
         callback(null, 'result1', 'result2');
       };
       const result = await ds.execute('command');
@@ -460,12 +476,62 @@ describe('DataSource', function() {
 
       // See https://www.npmjs.com/package/loopback-connector-neo4j-graph
       const command = 'MATCH (u:User {email: {email}}) RETURN u';
-      await ds.execute(command, {email: 'alice@example.com'});
+      await ds.execute(command, {email: 'alice@example.com'}, {options: true});
       called.should.be.eql({
         command,
         args: {email: 'alice@example.com'},
-        options: {},
+        options: {options: true},
       });
+    });
+
+    it('supports MongoDB version (collection, cmd, args, options)', async () => {
+      let called = 'not called';
+      ds.connector.execute = function(...params) {
+        const callback = params.pop();
+        called = params;
+        callback(null, 'a-result');
+      };
+
+      const result = await ds.execute(
+        'collection',
+        'command',
+        ['arg1', 'arg2'],
+        {options: true},
+      );
+
+      result.should.equal('a-result');
+      called.should.be.eql([
+        'collection',
+        'command',
+        ['arg1', 'arg2'],
+        {options: true},
+      ]);
+    });
+
+    it('supports free-form version (...params)', async () => {
+      let called = 'not called';
+      ds.connector.execute = function(...params) {
+        const callback = params.pop();
+        called = params;
+        callback(null, 'a-result');
+      };
+
+      const result = await ds.execute(
+        'arg1',
+        'arg2',
+        'arg3',
+        'arg4',
+        {options: true},
+      );
+
+      result.should.equal('a-result');
+      called.should.be.eql([
+        'arg1',
+        'arg2',
+        'arg3',
+        'arg4',
+        {options: true},
+      ]);
     });
 
     it('throws NOT_IMPLEMENTED when no connector is provided', () => {
