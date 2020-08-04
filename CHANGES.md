@@ -1,3 +1,11 @@
+2020-08-04, Version 4.24.0
+==========================
+
+ * Update .travis.yml (#1841) (karanssj4)
+
+ * Add more `dataSource.execute()` flavors (Miroslav Bajtoš)
+
+
 2020-07-28, Version 4.23.0
 ==========================
 
