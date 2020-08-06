@@ -10,7 +10,7 @@ See also #23
 
 ## Checklist
 
-👉 [Read and sign the CLA (Contributor License Agreement)](https://cla.strongloop.com/agreements/strongloop/loopback-datasource-juggler) 👈
+👉 [How to sign off your commits with DCO](https://github.com/strongloop/loopback-datasource-juggler#contributing) 👈
 
 - [ ] `npm test` passes on your machine
 - [ ] New tests added or existing tests modified to cover all changes
