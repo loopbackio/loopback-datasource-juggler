@@ -69,7 +69,19 @@
       "loopback-connector-ibmi",
       "loopback-connector-informix",
       "loopback-connector-mqlight",
-      "loopback-connector-kv-extreme-scale"
+      "loopback-connector-kv-extreme-scale",
+      "loopback-sdk-angular",
+      "loopback-connector",
+      "loopback-connector-rest",
+      "loopback-connector-remote",
+      "loopback-connector-postgresql",
+      "loopback-connector-oracle",
+      "loopback-connector-mysql",
+      "loopback-connector-mssql",
+      "loopback-connector-mongodb",
+      "loopback-connector-couchdb2",
+      "loopback-connector-cloudant",
+      "loopback-connector-cassandra"
     ]
   }
 }
