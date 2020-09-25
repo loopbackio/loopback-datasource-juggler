@@ -1,3 +1,15 @@
+2020-09-25, Version 4.20.1
+==========================
+
+ * chore: add test for atomic upsertWithWhere (#1864) (Matteo Padovano)
+
+ * chore: update PR template (#1863) (Diana Lau)
+
+ * update PR template to include DCO (#1859) (Diana Lau)
+
+ * chore: add contributing section to readme (#1858) (Diana Lau)
+
+
 2020-08-04, Version 4.24.0
 ==========================
 
