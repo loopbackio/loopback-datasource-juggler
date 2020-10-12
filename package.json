@@ -54,13 +54,13 @@
     "depd": "^2.0.0",
     "inflection": "^1.6.0",
     "lodash": "^4.17.11",
-    "loopback-connector": "^4.4.0",
+    "loopback-connector": "^5.0.0",
     "minimatch": "^3.0.3",
     "qs": "^6.5.0",
     "shortid": "^2.2.6",
-    "strong-globalize": "^5.0.2",
+    "strong-globalize": "^6.0.5",
     "traverse": "^0.6.6",
-    "uuid": "^7.0.0"
+    "uuid": "^8.3.1"
   },
   "license": "MIT",
   "ci": {
