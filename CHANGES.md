@@ -1,3 +1,11 @@
+2020-10-19, Version 4.25.0
+==========================
+
+ * Update dev dependencies to latest (Miroslav Bajtoš)
+
+ * Update dependencies to latest (Miroslav Bajtoš)
+
+
 2020-09-25, Version 4.20.1
 ==========================
 
