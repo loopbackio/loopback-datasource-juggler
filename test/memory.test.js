@@ -339,6 +339,15 @@ describe('Memory connector', function() {
         });
     });
 
+    it('should successfully extract 1 user (Lennon) from the db by date', function(done) {
+      User.find({where: {birthday: new Date('1980-12-08')}},
+        function(err, users) {
+          should(users.length).be.equal(1);
+          should(users[0].name).be.equal('John Lennon');
+          done();
+        });
+    });
+
     it('should successfully extract 2 users from the db', function(done) {
       User.find({where: {birthday: {between: [new Date(1940, 0), new Date(1990, 0)]}}},
         function(err, users) {
@@ -562,6 +571,33 @@ describe('Memory connector', function() {
             sirpaul.vip.should.be.instanceOf(Boolean);
             done();
           });
+      });
+    });
+
+    it('should handle constructor.prototype', function(done) {
+      User.find({where: {'constructor.prototype': {toString: 'Not a function'}}}, function(err,
+        users) {
+        should.not.exist(err);
+        users.length.should.equal(0);
+        done();
+      });
+    });
+
+    it('should handle constructor/prototype', function(done) {
+      User.find({where: {constructor: {prototype: {toString: 'Not a function'}}}}, function(err,
+        users) {
+        should.not.exist(err);
+        users.length.should.equal(0);
+        done();
+      });
+    });
+
+    it('should handle toString', function(done) {
+      User.find({where: {toString: 'Not a function'}}, function(err,
+        users) {
+        should.not.exist(err);
+        users.length.should.equal(0);
+        done();
       });
     });
 
