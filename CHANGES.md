@@ -1,3 +1,11 @@
+2020-11-02, Version 3.36.0
+==========================
+
+ * Fix value equality test to avoid toString (Raymond Feng)
+
+ * chore: update typescript (#1872) (Janny)
+
+
 2019-12-17, Version 3.35.0
 ==========================
 
