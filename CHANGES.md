@@ -1,3 +1,9 @@
+2020-11-02, Version 4.26.0
+==========================
+
+ * Fix value equality test to avoid toString (Raymond Feng)
+
+
 2020-10-19, Version 4.25.0
 ==========================
 
