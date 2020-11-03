@@ -4,10 +4,11 @@
 // License text available at https://opensource.org/licenses/MIT
 
 'use strict';
+const should = require('./init.js');
 let db;
 
 describe('model-utils', () => {
-  context('coerce', () => {
+  context('property-based coercion', () => {
     before(() => {
       // eslint-disable-next-line no-undef
       db = getSchema();
@@ -95,5 +96,24 @@ describe('model-utils', () => {
     function assertInstanceOf(val, type) {
       val.should.be.instanceOf(type);
     }
+  });
+  context('operator-based coercion', () => {
+    let model;
+    let data;
+    beforeEach(() => {
+      // eslint-disable-next-line no-undef
+      db = getSchema();
+      model = db.define('model', {
+        rootProp: {},
+      });
+      data = {
+        rootProp: {},
+      };
+    });
+    it('coerces regexp', () => {
+      const where = {random: {regexp: '/k/'}};
+      const coercedData = model._coerce(where, {}, data);
+      should.deepEqual(coercedData, /k/);
+    });
   });
 });
