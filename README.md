@@ -8,7 +8,7 @@ This module adopts the [Module Long Term Support (LTS)](http://github.com/CloudN
 
 | Version    | Status          | Published | EOL                  |
 | ---------- | --------------- | --------- | -------------------- |
-| 4.x        | Current         | Oct 2018  | Apr 2022 _(minimum)_ |
+| 4.x        | Current         | Oct 2018  | Apr 2023 _(minimum)_ |
 | 3.x        | Maintenance LTS | Dec 2016  | Dec 2020             |
 | 2.x        | End-of-Life | Jul 2014  | Apr 2019             |
 
@@ -35,7 +35,7 @@ See the [LoopBack documentation](http://loopback.io/doc/en/lb3/index.html).
 For information on data source connectors, see [Connecting models to data sources](https://loopback.io/doc/en/lb3/Connecting-models-to-data-sources.html).
 
 
-## Contributing 
+## Contributing
 
 This project uses [DCO](https://developercertificate.org/). Be sure to sign off
 your commits using the `-s` flag or adding `Signed-off-By: Name<Email>` in the
