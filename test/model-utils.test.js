@@ -111,7 +111,7 @@ describe('model-utils', () => {
       };
     });
     it('coerces regexp', () => {
-      const where = {random: {regexp: '/k/'}};
+      const where = {extra: {regexp: '/k/'}};
       const coercedData = model._coerce(where, {}, data);
       should.deepEqual(coercedData, /k/);
     });
