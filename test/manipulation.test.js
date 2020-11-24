@@ -2620,22 +2620,43 @@ describe('manipulation', function() {
         });
     });
 
-    it('fails the upsertWithWhere operation when multiple instances are ' +
-        'retrieved based on the filter criteria', function(done) {
-      Person.create([
-        {id: '2', name: 'Howie', city: 'Florida'},
-        {id: '3', name: 'Kevin', city: 'Florida'},
-      ], function(err, instance) {
-        if (err) return done(err);
-        Person.upsertWithWhere({city: 'Florida'}, {
-          id: '4', name: 'Brian',
-        }, function(err) {
-          err.message.should.equal('There are multiple instances found.' +
+    bdd.itIf(!connectorCapabilities.atomicUpsertWithWhere,
+      'fails the upsertWithWhere operation when multiple instances are ' +
+      'retrieved based on the filter criteria', function(done) {
+        Person.create([
+          {id: '2', name: 'Howie', city: 'Florida'},
+          {id: '3', name: 'Kevin', city: 'Florida'},
+        ], function(err, instance) {
+          if (err) return done(err);
+          Person.upsertWithWhere({city: 'Florida'}, {
+            id: '4', name: 'Brian',
+          }, function(err) {
+            err.message.should.equal('There are multiple instances found.' +
               'Upsert Operation will not be performed!');
-          done();
+            done();
+          });
         });
       });
-    });
+
+    bdd.itIf(connectorCapabilities.atomicUpsertWithWhere === true,
+      'upsertWithWhere update the first matching instance when multiple instances are ' +
+      'retrieved based on the filter criteria', async () => {
+        // The first matching instance is determinate from specific connector implementation
+        // For example for mongodb connector the sort parameter is used (default to _id asc)
+        await Person.create([
+          {id: '4', name: 'Howie', city: 'Turin'},
+          {id: '3', name: 'Kevin', city: 'Turin'},
+        ]);
+        await Person.upsertWithWhere({city: 'Turin'}, {name: 'Brian'});
+
+        const updatedInstance = await Person.findById('3');
+        should.exist(updatedInstance);
+        updatedInstance.name.should.equal('Brian');
+
+        const notUpdatedInstance = await Person.findById('4');
+        should.exist(notUpdatedInstance);
+        notUpdatedInstance.name.should.equal('Howie');
+      });
 
     it('updates the record when one matching instance is found ' +
         'based on the filter criteria', function(done) {
