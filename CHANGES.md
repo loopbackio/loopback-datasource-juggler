@@ -1,3 +1,9 @@
+2020-11-27, Version 3.36.1
+==========================
+
+ * chore: add test for atomic upsertWithWhere (#1864) (#1871) (Janny)
+
+
 2020-11-02, Version 3.36.0
 ==========================
 
