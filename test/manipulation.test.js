@@ -2182,6 +2182,27 @@ describe('manipulation', function() {
       });
     });
 
+    describe('nanoid defaultFn', function() {
+      let ModelWithNanoId;
+      before(createModelWithNanoId);
+
+      it('should generate a new id when "defaultFn" is "nanoid"', function(done) {
+        const NANOID_REGEXP = /^[0-9a-z_\-]{7,14}$/i;
+        ModelWithNanoId.create(function(err, modelWithNanoId) {
+          if (err) return done(err);
+          modelWithNanoId.nanoid.should.match(NANOID_REGEXP);
+          done();
+        });
+      });
+
+      function createModelWithNanoId(cb) {
+        ModelWithNanoId = db.define('ModelWithNanoId', {
+          nanoid: {type: String, defaultFn: 'nanoid'},
+        });
+        db.automigrate('ModelWithNanoId', cb);
+      }
+    });
+
     describe('shortid defaultFn', function() {
       let ModelWithShortId;
       before(createModelWithShortId);
