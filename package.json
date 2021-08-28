@@ -28,22 +28,24 @@
     "depd": "./lib/browser.depd.js"
   },
   "scripts": {
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
     "lint": "eslint .",
-    "tsc": "tsc -p tsconfig.json --outDir dist",
+    "build": "npm run build-ts-types",
+    "build-ts-types": "tsc -p tsconfig.json --outDir dist",
     "test": "nyc mocha",
     "posttest": "npm run tsc && npm run lint"
   },
   "devDependencies": {
-    "@types/node": "^10.0.8",
+    "@commitlint/cli": "^13.1.0",
+    "@commitlint/config-conventional": "^13.1.0",
+    "@types/node": "^10.17.60",
     "async-iterators": "^0.2.2",
     "bson": "^4.0.1",
-    "coveralls": "^3.0.1",
-    "eslint": "^7.11.0",
-    "eslint-config-loopback": "^13.0.0",
+    "eslint": "^7.32.0",
+    "eslint-config-loopback": "^13.1.0",
+    "eslint-plugin-mocha": "^9.0.0",
     "loopback-connector-throwing": "file:./test/fixtures/loopback-connector-throwing",
-    "mocha": "^8.1.3",
-    "nyc": "^15.0.0",
+    "mocha": "^8.4.0",
+    "nyc": "^15.1.0",
     "should": "^13.2.3",
     "typescript": "^4.0.3"
   },

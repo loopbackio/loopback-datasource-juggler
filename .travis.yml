@@ -1,8 +1,17 @@
-sudo: false
+branches:
+  only:
+    - master
+arch:
+  - arm64
+  - ppc64le
+  - s390x
 language: node_js
+before_install: npm install --global npm
+script:
+  - npm run --ignore-scripts build
+  - npm test --ignore-scripts
 node_js:
-  - "10"
-  - "12"
-  - "14"
-
-after_success: npm run coverage
+  - 10
+  - 12
+  - 14
+  - 16
