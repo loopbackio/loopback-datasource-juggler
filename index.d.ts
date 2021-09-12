@@ -34,3 +34,4 @@ export * from './types/observer-mixin';
 export * from './types/validation-mixin';
 export * from './types/inclusion-mixin';
 export * from './types/connector';
+export * from './types/geo';
