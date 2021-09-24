@@ -15,6 +15,15 @@ import {EventEmitter} from 'events';
 import {IsolationLevel, Transaction} from './transaction-mixin';
 import { ConnectorSettings, ModelBase } from '..';
 
+export type OperationOptions = {
+  accepts: string[],
+  returns: string[],
+  http: object,
+  remoteEnabled: boolean,
+  scope: unknown,
+  fnName: string,
+}
+
 /**
  * LoopBack models can manipulate data via the DataSource object.
  * Attaching a `DataSource` to a `Model` adds instance methods and static methods to the `Model`.
@@ -118,8 +127,16 @@ export declare class DataSource extends EventEmitter {
 
   private _queuedInvocations: number;
 
-  private _operations: Record<string, Function>;
+  private _operations: Record<string, OperationOptions>;
+
+  operations(): Record<string, OperationOptions>;
+
+  defineOperation(name: string, options: OperationOptions, fn: Function): void;
   
+  enableRemote(operation: string): void;
+
+  disableRemote(operation: string): void;
+
   /**
    * Default global maximum number of event listeners.
    * 
