@@ -13,6 +13,7 @@ import {
 } from './model';
 import {EventEmitter} from 'events';
 import {IsolationLevel, Transaction} from './transaction-mixin';
+import { ConnectorSettings } from '..';
 
 /**
  * LoopBack models can manipulate data via the DataSource object.
@@ -76,17 +77,51 @@ import {IsolationLevel, Transaction} from './transaction-mixin';
  */
 export declare class DataSource extends EventEmitter {
   name: string;
-  settings: Options;
+  settings: ConnectorSettings;
 
   initialized?: boolean;
   connected?: boolean;
   connecting?: boolean;
+  
+  /**
+   * {@inheritDoc DataSource.connector}
+   * @deprecated Use {@link DataSource.connector} instead.
+   */
+  adapter?: Connector;
 
+  /**
+   * Connector instance.
+   */
   connector?: Connector;
-
+  
   definitions: {[modelName: string]: ModelDefinition};
-
+  
   DataAccessObject: AnyObject & {prototype: AnyObject};
+  
+  pendingConnectCallbacks?: Callback[];
+
+  /**
+   * Log benchmarked message.
+   * 
+   * @remarks
+   * This property is assigned to the defined to the attached connector's
+   * {@link Connector.log | log} class member.
+   * 
+   * @param sql 
+   * @param t Start time 
+   */
+  private log(sql: string, t: number): void;
+
+  private _operations: Record<string, Function>;
+  
+  /**
+   * Default global maximum number of event listeners.
+   * 
+   * @remarks
+   * This default can be overriden through
+   * {@link ConnectorSettings.maxOfflineRequests}.
+   */
+  static DEFAULT_MAX_OFFLINE_REQUESTS: number;
 
   constructor(name: string, settings?: Options, modelBuilder?: ModelBuilder);
 
@@ -94,9 +129,47 @@ export declare class DataSource extends EventEmitter {
 
   constructor(
     connectorModule: Connector,
-    settings?: Options,
+    settings?: ConnectorSettings,
     modelBuilder?: ModelBuilder,
   );
+
+  private setup(dsName: string, settings: ConnectorSettings): void;
+  private setup(settings: ConnectorSettings): void;
+
+  private _setupConnector();
+
+  /**
+   * Get the maximum number of event listeners
+   * 
+   * @remarks
+   * Defaults to {@link DataSource.DEFAULT_MAX_OFFLINE_REQUESTS} if not explicitly
+   * configured in {@link ConnectorSettings.maxOfflineRequests}.
+   */
+  getMaxOfflineRequests(): number;
+
+  // Reason for deprecation is not clear.
+  /**
+   * {@inheritDoc Connector.getTypes}
+   * @deprecated
+   */
+  getTypes(): string[];
+
+  /**
+   * Check if the datasource supports the specified types.
+   * @param types Type name(s) to check against
+   */
+  supportTypes(types: string | string[]): boolean;
+
+  freeze(): void;
+
+  tableName(modelName: string): string;
+  columnName(modelName: string, propertyName: string): string;
+  columnNames(modelName: string): string;
+  columnMetadata(modelName: string, propertyName: string): unknown;
+  idName(modelName: string): string;
+  idNames(modelName: string): string[];
+
+  defineForeignKey(className: string, key: string, foreignClassName: string, pkName?: string): undefined | void;
 
   /**
    * Create a model class
@@ -107,7 +180,7 @@ export declare class DataSource extends EventEmitter {
   createModel<T extends ModelBaseClass>(
     name: string,
     properties?: AnyObject,
-    options?: Options,
+    options?: ConnectorSettings,
   ): T;
 
   /**
@@ -135,10 +208,13 @@ export declare class DataSource extends EventEmitter {
 
   /**
    * Attach an existing model to a data source.
+   * 
+   * @remarks
    * This will mixin all of the data access object functions (DAO) into your
    * modelClass definition.
-   * @param {ModelBaseClass} modelClass The model constructor that will be enhanced
-   * by DataAccessObject mixins.
+   * 
+   * @param modelClass The model constructor that will be
+   * enhanced by DataAccessObject mixins.
    */
   attach(modelClass: ModelBaseClass): ModelBaseClass;
 
@@ -150,6 +226,9 @@ export declare class DataSource extends EventEmitter {
   // legacy callback style
   autoupdate(models: string | string[] | undefined, callback: Callback): void;
 
+  /**
+   * {@inheritDoc Connector.discoverModelDefinitions}
+   */
   discoverModelDefinitions(
     options?: Options,
   ): Promise<ModelDefinition[]>;
@@ -163,6 +242,9 @@ export declare class DataSource extends EventEmitter {
     callback: Callback<ModelDefinition[]>,
   ): void;
 
+  /**
+   * {@inheritDoc Connector.discoverModelProperties}
+   */
   discoverModelProperties(
     modelName: string,
     options?: Options,
@@ -179,6 +261,9 @@ export declare class DataSource extends EventEmitter {
     callback: Callback<PropertyDefinition[]>,
   ): void;
 
+  /**
+   * {@inheritDoc Connector.discoverPrimaryKeys}
+   */
   discoverPrimaryKeys(
     modelName: string,
     options?: Options,
@@ -195,6 +280,9 @@ export declare class DataSource extends EventEmitter {
     callback: Callback<PropertyDefinition[]>,
   ): void;
 
+  /**
+   * {@inheritDoc Connector.discoverForeignKeys}
+   */
   discoverForeignKeys(
     modelName: string,
     options?: Options,
@@ -211,6 +299,9 @@ export declare class DataSource extends EventEmitter {
     callback: Callback<PropertyDefinition[]>,
   ): void;
 
+  /**
+   * {@inheritDoc Connector.discoverExportedForeignKeys}
+   */
   discoverExportedForeignKeys(
     modelName: string,
     options?: Options,
@@ -259,6 +350,9 @@ export declare class DataSource extends EventEmitter {
     callback: Callback<AnyObject>,
   ): void;
 
+  /**
+   * {@inheritDoc Connector.discoverSchemas}
+   */
   discoverSchemas(
     tableName: string,
     options?: Options,
@@ -273,7 +367,7 @@ export declare class DataSource extends EventEmitter {
     tableName: string,
     options: Options,
     callback: Callback<AnyObject[]>,
-  ): void;
+  ): void; 
 
   buildModelFromInstance(
     modelName: string,
@@ -281,10 +375,16 @@ export declare class DataSource extends EventEmitter {
     options?: Options,
   ): ModelBaseClass;
 
+  /**
+   * Connect to the DataSource.
+   */
   connect(): Promise<void>;
   // legacy callback style
   connect(callback: Callback): void;
 
+  /**
+   * Close the connection to the DataSource.
+   */
   disconnect(): Promise<void>;
   // legacy callback style
   disconnect(callback: Callback): void;
@@ -293,8 +393,25 @@ export declare class DataSource extends EventEmitter {
   // Note we must use `void | PromiseLike<void>` to avoid breaking
   // existing LoopBack 4 applications.
   // TODO(semver-major): change the return type to `Promise<void>`
+  /**
+   * An alias for {@link DataSource.disconnect} to allow this datasource to be
+   * an LB4 life-cycle observer
+   * 
+   * @remarks
+   * A `.start()` equivalent was deliberately not provided as the logic for
+   * establishing connection(s) is more complex and is usually statred
+   * immediately from the datasource constructor.
+   */
   stop(): void | PromiseLike<void>;
 
+  /**
+   * Ping the underlying connector to test the connections.
+   * 
+   * @remarks
+   * If {@link Connector.ping} is not implemented,
+   * {@link Connector.discoverModelProperties} is used instead. Otherwise, an
+   * error is thrown.
+   */
   ping(): Promise<void>;
   // legacy callback style
   ping(callback: Callback): void;

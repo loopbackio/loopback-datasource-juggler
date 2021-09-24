@@ -77,6 +77,11 @@ export interface ModelProperties {
 export interface ModelSettings extends AnyObject {
   strict?: boolean;
   forceId?: boolean;
+  persistUndefinedAsNull?: boolean;
+  protectedProperties?: string[];
+  protected?: string[];
+  hiddenProperties?: string[];
+  hidden?: string[];
 }
 
 /**
@@ -232,6 +237,8 @@ export declare class ModelBase {
   ): void;
 
   getDataSource(): DataSource;
+
+  setStrict(strict: boolean): void;
 
   /**
    *
