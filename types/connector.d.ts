@@ -45,9 +45,11 @@ export type SchemaDiscoveryOptions = {
   all?: boolean,
   views?: boolean,
   disableCamelCase?: boolean,
-  nameMapper?: (type: 'table' | 'model' | 'fk' | string, name: string) => string | null;
-  associations?: boolean;
+  nameMapper?: NameMapper,
+  associations?: boolean,
 }
+
+export type NameMapper = (type: 'table' | 'model' | 'fk' | string, name: string) => string | null;
 
 export type DiscoveredPrimaryKeys = {
   owner: string | null,
