@@ -301,7 +301,7 @@ export declare class ConnectorBase implements Connector {
 
   constructor(settings?: Options);
   [property: string]: any;
-  _models?: object[] | undefined;
+  _models?: Record<string, ModelBaseClass>;
   getDefaultIdType(): object;
   isRelational(): boolean;
   discoverSchemas(tableName: string, options: SchemaDiscoveryOptions, cb: Callback<Schema>): Promise<Schema>;

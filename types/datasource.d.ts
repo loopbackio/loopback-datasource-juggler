@@ -259,6 +259,14 @@ export declare class DataSource extends EventEmitter {
   /**
    * Define a foreign key to another model.
    * 
+   * @remarks
+   * If the attached {@link Connector} did not implement
+   * {@link Connector.defineForeignKey}, this function will fallback to defining
+   * a regular property. Furthermore, responsibility of properly implementing
+   * this feature depends on the connector's implementation. This means a
+   * database-level foreign key is not guaranteed. Please refer to the
+   * respective connector's documentation.
+   * 
    * @param className The model name that owns the key
    * @param key Name of key field
    * @param foreignClassName Foreign model name
