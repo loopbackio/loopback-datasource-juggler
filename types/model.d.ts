@@ -22,6 +22,13 @@ export type PropertyType =
 export interface PropertyDefinition extends AnyObject {
   type?: PropertyType;
   id?: boolean | number;
+  tableName?: string;
+  columnName?: string;
+  dataType?: string;
+  dataLength?: number;
+  dataPrecision?: number;
+  dataScale?: number;
+  nullable?: boolean;
 }
 
 /**
