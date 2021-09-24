@@ -6,21 +6,16 @@
 import { AnyObject } from 'strong-globalize/lib/config';
 import {Callback, DataSource, ModelBase, ModelBaseClass, ModelDefinition, ModelProperties, Options, PromiseOrVoid, PropertyDefinition, PropertyType, Schema, Where} from '..';
 
-// Copyright IBM Corp. 2018. All Rights Reserved.
-// Node module: loopback-datasource-juggler
-// This file is licensed under the MIT License.
-// License text available at https://opensource.org/licenses/MIT
-
 export type ConnectorSettings = Options & {
   name?: string,
   /**
    * Overrides {@link ConnectorSettings.adapter} if defined.
    */
-  connector?: Connector,
+  connector?: ConnectorStatic | string,
   /**
    * @deprecated Use {@link ConnectorSettings.connector} instead.
    */
-  adapter?: Connector,
+  adapter?: ConnectorStatic | string,
   connectionTimeout?: number,
   maxOfflineRequests?: number,
   lazyConnect?: boolean,
