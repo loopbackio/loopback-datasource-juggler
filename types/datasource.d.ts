@@ -146,9 +146,14 @@ export declare class DataSource extends EventEmitter {
    */
   static DEFAULT_MAX_OFFLINE_REQUESTS: number;
 
-  constructor(name: string, settings?: Options, modelBuilder?: ModelBuilder);
+  /**
+   * A hash-map of the different relation types.
+   */
+  static relationTypes: Record<string, string>;
 
-  constructor(settings?: Options, modelBuilder?: ModelBuilder);
+  constructor(name: string, settings?: ConnectorSettings, modelBuilder?: ModelBuilder);
+
+  constructor(settings?: ConnectorSettings, modelBuilder?: ModelBuilder);
 
   constructor(
     connectorModule: Connector,
@@ -182,6 +187,14 @@ export declare class DataSource extends EventEmitter {
    * @param types Type name(s) to check against
    */
   supportTypes(types: string | string[]): boolean;
+
+  /**
+   * Returns if the attached connector is relational.
+   * 
+   * @returns If the attached connector is relational; `undefined` if no
+   * connector is attached.
+   */
+  isRelational(): boolean | undefined;
 
   freeze(): void;
 
