@@ -134,6 +134,14 @@ export interface Connector {
    */
   getTypes?(): string[];
   define?(def: {model: ModelBaseClass, properties: PropertyDefinition, settings: ModelDefinition['settings']}): void;
+
+  /**
+   * Define a property on the target model.
+   * 
+   * @param model Name of model
+   * @param prop Name of property
+   * @param params Property settings
+   */
   defineProperty?(model: string, prop: string, params: PropertyDefinition): void;
   defineForeignKey?(modelName: string, key: string, foreignModelName: string, cb: Callback<PropertyType>): void;
   defineForeignKey?(modelName: string, key: string, cb: Callback<PropertyType>): void;

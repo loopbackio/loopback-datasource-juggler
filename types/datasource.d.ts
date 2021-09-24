@@ -13,7 +13,7 @@ import {
 } from './model';
 import {EventEmitter} from 'events';
 import {IsolationLevel, Transaction} from './transaction-mixin';
-import { ConnectorSettings, ModelBase } from '..';
+import { ConnectorSettings, ModelBase, ModelSettings } from '..';
 
 export type OperationOptions = {
   accepts: string[],
@@ -185,13 +185,72 @@ export declare class DataSource extends EventEmitter {
 
   freeze(): void;
 
+  /**
+   * Return the table name for the specified `modelName`.
+   * 
+   * @param modelName Target model name
+   * @returns The table name
+   */
   tableName(modelName: string): string;
+
+  /**
+   * Retrieve the column name for the specified `modelName` and `propertyName`.
+   * 
+   * @param modelName Target model name
+   * @param propertyName Target property name
+   * @returns The column name
+   */
   columnName(modelName: string, propertyName: string): string;
+
+  /**
+   * Retrieve the column names for the specified `modelName`.
+   * 
+   * @param modelName Target model name
+   * @returns Column names
+   */
   columnNames(modelName: string): string;
+
+  /**
+   * Retrieve coulmn metadata for the specified `modelName` and `propertyName`.
+   * 
+   * @param modelName Target model name
+   * @param propertyName Target property name
+   * @returns Column metadata
+   */
   columnMetadata(modelName: string, propertyName: string): unknown;
+
+  /**
+   * Retrieve the ID property name for a model.
+   * 
+   * @param modelName Target model name
+   * @returns ID property name
+   */
   idName(modelName: string): string;
+
+  /**
+   * Retrieve the ID property names sorted by their index.
+   * 
+   * @param modelName Target model name
+   * @returns Property names for IDs
+   */
   idNames(modelName: string): string[];
 
+  /**
+   * Retrieve the ID property definition.
+   * 
+   * @param modelName Target model name
+   * @returns The ID property definition
+   */
+  idProperty(modelName: string): PropertyDefinition;
+
+  /**
+   * Define a foreign key to another model.
+   * 
+   * @param className The model name that owns the key
+   * @param key Name of key field
+   * @param foreignClassName Foreign model name
+   * @param pkName Primary key used for foreign key
+   */
   defineForeignKey(className: string, key: string, foreignClassName: string, pkName?: string): undefined | void;
 
   /**
@@ -203,8 +262,14 @@ export declare class DataSource extends EventEmitter {
   createModel<T extends ModelBaseClass>(
     name: string,
     properties?: AnyObject,
-    options?: ConnectorSettings,
+    options?: ModelSettings,
   ): T;
+
+  /**
+   * {@inheritDoc DataSource.createModel}
+   * @deprecated Use {@link DataSource.createModel} instead
+   */
+  define: DataSource['createModel'];
 
   /**
    * Look up a model class by name
