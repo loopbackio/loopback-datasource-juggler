@@ -4,7 +4,7 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import { AnyObject } from 'strong-globalize/lib/config';
-import {Callback, DataSource, ModelBase, ModelBaseClass, ModelDefinition, ModelProperties, Options, PromiseOrVoid, PropertyDefinition, PropertyType, Schema, Where} from '..';
+import {Callback, DataSource, Filter, ModelBase, ModelBaseClass, ModelDefinition, ModelProperties, Options, PromiseOrVoid, PropertyDefinition, PropertyType, Schema, Where} from '..';
 
 export type ConnectorSettings = Options & {
   name?: string,
@@ -90,12 +90,13 @@ export type DiscoveredModelProperties = {
 export type Context = {
   Model: ModelBaseClass,
   instance?: object,
-  query?: {where: Where},
+  query?: Filter,
+  where?: Where,
   data?: AnyObject,
   hookState?: AnyObject,
   options?: Options,
   isNewInstance?: boolean,
-  currentInstance?: ModelBase,
+  currentInstance?: Readonly<ModelBase>,
 }
 
 /**
