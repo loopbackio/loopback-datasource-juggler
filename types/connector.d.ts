@@ -104,7 +104,11 @@ export type Context = {
  */
 export interface Connector {
   name: string; // Name/type of the connector
-  _models?: object[];
+
+  /**
+   * @internal
+   */
+  _models?: Record<string, ModelBaseClass>;
   connect?(callback?: Callback): PromiseOrVoid; // Connect to the underlying system
   disconnect?(callback?: Callback): PromiseOrVoid; // Disconnect from the underlying system
 
