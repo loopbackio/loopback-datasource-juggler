@@ -13,7 +13,7 @@ import {
 } from './model';
 import {EventEmitter} from 'events';
 import {IsolationLevel, Transaction} from './transaction-mixin';
-import { ConnectorSettings } from '..';
+import { ConnectorSettings, ModelBase } from '..';
 
 /**
  * LoopBack models can manipulate data via the DataSource object.
@@ -93,6 +93,10 @@ export declare class DataSource extends EventEmitter {
    * Connector instance.
    */
   connector?: Connector;
+
+  modelBuilder: ModelBuilder;
+
+  models: Record<string, typeof ModelBase>;
   
   definitions: {[modelName: string]: ModelDefinition};
   
@@ -111,6 +115,8 @@ export declare class DataSource extends EventEmitter {
    * @param t Start time 
    */
   private log(sql: string, t: number): void;
+
+  private _queuedInvocations: number;
 
   private _operations: Record<string, Function>;
   
