@@ -13,7 +13,7 @@ import {
 } from './model';
 import {EventEmitter} from 'events';
 import {IsolationLevel, Transaction} from './transaction-mixin';
-import { ConnectorSettings, ModelBase, ModelSettings } from '..';
+import { ColumnMetadata, ConnectorSettings, ModelBase, ModelSettings } from '..';
 
 export type OperationOptions = {
   accepts: string[],
@@ -230,7 +230,7 @@ export declare class DataSource extends EventEmitter {
    * @param propertyName Target property name
    * @returns Column metadata
    */
-  columnMetadata(modelName: string, propertyName: string): unknown;
+  columnMetadata(modelName: string, propertyName: string): ColumnMetadata;
 
   /**
    * Retrieve the ID property name for a model.
