@@ -24,6 +24,10 @@ export type OperationOptions = {
   fnName: string,
 }
 
+export type DiscoverAndBuildModelsOptions = Options & {
+  base: ModelBaseClass,
+}
+
 /**
  * LoopBack models can manipulate data via the DataSource object.
  * Attaching a `DataSource` to a `Model` adds instance methods and static methods to the `Model`.

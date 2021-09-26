@@ -37,17 +37,57 @@ export type DiscoveryScopeOptions = {
 }
 
 export type SchemaDiscoveryOptions = {
-  owner?: string,
+
   /**
-   * Overriden by {@link SchemaDiscoveryOptions.associations}.
+   * Sets if all owners are included.
+   */
+  all?: boolean,
+
+  /**
+   * Sets if views are included.
+   */
+  views?: boolean,
+
+  /**
+   * Sets if the database foreign key column names should be transformed.
+   * 
+   * @remarks
+   * Used by the default built-in {@link NameMapper} implementation to transform
+   * the database column names to use camel-case, LoopBack's default naming
+   * conventions.
+   * 
+   * @defaultValue `false`
+   */
+  disableCamelCase?: boolean,
+
+  /**
+   * A custom database table name, model, and foreign key transformer.
+   * 
+   * @remarks
+   * If `null`, no transform is performed.
+   * If `undefined`, default built-in transformer is used.
+   */
+  nameMapper?: NameMapper | null,
+}
+& ({
+
+  /**
+   * Sets if associations/relations should be navigated.
+   * 
+   * @remarks
+   * Alias of {@link SchemaDiscoveryOptions.relations}
+   */
+  associations?: boolean,
+} | {
+  /**
+   * Sets if associations/relations should be navigated.
+   * 
+   * @remarks
+   * Alias of {@link SchemaDiscoveryOptions.associations}.
    */
   relations?: boolean,
-  all?: boolean,
-  views?: boolean,
-  disableCamelCase?: boolean,
-  nameMapper?: NameMapper,
-  associations?: boolean,
-}
+})
+& ({owner?: string} | {schema?: string})
 
 export type NameMapper = (type: 'table' | 'model' | 'fk' | string, name: string) => string | null;
 
@@ -83,7 +123,6 @@ export type DiscoveredModelProperties = {
   nullable?: boolean,
 }
 
-
 // #TODO(achrinza): The codebase suggets that `context` differs
 // depending on the situation, and that there's no cohesive interface.
 // Hence, we'll need to identify all the possible contexts.
@@ -93,12 +132,20 @@ export type Context = {
   query?: Filter,
   where?: Where,
   data?: AnyObject,
-  hookState?: AnyObject,
-  options?: Options,
+  hookState: object,
+  options: Options,
   isNewInstance?: boolean,
   currentInstance?: Readonly<ModelBase>,
 }
 
+export type ConnectorHookBeforeExecuteContext = {
+  req: Record<string, unknown>,
+  end: Callback<ConnectorHookBeforeExecuteContext>,
+}
+
+export type ConnectorHookAfterExecuteContext = ConnectorHookBeforeExecuteContext & {
+  res: Record<string, unknown>,
+}
 /**
  * Connector from `loopback-connector` module
  */
@@ -245,7 +292,19 @@ export interface Connector {
    * @param cb 
    */
   isActual?(models?: string | string[], cb?: Callback<boolean>): void;
+
+  /**
+   * Freeze the datasource. Behaviour depends on the {@link Connector}.
+   */
   freezeDataSource?(): void;
+
+  /**
+   * {@inheritDoc Connector.freezeDataSource}
+   * 
+   * @remarks
+   * This is kept for backwards-compatibility with JugglingDB connectors.
+   * Connectors should implement {@link Connector.freezeDataSource}.
+   */
   freezeSchema?(): void;
 
   /**
