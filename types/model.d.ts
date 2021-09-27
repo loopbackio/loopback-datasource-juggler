@@ -22,7 +22,7 @@ export type PropertyType =
 export interface PropertyDefinition extends AnyObject {
   type?: PropertyType;
   id?: boolean | number;
-  tableName?: string;
+  column?: string;
   columnName?: string;
   dataType?: string;
   dataLength?: number;
@@ -84,11 +84,39 @@ export interface ModelProperties {
 export interface ModelSettings extends AnyObject {
   strict?: boolean;
   forceId?: boolean;
+
+  tableName?: string
+  table?: string;
+
   persistUndefinedAsNull?: boolean;
+
+  /**
+   * Model properties to be set as protected.
+   * 
+   * @remarks
+   * Protected properties are properties that are not serialised to JSON or
+   * {@link object} when the model is a nested child.
+   * 
+   * Mostly used by {@link ModelBase.toObject}.
+   */
   protectedProperties?: string[];
+
+  /**
+   * {@inheritDoc ModelSettings.protectedProperties}
+   * @deprecated Use {@link ModelSettings.protectedProperties} instead.
+   */
   protected?: string[];
+
   hiddenProperties?: string[];
+
+  /** 
+   * @deprecated Use {@link ModelSettings.hiddenProperties} instead.
+   */
   hidden?: string[];
+  automaticValidation?: boolean,
+  updateOnLoad?: boolean,
+  validateUpsert?: boolean,
+  strictDelete?: boolean,
 }
 
 /**
