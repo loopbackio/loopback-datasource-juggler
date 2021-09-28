@@ -170,6 +170,8 @@ export declare class DataSource extends EventEmitter {
 
   private _setupConnector();
 
+  private mixin<T extends object>(ModelCtor: T): T
+  
   /**
    * Get the maximum number of event listeners
    * 
