@@ -117,6 +117,8 @@ export interface ModelSettings extends AnyObject {
   updateOnLoad?: boolean,
   validateUpsert?: boolean,
   strictDelete?: boolean,
+
+  allowExtendedOperators?: boolean,
 }
 
 /**
