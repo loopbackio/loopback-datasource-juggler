@@ -35,3 +35,4 @@ export * from './types/validation-mixin';
 export * from './types/inclusion-mixin';
 export * from './types/connector';
 export * from './types/geo';
+export * from './types/kvao';
