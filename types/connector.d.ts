@@ -6,47 +6,51 @@
 import { AnyObject } from 'strong-globalize/lib/config';
 import {Callback, DataSource, Filter, ModelBase, ModelBaseClass, ModelDefinition, ModelProperties, Options, PromiseOrVoid, PropertyDefinition, PropertyType, Schema, Where} from '..';
 
-export type ConnectorSettings = Options & {
-  name?: string,
+export interface ConnectorSettings extends Options {
+  name?: string;
   /**
    * Overrides {@link ConnectorSettings.adapter} if defined.
    */
-  connector?: ConnectorStatic | string,
+  connector?: ConnectorStatic | string;
   /**
    * @deprecated Use {@link ConnectorSettings.connector} instead.
    */
-  adapter?: ConnectorStatic | string,
-  connectionTimeout?: number,
-  maxOfflineRequests?: number,
-  lazyConnect?: boolean,
-  debug?: boolean,
+  adapter?: ConnectorStatic | string;
+  connectionTimeout?: number;
+  maxOfflineRequests?: number;
+  lazyConnect?: boolean;
+  debug?: boolean;
+
+  // Postgres-specific
+  defaultIdSort?: boolean | 'numericIdOnly';
+  onError?: (err: Error | unknown) => unknown | 'ignore';
+  // END Postgres-specific
 }
 
-export type IDPropertiesDiscoveryOptions = {
-  owner?: string,
-} | {
-  schema?: string
+export interface IDPropertiesDiscoveryOptions {
+  owner?: string;
+  schema?: string;
 }
 
-export type DiscoveryScopeOptions = {
-  owner?: string,
-  all?: boolean,
-  views?: boolean,
-  limit?: number,
-  offset?: number,
+export interface DiscoveryScopeOptions {
+  owner?: string;
+  all?: boolean;
+  views?: boolean;
+  limit?: number;
+  offset?: number;
 }
 
-export type SchemaDiscoveryOptions = {
+export interface SchemaDiscoveryOptions {
 
   /**
    * Sets if all owners are included.
    */
-  all?: boolean,
+  all?: boolean;
 
   /**
    * Sets if views are included.
    */
-  views?: boolean,
+  views?: boolean;
 
   /**
    * Sets if the database foreign key column names should be transformed.
@@ -58,7 +62,7 @@ export type SchemaDiscoveryOptions = {
    * 
    * @defaultValue `false`
    */
-  disableCamelCase?: boolean,
+  disableCamelCase?: boolean;
 
   /**
    * A custom database table name, model, and foreign key transformer.
@@ -67,9 +71,7 @@ export type SchemaDiscoveryOptions = {
    * If `null`, no transform is performed.
    * If `undefined`, default built-in transformer is used.
    */
-  nameMapper?: NameMapper | null,
-}
-& ({
+  nameMapper?: NameMapper | null;
 
   /**
    * Sets if associations/relations should be navigated.
@@ -77,74 +79,76 @@ export type SchemaDiscoveryOptions = {
    * @remarks
    * Alias of {@link SchemaDiscoveryOptions.relations}
    */
-  associations?: boolean,
-} | {
+  associations?: boolean;
+
   /**
    * Sets if associations/relations should be navigated.
    * 
    * @remarks
    * Alias of {@link SchemaDiscoveryOptions.associations}.
    */
-  relations?: boolean,
-})
-& ({owner?: string} | {schema?: string})
+  relations?: boolean;
+
+  owner?: string;
+  schema?: string;
+}
 
 export type NameMapper = (type: 'table' | 'model' | 'fk' | string, name: string) => string | null;
 
-export type DiscoveredPrimaryKeys = {
-  owner: string | null,
-  tableName: string,
-  columnName: string,
-  keySeq: number,
-  pkName: string | null,
+export interface DiscoveredPrimaryKeys {
+  owner: string | null;
+  tableName: string;
+  columnName: string;
+  keySeq: number;
+  pkName: string | null;
 }
 
-export type DiscoveredForeignKeys = {
-  fkOwner: string | null,
-  fkName: string | null,
-  fkTableName: string,
-  fkColumnName: string,
-  keySeq: number,
+export interface DiscoveredForeignKeys {
+  fkOwner: string | null;
+  fkName: string | null;
+  fkTableName: string;
+  fkColumnName: string;
+  keySeq: number;
 
-  pkOwner: string | null,
-  pkName: string | null,
-  pkTableName: string,
-  pkColumnName: string,
+  pkOwner: string | null;
+  pkName: string | null;
+  pkTableName: string;
+  pkColumnName: string;
 }
 
-export type DiscoveredModelProperties = {
-  owner?: string,
-  tableName?: string,
-  columnName?: string,
-  dataType?: string,
-  dataLength?: number,
-  dataPrecision?: number,
-  dataScale?: number,
-  nullable?: boolean,
+export interface DiscoveredModelProperties {
+  owner?: string;
+  tableName?: string;
+  columnName?: string;
+  dataType?: string;
+  dataLength?: number;
+  dataPrecision?: number;
+  dataScale?: number;
+  nullable?: boolean;
 }
 
 // #TODO(achrinza): The codebase suggets that `context` differs
 // depending on the situation, and that there's no cohesive interface.
 // Hence, we'll need to identify all the possible contexts.
-export type Context = {
-  Model: ModelBaseClass,
-  instance?: object,
-  query?: Filter,
-  where?: Where,
-  data?: AnyObject,
-  hookState: object,
-  options: Options,
-  isNewInstance?: boolean,
-  currentInstance?: Readonly<ModelBase>,
+export interface Context {
+  Model: ModelBaseClass;
+  instance?: object;
+  query?: Filter;
+  where?: Where;
+  data?: AnyObject;
+  hookState: object;
+  options: Options;
+  isNewInstance?: boolean;
+  currentInstance?: Readonly<ModelBase>;
 }
 
-export type ConnectorHookBeforeExecuteContext = {
-  req: Record<string, unknown>,
-  end: Callback<ConnectorHookBeforeExecuteContext>,
+export interface ConnectorHookBeforeExecuteContext {
+  req: Record<string, unknown>;
+  end: Callback<ConnectorHookBeforeExecuteContext>;
 }
 
-export type ConnectorHookAfterExecuteContext = ConnectorHookBeforeExecuteContext & {
-  res: Record<string, unknown>,
+export interface ConnectorHookAfterExecuteContext extends ConnectorHookBeforeExecuteContext {
+  res: Record<string, unknown>;
 }
 /**
  * Connector from `loopback-connector` module

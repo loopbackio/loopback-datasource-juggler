@@ -7,14 +7,19 @@ import {EventEmitter} from 'events';
 import {AnyObject, Options} from './common';
 import {DataSource} from './datasource';
 import {Listener, OperationHookContext} from './observer-mixin';
+import {ModelUtilsOptions} from './model-utils';
 
 /**
  * Property types
  */
 export type PropertyType =
+  | 'GeoPoint'
+  | 'Point'
   | string
   | Function
   | {[property: string]: PropertyType};
+
+export type DefaultFns = 'guid' | 'uuid' | 'uuidv4' | 'now' | 'shortid' | 'nanoid' | string;
 
 /**
  * Property definition
@@ -22,8 +27,10 @@ export type PropertyType =
 export interface PropertyDefinition extends AnyObject {
   type?: PropertyType;
   id?: boolean | number;
-  column?: string;
+  defaultFn?: DefaultFns;
+  useDefaultIdType?: boolean;
   columnName?: string;
+  column?: string;
   dataType?: string;
   dataLength?: number;
   dataPrecision?: number;
@@ -81,21 +88,76 @@ export interface ModelProperties {
  * }
  * ```
  */
-export interface ModelSettings extends AnyObject {
+export interface ModelSettings extends AnyObject, ModelUtilsOptions {
   strict?: boolean;
+
+  /**
+   * Set if manual assignment of auto-generated ID values should be blocked.
+   */
   forceId?: boolean;
 
+  indexes?: {
+    [indexJugglerName: string]: {
+      name: string;
+      /**
+       * Comma-separated column names
+       * 
+       * @remarks
+       * Handled by {@link Connector}s directly by default.
+       * 
+       * Overriden by {@link ModelSettings.indexes.keys}.
+       */
+      columns: string;
+
+      /**
+       * Array of column names to create an index.
+       * 
+       * @remarks
+       * Handled by {@link Connector}s directly by default.
+       * 
+       * Overrides {@link ModelSettings.indexes.columns}.
+       */
+      keys: string[];
+
+      // Postgresql-specific
+      type: string;
+      kind: string;
+    }
+  };
+
+  foreignKeys?: {
+    [fkJugglerName: string]: {
+      name: string,
+      entity: ModelBase | string,
+      entityKey: string,
+      foreignKey: string,
+      onDelete?: string,
+      onUpdate?: string,
+    }
+  }
+
+  /**
+   * {@inheritDoc ModelSettings.tableName}
+   */
   tableName?: string
+
+  /**
+   * Mapped table name for the model.
+   */
   table?: string;
 
+  /**
+   * Sets if JavaScript {@link undefined} as an attribute value should be
+   * persisted as database `NULL`.
+   */
   persistUndefinedAsNull?: boolean;
 
   /**
    * Model properties to be set as protected.
    * 
    * @remarks
-   * Protected properties are properties that are not serialised to JSON or
-   * {@link object} when the model is a nested child.
+   * Protected properties are not serialised to JSON or {@link object} when the
+   * model is a nested child.
    * 
    * Mostly used by {@link ModelBase.toObject}.
    */
@@ -103,22 +165,50 @@ export interface ModelSettings extends AnyObject {
 
   /**
    * {@inheritDoc ModelSettings.protectedProperties}
+   * 
+   * @remarks
+   * Overriden by {@link ModelSettings.protectedProperties}.
+   * 
    * @deprecated Use {@link ModelSettings.protectedProperties} instead.
    */
   protected?: string[];
 
+  /**
+   * Model properties to be set as hidden.
+   * 
+   * @remarks
+   * Hidden properties are
+   */
   hiddenProperties?: string[];
 
   /** 
+   * {@inheritDoc ModelSettings.hiddenProperties}
+   * 
+   * @remarks
+   * Overriden by {@link ModelSettings.hiddenProperties}.
+   * 
    * @deprecated Use {@link ModelSettings.hiddenProperties} instead.
    */
   hidden?: string[];
   automaticValidation?: boolean,
   updateOnLoad?: boolean,
   validateUpsert?: boolean,
+
+  /**
+   * Sets if an {@link Error} should be thrown when no instance(s) were found
+   * for delete operation.
+   * 
+   * @remarks
+   * 
+   * This setting is used by these operations:
+   * 
+   * - {@link DataAccessObject.removeById}/{@link DataAccessObject.destroyById}/{@link DataAccessObject.deleteById}
+   * - {@link DataAccessObject.remove}/{@link DataAccessObject.delete}/{@link DataAccessObject.destroy}
+   */
   strictDelete?: boolean,
 
-  allowExtendedOperators?: boolean,
+  // Postgres-specific
+  defaultIdSort?: boolean | 'numericIdOnly';
 }
 
 /**
