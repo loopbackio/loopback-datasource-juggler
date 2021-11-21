@@ -5,8 +5,16 @@ arch:
   - arm64
   - ppc64le
   - s390x
+dist: bionic
 language: node_js
-before_install: npm install --global npm
+before_install: |
+  NODEJS_VERSION=$(node --version)
+  if [ 'v10' = ${NODEJS_VERSION%%.*} ]
+  then
+    npm install --global npm@7
+  else
+    npm install --global npm@8
+  fi
 script:
   - npm run --ignore-scripts build
   - npm test --ignore-scripts
@@ -15,3 +23,4 @@ node_js:
   - 12
   - 14
   - 16
+  - 17
