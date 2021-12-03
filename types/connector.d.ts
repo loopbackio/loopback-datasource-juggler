@@ -16,6 +16,7 @@ export interface ConnectorSettings extends Options {
    * @deprecated Use {@link ConnectorSettings.connector} instead.
    */
   adapter?: ConnectorStatic | string;
+  database: string;
   connectionTimeout?: number;
   maxOfflineRequests?: number;
   lazyConnect?: boolean;
@@ -94,6 +95,30 @@ export interface SchemaDiscoveryOptions {
 }
 
 export type NameMapper = (type: 'table' | 'model' | 'fk' | string, name: string) => string | null;
+
+export interface BuildQueryOptions {
+  /**
+   * Build a query to search tables/views/schemas from any owner.
+   * 
+   * @remarks
+   * Ignored when {@link BuildQueryOptions.owner} or
+   * {@link BuildQueryOptions.schema} is defined.
+   */
+  all?: boolean,
+  /**
+   * Filter query to a certain table/view/schema owner.
+   * 
+   * @remarks
+   * Overrides {@link BuildQueryOptions.all} when defined.
+   * Alias of {@link BuildQueryOptions.schema} with higher precedence.
+   */
+  owner?: string,
+  /**
+   * @remarks
+   * Alias of {@link BuildQueryOptions.owner} with lower precedence.
+   */
+  schema?: string,
+}
 
 export interface DiscoveredPrimaryKeys {
   owner: string | null;
@@ -204,6 +229,17 @@ export interface Connector {
   
   getDefaultIdType(): object;
   isRelational(): boolean;
+
+  buildQuerySchemas?(options: BuildQueryOptions): string;
+  buildQueryTables?(options: BuildQueryOptions): string;
+  buildQueryViews?(options: BuildQueryOptions): string;
+  buildQueryColumns?(owner: string | null, table: string): string;
+  buildQueryForeignKeys?(owner?: string, table?: string): string;
+  buildQueryExportedForeignKeys?(owner?: string, table?: string): string;
+
+  setDefaultOptions?(options: Options): Options;
+  setNullableProperty?(property: PropertyDefinition): void;
+  getDefaultSchema?(options?: Options): string | undefined;
 
   /**
    * Discover existing database tables.

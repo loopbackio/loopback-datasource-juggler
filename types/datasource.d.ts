@@ -121,8 +121,8 @@ export declare class DataSource extends EventEmitter {
    * Log benchmarked message.
    * 
    * @remarks
-   * This property is assigned to the defined to the attached connector's
-   * {@link Connector.log | log} class member.
+   * This class method is defined as the attached connector's
+   * {@link Connector.log | log} class method.
    * 
    * @param sql 
    * @param t Start time 
@@ -137,8 +137,14 @@ export declare class DataSource extends EventEmitter {
 
   defineOperation(name: string, options: OperationOptions, fn: Function): void;
   
+  /**
+   * @deprecated For LoopBack 3 only.
+   */
   enableRemote(operation: string): void;
 
+  /**
+   * @deprecated For LoopBack 3 only.
+   */
   disableRemote(operation: string): void;
 
   /**
@@ -202,6 +208,38 @@ export declare class DataSource extends EventEmitter {
    */
   isRelational(): boolean | undefined;
 
+  /**
+   * Freeze the DataSource.
+   * 
+   * @remarks
+   * Behaviour is connector-dependent.
+   * 
+   * This may be used to continuously add artifacts to datasource until it is
+   * frozen, but historically it is not really used in LoopBack.
+   * 
+   * If implemented by the connector, the following connector methods are
+   * called:
+   * 
+   * - {@link Connector.freezeDataSource}
+   * - {@link Connector.freezeSchema}
+   * 
+   * This is typically called by other DataSource methods (including but not
+   * limited to):
+   * 
+   * - {@link DataSource.automigrate}
+   * - {@link DataSource.autoupdate}
+   * - {@link DataSource.discoverModelDefinitions}
+   * - {@link DataSource.discoverModelDefinitionsSync}
+   * - {@link DataSource.discoverModelProperties}
+   * - {@link DataSource.discoverModelPropertiesSync}
+   * - {@link DataSource.discoverPrimaryKeys}
+   * - {@link DataSource.discoverPrimaryKeysSync}
+   * - {@link DataSource.discoverForeignKeys}
+   * - {@link DataSource.discoverForeignKeysSync}
+   * - {@link DataSource.discoverExportedForeignKeys}
+   * - {@link DataSource.discoverExportedForeignKeysSync}
+   * - {@link DataSource.isActual}
+   */
   freeze(): void;
 
   /**
@@ -241,6 +279,10 @@ export declare class DataSource extends EventEmitter {
   /**
    * Retrieve the ID property name for a model.
    * 
+   * @remarks
+   * This method will only return the first ID from models with multiple IDs.
+   * Use {@link DataSource.idNames} instead.
+   * 
    * @param modelName Target model name
    * @returns ID property name
    */
@@ -266,7 +308,7 @@ export declare class DataSource extends EventEmitter {
    * Define a foreign key to another model.
    * 
    * @remarks
-   * If the attached {@link Connector} did not implement
+   * If the attached {@link Connector} does not implement
    * {@link Connector.defineForeignKey}, this function will fallback to defining
    * a regular property. Furthermore, responsibility of properly implementing
    * this feature depends on the connector's implementation. This means a
@@ -288,7 +330,7 @@ export declare class DataSource extends EventEmitter {
    */
   createModel<T extends ModelBaseClass>(
     name: string,
-    properties?: AnyObject,
+    properties?: PropertyDefinition,
     options?: ModelSettings,
   ): T;
 

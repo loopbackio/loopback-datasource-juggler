@@ -14,7 +14,7 @@ import {ModelUtilsOptions} from './model-utils';
  */
 export type PropertyType =
   | 'GeoPoint'
-  | 'Point'
+  | 'Point' // Legacy carry-over from JugglingDB. Alias of `GeoPoint`.`
   | string
   | Function
   | {[property: string]: PropertyType};
@@ -35,7 +35,9 @@ export interface PropertyDefinition extends AnyObject {
   dataLength?: number;
   dataPrecision?: number;
   dataScale?: number;
-  nullable?: boolean;
+  nullable?: 'Y' | 'N';
+  // PostgreSQL-specific?
+  autoIncrement?: boolean;
 }
 
 /**
@@ -95,6 +97,36 @@ export interface ModelSettings extends AnyObject, ModelUtilsOptions {
    * Set if manual assignment of auto-generated ID values should be blocked.
    */
   forceId?: boolean;
+
+  /**
+   * @remarks
+   * Defaults to `true`.
+   */
+  idInjection?: boolean;
+  
+  plural?: string;
+
+  http?: {
+    path?: string;
+  }
+
+  /**
+   * @remarks
+   * Alias of {@link ModelSettings.super}. Takes lower precedence.
+   */
+  base?: ModelBaseClass;
+  /**
+   * @remarks
+   * Alias of {@link ModelSettings.base}. Takes lower precedence.
+   */
+  super?: ModelBaseClass;
+  excludeBaseProperties?: string[];
+
+  /**
+   * Indicates if the {@link ModelBaseClass | Model} is attached to the DataS
+   * @internal
+   */
+  unresolved?: boolean;
 
   indexes?: {
     [indexJugglerName: string]: {
@@ -190,9 +222,9 @@ export interface ModelSettings extends AnyObject, ModelUtilsOptions {
    * @deprecated Use {@link ModelSettings.hiddenProperties} instead.
    */
   hidden?: string[];
-  automaticValidation?: boolean,
-  updateOnLoad?: boolean,
-  validateUpsert?: boolean,
+  automaticValidation?: boolean;
+  updateOnLoad?: boolean;
+  validateUpsert?: boolean;
 
   /**
    * Sets if an {@link Error} should be thrown when no instance(s) were found
@@ -205,7 +237,9 @@ export interface ModelSettings extends AnyObject, ModelUtilsOptions {
    * - {@link DataAccessObject.removeById}/{@link DataAccessObject.destroyById}/{@link DataAccessObject.deleteById}
    * - {@link DataAccessObject.remove}/{@link DataAccessObject.delete}/{@link DataAccessObject.destroy}
    */
-  strictDelete?: boolean,
+  strictDelete?: boolean;
+
+  updatOnly?: boolean;
 
   // Postgres-specific
   defaultIdSort?: boolean | 'numericIdOnly';
@@ -247,6 +281,12 @@ export declare class ModelDefinition extends EventEmitter implements Schema {
   toJSON(forceRebuild?: boolean): AnyObject;
 }
 
+export interface ModelBaseClassOptions {
+  applySetters?: boolean;
+  applyDefaultValues?: boolean;
+  strict?: boolean;
+}
+
 /**
  * Base class for LoopBack 3.x models
  */
@@ -254,7 +294,16 @@ export declare class ModelBase {
   static dataSource?: DataSource;
   static modelName: string;
   static definition: ModelDefinition;
+  static hideInternalProperties?: boolean;
   static readonly base: typeof ModelBase;
+
+  /**
+   * Initializes the model instance with a list of properties.
+   * 
+   * @param data The data object
+   * @param options Instation options
+   */
+  private _initProperties(data: object, options: ModelBaseClass): void;
 
   /**
    * Extend the model with the specified model, properties, and other settings.
@@ -291,6 +340,11 @@ export declare class ModelBase {
    * @returns {string} Name of property type
    */
   static getPropertyType(propName: string): string | null;
+
+  /**
+   * {@inheritDoc ModelBaseClass.getPropertyType}
+   */
+  getPropertyType: ModelBaseClass['getPropertyType'];
 
   /**
    * Checks if property is hidden.
@@ -351,7 +405,11 @@ export declare class ModelBase {
    * If true, then protected properties should not be brought out.
    * @returns {object} returns Plain JSON object
    */
-  toObject(options?: Options): AnyObject;
+  toObject(options?: {
+    onlySchema?: boolean;
+    removeHidden?: boolean;
+    removeProtected?: boolean;
+  }): AnyObject;
 
   /**
    * Define a property on the model.
@@ -462,6 +520,24 @@ export declare class ModelBase {
    * @end
    */
   static clearObservers(operation: string): void;
+
+  getMergePolicy(options: {
+    configureModelMerge: boolean | object
+  }): {
+    description?: {replace: boolean};
+    properties?: {patch: boolean}; // Only referenced in "legacy built-in merge policy"
+    options?: {path: boolean};
+    hidden?: {replace: boolean};
+    protected?: {replace: boolean};
+    indexes?: {patch: boolean};
+    methods?: {patch: boolean};
+    mixins?: {patch: boolean};
+    relations?: {patch: boolean};
+    scope?: {replace: boolean};
+    acls?: {rank: boolean};
+    __delete?: boolean | null;
+    __default?: {replace: boolean};
+  }
 }
 
 export type ModelBaseClass = typeof ModelBase;
