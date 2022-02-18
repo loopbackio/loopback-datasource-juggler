@@ -1,3 +1,21 @@
+2022-02-18, Version 4.27.0
+==========================
+
+ * ci: enable Node.js v17 testing (Rifa Achrinza)
+
+ * feat: add built-in model property types typdef (Rifa Achrinza)
+
+ * chore: replace shortid with nanoid (Mario Estrada)
+
+ * ci: restrict GITHUB_TOKEN permissions (Rifa Achrinza)
+
+ * ci: update pipelines (Rifa Achrinza)
+
+ * chore: update 3.x LTS to End-of-Life (#1888) (Rifa Achrinza)
+
+ * chore: sync v4 EOL withh Node.js v14 EOL (#1876) (Rifa Achrinza)
+
+
 2020-11-02, Version 4.26.0
 ==========================
 
