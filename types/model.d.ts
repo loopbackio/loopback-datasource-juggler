@@ -7,14 +7,19 @@ import {EventEmitter} from 'events';
 import {AnyObject, Options} from './common';
 import {DataSource} from './datasource';
 import {Listener, OperationHookContext} from './observer-mixin';
+import {ModelUtilsOptions} from './model-utils';
 
 /**
  * Property types
  */
 export type PropertyType =
+  | 'GeoPoint'
+  | 'Point' // Legacy carry-over from JugglingDB. Alias of `GeoPoint`.`
   | string
   | Function
   | {[property: string]: PropertyType};
+
+export type DefaultFns = 'guid' | 'uuid' | 'uuidv4' | 'now' | 'shortid' | 'nanoid' | string;
 
 /**
  * Property definition
@@ -22,6 +27,17 @@ export type PropertyType =
 export interface PropertyDefinition extends AnyObject {
   type?: PropertyType;
   id?: boolean | number;
+  defaultFn?: DefaultFns;
+  useDefaultIdType?: boolean;
+  columnName?: string;
+  column?: string;
+  dataType?: string;
+  dataLength?: number;
+  dataPrecision?: number;
+  dataScale?: number;
+  nullable?: 'Y' | 'N';
+  // PostgreSQL-specific?
+  autoIncrement?: boolean;
 }
 
 /**
@@ -74,9 +90,159 @@ export interface ModelProperties {
  * }
  * ```
  */
-export interface ModelSettings extends AnyObject {
+export interface ModelSettings extends AnyObject, ModelUtilsOptions {
   strict?: boolean;
+
+  /**
+   * Set if manual assignment of auto-generated ID values should be blocked.
+   */
   forceId?: boolean;
+
+  /**
+   * @remarks
+   * Defaults to `true`.
+   */
+  idInjection?: boolean;
+  
+  plural?: string;
+
+  http?: {
+    path?: string;
+  }
+
+  /**
+   * @remarks
+   * Alias of {@link ModelSettings.super}. Takes lower precedence.
+   */
+  base?: ModelBaseClass;
+  /**
+   * @remarks
+   * Alias of {@link ModelSettings.base}. Takes lower precedence.
+   */
+  super?: ModelBaseClass;
+  excludeBaseProperties?: string[];
+
+  /**
+   * Indicates if the {@link ModelBaseClass | Model} is attached to the DataS
+   * @internal
+   */
+  unresolved?: boolean;
+
+  indexes?: {
+    [indexJugglerName: string]: {
+      name: string;
+      /**
+       * Comma-separated column names
+       * 
+       * @remarks
+       * Handled by {@link Connector}s directly by default.
+       * 
+       * Overriden by {@link ModelSettings.indexes.keys}.
+       */
+      columns: string;
+
+      /**
+       * Array of column names to create an index.
+       * 
+       * @remarks
+       * Handled by {@link Connector}s directly by default.
+       * 
+       * Overrides {@link ModelSettings.indexes.columns}.
+       */
+      keys: string[];
+
+      // Postgresql-specific
+      type: string;
+      kind: string;
+    }
+  };
+
+  foreignKeys?: {
+    [fkJugglerName: string]: {
+      name: string,
+      entity: ModelBase | string,
+      entityKey: string,
+      foreignKey: string,
+      onDelete?: string,
+      onUpdate?: string,
+    }
+  }
+
+  /**
+   * {@inheritDoc ModelSettings.tableName}
+   */
+  tableName?: string
+
+  /**
+   * Mapped table name for the model.
+   */
+  table?: string;
+
+  /**
+   * Sets if JavaScript {@link undefined} as an attribute value should be
+   * persisted as database `NULL`.
+   */
+  persistUndefinedAsNull?: boolean;
+
+  /**
+   * Model properties to be set as protected.
+   * 
+   * @remarks
+   * Protected properties are not serialised to JSON or {@link object} when the
+   * model is a nested child.
+   * 
+   * Mostly used by {@link ModelBase.toObject}.
+   */
+  protectedProperties?: string[];
+
+  /**
+   * {@inheritDoc ModelSettings.protectedProperties}
+   * 
+   * @remarks
+   * Overriden by {@link ModelSettings.protectedProperties}.
+   * 
+   * @deprecated Use {@link ModelSettings.protectedProperties} instead.
+   */
+  protected?: string[];
+
+  /**
+   * Model properties to be set as hidden.
+   * 
+   * @remarks
+   * Hidden properties are
+   */
+  hiddenProperties?: string[];
+
+  /** 
+   * {@inheritDoc ModelSettings.hiddenProperties}
+   * 
+   * @remarks
+   * Overriden by {@link ModelSettings.hiddenProperties}.
+   * 
+   * @deprecated Use {@link ModelSettings.hiddenProperties} instead.
+   */
+  hidden?: string[];
+  automaticValidation?: boolean;
+  updateOnLoad?: boolean;
+  validateUpsert?: boolean;
+
+  /**
+   * Sets if an {@link Error} should be thrown when no instance(s) were found
+   * for delete operation.
+   * 
+   * @remarks
+   * 
+   * This setting is used by these operations:
+   * 
+   * - {@link DataAccessObject.removeById}/{@link DataAccessObject.destroyById}/{@link DataAccessObject.deleteById}
+   * - {@link DataAccessObject.remove}/{@link DataAccessObject.delete}/{@link DataAccessObject.destroy}
+   */
+  strictDelete?: boolean;
+
+  updatOnly?: boolean;
+
+  // Postgres-specific
+  defaultIdSort?: boolean | 'numericIdOnly';
 }
 
 /**
@@ -115,6 +281,12 @@ export declare class ModelDefinition extends EventEmitter implements Schema {
   toJSON(forceRebuild?: boolean): AnyObject;
 }
 
+export interface ModelBaseClassOptions {
+  applySetters?: boolean;
+  applyDefaultValues?: boolean;
+  strict?: boolean;
+}
+
 /**
  * Base class for LoopBack 3.x models
  */
@@ -122,7 +294,16 @@ export declare class ModelBase {
   static dataSource?: DataSource;
   static modelName: string;
   static definition: ModelDefinition;
+  static hideInternalProperties?: boolean;
   static readonly base: typeof ModelBase;
+
+  /**
+   * Initializes the model instance with a list of properties.
+   * 
+   * @param data The data object
+   * @param options Instation options
+   */
+  private _initProperties(data: object, options: ModelBaseClass): void;
 
   /**
    * Extend the model with the specified model, properties, and other settings.
@@ -159,6 +340,11 @@ export declare class ModelBase {
    * @returns {string} Name of property type
    */
   static getPropertyType(propName: string): string | null;
+
+  /**
+   * {@inheritDoc ModelBaseClass.getPropertyType}
+   */
+  getPropertyType: ModelBaseClass['getPropertyType'];
 
   /**
    * Checks if property is hidden.
@@ -219,7 +405,11 @@ export declare class ModelBase {
    * If true, then protected properties should not be brought out.
    * @returns {object} returns Plain JSON object
    */
-  toObject(options?: Options): AnyObject;
+  toObject(options?: {
+    onlySchema?: boolean;
+    removeHidden?: boolean;
+    removeProtected?: boolean;
+  }): AnyObject;
 
   /**
    * Define a property on the model.
@@ -232,6 +422,8 @@ export declare class ModelBase {
   ): void;
 
   getDataSource(): DataSource;
+
+  setStrict(strict: boolean): void;
 
   /**
    *
@@ -328,6 +520,24 @@ export declare class ModelBase {
    * @end
    */
   static clearObservers(operation: string): void;
+
+  getMergePolicy(options: {
+    configureModelMerge: boolean | object
+  }): {
+    description?: {replace: boolean};
+    properties?: {patch: boolean}; // Only referenced in "legacy built-in merge policy"
+    options?: {path: boolean};
+    hidden?: {replace: boolean};
+    protected?: {replace: boolean};
+    indexes?: {patch: boolean};
+    methods?: {patch: boolean};
+    mixins?: {patch: boolean};
+    relations?: {patch: boolean};
+    scope?: {replace: boolean};
+    acls?: {rank: boolean};
+    __delete?: boolean | null;
+    __default?: {replace: boolean};
+  }
 }
 
 export type ModelBaseClass = typeof ModelBase;

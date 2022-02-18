@@ -13,6 +13,20 @@ import {
 } from './model';
 import {EventEmitter} from 'events';
 import {IsolationLevel, Transaction} from './transaction-mixin';
+import { ColumnMetadata, ConnectorSettings, ModelBase, ModelSettings } from '..';
+
+export type OperationOptions = {
+  accepts: string[],
+  returns: string[],
+  http: object,
+  remoteEnabled: boolean,
+  scope: unknown,
+  fnName: string,
+}
+
+export type DiscoverAndBuildModelsOptions = Options & {
+  base: ModelBaseClass,
+}
 
 /**
  * LoopBack models can manipulate data via the DataSource object.
@@ -76,27 +90,237 @@ import {IsolationLevel, Transaction} from './transaction-mixin';
  */
 export declare class DataSource extends EventEmitter {
   name: string;
-  settings: Options;
+  settings: ConnectorSettings;
 
   initialized?: boolean;
   connected?: boolean;
   connecting?: boolean;
+  
+  /**
+   * {@inheritDoc DataSource.connector}
+   * @deprecated Use {@link DataSource.connector} instead.
+   */
+  adapter?: Connector;
 
+  /**
+   * Connector instance.
+   */
   connector?: Connector;
 
+  modelBuilder: ModelBuilder;
+
+  models: Record<string, typeof ModelBase>;
+  
   definitions: {[modelName: string]: ModelDefinition};
-
+  
   DataAccessObject: AnyObject & {prototype: AnyObject};
+  
+  pendingConnectCallbacks?: Callback[];
 
-  constructor(name: string, settings?: Options, modelBuilder?: ModelBuilder);
+  /**
+   * Log benchmarked message.
+   * 
+   * @remarks
+   * This class method is defined as the attached connector's
+   * {@link Connector.log | log} class method.
+   * 
+   * @param sql 
+   * @param t Start time 
+   */
+  private log(sql: string, t: number): void;
 
-  constructor(settings?: Options, modelBuilder?: ModelBuilder);
+  private _queuedInvocations: number;
+
+  private _operations: Record<string, OperationOptions>;
+
+  operations(): Record<string, OperationOptions>;
+
+  defineOperation(name: string, options: OperationOptions, fn: Function): void;
+  
+  /**
+   * @deprecated For LoopBack 3 only.
+   */
+  enableRemote(operation: string): void;
+
+  /**
+   * @deprecated For LoopBack 3 only.
+   */
+  disableRemote(operation: string): void;
+
+  /**
+   * Default global maximum number of event listeners.
+   * 
+   * @remarks
+   * This default can be overriden through
+   * {@link ConnectorSettings.maxOfflineRequests}.
+   */
+  static DEFAULT_MAX_OFFLINE_REQUESTS: number;
+
+  /**
+   * A hash-map of the different relation types.
+   */
+  static relationTypes: Record<string, string>;
+
+  constructor(name: string, settings?: ConnectorSettings, modelBuilder?: ModelBuilder);
+
+  constructor(settings?: ConnectorSettings, modelBuilder?: ModelBuilder);
 
   constructor(
     connectorModule: Connector,
-    settings?: Options,
+    settings?: ConnectorSettings,
     modelBuilder?: ModelBuilder,
   );
+
+  private setup(dsName: string, settings: ConnectorSettings): void;
+  private setup(settings: ConnectorSettings): void;
+
+  private _setupConnector();
+
+  private mixin<T extends object>(ModelCtor: T): T
+  
+  /**
+   * Get the maximum number of event listeners
+   * 
+   * @remarks
+   * Defaults to {@link DataSource.DEFAULT_MAX_OFFLINE_REQUESTS} if not explicitly
+   * configured in {@link ConnectorSettings.maxOfflineRequests}.
+   */
+  getMaxOfflineRequests(): number;
+
+  // Reason for deprecation is not clear.
+  /**
+   * {@inheritDoc Connector.getTypes}
+   * @deprecated
+   */
+  getTypes(): string[];
+
+  /**
+   * Check if the datasource supports the specified types.
+   * @param types Type name(s) to check against
+   */
+  supportTypes(types: string | string[]): boolean;
+
+  /**
+   * Returns if the attached connector is relational.
+   * 
+   * @returns If the attached connector is relational; `undefined` if no
+   * connector is attached.
+   */
+  isRelational(): boolean | undefined;
+
+  /**
+   * Freeze the DataSource.
+   * 
+   * @remarks
+   * Behaviour is connector-dependent.
+   * 
+   * This may be used to continuously add artifacts to datasource until it is
+   * frozen, but historically it is not really used in LoopBack.
+   * 
+   * If implemented by the connector, the following connector methods are
+   * called:
+   * 
+   * - {@link Connector.freezeDataSource}
+   * - {@link Connector.freezeSchema}
+   * 
+   * This is typically called by other DataSource methods (including but not
+   * limited to):
+   * 
+   * - {@link DataSource.automigrate}
+   * - {@link DataSource.autoupdate}
+   * - {@link DataSource.discoverModelDefinitions}
+   * - {@link DataSource.discoverModelDefinitionsSync}
+   * - {@link DataSource.discoverModelProperties}
+   * - {@link DataSource.discoverModelPropertiesSync}
+   * - {@link DataSource.discoverPrimaryKeys}
+   * - {@link DataSource.discoverPrimaryKeysSync}
+   * - {@link DataSource.discoverForeignKeys}
+   * - {@link DataSource.discoverForeignKeysSync}
+   * - {@link DataSource.discoverExportedForeignKeys}
+   * - {@link DataSource.discoverExportedForeignKeysSync}
+   * - {@link DataSource.isActual}
+   */
+  freeze(): void;
+
+  /**
+   * Return the table name for the specified `modelName`.
+   * 
+   * @param modelName Target model name
+   * @returns The table name
+   */
+  tableName(modelName: string): string;
+
+  /**
+   * Retrieve the column name for the specified `modelName` and `propertyName`.
+   * 
+   * @param modelName Target model name
+   * @param propertyName Target property name
+   * @returns The column name
+   */
+  columnName(modelName: string, propertyName: string): string;
+
+  /**
+   * Retrieve the column names for the specified `modelName`.
+   * 
+   * @param modelName Target model name
+   * @returns Column names
+   */
+  columnNames(modelName: string): string;
+
+  /**
+   * Retrieve coulmn metadata for the specified `modelName` and `propertyName`.
+   * 
+   * @param modelName Target model name
+   * @param propertyName Target property name
+   * @returns Column metadata
+   */
+  columnMetadata(modelName: string, propertyName: string): ColumnMetadata;
+
+  /**
+   * Retrieve the ID property name for a model.
+   * 
+   * @remarks
+   * This method will only return the first ID from models with multiple IDs.
+   * Use {@link DataSource.idNames} instead.
+   * 
+   * @param modelName Target model name
+   * @returns ID property name
+   */
+  idName(modelName: string): string;
+
+  /**
+   * Retrieve the ID property names sorted by their index.
+   * 
+   * @param modelName Target model name
+   * @returns Property names for IDs
+   */
+  idNames(modelName: string): string[];
+
+  /**
+   * Retrieve the ID property definition.
+   * 
+   * @param modelName Target model name
+   * @returns The ID property definition
+   */
+  idProperty(modelName: string): PropertyDefinition;
+
+  /**
+   * Define a foreign key to another model.
+   * 
+   * @remarks
+   * If the attached {@link Connector} does not implement
+   * {@link Connector.defineForeignKey}, this function will fallback to defining
+   * a regular property. Furthermore, responsibility of properly implementing
+   * this feature depends on the connector's implementation. This means a
+   * database-level foreign key is not guaranteed. Please refer to the
+   * respective connector's documentation.
+   * 
+   * @param className The model name that owns the key
+   * @param key Name of key field
+   * @param foreignClassName Foreign model name
+   * @param pkName Primary key used for foreign key
+   */
+  defineForeignKey(className: string, key: string, foreignClassName: string, pkName?: string): undefined | void;
 
   /**
    * Create a model class
@@ -106,9 +330,15 @@ export declare class DataSource extends EventEmitter {
    */
   createModel<T extends ModelBaseClass>(
     name: string,
-    properties?: AnyObject,
-    options?: Options,
+    properties?: PropertyDefinition,
+    options?: ModelSettings,
   ): T;
+
+  /**
+   * {@inheritDoc DataSource.createModel}
+   * @deprecated Use {@link DataSource.createModel} instead
+   */
+  define: DataSource['createModel'];
 
   /**
    * Look up a model class by name
@@ -135,10 +365,13 @@ export declare class DataSource extends EventEmitter {
 
   /**
    * Attach an existing model to a data source.
+   * 
+   * @remarks
    * This will mixin all of the data access object functions (DAO) into your
    * modelClass definition.
-   * @param {ModelBaseClass} modelClass The model constructor that will be enhanced
-   * by DataAccessObject mixins.
+   * 
+   * @param modelClass The model constructor that will be
+   * enhanced by DataAccessObject mixins.
    */
   attach(modelClass: ModelBaseClass): ModelBaseClass;
 
@@ -150,6 +383,9 @@ export declare class DataSource extends EventEmitter {
   // legacy callback style
   autoupdate(models: string | string[] | undefined, callback: Callback): void;
 
+  /**
+   * {@inheritDoc Connector.discoverModelDefinitions}
+   */
   discoverModelDefinitions(
     options?: Options,
   ): Promise<ModelDefinition[]>;
@@ -163,6 +399,9 @@ export declare class DataSource extends EventEmitter {
     callback: Callback<ModelDefinition[]>,
   ): void;
 
+  /**
+   * {@inheritDoc Connector.discoverModelProperties}
+   */
   discoverModelProperties(
     modelName: string,
     options?: Options,
@@ -179,6 +418,9 @@ export declare class DataSource extends EventEmitter {
     callback: Callback<PropertyDefinition[]>,
   ): void;
 
+  /**
+   * {@inheritDoc Connector.discoverPrimaryKeys}
+   */
   discoverPrimaryKeys(
     modelName: string,
     options?: Options,
@@ -195,6 +437,9 @@ export declare class DataSource extends EventEmitter {
     callback: Callback<PropertyDefinition[]>,
   ): void;
 
+  /**
+   * {@inheritDoc Connector.discoverForeignKeys}
+   */
   discoverForeignKeys(
     modelName: string,
     options?: Options,
@@ -211,6 +456,9 @@ export declare class DataSource extends EventEmitter {
     callback: Callback<PropertyDefinition[]>,
   ): void;
 
+  /**
+   * {@inheritDoc Connector.discoverExportedForeignKeys}
+   */
   discoverExportedForeignKeys(
     modelName: string,
     options?: Options,
@@ -259,6 +507,9 @@ export declare class DataSource extends EventEmitter {
     callback: Callback<AnyObject>,
   ): void;
 
+  /**
+   * {@inheritDoc Connector.discoverSchemas}
+   */
   discoverSchemas(
     tableName: string,
     options?: Options,
@@ -273,7 +524,7 @@ export declare class DataSource extends EventEmitter {
     tableName: string,
     options: Options,
     callback: Callback<AnyObject[]>,
-  ): void;
+  ): void; 
 
   buildModelFromInstance(
     modelName: string,
@@ -281,10 +532,16 @@ export declare class DataSource extends EventEmitter {
     options?: Options,
   ): ModelBaseClass;
 
+  /**
+   * Connect to the DataSource.
+   */
   connect(): Promise<void>;
   // legacy callback style
   connect(callback: Callback): void;
 
+  /**
+   * Close the connection to the DataSource.
+   */
   disconnect(): Promise<void>;
   // legacy callback style
   disconnect(callback: Callback): void;
@@ -293,8 +550,25 @@ export declare class DataSource extends EventEmitter {
   // Note we must use `void | PromiseLike<void>` to avoid breaking
   // existing LoopBack 4 applications.
   // TODO(semver-major): change the return type to `Promise<void>`
+  /**
+   * An alias for {@link DataSource.disconnect} to allow this datasource to be
+   * an LB4 life-cycle observer
+   * 
+   * @remarks
+   * A `.start()` equivalent was deliberately not provided as the logic for
+   * establishing connection(s) is more complex and is usually statred
+   * immediately from the datasource constructor.
+   */
   stop(): void | PromiseLike<void>;
 
+  /**
+   * Ping the underlying connector to test the connections.
+   * 
+   * @remarks
+   * If {@link Connector.ping} is not implemented,
+   * {@link Connector.discoverModelProperties} is used instead. Otherwise, an
+   * error is thrown.
+   */
   ping(): Promise<void>;
   // legacy callback style
   ping(callback: Callback): void;
