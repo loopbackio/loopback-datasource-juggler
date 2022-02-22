@@ -1,5 +1,4 @@
 import {DateString} from './date-string';
-import {GeoPoint} from './geo';
 
 // @achrinza: The return value is a hack to inform TypeScript of function parameter mutations.
 //            see: https://github.com/microsoft/TypeScript/issues/22865#issuecomment-725015710
@@ -57,7 +56,7 @@ declare namespace registerModelTypes {
       'Buffer': Buffer;
       'Array': Array<unknown>;
       'Object': Object;
-      'GeoPoint': GeoPoint
+      // 'GeoPoint': GeoPoint // Removed temporarily. See: https://github.com/loopbackio/loopback-datasource-juggler/issues/1909
     };
     registerType: (type: Type, names?: string[]) => void;
   }
