@@ -1,4 +1,10 @@
-2022-02-18, Version 4.27.0
+2022-02-22, Version 4.27.1
+==========================
+
+ * fix: remove `geo.d.ts` (Rifa Achrinza)
+
+
+2022-02-19, Version 4.27.0
 ==========================
 
  * ci: enable Node.js v17 testing (Rifa Achrinza)
