@@ -54,7 +54,7 @@
     "change-case": "^4.1.2",
     "debug": "^4.3.4",
     "depd": "^2.0.0",
-    "inflection": "^1.6.0",
+    "inflection": "^1.13.2",
     "lodash": "^4.17.11",
     "loopback-connector": "^5.0.0",
     "minimatch": "^3.0.3",
