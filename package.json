@@ -59,7 +59,7 @@
     "loopback-connector": "^5.0.1",
     "minimatch": "^3.0.3",
     "nanoid": "^3.1.20",
-    "qs": "^6.5.0",
+    "qs": "^6.10.3",
     "strong-globalize": "^6.0.5",
     "traverse": "^0.6.6",
     "uuid": "^8.3.2"
