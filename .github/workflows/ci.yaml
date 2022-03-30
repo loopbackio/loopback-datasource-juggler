@@ -45,7 +45,11 @@ jobs:
       - name: Build project
         run: npm run build
       - name: Run tests
-        run: npm test --ignore-scripts
+        if: matrix.node-version != 10
+        run: npm run-script test:ci
+      - name: Run tests (Node.js v10)
+        if: matrix.node-version == 10
+        run: npm run-script test:v8:ci
       - name: Generate coverage report
         run: npx --no-install nyc report --reporter=lcov
       - name: Publish coverage report to Coveralls

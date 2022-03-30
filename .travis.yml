@@ -17,7 +17,12 @@ before_install: |
   fi
 script:
   - npm run --ignore-scripts build
-  - npm test --ignore-scripts
+  - |
+    if [ 'v10' = "${NODEJS_VERSION%%.*}" ]; then
+      npm run-script test:v8:ci
+    else
+      npm run-script test:ci
+    fi
 node_js:
   - 10
   - 12

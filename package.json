@@ -31,7 +31,9 @@
     "lint": "eslint .",
     "build": "npm run build-ts-types",
     "build-ts-types": "tsc -p tsconfig.json --outDir dist",
-    "test": "nyc mocha",
+    "test": "npm run test:ci",
+    "test:ci": "nyc npx --package=mocha -- mocha",
+    "test:v8:ci": "nyc npx --package=mocha-v8 -- mocha",
     "posttest": "npm run tsc && npm run lint"
   },
   "devDependencies": {
@@ -44,7 +46,8 @@
     "eslint-config-loopback": "^13.1.0",
     "eslint-plugin-mocha": "^10.0.3",
     "loopback-connector-throwing": "file:./test/fixtures/loopback-connector-throwing",
-    "mocha": "^8.4.0",
+    "mocha": "^9.2.2",
+    "mocha-v8": "npm:mocha@^8.4.0",
     "nyc": "^15.1.0",
     "should": "^13.2.3",
     "typescript": "^4.0.3"
