@@ -25,6 +25,11 @@ export type Listener<Ctx = OperationHookContext<typeof ModelBase>> = (
 
 export interface ObserverMixin {
   /**
+   * @private
+   */
+  _observers?: {[listenerName: string]: Listener[]}
+
+  /**
    * Register an asynchronous observer for the given operation (event).
    *
    * Example:
@@ -70,15 +75,13 @@ export interface ObserverMixin {
    * });
    * ```
    *
-   * @param {String} operation The operation name.
-   * @callback {function} listener The listener function.
-   * @end
+   * @param operation The operation name.
+   * @param listener The listener function.
    */
-  removeObserver<T extends typeof ModelBase>(
-    this: T,
+  removeObserver<MT extends typeof ModelBase, LT extends Listener<OperationHookContext<MT>>>(
     operation: string,
-    listener: Listener<OperationHookContext<T>>,
-  ): Listener<OperationHookContext<T>> | undefined;
+    listener: LT,
+  ): LT | undefined;
 
   /**
    * Unregister all asynchronous observers for the given operation (event).
@@ -91,8 +94,7 @@ export interface ObserverMixin {
    * MyModel.clearObservers('before save');
    * ```
    *
-   * @param {String} operation The operation name.
-   * @end
+   * @param operation The operation name.
    */
   clearObservers(operation: string): void;
 
@@ -122,17 +124,17 @@ export interface ObserverMixin {
    * @callback {function(Error=)} callback The callback to call when all observers
    *   have finished.
    */
-  notifyObserversOf(
-    operation: string,
-    context: object,
+  notifyObserversOf<T extends typeof ModelBase>(
+    operation: string | string[],
+    context: OperationHookContext<T>,
     callback?: Callback,
   ): PromiseOrVoid;
 
-  _notifyBaseObservers(
-    operation: string,
-    context: object,
+  _notifyBaseObservers<T extends typeof ModelBase>(
+    operation: string | string[],
+    context: OperationHookContext<T>,
     callback?: Callback,
-  ): PromiseOrVoid;
+  ): PromiseOrVoid<undefined>;
 
   /**
    * Run the given function with before/after observers.
@@ -172,9 +174,9 @@ export interface ObserverMixin {
    * @callback {Function} callback The callback function
    * @returns {*}
    */
-  notifyObserversAround(
+  notifyObserversAround<T extends typeof ModelBase>(
     operation: string,
-    context: object,
+    context: OperationHookContext<T>,
     fn: Function,
     callback?: Callback,
   ): PromiseOrVoid;

@@ -14,7 +14,7 @@ import {ModelUtilsOptions} from './model-utils';
  */
 export type PropertyType =
   | 'GeoPoint'
-  | 'Point' // Legacy carry-over from JugglingDB. Alias of `GeoPoint`.`
+  | 'Point' // Legacy carry-over from JugglingDB. Alias of `GeoPoint`.
   | string
   | Function
   | {[property: string]: PropertyType};
@@ -82,6 +82,31 @@ export interface ModelProperties {
   [name: string]: PropertyDefinition
 }
 
+export interface IndexDefinition {
+  name: string;
+  /**
+   * Comma-separated column names
+   *
+   * @remarks
+   * Handled by {@link Connector}s directly by default.
+   *
+   * Overriden by {@link ModelSettings.indexes.keys}.
+   */
+  columns: string;
+  /**
+   * Array of column names to create an index.
+   *
+   * @remarks
+   * Handled by {@link Connector}s directly by default.
+   *
+   * Overrides {@link ModelSettings.indexes.columns}.
+   */
+  keys: string[];
+  // Postgresql-specific
+  type: string;
+  kind: string;
+}
+
 /**
  * Model settings, for example
  * ```ts
@@ -103,7 +128,7 @@ export interface ModelSettings extends AnyObject, ModelUtilsOptions {
    * Defaults to `true`.
    */
   idInjection?: boolean;
-  
+
   plural?: string;
 
   http?: {
@@ -123,38 +148,14 @@ export interface ModelSettings extends AnyObject, ModelUtilsOptions {
   excludeBaseProperties?: string[];
 
   /**
-   * Indicates if the {@link ModelBaseClass | Model} is attached to the DataS
+   * Indicates if the {@link ModelBaseClass | Model} is attached to the
+   * DataSource
    * @internal
    */
   unresolved?: boolean;
 
   indexes?: {
-    [indexJugglerName: string]: {
-      name: string;
-      /**
-       * Comma-separated column names
-       * 
-       * @remarks
-       * Handled by {@link Connector}s directly by default.
-       * 
-       * Overriden by {@link ModelSettings.indexes.keys}.
-       */
-      columns: string;
-
-      /**
-       * Array of column names to create an index.
-       * 
-       * @remarks
-       * Handled by {@link Connector}s directly by default.
-       * 
-       * Overrides {@link ModelSettings.indexes.columns}.
-       */
-      keys: string[];
-
-      // Postgresql-specific
-      type: string;
-      kind: string;
-    }
+    [indexJugglerName: string]: IndexDefinition
   };
 
   foreignKeys?: {
@@ -186,39 +187,39 @@ export interface ModelSettings extends AnyObject, ModelUtilsOptions {
 
   /**
    * Model properties to be set as protected.
-   * 
+   *
    * @remarks
    * Protected properties are not serialised to JSON or {@link object} when the
    * model is a nested child.
-   * 
+   *
    * Mostly used by {@link ModelBase.toObject}.
    */
   protectedProperties?: string[];
 
   /**
    * {@inheritDoc ModelSettings.protectedProperties}
-   * 
+   *
    * @remarks
    * Overriden by {@link ModelSettings.protectedProperties}.
-   * 
+   *
    * @deprecated Use {@link ModelSettings.protectedProperties} instead.
    */
   protected?: string[];
 
   /**
    * Model properties to be set as hidden.
-   * 
+   *
    * @remarks
    * Hidden properties are
    */
   hiddenProperties?: string[];
 
-  /** 
+  /**
    * {@inheritDoc ModelSettings.hiddenProperties}
-   * 
+   *
    * @remarks
    * Overriden by {@link ModelSettings.hiddenProperties}.
-   * 
+   *
    * @deprecated Use {@link ModelSettings.hiddenProperties} instead.
    */
   hidden?: string[];
@@ -229,11 +230,11 @@ export interface ModelSettings extends AnyObject, ModelUtilsOptions {
   /**
    * Sets if an {@link Error} should be thrown when no instance(s) were found
    * for delete operation.
-   * 
+   *
    * @remarks
-   * 
+   *
    * This setting is used by these operations:
-   * 
+   *
    * - {@link DataAccessObject.removeById}/{@link DataAccessObject.destroyById}/{@link DataAccessObject.deleteById}
    * - {@link DataAccessObject.remove}/{@link DataAccessObject.delete}/{@link DataAccessObject.destroy}
    */
@@ -285,6 +286,47 @@ export interface ModelBaseClassOptions {
   applySetters?: boolean;
   applyDefaultValues?: boolean;
   strict?: boolean;
+  persisted?: boolean;
+}
+
+interface ModelMergePolicy {
+  description?: {
+    replace: boolean;
+  };
+  properties?: {
+    patch: boolean;
+  }; // Only referenced in "legacy built-in merge policy"
+  options?: {
+    path: boolean;
+  };
+  hidden?: {
+    replace: boolean;
+  };
+  protected?: {
+    replace: boolean;
+  };
+  indexes?: {
+    patch: boolean;
+  };
+  methods?: {
+    patch: boolean;
+  };
+  mixins?: {
+    patch: boolean;
+  };
+  relations?: {
+    patch: boolean;
+  };
+  scope?: {
+    replace: boolean;
+  };
+  acls?: {
+    rank: boolean;
+  };
+  __delete?: boolean | null;
+  __default?: {
+    replace: boolean;
+  };
 }
 
 /**
@@ -299,7 +341,7 @@ export declare class ModelBase {
 
   /**
    * Initializes the model instance with a list of properties.
-   * 
+   *
    * @param data The data object
    * @param options Instation options
    */
@@ -348,15 +390,15 @@ export declare class ModelBase {
 
   /**
    * Checks if property is hidden.
-   * @param {string} propertyName Property name
-   * @returns {Boolean} true or false if hidden or not.
+   * @param propertyName Property name
+   * @returns true or false if hidden or not.
    */
   static isHiddenProperty(propertyName: string): boolean;
 
   /**
    * Checks if property is protected.
-   * @param {string} propertyName Property name
-   * @returns  {Boolean} true or false if protected or not.
+   * @param propertyName Property name
+   * @returns true or false if protected or not.
    */
   static isProtectedProperty(propertyName: string): boolean;
 
@@ -423,6 +465,10 @@ export declare class ModelBase {
 
   getDataSource(): DataSource;
 
+  /**
+   * Set instance-level strict mode.
+   * @param strict Strict mode
+   */
   setStrict(strict: boolean): void;
 
   /**
@@ -523,21 +569,7 @@ export declare class ModelBase {
 
   getMergePolicy(options: {
     configureModelMerge: boolean | object
-  }): {
-    description?: {replace: boolean};
-    properties?: {patch: boolean}; // Only referenced in "legacy built-in merge policy"
-    options?: {path: boolean};
-    hidden?: {replace: boolean};
-    protected?: {replace: boolean};
-    indexes?: {patch: boolean};
-    methods?: {patch: boolean};
-    mixins?: {patch: boolean};
-    relations?: {patch: boolean};
-    scope?: {replace: boolean};
-    acls?: {rank: boolean};
-    __delete?: boolean | null;
-    __default?: {replace: boolean};
-  }
+  }): ModelMergePolicy
 }
 
 export type ModelBaseClass = typeof ModelBase;

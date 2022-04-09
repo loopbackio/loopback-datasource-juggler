@@ -4,7 +4,7 @@
 // License text available at https://opensource.org/licenses/MIT
 
 import {AnyObject, Callback, Options} from './common';
-import {Connector} from './connector';
+import {BuiltConnector, Connector} from './connector';
 import {
   ModelBaseClass,
   ModelBuilder,
@@ -13,7 +13,8 @@ import {
 } from './model';
 import {EventEmitter} from 'events';
 import {IsolationLevel, Transaction} from './transaction-mixin';
-import { ColumnMetadata, ConnectorSettings, ModelBase, ModelSettings } from '..';
+import { ColumnMetadata, ConnectorSettings, ModelBase, ModelSettings, PersistedModel } from '..';
+import { PersistedModelClass } from './persisted-model';
 
 export type OperationOptions = {
   accepts: string[],
@@ -28,8 +29,20 @@ export type DiscoverAndBuildModelsOptions = Options & {
   base: ModelBaseClass,
 }
 
+export function DataSource<CT extends Connector = Connector>(name: string, settings?: ConnectorSettings, modelBuilder?: ModelBuilder): DataSource;
+
+export function DataSource<CT extends Connector>(settings?: ConnectorSettings, modelBuilder?: ModelBuilder): DataSource;
+
+export function DataSource<CT extends Connector>(
+  connectorModule: CT,
+  settings?: Omit<ConnectorSettings, 'adapter' | 'connector'>,
+  modelBuilder?: ModelBuilder,
+): DataSource<CT>;
+
 /**
  * LoopBack models can manipulate data via the DataSource object.
+ *
+ * @remarks
  * Attaching a `DataSource` to a `Model` adds instance methods and static methods to the `Model`.
  *
  * Define a data source to persist model data.
@@ -57,21 +70,21 @@ export type DiscoverAndBuildModelsOptions = Options & {
  * });
  * ```
  * @class DataSource
- * @param {String} [name] Optional name for datasource.
+ * @param name Optional name for datasource.
  * @options {Object} settings Database-specific settings to establish connection (settings depend on specific connector).
  * The table below lists a typical set for a relational database.
- * @property {String} connector Database connector to use.  For any supported connector, can be any of:
+ * @property connector Database connector to use.  For any supported connector, can be any of:
  *
  * - The connector module from `require(connectorName)`.
  * - The full name of the connector module, such as 'loopback-connector-oracle'.
  * - The short name of the connector module, such as 'oracle'.
  * - A local module under `./connectors/` folder.
- * @property {String} host Database server host name.
- * @property {String} port Database server port number.
- * @property {String} username Database user name.
- * @property {String} password Database password.
- * @property {String} database Name of the database to use.
- * @property {Boolean} debug Display debugging information. Default is false.
+ * @property host Database server host name.
+ * @property port Database server port number.
+ * @property username Database user name.
+ * @property password Database password.
+ * @property database Name of the database to use.
+ * @property debug Display debugging information. Default is false.
  *
  * The constructor allows the following styles:
  *
@@ -88,44 +101,44 @@ export type DiscoverAndBuildModelsOptions = Options & {
  *   - new DataSource(connectorModule, {name: 'myDataSource})
  *   - new DataSource(connectorModule)
  */
-export declare class DataSource extends EventEmitter {
+export declare class DataSource<CT extends Connector = Connector> extends EventEmitter {
   name: string;
   settings: ConnectorSettings;
 
   initialized?: boolean;
   connected?: boolean;
   connecting?: boolean;
-  
+
   /**
    * {@inheritDoc DataSource.connector}
    * @deprecated Use {@link DataSource.connector} instead.
    */
-  adapter?: Connector;
+  adapter?: BuiltConnector & CT;
 
   /**
    * Connector instance.
    */
-  connector?: Connector;
+  connector?: BuiltConnector & CT;
 
   modelBuilder: ModelBuilder;
 
-  models: Record<string, typeof ModelBase>;
-  
+  models: Record<string, ModelBaseClass>;
+
   definitions: {[modelName: string]: ModelDefinition};
-  
+
   DataAccessObject: AnyObject & {prototype: AnyObject};
-  
+
   pendingConnectCallbacks?: Callback[];
 
   /**
    * Log benchmarked message.
-   * 
+   *
    * @remarks
    * This class method is defined as the attached connector's
    * {@link Connector.log | log} class method.
-   * 
-   * @param sql 
-   * @param t Start time 
+   *
+   * @param sql
+   * @param t Start time
    */
   private log(sql: string, t: number): void;
 
@@ -136,7 +149,7 @@ export declare class DataSource extends EventEmitter {
   operations(): Record<string, OperationOptions>;
 
   defineOperation(name: string, options: OperationOptions, fn: Function): void;
-  
+
   /**
    * @deprecated For LoopBack 3 only.
    */
@@ -149,7 +162,7 @@ export declare class DataSource extends EventEmitter {
 
   /**
    * Default global maximum number of event listeners.
-   * 
+   *
    * @remarks
    * This default can be overriden through
    * {@link ConnectorSettings.maxOfflineRequests}.
@@ -157,7 +170,7 @@ export declare class DataSource extends EventEmitter {
   static DEFAULT_MAX_OFFLINE_REQUESTS: number;
 
   /**
-   * A hash-map of the different relation types.
+   * A map of the different relation types.
    */
   static relationTypes: Record<string, string>;
 
@@ -167,7 +180,7 @@ export declare class DataSource extends EventEmitter {
 
   constructor(
     connectorModule: Connector,
-    settings?: ConnectorSettings,
+    settings?: Omit<ConnectorSettings, 'adapter' | 'connector'>,
     modelBuilder?: ModelBuilder,
   );
 
@@ -177,10 +190,21 @@ export declare class DataSource extends EventEmitter {
   private _setupConnector();
 
   private mixin<T extends object>(ModelCtor: T): T
-  
+
+  /**
+   * Set up the data access functions from the data source. Each data source
+   * will expose a data access object (DAO), which will be mixed into the
+   * modelClass.
+   *
+   * @param modelClass The model class that will receive DAO mixins.
+   * @param settings The settings object; typically allows any settings that
+   * would be valid for a typical Model object.
+   */
+  setupDataAccess(modelClass: ModelBaseClass, options?: ModelSettings): asserts modelClass is PersistedModelClass;
+
   /**
    * Get the maximum number of event listeners
-   * 
+   *
    * @remarks
    * Defaults to {@link DataSource.DEFAULT_MAX_OFFLINE_REQUESTS} if not explicitly
    * configured in {@link ConnectorSettings.maxOfflineRequests}.
@@ -190,7 +214,7 @@ export declare class DataSource extends EventEmitter {
   // Reason for deprecation is not clear.
   /**
    * {@inheritDoc Connector.getTypes}
-   * @deprecated
+   * @deprecated Use {@link DataSource.supportTypes} instead.
    */
   getTypes(): string[];
 
@@ -202,7 +226,7 @@ export declare class DataSource extends EventEmitter {
 
   /**
    * Returns if the attached connector is relational.
-   * 
+   *
    * @returns If the attached connector is relational; `undefined` if no
    * connector is attached.
    */
@@ -210,22 +234,22 @@ export declare class DataSource extends EventEmitter {
 
   /**
    * Freeze the DataSource.
-   * 
+   *
    * @remarks
    * Behaviour is connector-dependent.
-   * 
+   *
    * This may be used to continuously add artifacts to datasource until it is
    * frozen, but historically it is not really used in LoopBack.
-   * 
+   *
    * If implemented by the connector, the following connector methods are
    * called:
-   * 
+   *
    * - {@link Connector.freezeDataSource}
    * - {@link Connector.freezeSchema}
-   * 
+   *
    * This is typically called by other DataSource methods (including but not
    * limited to):
-   * 
+   *
    * - {@link DataSource.automigrate}
    * - {@link DataSource.autoupdate}
    * - {@link DataSource.discoverModelDefinitions}
@@ -244,7 +268,7 @@ export declare class DataSource extends EventEmitter {
 
   /**
    * Return the table name for the specified `modelName`.
-   * 
+   *
    * @param modelName Target model name
    * @returns The table name
    */
@@ -252,7 +276,7 @@ export declare class DataSource extends EventEmitter {
 
   /**
    * Retrieve the column name for the specified `modelName` and `propertyName`.
-   * 
+   *
    * @param modelName Target model name
    * @param propertyName Target property name
    * @returns The column name
@@ -261,15 +285,15 @@ export declare class DataSource extends EventEmitter {
 
   /**
    * Retrieve the column names for the specified `modelName`.
-   * 
+   *
    * @param modelName Target model name
    * @returns Column names
    */
-  columnNames(modelName: string): string;
+  columnNames(modelName: string): string[];
 
   /**
    * Retrieve coulmn metadata for the specified `modelName` and `propertyName`.
-   * 
+   *
    * @param modelName Target model name
    * @param propertyName Target property name
    * @returns Column metadata
@@ -278,11 +302,11 @@ export declare class DataSource extends EventEmitter {
 
   /**
    * Retrieve the ID property name for a model.
-   * 
+   *
    * @remarks
    * This method will only return the first ID from models with multiple IDs.
    * Use {@link DataSource.idNames} instead.
-   * 
+   *
    * @param modelName Target model name
    * @returns ID property name
    */
@@ -290,7 +314,7 @@ export declare class DataSource extends EventEmitter {
 
   /**
    * Retrieve the ID property names sorted by their index.
-   * 
+   *
    * @param modelName Target model name
    * @returns Property names for IDs
    */
@@ -298,7 +322,7 @@ export declare class DataSource extends EventEmitter {
 
   /**
    * Retrieve the ID property definition.
-   * 
+   *
    * @param modelName Target model name
    * @returns The ID property definition
    */
@@ -306,7 +330,7 @@ export declare class DataSource extends EventEmitter {
 
   /**
    * Define a foreign key to another model.
-   * 
+   *
    * @remarks
    * If the attached {@link Connector} does not implement
    * {@link Connector.defineForeignKey}, this function will fallback to defining
@@ -314,7 +338,7 @@ export declare class DataSource extends EventEmitter {
    * this feature depends on the connector's implementation. This means a
    * database-level foreign key is not guaranteed. Please refer to the
    * respective connector's documentation.
-   * 
+   *
    * @param className The model name that owns the key
    * @param key Name of key field
    * @param foreignClassName Foreign model name
@@ -344,11 +368,19 @@ export declare class DataSource extends EventEmitter {
    * Look up a model class by name
    * @param modelName Model name
    * @param forceCreate A flag to force creation of a model if not found
+   *
+   * @deprecated
    */
   getModel(
     modelName: string,
     forceCreate?: boolean,
   ): ModelBaseClass | undefined;
+
+  /**
+   * @param name Model name
+   * @returns Definition for the Model of that name
+   */
+  getModelDefinition(name: string): ModelDefinition;
 
   /**
    * Remove a model from the registry.
@@ -365,11 +397,11 @@ export declare class DataSource extends EventEmitter {
 
   /**
    * Attach an existing model to a data source.
-   * 
+   *
    * @remarks
    * This will mixin all of the data access object functions (DAO) into your
    * modelClass definition.
-   * 
+   *
    * @param modelClass The model constructor that will be
    * enhanced by DataAccessObject mixins.
    */
@@ -524,8 +556,16 @@ export declare class DataSource extends EventEmitter {
     tableName: string,
     options: Options,
     callback: Callback<AnyObject[]>,
-  ): void; 
+  ): void;
 
+  /**
+   * Introspect a JSON object and build a model class.
+   *
+   * @param name Name of the model
+   * @param json The JSON object representing a model instance
+   * @param options Options
+   * @returns A {@link Model} class
+   */
   buildModelFromInstance(
     modelName: string,
     jsonObject: AnyObject,
@@ -553,7 +593,7 @@ export declare class DataSource extends EventEmitter {
   /**
    * An alias for {@link DataSource.disconnect} to allow this datasource to be
    * an LB4 life-cycle observer
-   * 
+   *
    * @remarks
    * A `.start()` equivalent was deliberately not provided as the logic for
    * establishing connection(s) is more complex and is usually statred
@@ -563,7 +603,7 @@ export declare class DataSource extends EventEmitter {
 
   /**
    * Ping the underlying connector to test the connections.
-   * 
+   *
    * @remarks
    * If {@link Connector.ping} is not implemented,
    * {@link Connector.discoverModelProperties} is used instead. Otherwise, an

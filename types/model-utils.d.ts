@@ -4,7 +4,7 @@ import type {ModelSettings} from './model';
 
 /**
  * Settings made available by {@link ModelUtils} mixin.
- * 
+ *
  * @remarks
  * When the mixin is applied, these options can be set in
  * {@link DataAccessObject} query method-level options, {@link ModelSettings},
@@ -19,4 +19,8 @@ export interface ModelUtilsOptions {
     maxDepthOfQuery?: number;
     maxDepthOfData?: number;
     prohibitHiddenPropertiesInQuery?: boolean;
+
+    // Cassandra-specific
+    clusteringKeys?: string[]
+    // END Cassandra-specific
 }

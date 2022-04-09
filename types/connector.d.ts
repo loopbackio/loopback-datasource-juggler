@@ -3,29 +3,78 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import { AnyObject } from 'strong-globalize/lib/config';
+import { AnyObject } from './common';
 import {Callback, DataSource, Filter, ModelBase, ModelBaseClass, ModelDefinition, ModelProperties, Options, PromiseOrVoid, PropertyDefinition, PropertyType, Schema, Where} from '..';
+import { DataAccessObject } from './dao';
+import { ObserverMixin, OperationHookContext } from './observer-mixin';
+import { IndexDefinition, ModelData } from './model';
+import { ModelUtilsOptions } from './model-utils';
 
 export interface ConnectorSettings extends Options {
   name?: string;
   /**
    * Overrides {@link ConnectorSettings.adapter} if defined.
    */
-  connector?: ConnectorStatic | string;
+  connector?: ConnectorExport | string;
   /**
    * @deprecated Use {@link ConnectorSettings.connector} instead.
    */
-  adapter?: ConnectorStatic | string;
-  database: string;
+  adapter?: ConnectorExport | string;
+  database?: string;
   connectionTimeout?: number;
   maxOfflineRequests?: number;
   lazyConnect?: boolean;
   debug?: boolean;
 
+  url?: string;
+  username?: string;
+  password?: string;
+
   // Postgres-specific
   defaultIdSort?: boolean | 'numericIdOnly';
   onError?: (err: Error | unknown) => unknown | 'ignore';
   // END Postgres-specific
+
+  // MySQL-specific
+  createDatabase?: boolean;
+  /**
+    * @defaultValue `'utf8_general_ci'`
+    **/
+  charset?: string;
+  collation?: string;
+  /**
+    * @defaultValue `false`
+    **/
+  supportBigNumbers?: boolean;
+  /**
+    * @defaultValue `'local'`
+    **/
+  timezone?: string;
+  /**
+    * @defaultValue `10`
+    **/
+  connectionLimit?: number;
+  // END MySQL-specific
+
+  // MSSQL-specific
+  tableNameID?: string
+  // END MSSQL-specific
+
+  // CouchDB2-specific
+  Driver?: object // CouchDB driver
+  // END CouchDB2-specific
+
+  // Cassandra-specific
+  keyspace?: string;
+  createKeyspace?: boolean;
+  replication?: {
+    /**
+     * @example `'SimpleStrategy'`
+     */
+    class: string,
+    replication_factor: number,
+  }
+  // END Cassandra-specific
 }
 
 export interface IDPropertiesDiscoveryOptions {
@@ -42,7 +91,6 @@ export interface DiscoveryScopeOptions {
 }
 
 export interface SchemaDiscoveryOptions {
-
   /**
    * Sets if all owners are included.
    */
@@ -55,19 +103,19 @@ export interface SchemaDiscoveryOptions {
 
   /**
    * Sets if the database foreign key column names should be transformed.
-   * 
+   *
    * @remarks
    * Used by the default built-in {@link NameMapper} implementation to transform
    * the database column names to use camel-case, LoopBack's default naming
    * conventions.
-   * 
+   *
    * @defaultValue `false`
    */
   disableCamelCase?: boolean;
 
   /**
    * A custom database table name, model, and foreign key transformer.
-   * 
+   *
    * @remarks
    * If `null`, no transform is performed.
    * If `undefined`, default built-in transformer is used.
@@ -76,7 +124,7 @@ export interface SchemaDiscoveryOptions {
 
   /**
    * Sets if associations/relations should be navigated.
-   * 
+   *
    * @remarks
    * Alias of {@link SchemaDiscoveryOptions.relations}
    */
@@ -84,7 +132,7 @@ export interface SchemaDiscoveryOptions {
 
   /**
    * Sets if associations/relations should be navigated.
-   * 
+   *
    * @remarks
    * Alias of {@link SchemaDiscoveryOptions.associations}.
    */
@@ -99,7 +147,7 @@ export type NameMapper = (type: 'table' | 'model' | 'fk' | string, name: string)
 export interface BuildQueryOptions {
   /**
    * Build a query to search tables/views/schemas from any owner.
-   * 
+   *
    * @remarks
    * Ignored when {@link BuildQueryOptions.owner} or
    * {@link BuildQueryOptions.schema} is defined.
@@ -107,7 +155,7 @@ export interface BuildQueryOptions {
   all?: boolean,
   /**
    * Filter query to a certain table/view/schema owner.
-   * 
+   *
    * @remarks
    * Overrides {@link BuildQueryOptions.all} when defined.
    * Alias of {@link BuildQueryOptions.schema} with higher precedence.
@@ -175,50 +223,86 @@ export interface ConnectorHookBeforeExecuteContext {
 export interface ConnectorHookAfterExecuteContext extends ConnectorHookBeforeExecuteContext {
   res: Record<string, unknown>;
 }
+
+interface ConnectorMetadata {
+  types: string[];
+  defaultIdType: object;
+  isRelational: boolean;
+  schemaForSettings: Record<string, any>;
+}
+
 /**
  * Connector from `loopback-connector` module
  */
 export interface Connector {
   name: string; // Name/type of the connector
 
+  DataAccessObject?: DataAccessObject;
+
   /**
-   * @internal
+   * The {@link DataSource} which the Connector is/will attach to.
+   *
+   * @remarks
+   * In most cases, the Connector does not need to pre-populate this and this
+   * will be set by the {@link DataSource} itself.
+   *
+   * By pre-populating this field before initialisation, it is assumed that the
+   * Connector would handle setting up the DataSource.
    */
-  _models?: Record<string, ModelBaseClass>;
+  dataSource?: DataSource;
+
+  relational: boolean;
+
+  // private _models?: Record<string, ModelBaseClass>;
+  // private _metadata?: ConnectorMetadata;
+
   connect?(callback?: Callback): PromiseOrVoid; // Connect to the underlying system
   disconnect?(callback?: Callback): PromiseOrVoid; // Disconnect from the underlying system
 
   /**
    * Ping the underlying connector to test the connections.
-   * 
+   *
    * @remarks
    * Unlike {@link DataSource.ping}, if no callback is provided, a
    * {@link Promise} return value is not guaranteed.
-   * 
+   *
    * @param callback Callback function
-   * @returns a {@link Promise} or `void`
+   * @returns `Promise<void>` if no callback is passed. Otherwise, `void`
    */
   ping?(callback?: Callback): PromiseOrVoid; // Ping the underlying system
   execute?(...args: any[]): Promise<any>;
 
   /**
    * Get the connector's types collection.
-   * 
+   *
    * @remarks
    * For example, ['db', 'nosql', 'mongodb'] would be represent a datasource of
    * type 'db', with a subtype of 'nosql', and would use the 'mongodb' connector.
    *
    * Alternatively, ['rest'] would be a different type altogether, and would have
    * no subtype.
-   * 
+   *
    * @returns The connector's type collection.
    */
   getTypes?(): string[];
   define?(def: {model: ModelBaseClass, properties: PropertyDefinition, settings: ModelDefinition['settings']}): void;
 
+  all?(model: string, filter: Filter, options: ModelUtilsOptions | null, cb: Callback<ModelData[]>): void;
+  findAll?: Connector['all'];
+  find?(model: string, value: unknown, options: ModelUtilsOptions, cb: Callback<ModelData>): void;
+  count?(model: string, where: Where, options: ModelUtilsOptions, cb: Callback<number>): void;
+
+  serializeObject?(obj: object): unknown;
+  escapeObject?(obj: object): unknown;
+  escapeValue?(obj: object): unknown | null;
+  getTableStatus?(model: string, cb: (err: any, fields?: PropertyDefinition, indexes?: IndexDefinition) => void): void;
+
+  fromDatabase?(model: string, rowData: object): ModelData;
+  fromRow?: Connector['fromDatabase'];
+
   /**
    * Define a property on the target model.
-   * 
+   *
    * @param model Name of model
    * @param prop Name of property
    * @param params Property settings
@@ -226,7 +310,7 @@ export interface Connector {
   defineProperty?(model: string, prop: string, params: PropertyDefinition): void;
   defineForeignKey?(modelName: string, key: string, foreignModelName: string, cb: Callback<PropertyType>): void;
   defineForeignKey?(modelName: string, key: string, cb: Callback<PropertyType>): void;
-  
+
   getDefaultIdType(): object;
   isRelational(): boolean;
 
@@ -236,14 +320,102 @@ export interface Connector {
   buildQueryColumns?(owner: string | null, table: string): string;
   buildQueryForeignKeys?(owner?: string, table?: string): string;
   buildQueryExportedForeignKeys?(owner?: string, table?: string): string;
+  buildColumnDefinitions?(model: string): string;
+  propertiesSQL: Connector['buildColumnDefinitions']; // Postgresql-specific
 
-  setDefaultOptions?(options: Options): Options;
+  createTable?(model: string, cb: Callback): void;
+  alterTable?(model: string, actualFields: PropertyDefinition[], actualIndexes: IndexDefinition[], cb: Callback): void;
+  dropTable?(model: string, cb: Callback): void;
+  /**
+   * Generate SQL statement to add and remove indexes to sync with database.
+   *
+   * @param model
+   * @param actualIndexes
+   */
+  addIndexes?(model: string, actualIndexes: IndexDefinition[]): void;
+  showIndexes?(model: string, cb: Callback<IndexDefinition[]>): void;
+  showFields?(model: string, cb: Callback<PropertyDefinition[]>): void;
+  /**
+   *
+   * @param model
+   * @param actualFields
+   * @returns Array of SQL statement
+   */
+  getColumnsToAdd?(model: string, actualFields: PropertyDefinition[]): string[];
+  getDropColumns?(model: string, actualFields: PropertyDefinition[]): string;
+  getColumnsToDrop?(model: string, actualFields: PropertyDefinition[]): string[];
+
+  /**
+   *
+   * @remarks
+   * This is a thin wrapper around {@link Connector.getColumnsToAdd}.
+   *
+   * @param model
+   * @param actualFields
+   * @returns SQL statement
+   */
+  getAddModifyColumns?(model: string, actualFields: PropertyDefinition[]): string;
+
+  /**
+   * Mutate `options` parameter to populate missing options with default values
+   *
+   * @param options Connector-specific options to be populated
+   */
+  setDefaultOptions?(options: Options): Options | void;
   setNullableProperty?(property: PropertyDefinition): void;
-  getDefaultSchema?(options?: Options): string | undefined;
+
+  /**
+   * Normalize the arguments
+   *
+   * @returns Normalized arguments
+   */
+  getArgs?(table: string, options?: Options, cb?: Callback): {
+    schema: string,
+    owner: string,
+    table: string,
+    options?: Options,
+    cb: Callback,
+  };
+
+  getArgs?(table: string, cb?: Callback): {
+    schema: string,
+    owner: string,
+    table: string,
+    options?: Options,
+    cb: Callback,
+  };
+
+  /**
+   * Modify the SQL statement to include pagination clauses.
+   *
+   * @param sql The SQL statement to be modified
+   * @param orderBy The property name by which results are ordered
+   * @param options Options for pagination
+   */
+  paginateSQL?(sql: string, orderBy: string, options: Pick<Filter, 'offset' | 'skip' | 'limit'>): string;
+
+  /**
+   * Discover the default target database schema.
+   *
+   * @param options
+   * @returns Name of the database schema that will be targeted by default
+   */
+  getDefaultSchema?(options?: Options): string | undefined | '';
+
+  /**
+   * Retrieve the default target database schema.
+   *
+   * @remarks
+   * This is based on locally-available information, such as
+   * {@link ConnectorSettings['database']}.
+   *
+   * @returns Name of the database schema that will be targeted by default
+   */
+  getDefaultSchemaName?(): string | '';
 
   /**
    * Discover existing database tables.
-   * 
+   *
    * @param options Discovery options
    * @param cb Callback function
    */
@@ -257,12 +429,13 @@ export interface Connector {
 
   /**
    * Discover properties for a given model.
-   * 
+   *
    * @param modelName Target table/view name
    * @param options Discovery options
    * @param cb Callback function
    */
   discoverModelProperties?(modelName: string, options: DiscoveryScopeOptions, cb: Callback<DiscoveredModelProperties>): Promise<DiscoveredModelProperties>;
+
   /**
    * {@inheritDoc Connector.discoverModelProperties}
    * @deprecated
@@ -271,7 +444,7 @@ export interface Connector {
 
   /**
    * Discover primary keys for a given owner/model name.
-   * 
+   *
    * @param modelName Target model name
    * @param options Discovery options
    * @param cb Callback function
@@ -286,7 +459,7 @@ export interface Connector {
 
   /**
    * Discover foreign keys for a given owner/model name.
-   * 
+   *
    * @param modelName Target model name
    * @param options Discovery options
    * @param cb Callback function
@@ -302,7 +475,7 @@ export interface Connector {
    * Retrieve a description of the foreign key columns that reference the given
    * table's primary key columns (i.e. The foreign keys exported by a table),
    * ordered by `fkOwner`, `fkTableName`, and `keySeq`.
-   * 
+   *
    * @param modelName Target model name
    * @param options Discovery options
    * @param cb Callback function
@@ -317,19 +490,19 @@ export interface Connector {
 
   /**
    * Discover schema from a given table name / view name.
-   * 
+   *
    * @param tableName Target table name
    * @param options Discovery options
    * @param cb Callback function
    */
-  discoverSchemas(tableName: string, options: SchemaDiscoveryOptions, cb: Callback<Schema>): Promise<Schema>;
+  discoverSchemas?(tableName: string, options: SchemaDiscoveryOptions, cb: Callback<Schema>): Promise<Schema>;
 
   /**
    * Check whether or not migrations are required for the database schema to match
    * the model definitions attached to the {@link DataSource}.
-   * 
+   *
    * @param models Name of models to check. If not defined, all models are checked.
-   * @param cb 
+   * @param cb
    */
   isActual?(models?: string | string[], cb?: Callback<boolean>): void;
 
@@ -340,7 +513,7 @@ export interface Connector {
 
   /**
    * {@inheritDoc Connector.freezeDataSource}
-   * 
+   *
    * @remarks
    * This is kept for backwards-compatibility with JugglingDB connectors.
    * Connectors should implement {@link Connector.freezeDataSource}.
@@ -350,69 +523,59 @@ export interface Connector {
   /**
    * Normalize connector-specific return data into standardised Juggler context
    * data.
-   * 
+   *
    * @remarks
    * Depending on the connector, the database response can contain information
    * about the updated record(s). This object usually has a database-specific
    * structure and does not match model properties. For example, MySQL returns
    * `OkPacket: {fieldCount, affectedRows, insertId, ... , changedRows}`.
-   * 
+   *
    * The return value is normalised data.
-   * 
+   *
    * If the connector DDL and DML functions map directly to a hash-map of
    * model properties and their values, this function does not need to be
    * implemented.
-   * 
-   * @param context 
-   * @param dbResponse 
+   *
+   * @param context
+   * @param dbResponse
    */
   generateContextData?(context: Context, dbResponse: unknown): Context;
 
-  [property: string]: any; // Other properties that vary by connectors
+  generateUniqueId?(modelName?: string): unknown | null;
+  generateValueByColumnType?(idType: object): unknown;
+  getMetadata(): ConnectorMetadata;
 }
 
-export interface BuiltConnector extends Connector {
+export declare class SQLConnector {
+
+}
+
+/**
+ * A {@link Connector} after being attached to a {@link DataSource}.
+ *
+ * @remarks
+ * The {@link DataSource} manipulates the {@link Connector} during attachment
+ * (e.g. when passed in {@link DataSource.constructor}). This type defines those
+ * mutations.
+ */
+export interface BuiltConnector extends ObserverMixin {
+  // DataSource
   dataSource: DataSource;
   log: DataSource['log'];
   logger(query: string, start: number): (query: string) => void;
 }
 
 /**
- * Base connector class
- * 
- * @internal
+ * The interface that a connector must implement.
+ *
+ * @remarks
+ * As {@link Connector} is an interface and not a class, it's not possible to
+ * represent static methods. Hence, this is a workaround that has been generally
+ * accepted by the TypeScript community to define the interface of a
+ * prototype-based class.
  */
-export declare class ConnectorBase implements Connector {
-  name: string; // Name/type of the connector;
-  dataSource?: DataSource;
-  connect(callback?: Callback): PromiseOrVoid; // Connect to the underlying system
-  disconnect(callback?: Callback): PromiseOrVoid; // Disconnect from the underlying system
-  ping(callback?: Callback): PromiseOrVoid; // Ping the underlying system
-  execute?(...args: any[]): Promise<any>;
-
-  /**
-   * Initialize the connector against the given data source
-   *
-   * @param {DataSource} dataSource The dataSource
-   * @param {Function} [callback] The callback function
-   */
-  static initialize(dataSource: DataSource, callback?: Callback): void;
-
-  constructor(settings?: Options);
-  [property: string]: any;
-  _models?: Record<string, ModelBaseClass>;
-  getDefaultIdType(): object;
-  isRelational(): boolean;
-  discoverSchemas(tableName: string, options: SchemaDiscoveryOptions, cb: Callback<Schema>): Promise<Schema>;
+export declare interface ConnectorExport {
+  initialize: ConnectorInitialize;
 }
 
-export declare interface ConnectorStatic {
-  initialize(this: DataSource, callback: Callback): void;
-  new (settings: ConnectorSettings): Connector;
-}
-
-export declare class Memory extends ConnectorBase {}
-
-export declare class KeyValueMemoryConnector extends ConnectorBase {}
-
-export declare class Transient extends ConnectorBase {}
+export type ConnectorInitialize = (this: DataSource, callback: Callback) => void;

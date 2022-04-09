@@ -1,5 +1,7 @@
 import { Options } from "..";
 
+export declare class DataAccessObject {}
+
 export interface DaoDmlOptions extends Options {
     validate?: boolean;
     notify?: boolean;
