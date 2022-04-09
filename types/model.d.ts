@@ -137,7 +137,7 @@ export interface ModelSettings extends AnyObject, ModelUtilsOptions {
 
   /**
    * @remarks
-   * Alias of {@link ModelSettings.super}. Takes lower precedence.
+   * Alias of {@link ModelSettings.super}. Takes higher precedence.
    */
   base?: ModelBaseClass;
   /**
@@ -240,7 +240,7 @@ export interface ModelSettings extends AnyObject, ModelUtilsOptions {
    */
   strictDelete?: boolean;
 
-  updatOnly?: boolean;
+  updateOnly?: boolean;
 
   // Postgres-specific
   defaultIdSort?: boolean | 'numericIdOnly';

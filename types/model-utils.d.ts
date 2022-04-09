@@ -19,6 +19,7 @@ export interface ModelUtilsOptions {
     maxDepthOfQuery?: number;
     maxDepthOfData?: number;
     prohibitHiddenPropertiesInQuery?: boolean;
+    normalizeUndefinedInQuery?: boolean;
 
     // Cassandra-specific
     clusteringKeys?: string[]
