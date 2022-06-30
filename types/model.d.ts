@@ -6,7 +6,7 @@
 import {EventEmitter} from 'events';
 import {AnyObject, Options} from './common';
 import {DataSource} from './datasource';
-import {Listener, OperationHookContext} from './observer-mixin';
+import {Listener, OperationHookContext} from './observer';
 import {ModelUtilsOptions} from './model-utils';
 
 /**
@@ -29,13 +29,48 @@ export interface PropertyDefinition extends AnyObject {
   id?: boolean | number;
   defaultFn?: DefaultFns;
   useDefaultIdType?: boolean;
-  columnName?: string;
+  /**
+   * Sets the column/field name in the database.
+   *
+   * @remarks
+   * Precedence:
+   * - {@link PropertyDefinition.name}
+   * - {@link PropertyDefinition.column}
+   * - {@link PropertyDefinition.columnName}
+   * - {@link PropertyDefinition.field}
+   * - {@link PropertyDefinition.fieldName}
+   */
+  name?: string;
+  /**
+   * {@inheritDoc PropertyDefinition.name}
+   */
   column?: string;
+  /**
+   * {@inheritDoc PropertyDefinition.name}
+   */
+  columnName?: string;
+  /**
+   * {@inheritDoc PropertyDefinition.name}
+   */
+  field?: string;
+  /**
+   * {@inheritDoc PropertyDefinition.name}
+   */
+  fieldName?: string
   dataType?: string;
   dataLength?: number;
   dataPrecision?: number;
   dataScale?: number;
+  index?: boolean | string | IndexDefinition;
   nullable?: 'Y' | 'N';
+  /**
+   * @deprecated
+   */
+  null?: boolean;
+  /**
+   * @deprecated
+   */
+  allowNull?: boolean
   // PostgreSQL-specific?
   autoIncrement?: boolean;
 }
@@ -57,12 +92,6 @@ export interface IdDefinition {
   id: number;
   property: AnyObject;
 }
-
-/**
- * Index definition
- */
-export interface IndexDefinition extends AnyObject {}
-
 /**
  * Column metadata
  */
@@ -83,14 +112,23 @@ export interface ModelProperties {
 }
 
 export interface IndexDefinition {
-  name: string;
   /**
-   * Comma-separated column names
+   * @remarks
+   * This should not end with a trailing '_index' as this may lead to collisions
+   * with indexes defined through {@link PropertyDefinition.index}.
+   *
+   * If not set, the index name may be inferred from the object key which this
+   * index definition is stored in.
+   */
+  name?: string;
+
+  /**
+   * Comma-separated column names:
    *
    * @remarks
    * Handled by {@link Connector}s directly by default.
    *
-   * Overriden by {@link ModelSettings.indexes.keys}.
+   * Overriden by {@link IndexDefinition.keys}.
    */
   columns: string;
   /**
@@ -101,10 +139,13 @@ export interface IndexDefinition {
    *
    * Overrides {@link ModelSettings.indexes.columns}.
    */
-  keys: string[];
-  // Postgresql-specific
-  type: string;
-  kind: string;
+  keys?: string[];
+
+  type?: string;
+  kind?: string;
+  unique?: string;
+
+  options?: Record<string, any>;
 }
 
 /**
@@ -121,7 +162,14 @@ export interface ModelSettings extends AnyObject, ModelUtilsOptions {
   /**
    * Set if manual assignment of auto-generated ID values should be blocked.
    */
-  forceId?: boolean;
+  forceId?: boolean | 'auto';
+
+  properties?: ModelProperties;
+
+  /**
+   * @deprecated Use {@link ModelSettings.properties} instead.
+   */
+  attributes?: ModelProperties;
 
   /**
    * @remarks
@@ -135,14 +183,19 @@ export interface ModelSettings extends AnyObject, ModelUtilsOptions {
     path?: string;
   }
 
+  scope?: AnyObject | Function;
+
   /**
    * @remarks
    * Alias of {@link ModelSettings.super}. Takes higher precedence.
    */
   base?: ModelBaseClass;
+
   /**
    * @remarks
    * Alias of {@link ModelSettings.base}. Takes lower precedence.
+   *
+   * This is taken from the behaviour of {@link util#inherits}.
    */
   super?: ModelBaseClass;
   excludeBaseProperties?: string[];
@@ -277,7 +330,7 @@ export declare class ModelDefinition extends EventEmitter implements Schema {
     propertyName: string,
     propertyDefinition: PropertyDefinition,
   ): void;
-  indexes(): {[name: string]: IndexDefinition};
+  indexes(): {[name: string | `${string}_index`]: IndexDefinition | boolean};
   build(forceRebuild?: boolean): AnyObject;
   toJSON(forceRebuild?: boolean): AnyObject;
 }
@@ -323,21 +376,43 @@ interface ModelMergePolicy {
   acls?: {
     rank: boolean;
   };
+
   __delete?: boolean | null;
+
+  /**
+   * Default merge policy to be applied when merge policy is `null`
+   */
   __default?: {
     replace: boolean;
   };
+}
+
+interface ModelMergePolicyOptions {
+  configureModelMerge: boolean | object;
 }
 
 /**
  * Base class for LoopBack 3.x models
  */
 export declare class ModelBase {
+  /**
+   * @deprecated
+   */
   static dataSource?: DataSource;
   static modelName: string;
   static definition: ModelDefinition;
   static hideInternalProperties?: boolean;
   static readonly base: typeof ModelBase;
+
+  /**
+   * Model inheritance rank
+   *
+   * @remarks
+   * This is used by {@link ModelBuilder}.
+   *
+   * @internal
+   */
+  static __rank?: number;
 
   /**
    * Initializes the model instance with a list of properties.
@@ -567,9 +642,7 @@ export declare class ModelBase {
    */
   static clearObservers(operation: string): void;
 
-  getMergePolicy(options: {
-    configureModelMerge: boolean | object
-  }): ModelMergePolicy
+  getMergePolicy(options: ModelMergePolicyOptions): ModelMergePolicy
 }
 
 export type ModelBaseClass = typeof ModelBase;
@@ -577,13 +650,18 @@ export type ModelBaseClass = typeof ModelBase;
 export declare class ModelBuilder extends EventEmitter {
   static defaultInstance: ModelBuilder;
 
-  models: {[name: string]: ModelBaseClass};
+  models: {[name: string]: typeof ModelBase};
   definitions: {[name: string]: ModelDefinition};
-  settings: ModelSettings;
+  settings: {
+    /**
+     * @defaultValue `false`
+     */
+    strictEmbeddedModels?: boolean;
+  };
 
   defaultModelBaseClass: typeof ModelBase;
 
-  getModel(name: string, forceCreate?: boolean): ModelBaseClass;
+  getModel(name: string, forceCreate?: boolean): typeof ModelBase;
 
   getModelDefinition(name: string): ModelDefinition | undefined;
 

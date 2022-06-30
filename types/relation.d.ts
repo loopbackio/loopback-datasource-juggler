@@ -26,6 +26,24 @@ export enum RelationType {
   embedsMany = 'embedsMany',
 }
 
+export interface RelationDefinition {
+  name: string;
+  type: RelationType;
+  modelFrom: PersistedModelClass | string;
+  keyFrom: string;
+  modelTo: PersistedModelClass | string;
+  keyTo: string;
+  polymorphic: PersistedModelClass | boolean;
+  modelThrough?: PersistedModelClass | string;
+  keyThrough?: string;
+  multiple: boolean;
+  properties: AnyObject;
+  options: Options;
+  scope: AnyObject;
+  embed?: boolean;
+  methods?: AnyObject<Function>;
+}
+
 /**
  * Relation definition
  */
@@ -36,7 +54,7 @@ export declare class RelationDefinition {
   keyFrom: string;
   modelTo: PersistedModelClass | string;
   keyTo: string;
-  polymorphic: AnyObject | boolean;
+  polymorphic: PersistedModelClass | boolean;
   modelThrough?: PersistedModelClass | string;
   keyThrough?: string;
   multiple: boolean;
@@ -45,6 +63,8 @@ export declare class RelationDefinition {
   scope: AnyObject;
   embed?: boolean;
   methods?: AnyObject<Function>;
+
+  constructor(definition: AnyObject);
 
   toJSON(): AnyObject;
   defineMethod(name: string, fn: Function): Function;

@@ -30,7 +30,7 @@ export * from './types/persisted-model';
 export * from './types/scope';
 export * from './types/transaction-mixin';
 export * from './types/relation-mixin';
-export * from './types/observer-mixin';
+export * from './types/observer';
 export * from './types/validation-mixin';
 export * from './types/inclusion-mixin';
 export * from './types/connector';

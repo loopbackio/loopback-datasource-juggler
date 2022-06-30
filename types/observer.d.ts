@@ -23,7 +23,7 @@ export type Listener<Ctx = OperationHookContext<typeof ModelBase>> = (
   ctx: Ctx, next: (err?: any) => void
 ) => PromiseOrVoid<void>;
 
-export interface ObserverMixin {
+export declare class ObserverMixin {
   /**
    * @private
    */
@@ -57,8 +57,7 @@ export interface ObserverMixin {
    * `this` set to the model constructor, e.g. `User`.
    * @end
    */
-  observe<T extends typeof ModelBase>(
-    this: T,
+  static observe<T extends typeof ModelBase>(
     operation: string,
     listener: Listener<OperationHookContext<T>>,
   ): void;
@@ -78,7 +77,7 @@ export interface ObserverMixin {
    * @param operation The operation name.
    * @param listener The listener function.
    */
-  removeObserver<MT extends typeof ModelBase, LT extends Listener<OperationHookContext<MT>>>(
+  static removeObserver<MT extends typeof ModelBase, LT extends Listener<OperationHookContext<MT>>>(
     operation: string,
     listener: LT,
   ): LT | undefined;
@@ -96,7 +95,7 @@ export interface ObserverMixin {
    *
    * @param operation The operation name.
    */
-  clearObservers(operation: string): void;
+  static clearObservers(operation: string): void;
 
   /**
    * Invoke all async observers for the given operation(s).
@@ -124,13 +123,13 @@ export interface ObserverMixin {
    * @callback {function(Error=)} callback The callback to call when all observers
    *   have finished.
    */
-  notifyObserversOf<T extends typeof ModelBase>(
+  static notifyObserversOf<T extends typeof ModelBase>(
     operation: string | string[],
     context: OperationHookContext<T>,
     callback?: Callback,
   ): PromiseOrVoid;
 
-  _notifyBaseObservers<T extends typeof ModelBase>(
+  static _notifyBaseObservers<T extends typeof ModelBase>(
     operation: string | string[],
     context: OperationHookContext<T>,
     callback?: Callback,
@@ -174,7 +173,7 @@ export interface ObserverMixin {
    * @callback {Function} callback The callback function
    * @returns {*}
    */
-  notifyObserversAround<T extends typeof ModelBase>(
+  static notifyObserversAround<T extends typeof ModelBase>(
     operation: string,
     context: OperationHookContext<T>,
     fn: Function,

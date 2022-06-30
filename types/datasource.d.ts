@@ -9,29 +9,42 @@ import {
   ModelBaseClass,
   ModelBuilder,
   ModelDefinition,
-  PropertyDefinition
+  PropertyDefinition,
 } from './model';
 import {EventEmitter} from 'events';
 import {IsolationLevel, Transaction} from './transaction-mixin';
-import { ColumnMetadata, ConnectorSettings, ModelBase, ModelSettings, PersistedModel } from '..';
-import { PersistedModelClass } from './persisted-model';
+import {
+  ColumnMetadata,
+  ConnectorSettings,
+  ModelBase,
+  ModelSettings,
+  PersistedModel,
+} from '..';
+import {PersistedModelClass} from './persisted-model';
 
 export type OperationOptions = {
-  accepts: string[],
-  returns: string[],
-  http: object,
-  remoteEnabled: boolean,
-  scope: unknown,
-  fnName: string,
-}
+  accepts: string[];
+  returns: string[];
+  http: object;
+  remoteEnabled: boolean;
+  scope: unknown;
+  fnName: string;
+};
 
 export type DiscoverAndBuildModelsOptions = Options & {
-  base: ModelBaseClass,
-}
+  base: ModelBaseClass;
+};
 
-export function DataSource<CT extends Connector = Connector>(name: string, settings?: ConnectorSettings, modelBuilder?: ModelBuilder): DataSource;
+export function DataSource<CT extends Connector = Connector>(
+  name: string,
+  settings?: ConnectorSettings,
+  modelBuilder?: ModelBuilder,
+): DataSource;
 
-export function DataSource<CT extends Connector>(settings?: ConnectorSettings, modelBuilder?: ModelBuilder): DataSource;
+export function DataSource<CT extends Connector>(
+  settings?: ConnectorSettings,
+  modelBuilder?: ModelBuilder,
+): DataSource;
 
 export function DataSource<CT extends Connector>(
   connectorModule: CT,
@@ -101,7 +114,9 @@ export function DataSource<CT extends Connector>(
  *   - new DataSource(connectorModule, {name: 'myDataSource})
  *   - new DataSource(connectorModule)
  */
-export declare class DataSource<CT extends Connector = Connector> extends EventEmitter {
+export declare class DataSource<
+  CT extends Connector = Connector,
+> extends EventEmitter {
   name: string;
   settings: ConnectorSettings;
 
@@ -111,6 +126,7 @@ export declare class DataSource<CT extends Connector = Connector> extends EventE
 
   /**
    * {@inheritDoc DataSource.connector}
+   *
    * @deprecated Use {@link DataSource.connector} instead.
    */
   adapter?: BuiltConnector & CT;
@@ -146,8 +162,18 @@ export declare class DataSource<CT extends Connector = Connector> extends EventE
 
   private _operations: Record<string, OperationOptions>;
 
+  /**
+   * Retrieve a list of operations defined.
+   */
   operations(): Record<string, OperationOptions>;
 
+  /**
+   * Define a new operation.
+   *
+   * @param name Operation name
+   * @param options Operation options
+   * @param fn Function to be executed for the operation
+   */
   defineOperation(name: string, options: OperationOptions, fn: Function): void;
 
   /**
@@ -174,9 +200,13 @@ export declare class DataSource<CT extends Connector = Connector> extends EventE
    */
   static relationTypes: Record<string, string>;
 
-  constructor(name: string, settings?: ConnectorSettings, modelBuilder?: ModelBuilder);
+  constructor(
+    name: string,
+    settings?: ConnectorSettings,
+    modelBuilder?: ModelBuilder,
+  );
 
-  constructor(settings?: ConnectorSettings, modelBuilder?: ModelBuilder);
+  constructor(settings: ConnectorSettings, modelBuilder?: ModelBuilder);
 
   constructor(
     connectorModule: Connector,
@@ -189,7 +219,7 @@ export declare class DataSource<CT extends Connector = Connector> extends EventE
 
   private _setupConnector();
 
-  private mixin<T extends object>(ModelCtor: T): T
+  private mixin<T extends object>(ModelCtor: T): T;
 
   /**
    * Set up the data access functions from the data source. Each data source
@@ -200,7 +230,10 @@ export declare class DataSource<CT extends Connector = Connector> extends EventE
    * @param settings The settings object; typically allows any settings that
    * would be valid for a typical Model object.
    */
-  setupDataAccess(modelClass: ModelBaseClass, options?: ModelSettings): asserts modelClass is PersistedModelClass;
+  setupDataAccess(
+    modelClass: ModelBaseClass,
+    options?: ModelSettings,
+  ): asserts modelClass is PersistedModelClass;
 
   /**
    * Get the maximum number of event listeners
@@ -292,7 +325,7 @@ export declare class DataSource<CT extends Connector = Connector> extends EventE
   columnNames(modelName: string): string[];
 
   /**
-   * Retrieve coulmn metadata for the specified `modelName` and `propertyName`.
+   * Retrieve column metadata for the specified `modelName` and `propertyName`.
    *
    * @param modelName Target model name
    * @param propertyName Target property name
@@ -344,7 +377,12 @@ export declare class DataSource<CT extends Connector = Connector> extends EventE
    * @param foreignClassName Foreign model name
    * @param pkName Primary key used for foreign key
    */
-  defineForeignKey(className: string, key: string, foreignClassName: string, pkName?: string): undefined | void;
+  defineForeignKey(
+    className: string,
+    key: string,
+    foreignClassName: string,
+    pkName?: string,
+  ): undefined | void;
 
   /**
    * Create a model class
@@ -354,7 +392,7 @@ export declare class DataSource<CT extends Connector = Connector> extends EventE
    */
   createModel<T extends ModelBaseClass>(
     name: string,
-    properties?: PropertyDefinition,
+    properties?: PropertyDefinition[],
     options?: ModelSettings,
   ): T;
 
@@ -418,13 +456,9 @@ export declare class DataSource<CT extends Connector = Connector> extends EventE
   /**
    * {@inheritDoc Connector.discoverModelDefinitions}
    */
-  discoverModelDefinitions(
-    options?: Options,
-  ): Promise<ModelDefinition[]>;
+  discoverModelDefinitions(options?: Options): Promise<ModelDefinition[]>;
   // legacy callback style (no options)
-  discoverModelDefinitions(
-    callback: Callback<ModelDefinition[]>,
-  ): void;
+  discoverModelDefinitions(callback: Callback<ModelDefinition[]>): void;
   // legacy callback style (with options)
   discoverModelDefinitions(
     options: Options,
@@ -523,15 +557,9 @@ export declare class DataSource<CT extends Connector = Connector> extends EventE
     callback: Callback<{[name: string]: ModelBaseClass}>,
   ): void;
 
-  discoverSchema(
-    tableName: string,
-    options?: Options,
-  ): Promise<AnyObject>;
+  discoverSchema(tableName: string, options?: Options): Promise<AnyObject>;
   // legacy callback style (no options)
-  discoverSchema(
-    tableName: string,
-    callback: Callback<AnyObject>,
-  ): void;
+  discoverSchema(tableName: string, callback: Callback<AnyObject>): void;
   // legacy callback style (with options)
   discoverSchema(
     tableName: string,
@@ -542,15 +570,9 @@ export declare class DataSource<CT extends Connector = Connector> extends EventE
   /**
    * {@inheritDoc Connector.discoverSchemas}
    */
-  discoverSchemas(
-    tableName: string,
-    options?: Options,
-  ): Promise<AnyObject[]>;
+  discoverSchemas(tableName: string, options?: Options): Promise<AnyObject[]>;
   // legacy callback style (no options)
-  discoverSchemas(
-    tableName: string,
-    callback: Callback<AnyObject[]>,
-  ): void;
+  discoverSchemas(tableName: string, callback: Callback<AnyObject[]>): void;
   // legacy callback style (with options)
   discoverSchemas(
     tableName: string,
@@ -684,7 +706,7 @@ export declare class DataSource<CT extends Connector = Connector> extends EventE
   execute(
     collectionName: string,
     command: string,
-    ...parameters: any[],
+    ...parameters: any[]
   ): Promise<any>;
 
   /**
