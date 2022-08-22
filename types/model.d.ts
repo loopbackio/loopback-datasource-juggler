@@ -8,6 +8,8 @@ import {AnyObject, Options} from './common';
 import {DataSource} from './datasource';
 import {Listener, OperationHookContext} from './observer';
 import {ModelUtilsOptions} from './model-utils';
+import registerModelTypes = require('./types');
+import { ModelBuilder } from './model-builder';
 
 /**
  * Property types
@@ -19,34 +21,23 @@ export type PropertyType =
   | Function
   | {[property: string]: PropertyType};
 
-export type DefaultFns = 'guid' | 'uuid' | 'uuidv4' | 'now' | 'shortid' | 'nanoid' | string;
+export type DefaultFns =
+  | 'guid'
+  | 'uuid'
+  | 'uuidv4'
+  | 'now'
+  | 'shortid'
+  | 'nanoid'
+  | string;
 
-/**
- * Property definition
- */
-export interface PropertyDefinition extends AnyObject {
-  type?: PropertyType;
-  id?: boolean | number;
-  defaultFn?: DefaultFns;
-  useDefaultIdType?: boolean;
-  /**
-   * Sets the column/field name in the database.
-   *
-   * @remarks
-   * Precedence:
-   * - {@link PropertyDefinition.name}
-   * - {@link PropertyDefinition.column}
-   * - {@link PropertyDefinition.columnName}
-   * - {@link PropertyDefinition.field}
-   * - {@link PropertyDefinition.fieldName}
-   */
-  name?: string;
+interface ConnectorSpecificPropertyDefinition {
   /**
    * {@inheritDoc PropertyDefinition.name}
    */
   column?: string;
   /**
    * {@inheritDoc PropertyDefinition.name}
+   * @deprecated Use {@link ConnectorSpecificPropertyDefinition.column} instead.
    */
   columnName?: string;
   /**
@@ -55,24 +46,63 @@ export interface PropertyDefinition extends AnyObject {
   field?: string;
   /**
    * {@inheritDoc PropertyDefinition.name}
+   * @deprecated Use {@link ConnectorSpecificPropertyDefinition.field} instead.
    */
-  fieldName?: string
+  fieldName?: string;
   dataType?: string;
   dataLength?: number;
   dataPrecision?: number;
   dataScale?: number;
   index?: boolean | string | IndexDefinition;
-  nullable?: 'Y' | 'N';
   /**
-   * @deprecated
+   * @remarks
+   * Support for the different representations is dependent on the
+   * {@link Connector}. For best compatibility, use `true` and `false`. Consult
+   * the respective Connectors' documentation for more information.
+   */
+  nullable?: 1 | 'Y' | 'YES' | 0 | 'N' | 'NO' | boolean;
+  /**
+   * @deprecated Use {@link ConnectorSpecificPropertyDefinition.nullable} instead.
    */
   null?: boolean;
   /**
-   * @deprecated
+   * @deprecated Use {@link ConnectorSpecificPropertyDefinition.nullable} instead.
    */
-  allowNull?: boolean
+  allowNull?: boolean;
   // PostgreSQL-specific?
   autoIncrement?: boolean;
+}
+
+interface ConnectorSpecificPropertyDefinitionIndex {
+  [connectorNameOrType: string]: ConnectorSpecificPropertyDefinition;
+}
+
+/**
+ * Property definition
+ */
+export interface PropertyDefinition extends AnyObject, ConnectorSpecificPropertyDefinitionIndex {
+  type?: PropertyType;
+  id?: boolean | number;
+  defaultFn?: DefaultFns;
+  /**
+   * @defaultValue `true`
+   */
+  useDefaultIdType?: boolean;
+  /**
+   * Sets the column/field name in the database.
+   *
+   * @remarks
+   * Precedence:
+   * - {@link PropertyDefinition.name}
+   * - {@link PropertyDefinition[connectorName].column}
+   * - {@link PropertyDefinition[connectorName].columnName}
+   * - {@link PropertyDefinition[connectorName].field}
+   * - {@link PropertyDefinition[connectorName].fieldName}
+   */
+  name?: string;
+  nullable?: boolean;
+
+  [key: string]: any;
 }
 
 /**
@@ -90,7 +120,7 @@ export interface Schema {
 export interface IdDefinition {
   name: string;
   id: number;
-  property: AnyObject;
+  property: PropertyDefinition;
 }
 /**
  * Column metadata
@@ -108,7 +138,7 @@ export interface ColumnMetadata extends AnyObject {
  * ```
  */
 export interface ModelProperties {
-  [name: string]: PropertyDefinition
+  [name: string]: PropertyDefinition;
 }
 
 export interface IndexDefinition {
@@ -148,6 +178,39 @@ export interface IndexDefinition {
   options?: Record<string, any>;
 }
 
+export interface ConnectorSpecificModelSettingsIndex {
+  [connectorName: string]: ConnectorSpecificModelSettings;
+}
+
+export interface ConnectorSpecificModelSettings {
+  /**
+   * The database schema which the table is located in.
+   */
+  schema?: string;
+
+  /**
+   * @remarks
+   * Overriden by `schema`.
+   *
+   * @deprecated Use `schema` instead.
+   */
+  schemaName?: string;
+
+  /**
+   * Mapped table name for the model.
+   */
+  table?: string;
+
+  /**
+   *
+   * @remarks
+   * Overriden by `table`.
+   *
+   * @deprecated Use `table` instead.
+   */
+  tableName?: string;
+}
+
 /**
  * Model settings, for example
  * ```ts
@@ -156,7 +219,11 @@ export interface IndexDefinition {
  * }
  * ```
  */
-export interface ModelSettings extends AnyObject, ModelUtilsOptions {
+export interface ModelSettings
+  extends AnyObject,
+    ModelUtilsOptions,
+    Pick<ConnectorSpecificModelSettings, 'schema' | 'schemaName'>,
+    ConnectorSpecificModelSettingsIndex {
   strict?: boolean;
 
   /**
@@ -181,7 +248,13 @@ export interface ModelSettings extends AnyObject, ModelUtilsOptions {
 
   http?: {
     path?: string;
-  }
+  };
+
+  /**
+   * @remarks
+   * Used by {@link ModelBuilder.define}.
+   */
+  models?: (string | ModelBaseClass)[];
 
   scope?: AnyObject | Function;
 
@@ -202,39 +275,38 @@ export interface ModelSettings extends AnyObject, ModelUtilsOptions {
 
   /**
    * Indicates if the {@link ModelBaseClass | Model} is attached to the
-   * DataSource
+   * DataSource.
+   *
+   * @remarks
+   * This is managed by {@link ModelBuilder}.
+   *
    * @internal
    */
   unresolved?: boolean;
 
   indexes?: {
-    [indexJugglerName: string]: IndexDefinition
+    [indexJugglerName: string]: IndexDefinition;
   };
 
   foreignKeys?: {
     [fkJugglerName: string]: {
-      name: string,
-      entity: ModelBase | string,
-      entityKey: string,
-      foreignKey: string,
-      onDelete?: string,
-      onUpdate?: string,
-    }
-  }
-
-  /**
-   * {@inheritDoc ModelSettings.tableName}
-   */
-  tableName?: string
-
-  /**
-   * Mapped table name for the model.
-   */
-  table?: string;
+      name: string;
+      entity: ModelBase | string;
+      entityKey: string;
+      foreignKey: string;
+      onDelete?: 'RESTRICT' | 'CASCADE' | 'SET NULL' | 'NO ACTION' | 'SET DEFAULT' | string;
+      onUpdate?: 'RESTRICT' | 'CASCADE' | 'SET NULL' | 'NO ACTION' | 'SET DEFAULT' | string;
+    };
+  };
 
   /**
    * Sets if JavaScript {@link undefined} as an attribute value should be
-   * persisted as database `NULL`.
+   * normalized and persisted as database `NULL`.
+   *
+   * @remarks
+   * This setting applies towards functions that set a {@link ModelBase}
+   * instance's properties, which is a separate step from saving the instance to
+   * the database through the attached {@link DataSource}.
    */
   persistUndefinedAsNull?: boolean;
 
@@ -285,7 +357,6 @@ export interface ModelSettings extends AnyObject, ModelUtilsOptions {
    * for delete operation.
    *
    * @remarks
-   *
    * This setting is used by these operations:
    *
    * - {@link DataAccessObject.removeById}/{@link DataAccessObject.destroyById}/{@link DataAccessObject.deleteById}
@@ -302,10 +373,25 @@ export interface ModelSettings extends AnyObject, ModelUtilsOptions {
 /**
  * Model definition
  */
-export declare class ModelDefinition extends EventEmitter implements Schema {
+export declare class ModelDefinition
+  extends EventEmitter
+  implements Omit<Schema, 'properties'>
+{
   name: string;
-  properties: ModelProperties;
-  rawProperties: AnyObject;
+  /**
+   * A map of {@link PropertyDefinition}s
+   *
+   * @remarks
+   * This is only populated after {@link ModelDefinition.build} is called.
+   */
+  properties: ModelProperties | null;
+  /**
+   * A map of {@link PropertyDefinition}s
+   *
+   * @remarks
+   * Unlike {@link ModelDefinition.properties}, this may
+   */
+  rawProperties: ModelProperties;
   settings?: ModelSettings;
   relations?: AnyObject[];
 
@@ -323,6 +409,9 @@ export declare class ModelDefinition extends EventEmitter implements Schema {
   columnMetadata(connectorType: string, propertyName: string): ColumnMetadata;
 
   ids(): IdDefinition[];
+  /**
+   * @deprecated Use {@link ModelDefinition.idNames} instead.
+   */
   idName(): string;
   idNames(): string[];
 
@@ -420,7 +509,7 @@ export declare class ModelBase {
    * @param data The data object
    * @param options Instation options
    */
-  private _initProperties(data: object, options: ModelBaseClass): void;
+  private _initProperties(data: object, options: typeof ModelBase): void;
 
   /**
    * Extend the model with the specified model, properties, and other settings.
@@ -642,67 +731,16 @@ export declare class ModelBase {
    */
   static clearObservers(operation: string): void;
 
-  getMergePolicy(options: ModelMergePolicyOptions): ModelMergePolicy
+  getMergePolicy(options: ModelMergePolicyOptions): ModelMergePolicy;
 }
 
 export type ModelBaseClass = typeof ModelBase;
-
-export declare class ModelBuilder extends EventEmitter {
-  static defaultInstance: ModelBuilder;
-
-  models: {[name: string]: typeof ModelBase};
-  definitions: {[name: string]: ModelDefinition};
-  settings: {
-    /**
-     * @defaultValue `false`
-     */
-    strictEmbeddedModels?: boolean;
-  };
-
-  defaultModelBaseClass: typeof ModelBase;
-
-  getModel(name: string, forceCreate?: boolean): typeof ModelBase;
-
-  getModelDefinition(name: string): ModelDefinition | undefined;
-
-  define(
-    className: string,
-    properties?: ModelProperties,
-    settings?: ModelSettings,
-    parent?: ModelBaseClass,
-  ): ModelBaseClass;
-
-  defineProperty(
-    modelName: string,
-    propertyName: string,
-    propertyDefinition: AnyObject,
-  ): void;
-
-  defineValueType(type: string, aliases?: string[]): void;
-
-  extendModel(modelName: string, properties: AnyObject): void;
-
-  getSchemaName(name?: string): string;
-
-  resolveType(type: any): any;
-
-  buildModels(
-    schemas: AnyObject,
-    createModel?: Function,
-  ): {[name: string]: ModelBaseClass};
-
-  buildModelFromInstance(
-    name: string,
-    json: AnyObject,
-    options: Options,
-  ): ModelBaseClass;
-}
 
 /**
  * An extension of the built-in Partial<T> type which allows partial values
  * in deeply nested properties too.
  */
-export type DeepPartial<T> = { [P in keyof T]?: DeepPartial<T[P]>; };
+export type DeepPartial<T> = {[P in keyof T]?: DeepPartial<T[P]>};
 
 /**
  * Union export type for model instance or plain object representing the model

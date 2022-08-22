@@ -7,10 +7,10 @@ import {AnyObject, Callback, Options} from './common';
 import {BuiltConnector, Connector} from './connector';
 import {
   ModelBaseClass,
-  ModelBuilder,
   ModelDefinition,
   PropertyDefinition,
 } from './model';
+import { ModelBuilder } from "./model-builder";
 import {EventEmitter} from 'events';
 import {IsolationLevel, Transaction} from './transaction-mixin';
 import {
@@ -247,6 +247,11 @@ export declare class DataSource<
   // Reason for deprecation is not clear.
   /**
    * {@inheritDoc Connector.getTypes}
+   *
+   * @remarks
+   * Unlike {@link Connector.getTypes}, this function will normalize the return
+   * value into an array.
+   *
    * @deprecated Use {@link DataSource.supportTypes} instead.
    */
   getTypes(): string[];

@@ -78,9 +78,9 @@ export interface ConnectorSettings extends Options {
   tableNameID?: string;
   // END MSSQL-specific
 
-  // CouchDB2-specific
+  // CouchDB2 & Cloudant-specific
   Driver?: object; // CouchDB driver
-  // END CouchDB2-specific
+  // END CouchDB2 & Cloudant-specific
 
   // Cassandra-specific
   keyspace?: string;
@@ -160,6 +160,13 @@ export interface SchemaDiscoveryOptions {
   schema?: string;
 }
 
+/**
+ * Transform database discovery results
+ *
+ * @reamrks
+ * See also {@link Connector.dbName} which is for converting the other
+ * direction.
+ */
 export type NameMapper = (
   type: 'table' | 'model' | 'fk' | string,
   name: string,
@@ -218,7 +225,10 @@ export interface DiscoveredModelProperties {
   dataLength?: number;
   dataPrecision?: number;
   dataScale?: number;
-  nullable?: boolean;
+  /**
+   * {@inheritDoc ConnectorSpecificPropertyDefinition.nullable}
+   */
+  nullable?: 0 | 'N' | 'NO' | 1 | 'Y' | 'YES' | boolean;
 }
 
 // #TODO(achrinza): The codebase suggets that `context` differs
@@ -304,9 +314,13 @@ export interface Connector {
    * Alternatively, ['rest'] would be a different type altogether, and would have
    * no subtype.
    *
+   * Note that returning a comma-delimeted string (e.g. `'db,nosql,mongodb'`) is
+   * deprecated and strongly not recommended. It is kept for
+   * backwards-compatibility only.
+   *
    * @returns The connector's type collection.
    */
-  getTypes?(): string[];
+  getTypes?(): string[] | string;
   define?(def: {
     model: ModelBaseClass;
     properties: PropertyDefinition;

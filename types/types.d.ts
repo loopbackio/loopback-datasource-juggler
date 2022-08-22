@@ -37,14 +37,16 @@ declare namespace registerModelTypes {
     }
   }
 
-  interface ModelTypes {
-    [type: string]: Type | unknown;
-  }
-
   interface Type {
     value: unknown;
     toJSON(): unknown;
     toObject(): unknown;
+  }
+
+  interface ModelTypes {
+    Text: Types.Text;
+    JSON: Types.JSON;
+    Any: Types.Any;
   }
 
   interface BuiltModelTypes extends ModelTypes {
@@ -61,6 +63,6 @@ declare namespace registerModelTypes {
     };
     registerType: (type: Type, names?: string[]) => void;
   }
-
 }
+
 export = registerModelTypes;

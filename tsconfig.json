@@ -5,6 +5,7 @@
     "experimentalDecorators": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
+    "esModuleInterop": true,
 
     "lib": ["es2018", "dom"],
     "module": "commonjs",
