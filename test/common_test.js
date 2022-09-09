@@ -69,27 +69,6 @@ Object.defineProperty(module.exports, 'skip', {
   value: skip,
 });
 
-function clearAndCreate(model, data, callback) {
-  const createdItems = [];
-  model.destroyAll(function() {
-    nextItem(null, null);
-  });
-
-  let itemIndex = 0;
-
-  function nextItem(err, lastItem) {
-    if (lastItem !== null) {
-      createdItems.push(lastItem);
-    }
-    if (itemIndex >= data.length) {
-      callback(createdItems);
-      return;
-    }
-    model.create(data[itemIndex], nextItem);
-    itemIndex++;
-  }
-}
-
 /* eslint-disable mocha/handle-done-callback */
 function testOrm(dataSource) {
   const requestsAreCounted = dataSource.name !== 'mongodb';
@@ -249,6 +228,45 @@ function testOrm(dataSource) {
         });
       });
     });
+  });
+
+  it('should save objects when createAll is invoked', function(test) {
+    const title = 'Initial title',
+      title2 = 'Hello world',
+      date = new Date();
+
+    Post.createAll(
+      [{
+        title: title,
+        date: date,
+      }],
+      function(err, objs) {
+        const obj = objs[0];
+        test.ok(obj.id, 'Object id should present');
+        test.equals(obj.title, title);
+        // test.equals(obj.date, date);
+        obj.title = title2;
+        test.ok(obj.propertyChanged('title'), 'Title changed');
+        obj.save(function(err, obj) {
+          test.equal(obj.title, title2);
+          test.ok(!obj.propertyChanged('title'));
+
+          const p = new Post({title: 1});
+          p.title = 2;
+          p.save(function(err, obj) {
+            test.ok(!p.propertyChanged('title'));
+            p.title = 3;
+            test.ok(p.propertyChanged('title'));
+            test.equal(p.title_was, 2);
+            p.save(function() {
+              test.equal(p.title_was, 3);
+              test.ok(!p.propertyChanged('title'));
+              test.done();
+            });
+          });
+        });
+      },
+    );
   });
 
   it('should create object with initial data', function(test) {

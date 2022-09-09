@@ -632,10 +632,13 @@ function seed(done) {
     {id: 5, seq: 5, name: 'Stuart Sutcliffe', order: 3, vip: true},
   ];
 
-  async.series([
-    User.destroyAll.bind(User),
-    function(cb) {
-      async.each(beatles, User.create.bind(User), cb);
-    },
-  ], done);
+  async.series(
+    [
+      User.destroyAll.bind(User),
+      function(cb) {
+        User.createAll(beatles, cb);
+      },
+    ],
+    done,
+  );
 }

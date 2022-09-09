@@ -25,8 +25,16 @@ ContextRecorder.prototype.recordAndNext = function(transformFm) {
       transformFm(context);
     }
 
-    context = deepCloneToObject(context);
-    context.hookState.test = true;
+    if (Array.isArray(context)) {
+      context = context.map(ctx => {
+        const ctxCopy = deepCloneToObject(ctx);
+        ctxCopy.hookState.test = true;
+        return ctxCopy;
+      });
+    } else {
+      context = deepCloneToObject(context);
+      context.hookState.test = true;
+    }
 
     if (typeof self.records === 'string') {
       self.records = context;
@@ -37,7 +45,11 @@ ContextRecorder.prototype.recordAndNext = function(transformFm) {
       self.records = [self.records];
     }
 
-    self.records.push(context);
+    if (Array.isArray(context)) {
+      self.records.push(...context);
+    } else {
+      self.records.push(context);
+    }
     next();
   };
 };

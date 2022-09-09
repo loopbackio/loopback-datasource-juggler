@@ -671,6 +671,310 @@ module.exports = function(dataSource, should, connectorCapabilities) {
       });
     });
 
+    describe('PersistedModel.createAll', function() {
+      it('triggers hooks in the correct order', function(done) {
+        monitorHookExecution();
+
+        TestModel.createAll(
+          [{name: '1'}, {name: '2'}],
+          function(err) {
+            if (err) return done(err);
+
+            hookMonitor.names.should.eql([
+              'before save',
+              'before save',
+              'persist',
+              'loaded',
+              'after save',
+              'after save',
+            ]);
+            done();
+          },
+        );
+      });
+
+      it('aborts when `after save` fires when option to notify is false', function(done) {
+        monitorHookExecution();
+
+        TestModel.create(
+          [{name: '1'}, {name: '2'}],
+          {notify: false},
+          function(err) {
+            if (err) return done(err);
+
+            hookMonitor.names.should.not.containEql('after save');
+            done();
+          },
+        );
+      });
+
+      it('triggers `before save` hook for each item in the array', function(done) {
+        TestModel.observe('before save', ctxRecorder.recordAndNext());
+
+        TestModel.createAll([{name: '1'}, {name: '2'}], function(err, list) {
+          if (err) return done(err);
+          // Creation of multiple instances is executed in parallel
+          ctxRecorder.records.sort(function(c1, c2) {
+            return c1.instance.name - c2.instance.name;
+          });
+          ctxRecorder.records.should.eql([
+            aCtxForModel(TestModel, {
+              instance: {id: list[0].id, name: '1', extra: undefined},
+              isNewInstance: true,
+            }),
+            aCtxForModel(TestModel, {
+              instance: {id: list[1].id, name: '2', extra: undefined},
+              isNewInstance: true,
+            }),
+          ]);
+          done();
+        });
+      });
+
+      it('aborts when `before save` hook fails', function(done) {
+        TestModel.observe('before save', nextWithError(expectedError));
+
+        TestModel.createAll([{name: '1'}, {name: '2'}], function(err) {
+          err.should.eql(expectedError);
+          done();
+        });
+      });
+
+      it('applies updates from `before save` hook to each item in the array', function(done) {
+        TestModel.observe('before save', function(ctx, next) {
+          ctx.instance.should.be.instanceOf(TestModel);
+          ctx.instance.extra = 'hook data';
+          next();
+        });
+
+        TestModel.createAll(
+          [{id: uid.next(), name: 'a-name'}, {id: uid.next(), name: 'b-name'}],
+          function(err, instances) {
+            if (err) return done(err);
+            instances.forEach(instance => {
+              instance.should.have.property('extra', 'hook data');
+            });
+            done();
+          },
+        );
+      });
+
+      it('validates model after `before save` hook', function(done) {
+        TestModel.observe('before save', invalidateTestModel());
+
+        TestModel.createAll([{name: 'created1'}, {name: 'created2'}], function(err) {
+          (err || {}).should.be.instanceOf(ValidationError);
+          (err.details.codes || {}).should.eql({name: ['presence']});
+          done();
+        });
+      });
+
+      it('triggers `persist` hook', function(done) {
+        TestModel.observe('persist', ctxRecorder.recordAndNext());
+
+        TestModel.createAll(
+          [{id: 'new-id-1', name: 'a name'}, {id: 'new-id-2', name: 'b name'}],
+          function(err, instances) {
+            if (err) return done(err);
+
+            ctxRecorder.records.should.eql([
+              aCtxForModel(TestModel, {
+                data: {id: 'new-id-1', name: 'a name'},
+                isNewInstance: true,
+                currentInstance: {extra: null, id: 'new-id-1', name: 'a name'},
+              }),
+              aCtxForModel(TestModel, {
+                data: {id: 'new-id-2', name: 'b name'},
+                isNewInstance: true,
+                currentInstance: {extra: null, id: 'new-id-2', name: 'b name'},
+              }),
+            ]);
+
+            done();
+          },
+        );
+      });
+
+      it('applies updates from `persist` hook', function(done) {
+        TestModel.observe(
+          'persist',
+          ctxRecorder.recordAndNext(function(ctxArr) {
+            // It's crucial to change `ctx.data` reference, not only data props
+            ctxArr.forEach(ctx => {
+              ctx.data = Object.assign({}, ctx.data, {extra: 'hook data'});
+            });
+          }),
+        );
+
+        // By default, the instance passed to create callback is NOT updated
+        // with the changes made through persist/loaded hooks. To preserve
+        // backwards compatibility, we introduced a new setting updateOnLoad,
+        // which if set, will apply these changes to the model instance too.
+        TestModel.settings.updateOnLoad = true;
+        TestModel.createAll(
+          [{id: 'new-id', name: 'a name'}],
+          function(err, instances) {
+            if (err) return done(err);
+
+            instances.forEach(instance => {
+              instance.should.have.property('extra', 'hook data');
+            });
+
+            // Also query the database here to verify that, on `create`
+            // updates from `persist` hook are reflected into database
+            TestModel.findById('new-id', function(err, dbInstance) {
+              if (err) return done(err);
+              should.exists(dbInstance);
+              dbInstance.toObject(true).should.eql({
+                id: 'new-id',
+                name: 'a name',
+                extra: 'hook data',
+              });
+              done();
+            });
+          },
+        );
+      });
+
+      it('triggers `loaded` hook', function(done) {
+        TestModel.observe('loaded', ctxRecorder.recordAndNext());
+
+        // By default, the instance passed to create callback is NOT updated
+        // with the changes made through persist/loaded hooks. To preserve
+        // backwards compatibility, we introduced a new setting updateOnLoad,
+        // which if set, will apply these changes to the model instance too.
+        TestModel.settings.updateOnLoad = true;
+        TestModel.createAll(
+          [
+            {id: 'new-id-1', name: 'a name'},
+            {id: 'new-id-2', name: 'b name'},
+          ],
+          function(err) {
+            if (err) return done(err);
+
+            ctxRecorder.records.sort(function(c1, c2) {
+              return c1.data.name - c2.data.name;
+            });
+            ctxRecorder.records.should.eql([
+              aCtxForModel(TestModel, {
+                data: {id: 'new-id-1', name: 'a name'},
+                isNewInstance: true,
+              }),
+              aCtxForModel(TestModel, {
+                data: {id: 'new-id-2', name: 'b name'},
+                isNewInstance: true,
+              }),
+            ]);
+
+            done();
+          },
+        );
+      });
+
+      it('emits error when `loaded` hook fails', function(done) {
+        TestModel.observe('loaded', nextWithError(expectedError));
+        TestModel.createAll(
+          [{id: 'new-id', name: 'a name'}],
+          function(err) {
+            err.should.eql(expectedError);
+            done();
+          },
+        );
+      });
+
+      it('applies updates from `loaded` hook', function(done) {
+        TestModel.observe(
+          'loaded',
+          ctxRecorder.recordAndNext(function(ctx) {
+            // It's crucial to change `ctx.data` reference, not only data props
+            ctx.data = Object.assign({}, ctx.data, {extra: 'hook data'});
+          }),
+        );
+
+        // By default, the instance passed to create callback is NOT updated
+        // with the changes made through persist/loaded hooks. To preserve
+        // backwards compatibility, we introduced a new setting updateOnLoad,
+        // which if set, will apply these changes to the model instance too.
+        TestModel.settings.updateOnLoad = true;
+        TestModel.create(
+          [{id: 'new-id', name: 'a name'}],
+          function(err, instances) {
+            if (err) return done(err);
+
+            instances.forEach((instance) => {
+              instance.should.have.property('extra', 'hook data');
+            });
+            done();
+          },
+        );
+      });
+
+      it('triggers `after save` hook', function(done) {
+        TestModel.observe('after save', ctxRecorder.recordAndNext());
+
+        TestModel.createAll([{name: '1'}, {name: '2'}], function(err, list) {
+          if (err) return done(err);
+
+          ctxRecorder.records.sort(function(c1, c2) {
+            return c1.instance.name - c2.instance.name;
+          });
+          ctxRecorder.records.should.eql([
+            aCtxForModel(TestModel, {
+              instance: {id: list[0].id, name: '1', extra: undefined},
+              isNewInstance: true,
+            }),
+            aCtxForModel(TestModel, {
+              instance: {id: list[1].id, name: '2', extra: undefined},
+              isNewInstance: true,
+            }),
+          ]);
+          done();
+        });
+      });
+
+      it('aborts when `after save` hook fails', function(done) {
+        TestModel.observe('after save', nextWithError(expectedError));
+
+        TestModel.createAll([{name: 'created'}], function(err) {
+          err.should.eql(expectedError);
+          done();
+        });
+      });
+
+      it('applies updates from `after save` hook', function(done) {
+        TestModel.observe('after save', function(ctx, next) {
+          ctx.instance.should.be.instanceOf(TestModel);
+          ctx.instance.extra = 'hook data';
+          next();
+        });
+
+        TestModel.createAll([
+          {name: 'a-name'},
+          {name: 'b-name'},
+        ], function(err, instances) {
+          if (err) return done(err);
+          instances.forEach((instance) => {
+            instance.should.have.property('extra', 'hook data');
+          });
+          done();
+        });
+      });
+
+      it('do not emit `after save` when before save fails for even one', function(done) {
+        TestModel.observe('before save', function(ctx, next) {
+          if (ctx.instance.name === 'fail') next(expectedError);
+          else next();
+        });
+
+        TestModel.observe('after save', ctxRecorder.recordAndNext());
+
+        TestModel.createAll([{name: 'ok'}, {name: 'fail'}], function(err, list) {
+          err.should.eql(expectedError);
+          done();
+        });
+      });
+    });
+
     describe('PersistedModel.findOrCreate', function() {
       it('triggers `access` hook', function(done) {
         TestModel.observe('access', ctxRecorder.recordAndNext());

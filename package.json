@@ -31,8 +31,9 @@
     "lint": "eslint .",
     "build": "npm run build-ts-types",
     "build-ts-types": "tsc -p tsconfig.json --outDir dist",
+    "pretest": "npm run build",
     "test": "nyc mocha",
-    "posttest": "npm run tsc && npm run lint"
+    "posttest": "npm run lint"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.1.2",
