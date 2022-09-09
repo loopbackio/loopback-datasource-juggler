@@ -3,9 +3,9 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-import {Callback, Options, PromiseOrVoid} from './common';
-import {ModelBase, ModelData} from './model';
-import {Filter, Where} from './query';
+import { Callback, Options, PromiseOrVoid } from './common';
+import { ModelBase, ModelData } from './model';
+import { Filter, Where } from './query';
 
 /**
  * Data object for persisted models
@@ -42,6 +42,21 @@ export declare class PersistedModel extends ModelBase {
   ): PromiseOrVoid<PersistedModel>;
 
   static create(
+    data: PersistedData[],
+    options?: Options,
+    callback?: Callback<PersistedModel[]>,
+  ): PromiseOrVoid<PersistedModel[]>;
+
+  /**
+   * Creates an array of new instances of Model, and save to database in one DB query.
+   *
+   * @param {Object[]} [data] Optional data argument. An array of instances.
+   *
+   * @callback {Function} callback Callback function called with `cb(err, obj)` signature.
+   * @param {Error} err Error object; see [Error object](http://loopback.io/doc/en/lb2/Error-object.html).
+   * @param {Object} models Model instances or null.
+   */
+  static createAll(
     data: PersistedData[],
     options?: Options,
     callback?: Callback<PersistedModel[]>,
