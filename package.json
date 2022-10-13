@@ -63,7 +63,7 @@
     "qs": "^6.10.5",
     "strong-globalize": "^6.0.5",
     "traverse": "^0.6.7",
-    "uuid": "^8.3.2"
+    "uuid": "^9.0.0"
   },
   "license": "MIT",
   "ci": {
