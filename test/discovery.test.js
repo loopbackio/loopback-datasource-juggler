@@ -34,6 +34,7 @@ describe('Memory connector with mocked discovery', function() {
       dataPrecision: null,
       dataScale: null,
       nullable: 0,
+      generated: true,
     },
     {
       owner: 'STRONGLOOP',
@@ -44,6 +45,7 @@ describe('Memory connector with mocked discovery', function() {
       dataPrecision: null,
       dataScale: null,
       nullable: 0,
+      generated: undefined,
     },
     {
       owner: 'STRONGLOOP',
@@ -54,6 +56,7 @@ describe('Memory connector with mocked discovery', function() {
       dataPrecision: 10,
       dataScale: 0,
       nullable: 1,
+      generated: undefined,
     },
     {
       owner: 'STRONGLOOP',
@@ -64,6 +67,7 @@ describe('Memory connector with mocked discovery', function() {
       dataPrecision: 10,
       dataScale: 0,
       nullable: 1,
+      generated: undefined,
     }];
 
     ds.discoverModelProperties = function(modelName, options, cb) {
@@ -214,11 +218,13 @@ describe('Memory connector with mocked discovery', function() {
               dataScale: 0,
               dataType: 'int',
               nullable: 1,
+              generated: undefined,
             },
             precision: 10,
             required: false,
             scale: 0,
             type: undefined,
+            generated: undefined,
           },
           locationId: {
             length: 20,
@@ -229,11 +235,13 @@ describe('Memory connector with mocked discovery', function() {
               dataScale: null,
               dataType: 'varchar',
               nullable: 0,
+              generated: undefined,
             },
             precision: null,
             required: true,
             scale: null,
             type: undefined,
+            generated: undefined,
           },
           productId: {
             length: 20,
@@ -244,11 +252,13 @@ describe('Memory connector with mocked discovery', function() {
               dataScale: null,
               dataType: 'varchar',
               nullable: 0,
+              generated: true,
             },
             precision: null,
-            required: true,
+            required: false,
             scale: null,
             type: undefined,
+            generated: true,
           },
           total: {
             length: null,
@@ -259,11 +269,13 @@ describe('Memory connector with mocked discovery', function() {
               dataScale: 0,
               dataType: 'int',
               nullable: 1,
+              generated: undefined,
             },
             precision: 10,
             required: false,
             scale: 0,
             type: undefined,
+            generated: undefined,
           },
         },
       };
@@ -381,6 +393,7 @@ describe('discoverModelProperties', function() {
       dataPrecision: null,
       dataScale: null,
       nullable: 0,
+      generated: undefined,
     },
     {
       owner: 'STRONGLOOP',
@@ -391,6 +404,7 @@ describe('discoverModelProperties', function() {
       dataPrecision: null,
       dataScale: null,
       nullable: 0,
+      generated: undefined,
     },
     {
       owner: 'STRONGLOOP',
