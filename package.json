@@ -35,8 +35,8 @@
     "posttest": "npm run tsc && npm run lint"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.1.2",
-    "@commitlint/config-conventional": "^17.1.0",
+    "@commitlint/cli": "^17.2.0",
+    "@commitlint/config-conventional": "^17.2.0",
     "@types/node": "^10.17.60",
     "async-iterators": "^0.2.2",
     "bson": "^4.7.0",
