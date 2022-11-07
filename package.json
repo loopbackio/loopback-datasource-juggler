@@ -41,7 +41,7 @@
     "@types/node": "^10.17.60",
     "async-iterators": "^0.2.2",
     "bson": "^4.7.0",
-    "eslint": "^8.26.0",
+    "eslint": "^8.27.0",
     "eslint-config-loopback": "^13.1.0",
     "eslint-plugin-mocha": "^10.1.0",
     "loopback-connector-throwing": "file:./test/fixtures/loopback-connector-throwing",
