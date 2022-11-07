@@ -1,3 +1,131 @@
+2022-11-07, Version 4.28.0
+==========================
+
+ * chore: update github/codeql-action action to v2 (Renovate Bot)
+
+ * fix: add missing property in model generated (Muhammad Aaqil)
+
+ * feat: add capability for insert multiple rows in single query (Samarpan Bhattacharya)
+
+ * chore: update commitlint monorepo to ^17.2.0 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency eslint to ^8.26.0 (renovate[bot])
+
+ * chore: update dependency traverse to ^0.6.7 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.25.0 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^5.1.0 (renovate[bot])
+
+ * chore: update dependency typescript to ^4.8.4 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.24.0 (renovate[bot])
+
+ * chore: update dependency inflection to ^1.13.4 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.23.1 (renovate[bot])
+
+ * chore: update dependency typescript to ^4.8.3 (renovate[bot])
+
+ * chore: update dependency @commitlint/cli to ^17.1.2 (renovate[bot])
+
+ * chore: update commitlint monorepo (renovate[bot])
+
+ * chore: update dependency eslint to ^8.23.0 (renovate[bot])
+
+ * chore: update dependency typescript to ^4.8.2 (renovate[bot])
+
+ * fix: missing serialisation for `Connector.update` (Rifa Achrinza)
+
+ * chore: update dependency bson to ^4.7.0 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.22.0 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.21.0 (renovate[bot])
+
+ * chore: update dependency eslint-plugin-mocha to ^10.1.0 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.20.0 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.19.0 (renovate[bot])
+
+ * chore: update dependency bson to ^4.6.5 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.18.0 (renovate[bot])
+
+ * chore: update dependency typescript to ^4.7.4 (renovate[bot])
+
+ * chore: update dependency qs to ^6.10.5 (renovate[bot])
+
+ * chore: update dependency async to ^3.2.4 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^17.0.3 (renovate[bot])
+
+ * chore: update lint packages (Renovate Bot)
+
+ * chore: update dependency typescript to ^4.7.2 (Renovate Bot)
+
+ * chore: update commitlint monorepo to v17 (Renovate Bot)
+
+ * chore: update dependency minimatch to ^5.1.0 (Renovate Bot)
+
+ * chore: update dependency nanoid to ^3.3.4 (Renovate Bot)
+
+ * chore: lock file maintenance (Renovate Bot)
+
+ * chore: update dependency bson to ^4.6.4 (Renovate Bot)
+
+ * chore: update commitlint monorepo (Renovate Bot)
+
+ * chore: update dependency bson to ^4.6.3 (Renovate Bot)
+
+ * chore: update dependency nanoid to ^3.3.3 (Renovate Bot)
+
+ * chore: update dependency minimatch to v5 (Renovate Bot)
+
+ * chore: update dependency typescript to ^4.6.3 (Renovate Bot)
+
+ * chore: update dependency nanoid to 3.1.31 [security] (Renovate Bot)
+
+ * chore: update dependency nanoid to ^3.3.2 (Renovate Bot)
+
+ * chore: update actions/setup-node action to v3 (Renovate Bot)
+
+ * chore: update actions/checkout action to v3 (Renovate Bot)
+
+ * chore: update dependency minimatch to ^3.1.2 (Renovate Bot)
+
+ * chore: update dependency bson to ^4.6.2 (Renovate Bot)
+
+ * chore: update dependency qs to ^6.10.3 (Renovate Bot)
+
+ * chore: update dependency loopback-connector to ^5.0.1 (Renovate Bot)
+
+ * docs: add SECURITY.md (Diana Lau)
+
+ * chore: update dependency uuid to ^8.3.2 (Renovate Bot)
+
+ * chore: update dependency lodash to ^4.17.21 (Renovate Bot)
+
+ * chore: update dependency inflection to ^1.13.2 (Renovate Bot)
+
+ * chore: update dependency debug to ^4.3.4 (Renovate Bot)
+
+ * chore: update dependency change-case to ^4.1.2 (Renovate Bot)
+
+ * chore: update dependency async to ^3.2.3 (Renovate Bot)
+
+ * ci: use shared renovate config (Rifa Achrinza)
+
+ * ci: add renovate config (Rifa Achrinza)
+
+ * docs: update coc (Diana Lau)
+
+ * docs: add code of conduct (Diana Lau)
+
+
 2022-02-22, Version 4.27.1
 ==========================
 
