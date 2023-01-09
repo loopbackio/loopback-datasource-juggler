@@ -1,3 +1,37 @@
+2023-01-09, Version 4.28.1
+==========================
+
+ * chore: update dependency @commitlint/cli to ^17.4.1 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency bson to ^4.7.1 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^17.4.0 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.31.0 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^5.2.0 (renovate[bot])
+
+ * chore: update dependency minimatch to ^5.1.2 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.30.0 (renovate[bot])
+
+ * chore: update dependency typescript to ^4.9.4 (renovate[bot])
+
+ * chore: update dependency typescript to ^4.9.3 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^17.3.0 (renovate[bot])
+
+ * chore: update dependency minimatch to ^5.1.1 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.29.0 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.27.0 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^5.1.1 (renovate[bot])
+
+
 2022-11-07, Version 4.28.0
 ==========================
 
