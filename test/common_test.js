@@ -235,38 +235,43 @@ function testOrm(dataSource) {
       title2 = 'Hello world',
       date = new Date();
 
-    Post.createAll(
-      [{
-        title: title,
+    Post.createAll([
+      {
+        title,
+        date,
+      },
+      {
+        title: 'Title 2',
         date: date,
-      }],
-      function(err, objs) {
-        const obj = objs[0];
-        test.ok(obj.id, 'Object id should present');
-        test.equals(obj.title, title);
-        // test.equals(obj.date, date);
-        obj.title = title2;
-        test.ok(obj.propertyChanged('title'), 'Title changed');
-        obj.save(function(err, obj) {
-          test.equal(obj.title, title2);
-          test.ok(!obj.propertyChanged('title'));
+      },
+    ], function(err, objs) {
+      const obj = objs[0];
+      test.ok(obj.id, 'Object id should present');
+      test.ok(objs[1].id, 'Object id should present');
+      test.equals(obj.title, title);
+      test.equals(objs[1].title, 'Title 2');
+      // test.equals(obj.date, date);
+      obj.title = title2;
+      test.ok(obj.propertyChanged('title'), 'Title changed');
+      obj.save(function(err, obj) {
+        test.equal(obj.title, title2);
+        test.ok(!obj.propertyChanged('title'));
 
-          const p = new Post({title: 1});
-          p.title = 2;
-          p.save(function(err, obj) {
+        const p = new Post({title: 1});
+        p.title = 2;
+        p.save(function(err, obj) {
+          test.ok(!p.propertyChanged('title'));
+          p.title = 3;
+          test.ok(p.propertyChanged('title'));
+          test.equal(p.title_was, 2);
+          p.save(function() {
+            test.equal(p.title_was, 3);
             test.ok(!p.propertyChanged('title'));
-            p.title = 3;
-            test.ok(p.propertyChanged('title'));
-            test.equal(p.title_was, 2);
-            p.save(function() {
-              test.equal(p.title_was, 3);
-              test.ok(!p.propertyChanged('title'));
-              test.done();
-            });
+            test.done();
           });
         });
-      },
-    );
+      });
+    });
   });
 
   it('should create object with initial data', function(test) {

@@ -200,6 +200,32 @@ describe('datatypes', function() {
     found.nestedClass.should.have.property('roleName', 'admin');
   });
 
+  it('should create nested object defined by a class using createAll', async () => {
+    const d = new Date('2015-01-01T12:00:00');
+    let id;
+    const [created] = await Model.createAll([
+      {
+        date: d,
+        list: ['test'],
+        arr: [1, 'str'],
+        nestedClass: new NestedClass('admin'),
+      },
+    ]);
+    created.list.toJSON().should.deepEqual(['test']);
+    created.arr.toJSON().should.deepEqual([1, 'str']);
+    created.date.should.be.an.instanceOf(Date);
+    created.date.toString().should.equal(d.toString(), 'Time must match');
+    created.nestedClass.should.have.property('roleName', 'admin');
+
+    const found = await Model.findById(created.id);
+    should.exist(found);
+    found.list.toJSON().should.deepEqual(['test']);
+    found.arr.toJSON().should.deepEqual([1, 'str']);
+    found.date.should.be.an.instanceOf(Date);
+    found.date.toString().should.equal(d.toString(), 'Time must match');
+    found.nestedClass.should.have.property('roleName', 'admin');
+  });
+
   it('should respect data types when updating attributes', function(done) {
     const d = new Date;
     let id;
