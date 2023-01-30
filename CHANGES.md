@@ -1,3 +1,25 @@
+2023-01-30, Version 4.28.2
+==========================
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency eslint to ^8.33.0 (renovate[bot])
+
+ * fix: return correct model instance in createAll (Samarpan  Bhattacharya)
+
+ * chore: update dependency minimatch to ^5.1.6 (renovate[bot])
+
+ * chore: update dependency minimatch to ^5.1.4 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.32.0 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^17.4.2 (renovate[bot])
+
+ * chore: update dependency bson to ^4.7.2 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^5.2.1 (renovate[bot])
+
+
 2023-01-09, Version 4.28.1
 ==========================
 
