@@ -226,6 +226,141 @@ describe('datatypes', function() {
     found.nestedClass.should.have.property('roleName', 'admin');
   });
 
+  it('should create nested objects defined by a class using multiple createAll calls', async () => {
+    const d = new Date('2015-01-01T12:00:00');
+    const result = await Promise.all([
+      Model.createAll([
+        {
+          date: d,
+          list: ['test 1'],
+          arr: [1, 'str 1'],
+          nestedClass: new NestedClass('admin 1'),
+        },
+      ]),
+      Model.createAll([
+        {
+          date: d,
+          list: ['test 2'],
+          arr: [2, 'str 2'],
+          nestedClass: new NestedClass('admin 2'),
+        },
+        {
+          date: d,
+          list: ['test 3'],
+          arr: [3, 'str 3'],
+          nestedClass: new NestedClass('admin 3'),
+        },
+      ]),
+      Model.createAll([
+        {
+          date: d,
+          list: ['test 4'],
+          arr: [4, 'str 4'],
+          nestedClass: new NestedClass('admin 4'),
+        },
+      ]),
+      Model.createAll([
+        {
+          date: d,
+          list: ['test 6'],
+          arr: [6, 'str 6'],
+          nestedClass: new NestedClass('admin 6'),
+        },
+      ]),
+      Model.createAll([
+        {
+          date: d,
+          list: ['test 5'],
+          arr: [5, 'str 5'],
+          nestedClass: new NestedClass('admin 5'),
+        },
+      ]),
+    ]);
+    const [created1] = result[0];
+    const [created2, created3] = result[1];
+    const [created4] = result[2];
+    const [created6] = result[3];
+    const [created5] = result[4];
+    await created1.list.toJSON().should.deepEqual(['test 1']);
+    created1.arr.toJSON().should.deepEqual([1, 'str 1']);
+    created1.date.should.be.an.instanceOf(Date);
+    created1.date.toString().should.equal(d.toString(), 'Time must match');
+    created1.nestedClass.should.have.property('roleName', 'admin 1');
+    await created2.list.toJSON().should.deepEqual(['test 2']);
+    created2.arr.toJSON().should.deepEqual([2, 'str 2']);
+    created2.date.should.be.an.instanceOf(Date);
+    created2.date.toString().should.equal(d.toString(), 'Time must match');
+    created2.nestedClass.should.have.property('roleName', 'admin 2');
+    await created3.list.toJSON().should.deepEqual(['test 3']);
+    created3.arr.toJSON().should.deepEqual([3, 'str 3']);
+    created3.date.should.be.an.instanceOf(Date);
+    created3.date.toString().should.equal(d.toString(), 'Time must match');
+    created3.nestedClass.should.have.property('roleName', 'admin 3');
+    await created4.list.toJSON().should.deepEqual(['test 4']);
+    created4.arr.toJSON().should.deepEqual([4, 'str 4']);
+    created4.date.should.be.an.instanceOf(Date);
+    created4.date.toString().should.equal(d.toString(), 'Time must match');
+    created4.nestedClass.should.have.property('roleName', 'admin 4');
+    await created5.list.toJSON().should.deepEqual(['test 5']);
+    created5.arr.toJSON().should.deepEqual([5, 'str 5']);
+    created5.date.should.be.an.instanceOf(Date);
+    created5.date.toString().should.equal(d.toString(), 'Time must match');
+    created5.nestedClass.should.have.property('roleName', 'admin 5');
+    await created6.list.toJSON().should.deepEqual(['test 6']);
+    created6.arr.toJSON().should.deepEqual([6, 'str 6']);
+    created6.date.should.be.an.instanceOf(Date);
+    created6.date.toString().should.equal(d.toString(), 'Time must match');
+    created6.nestedClass.should.have.property('roleName', 'admin 6');
+
+    const found1 = await Model.findById(created1.id);
+    should.exist(found1);
+    found1.list.toJSON().should.deepEqual(['test 1']);
+    found1.arr.toJSON().should.deepEqual([1, 'str 1']);
+    found1.date.should.be.an.instanceOf(Date);
+    found1.date.toString().should.equal(d.toString(), 'Time must match');
+    found1.nestedClass.should.have.property('roleName', 'admin 1');
+
+    const found2 = await Model.findById(created2.id);
+    should.exist(found2);
+    found2.list.toJSON().should.deepEqual(['test 2']);
+    found2.arr.toJSON().should.deepEqual([2, 'str 2']);
+    found2.date.should.be.an.instanceOf(Date);
+    found2.date.toString().should.equal(d.toString(), 'Time must match');
+    found2.nestedClass.should.have.property('roleName', 'admin 2');
+
+    const found3 = await Model.findById(created3.id);
+    should.exist(found3);
+    found3.list.toJSON().should.deepEqual(['test 3']);
+    found3.arr.toJSON().should.deepEqual([3, 'str 3']);
+    found3.date.should.be.an.instanceOf(Date);
+    found3.date.toString().should.equal(d.toString(), 'Time must match');
+    found3.nestedClass.should.have.property('roleName', 'admin 3');
+
+    const found4 = await Model.findById(created4.id);
+    should.exist(found4);
+    found4.list.toJSON().should.deepEqual(['test 4']);
+    found4.arr.toJSON().should.deepEqual([4, 'str 4']);
+    found4.date.should.be.an.instanceOf(Date);
+    found4.date.toString().should.equal(d.toString(), 'Time must match');
+    found4.nestedClass.should.have.property('roleName', 'admin 4');
+
+    const found5 = await Model.findById(created5.id);
+    should.exist(found5);
+    found5.list.toJSON().should.deepEqual(['test 5']);
+    found5.arr.toJSON().should.deepEqual([5, 'str 5']);
+    found5.date.should.be.an.instanceOf(Date);
+    found5.date.toString().should.equal(d.toString(), 'Time must match');
+    found5.nestedClass.should.have.property('roleName', 'admin 5');
+
+    const found6 = await Model.findById(created6.id);
+    should.exist(found6);
+    found6.list.toJSON().should.deepEqual(['test 6']);
+    found6.arr.toJSON().should.deepEqual([6, 'str 6']);
+    found6.date.should.be.an.instanceOf(Date);
+    found6.date.toString().should.equal(d.toString(), 'Time must match');
+    found6.nestedClass.should.have.property('roleName', 'admin 6');
+  });
+
   it('should respect data types when updating attributes', function(done) {
     const d = new Date;
     let id;
