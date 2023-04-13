@@ -1,3 +1,27 @@
+2023-04-13, Version 4.28.4
+==========================
+
+ * chore: update dependency eslint to ^8.38.0 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency eslint to ^8.37.0 (renovate[bot])
+
+ * chore: update dependency @commitlint/cli to ^17.5.1 (renovate[bot])
+
+ * chore: update dependency nanoid to ^3.3.6 (renovate[bot])
+
+ * chore: update dependency @commitlint/cli to ^17.5.0 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.36.0 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.35.0 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^5.2.2 (renovate[bot])
+
+ * chore: update dependency qs to ^6.11.1 (renovate[bot])
+
+
 2023-03-08, Version 4.28.3
 ==========================
 
