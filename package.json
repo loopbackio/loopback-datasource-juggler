@@ -36,8 +36,8 @@
     "posttest": "npm run lint"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.6.3",
-    "@commitlint/config-conventional": "^17.6.3",
+    "@commitlint/cli": "^17.6.5",
+    "@commitlint/config-conventional": "^17.6.5",
     "@types/node": "^10.17.60",
     "async-iterators": "^0.2.2",
     "bson": "^4.7.2",
