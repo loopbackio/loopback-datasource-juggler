@@ -1,3 +1,19 @@
+2023-06-14, Version 4.28.6
+==========================
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency eslint to ^8.42.0 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^17.6.5 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.41.0 (renovate[bot])
+
+ * chore: update dependency qs to ^6.11.2 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^5.3.1 (renovate[bot])
+
+
 2023-05-15, Version 4.28.5
 ==========================
 
