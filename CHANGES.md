@@ -1,3 +1,13 @@
+2023-07-11, Version 4.28.8
+==========================
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency eslint to ^8.44.0 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^5.3.3 (renovate[bot])
+
+
 2023-06-27, Version 4.28.7
 ==========================
 
