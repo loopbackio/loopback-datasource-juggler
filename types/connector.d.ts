@@ -27,10 +27,18 @@ import {ModelUtilsOptions} from './model-utils';
 export interface ConnectorSettings extends Options {
   name?: string;
   /**
+   * The connector of which the {@Link DataSource} will attach.
+   *
+   * @remarks
    * Overrides {@link ConnectorSettings.adapter} if defined.
    */
   connector?: ConnectorExport | string;
   /**
+   * {@inheritDoc ConnectorSettings.connector}
+   *
+   * @remarks
+   * This setting is kept for backwards-compatibility with JugglingDB.
+   *
    * @deprecated Use {@link ConnectorSettings.connector} instead.
    */
   adapter?: ConnectorExport | string;
@@ -308,15 +316,17 @@ export interface Connector {
    * Get the connector's types collection.
    *
    * @remarks
-   * For example, ['db', 'nosql', 'mongodb'] would be represent a datasource of
-   * type 'db', with a subtype of 'nosql', and would use the 'mongodb' connector.
+   * For example, `['db', 'nosql', 'mongodb']` would be represent a datasource
+   * of type 'db', with a subtype of 'nosql', and would use the 'mongodb'
+   * connector.
    *
-   * Alternatively, ['rest'] would be a different type altogether, and would have
-   * no subtype.
+   * Alternatively, `['rest']` would be a different type altogether, and would
+   * have no subtype.
    *
    * Note that returning a comma-delimeted string (e.g. `'db,nosql,mongodb'`) is
    * deprecated and strongly not recommended. It is kept for
-   * backwards-compatibility only.
+   * backwards-compatibility only. {@Link DataSource.getTypes} will convert such
+   * return values to an array.
    *
    * @returns The connector's type collection.
    */
@@ -614,12 +624,14 @@ export interface Connector {
     options: IDPropertiesDiscoveryOptions,
   ): DiscoveredPrimaryKeys;
 
-  /**discover.
+  /**
    * Discover foreign keys for a given owner/model name.
    *
    * @param modelName Target model name
    * @param options Discovery options
    * @param cb Callback function
+   *
+   * {@see Connector.discoverExportedForeignKeys}
    */
   discoverForeignKeys?(
     modelName: string[],
@@ -643,6 +655,8 @@ export interface Connector {
    * @param modelName Target model name
    * @param options Discovery options
    * @param cb Callback function
+   *
+   * {@see Connector.discoverForeignKeys}
    */
   discoverExportedForeignKeys?(
     modelName: string,
@@ -683,6 +697,12 @@ export interface Connector {
 
   /**
    * Freeze the datasource. Behaviour depends on the {@link Connector}.
+   *
+   * @remarks
+   * This is called by the {@Link DataSource} of which the Connector is attached
+   * to during a schema migration.
+   *
+   * {@see Connector.freezeDataSource}
    */
   freezeDataSource?(): void;
 

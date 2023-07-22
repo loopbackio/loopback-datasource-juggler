@@ -10,6 +10,8 @@ import {Listener, OperationHookContext} from './observer';
 import {ModelUtilsOptions} from './model-utils';
 import registerModelTypes = require('./types');
 import { ModelBuilder } from './model-builder';
+import { PersistedModel } from './persisted-model';
+import { RelationDefinition } from './relation';
 
 /**
  * Property types
@@ -246,6 +248,10 @@ export interface ModelSettings
 
   plural?: string;
 
+  /**
+   * @remarks
+   * Non-enumerable property.
+   */
   http?: {
     path?: string;
   };
@@ -255,6 +261,15 @@ export interface ModelSettings
    * Used by {@link ModelBuilder.define}.
    */
   models?: (string | ModelBaseClass)[];
+
+  relations?: {
+    [relationName: string]: RelationDefinition
+  };
+
+  /**
+   * @deprecaed Use {@Link ModelSettings.reations} instead.
+   */
+  relationships?: ModelSettings['relations'];
 
   scope?: AnyObject | Function;
 
@@ -485,23 +500,65 @@ interface ModelMergePolicyOptions {
  */
 export declare class ModelBase {
   /**
+   * @remarks
+   * Non-enumerable property.
+   *
+   * Handled by {@Link ModelBuilder}
+   *
    * @deprecated
    */
-  static dataSource?: DataSource;
+  static dataSource?: DataSource | null;
   static modelName: string;
   static definition: ModelDefinition;
   static hideInternalProperties?: boolean;
-  static readonly base: typeof ModelBase;
+
+  /**
+   * @remarks
+   * Non-enumerable property.
+   *
+   * Handled by {@Link ModelBuilder}
+   */
+  static readonly base?: typeof ModelBase;
+
+  /**
+   * @remarks
+   * Non-enumerable property.
+   *
+   * Handled by {@Link ModelBuilder}
+   */
+  static pluralModelName?: string;
+
+  /**
+   * @remarks
+   * Non-enumerable property.
+   *
+   * Handled by {@Link ModelBuilder} and {@Link DataSource}.
+   */
+  static relations?: {[relationName: string]: RelationDefinition}
+
+  /**
+   * @remarks
+   * Non-enumerable property.
+   *
+   * Handled by {@Link ModelBuilder}
+   */
+  static modelBuilder?: ModelBuilder;
 
   /**
    * Model inheritance rank
    *
    * @remarks
-   * This is used by {@link ModelBuilder}.
+   * Non-enumerable property.
+   *
+   * Handled by {@link ModelBuilder}.
    *
    * @internal
    */
   static __rank?: number;
+
+  static __cachedRelations?: {
+    [relationName: string]: PersistedModel[]
+  };
 
   /**
    * Initializes the model instance with a list of properties.

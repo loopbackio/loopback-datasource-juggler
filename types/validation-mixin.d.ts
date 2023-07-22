@@ -274,8 +274,8 @@ export interface Validatable {
   /**
    * Validate if a value for a property is a Date.
    *
-   * Example
-   * ```
+   * @example
+   * ```typescript
    * User.validatesDateOf('today', {message: 'today is not a date!'});
    * ```
    *
