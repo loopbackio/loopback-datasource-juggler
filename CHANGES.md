@@ -1,3 +1,21 @@
+2023-08-14, Version 4.28.9
+==========================
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency eslint to ^8.47.0 (renovate[bot])
+
+ * chore: update dependency @commitlint/cli to ^17.7.1 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^17.7.0 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.46.0 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^17.6.7 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.45.0 (renovate[bot])
+
+
 2023-07-11, Version 4.28.8
 ==========================
 
