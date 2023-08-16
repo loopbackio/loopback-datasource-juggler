@@ -16,11 +16,11 @@
   ],
   "author": "IBM Corp.",
   "engines": {
-    "node": ">=10"
+    "node": ">=16"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/strongloop/loopback-datasource-juggler"
+    "url": "https://github.com/loopbackio/loopback-datasource-juggler"
   },
   "main": "index.js",
   "types": "index.d.ts",
@@ -45,7 +45,7 @@
     "eslint-config-loopback": "^13.1.0",
     "eslint-plugin-mocha": "^10.1.0",
     "loopback-connector-throwing": "file:./test/fixtures/loopback-connector-throwing",
-    "mocha": "^9.0.0",
+    "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "should": "^13.2.3",
     "typescript": "^4.9.5"
@@ -57,7 +57,7 @@
     "depd": "^2.0.0",
     "inflection": "^1.13.4",
     "lodash": "^4.17.21",
-    "loopback-connector": "^5.3.3",
+    "loopback-connector": "^6.0.1",
     "minimatch": "^5.1.6",
     "nanoid": "^3.3.6",
     "qs": "^6.11.2",
@@ -65,14 +65,5 @@
     "traverse": "^0.6.7",
     "uuid": "^9.0.0"
   },
-  "license": "MIT",
-  "ci": {
-    "downstreamIgnoreList": [
-      "loopback-connector-db2z",
-      "loopback-connector-ibmi",
-      "loopback-connector-informix",
-      "loopback-connector-mqlight",
-      "loopback-connector-kv-extreme-scale"
-    ]
-  }
+  "license": "MIT"
 }
