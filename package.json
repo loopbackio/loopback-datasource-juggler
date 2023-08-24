@@ -58,7 +58,7 @@
     "inflection": "^1.13.4",
     "lodash": "^4.17.21",
     "loopback-connector": "^6.0.1",
-    "minimatch": "^5.1.6",
+    "minimatch": "^9.0.3",
     "nanoid": "^3.3.6",
     "qs": "^6.11.2",
     "strong-globalize": "^6.0.6",
