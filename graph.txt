@@ -1,0 +1,11 @@
+
+
+Connector------> DataAccessObject
+  ^       /
+  |      /____>_____________________>_____________
+  v     /            /                            \
+DataSource -> ModelBuilder -> ModelClass -> ModelDefinition -> ModelSettings
+     \_____________>_____________/  |               \
+                                    |                \__> ModelProperties
+                                    V
+                              ModelBaseClass

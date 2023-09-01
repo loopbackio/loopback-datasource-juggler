@@ -1,0 +1,9 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "tsconfig.json",
+  "compilerOptions": {
+    skip
+  },
+  "include": ["types/", "index.d.ts"],
+  "exclude": ["node_modules/**"]
+}

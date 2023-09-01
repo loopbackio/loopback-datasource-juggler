@@ -9,6 +9,7 @@ import {
   ModelBaseClass,
   ModelDefinition,
   PropertyDefinition,
+  PropertyType,
 } from './model';
 import { ModelBuilder } from "./model-builder";
 import {EventEmitter} from 'events';
@@ -116,6 +117,7 @@ export function DataSource<CT extends Connector>(
  */
 export declare class DataSource<
   CT extends Connector = Connector,
+  MBT extends ModelBuilder = ModelBuilder,
 > extends EventEmitter {
   name: string;
   settings: ConnectorSettings;
@@ -129,18 +131,18 @@ export declare class DataSource<
    *
    * @deprecated Use {@link DataSource.connector} instead.
    */
-  adapter?: BuiltConnector & CT;
+  adapter?: DataSource['connector'];
 
   /**
    * Connector instance.
    */
   connector?: BuiltConnector & CT;
 
-  modelBuilder: ModelBuilder;
+  modelBuilder: MBT;
 
-  models: Record<string, ModelBaseClass>;
+  models: MBT['models'];
 
-  definitions: {[modelName: string]: ModelDefinition};
+  definitions: MBT['definitions'];
 
   DataAccessObject: AnyObject & {prototype: AnyObject};
 
@@ -200,18 +202,18 @@ export declare class DataSource<
    */
   static relationTypes: Record<string, string>;
 
+  constructor(settings: ConnectorSettings, modelBuilder?: MBT);
+
   constructor(
     name: string,
     settings?: ConnectorSettings,
-    modelBuilder?: ModelBuilder,
+    modelBuilder?: MBT,
   );
-
-  constructor(settings: ConnectorSettings, modelBuilder?: ModelBuilder);
 
   constructor(
     connectorModule: Connector,
     settings?: Omit<ConnectorSettings, 'adapter' | 'connector'>,
-    modelBuilder?: ModelBuilder,
+    modelBuilder?: MBT,
   );
 
   private setup(dsName: string, settings: ConnectorSettings): void;
@@ -397,7 +399,8 @@ export declare class DataSource<
    */
   createModel<T extends ModelBaseClass>(
     name: string,
-    properties?: PropertyDefinition[],
+    // properties?: PropertyDefinition[],
+    properties?: Record<string, PropertyType>,
     options?: ModelSettings,
   ): T;
 

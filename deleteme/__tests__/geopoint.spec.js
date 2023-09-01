@@ -1,0 +1,22 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const geo_1 = require("../geo");
+let numberTypeGuard;
+new geo_1.GeoPoint(123, 456);
+new geo_1.GeoPoint('123', 456);
+new geo_1.GeoPoint(123, '456');
+new geo_1.GeoPoint('123', '456');
+new geo_1.GeoPoint([123, 456]);
+new geo_1.GeoPoint(['123', '456']);
+new geo_1.GeoPoint(['123', 456]);
+new geo_1.GeoPoint([123, '456']);
+new geo_1.GeoPoint({ lat: 123, lng: 456 });
+new geo_1.GeoPoint({ lat: '123', lng: 456 });
+new geo_1.GeoPoint({ lat: 123, lng: '456' });
+new geo_1.GeoPoint({ lat: '123', lng: '456' });
+numberTypeGuard = geo_1.GeoPoint.distanceBetwen([123, 456], [123, 456]);
+numberTypeGuard = geo_1.GeoPoint.distanceBetwen([123, 456], [123, 456], { type: geo_1.GeoDistanceUnit.degrees });
+const geoPoint = new geo_1.GeoPoint(123, 456);
+numberTypeGuard = geoPoint.distanceTo([123, 456]);
+numberTypeGuard = geoPoint.distanceTo([123, 456], { type: geo_1.GeoDistanceUnit.degrees });
+//# sourceMappingURL=geopoint.spec.js.map

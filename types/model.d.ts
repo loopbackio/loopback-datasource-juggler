@@ -132,7 +132,9 @@ export interface ColumnMetadata extends AnyObject {
 }
 
 /**
- * Definition of model properties, for example
+ * Definition of model properties.
+ *
+ * @remarks
  * ```ts
  * {
  *   name: {type: String, required: true},
@@ -233,12 +235,12 @@ export interface ModelSettings
    */
   forceId?: boolean | 'auto';
 
-  properties?: ModelProperties;
+  // properties?: ModelProperties;
 
-  /**
-   * @deprecated Use {@link ModelSettings.properties} instead.
-   */
-  attributes?: ModelProperties;
+  // /**
+  //  * @deprecated Use {@link ModelSettings.properties} instead.
+  //  */
+  // attributes?: ModelProperties;
 
   /**
    * @remarks
