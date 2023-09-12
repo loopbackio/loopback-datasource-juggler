@@ -1,3 +1,31 @@
+2023-09-12, Version 5.0.0
+=========================
+
+ * chore: drop Node.js 16 support BREAKING CHANGE: drop Node.js 16 support (dhmlau)
+
+ * chore: update dependency typescript to v5 (renovate[bot])
+
+ * chore: update actions/checkout action to v4 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency eslint to ^8.49.0 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^6.0.2 (renovate[bot])
+
+ * chore: update dependency uuid to ^9.0.1 (renovate[bot])
+
+ * fix(ci): fix GH actions versions (dhmlau)
+
+ * chore: update dependency minimatch to v9 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.48.0 (renovate[bot])
+
+ * chore: update dependency strong-globalize to ^6.0.6 (renovate[bot])
+
+ * chore: drop Node.js 14 and lower (dhmlau)
+
+
 2023-08-14, Version 4.28.9
 ==========================
 
