@@ -1,3 +1,24 @@
+2023-10-16, Version 5.0.2
+=========================
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update commitlint monorepo to ^17.8.0 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.51.0 (renovate[bot])
+
+ * chore: update dependency @commitlint/cli to ^17.7.2 (renovate[bot])
+
+ * chore: update dependency eslint-plugin-mocha to ^10.2.0 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.50.0 (renovate[bot])
+
+ * chore: update actions/checkout action to v4.1.0 (renovate[bot])
+
+
+2023-09-13, Version 5.0.1
+=========================
+
 
 
 2023-09-12, Version 5.0.0
