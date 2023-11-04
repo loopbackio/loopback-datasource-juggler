@@ -51,7 +51,7 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "async": "^3.2.4",
+    "async": "^3.2.5",
     "change-case": "^4.1.2",
     "debug": "^4.3.4",
     "depd": "^2.0.0",
