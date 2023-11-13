@@ -1,3 +1,29 @@
+2023-11-13, Version 5.0.3
+=========================
+
+ * chore: update commitlint monorepo to v18 (renovate[bot])
+
+ * chore: update actions/setup-node action to v4 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency nanoid to ^3.3.7 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.53.0 (renovate[bot])
+
+ * chore: update dependency async to ^3.2.5 (renovate[bot])
+
+ * chore: update actions/setup-node action to v3.8.2 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.52.0 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^17.8.1 (renovate[bot])
+
+ * chore: update actions/checkout action to v4.1.1 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^6.0.3 (renovate[bot])
+
+
 2023-10-16, Version 5.0.2
 =========================
 
