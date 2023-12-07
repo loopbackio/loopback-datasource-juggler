@@ -1,3 +1,25 @@
+2023-12-07, Version 5.0.4
+=========================
+
+ * chore: update dependency loopback-connector to ^6.1.0 (renovate[bot])
+
+ * chore: update dependency typescript to ^5.3.3 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency eslint to ^8.55.0 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^18.4.3 (renovate[bot])
+
+ * chore: update dependency typescript to ^5.3.2 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.54.0 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^18.4.2 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^6.0.4 (renovate[bot])
+
+
 2023-11-13, Version 5.0.3
 =========================
 
