@@ -1,3 +1,19 @@
+2024-01-09, Version 5.0.5
+=========================
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update github/codeql-action action to v3 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^18.4.4 (renovate[bot])
+
+ * chore: update dependency traverse to ^0.6.8 (renovate[bot])
+
+ * chore: update actions/setup-node action to v4.0.1 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.56.0 (renovate[bot])
+
+
 2023-12-07, Version 5.0.4
 =========================
 
