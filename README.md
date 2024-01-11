@@ -8,7 +8,8 @@ This module adopts the [Module Long Term Support (LTS)](http://github.com/CloudN
 
 | Version    | Status          | Published | EOL                  |
 | ---------- | --------------- | --------- | -------------------- |
-| 4.x        | Current         | Oct 2018  | Apr 2023 _(minimum)_ |
+| 5.x        | Current         | Sep 2023  | Apr 2026 _(minimum)_ |
+| 4.x        | Active          | Oct 2018  | Apr 2025             |
 | 3.x        | End-of-Life     | Dec 2016  | Dec 2020             |
 | 2.x        | End-of-Life     | Jul 2014  | Apr 2019             |
 
