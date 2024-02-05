@@ -45,7 +45,7 @@ describe('Memory connector with mocked discovery', function() {
       dataPrecision: null,
       dataScale: null,
       nullable: 0,
-      generated: undefined,
+      generated: false,
     },
     {
       owner: 'STRONGLOOP',
@@ -56,7 +56,7 @@ describe('Memory connector with mocked discovery', function() {
       dataPrecision: 10,
       dataScale: 0,
       nullable: 1,
-      generated: undefined,
+      generated: false,
     },
     {
       owner: 'STRONGLOOP',
@@ -67,7 +67,7 @@ describe('Memory connector with mocked discovery', function() {
       dataPrecision: 10,
       dataScale: 0,
       nullable: 1,
-      generated: undefined,
+      generated: false,
     }];
 
     ds.discoverModelProperties = function(modelName, options, cb) {
@@ -218,13 +218,13 @@ describe('Memory connector with mocked discovery', function() {
               dataScale: 0,
               dataType: 'int',
               nullable: 1,
-              generated: undefined,
+              generated: false,
             },
             precision: 10,
             required: false,
             scale: 0,
             type: undefined,
-            generated: undefined,
+            generated: false,
           },
           locationId: {
             length: 20,
@@ -235,13 +235,13 @@ describe('Memory connector with mocked discovery', function() {
               dataScale: null,
               dataType: 'varchar',
               nullable: 0,
-              generated: undefined,
+              generated: false,
             },
             precision: null,
             required: true,
             scale: null,
             type: undefined,
-            generated: undefined,
+            generated: false,
           },
           productId: {
             length: 20,
@@ -269,13 +269,13 @@ describe('Memory connector with mocked discovery', function() {
               dataScale: 0,
               dataType: 'int',
               nullable: 1,
-              generated: undefined,
+              generated: false,
             },
             precision: 10,
             required: false,
             scale: 0,
             type: undefined,
-            generated: undefined,
+            generated: false,
           },
         },
       };
@@ -393,7 +393,7 @@ describe('discoverModelProperties', function() {
       dataPrecision: null,
       dataScale: null,
       nullable: 0,
-      generated: undefined,
+      generated: false,
     },
     {
       owner: 'STRONGLOOP',
@@ -404,7 +404,7 @@ describe('discoverModelProperties', function() {
       dataPrecision: null,
       dataScale: null,
       nullable: 0,
-      generated: undefined,
+      generated: false,
     },
     {
       owner: 'STRONGLOOP',
