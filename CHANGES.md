@@ -1,3 +1,23 @@
+2024-02-12, Version 5.0.6
+=========================
+
+ * fix: return generated: false if the connector doesnot return it (Muhammad Aaqil)
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency mocha to ^10.3.0 (renovate[bot])
+
+ * chore: update actions/setup-node action to v4.0.2 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^18.6.0 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^18.5.0 (renovate[bot])
+
+ * chore: update dependency inflection to v3 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^6.1.1 (renovate[bot])
+
+
 2024-01-09, Version 5.0.5
 =========================
 
