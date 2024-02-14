@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@commitlint/cli": "^18.6.1",
-    "@commitlint/config-conventional": "^18.6.1",
+    "@commitlint/config-conventional": "^18.6.2",
     "@types/node": "^10.17.60",
     "async-iterators": "^0.2.2",
     "bson": "^4.7.2",
