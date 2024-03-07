@@ -1,3 +1,33 @@
+2024-03-07, Version 5.0.7
+=========================
+
+ * chore: update dependency eslint-plugin-mocha to ^10.4.0 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^6.1.3 (renovate[bot])
+
+ * chore: update dependency typescript to ^5.4.2 (renovate[bot])
+
+ * chore: update dependency qs to ^6.12.0 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update commitlint monorepo to ^19.0.3 (renovate[bot])
+
+ * chore: update dependency @commitlint/cli to ^19.0.1 (renovate[bot])
+
+ * chore: update commitlint monorepo to v19 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.57.0 (renovate[bot])
+
+ * chore: update dependency eslint-plugin-mocha to ^10.3.0 (renovate[bot])
+
+ * chore: update dependency @commitlint/config-conventional to ^18.6.2 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^18.6.1 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^6.1.2 (renovate[bot])
+
+
 2024-02-12, Version 5.0.6
 =========================
 
