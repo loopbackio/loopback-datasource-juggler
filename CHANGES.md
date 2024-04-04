@@ -1,3 +1,25 @@
+2024-04-04, Version 5.0.8
+=========================
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency minimatch to ^9.0.4 (renovate[bot])
+
+ * fix: add error handling in case of unvailable cache server (Muhammad Aaqil)
+
+ * chore: update dependency mocha to ^10.4.0 (renovate[bot])
+
+ * chore: update dependency typescript to ^5.4.3 (renovate[bot])
+
+ * chore: update dependency @commitlint/cli to ^19.2.1 (renovate[bot])
+
+ * chore: update dependency @commitlint/cli to ^19.2.0 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^19.1.0 (renovate[bot])
+
+ * chore: update dependency eslint-plugin-mocha to ^10.4.1 (renovate[bot])
+
+
 2024-03-07, Version 5.0.7
 =========================
 
