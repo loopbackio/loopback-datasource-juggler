@@ -20,7 +20,7 @@ script:
   - npm test --ignore-scripts
 node_js:
   - 10.24.1
-  - 12
+  - 12.22.12
   - 14
   - 16
   - 17
