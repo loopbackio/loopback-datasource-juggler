@@ -19,7 +19,7 @@ script:
   - npm run --ignore-scripts build
   - npm test --ignore-scripts
 node_js:
-  - 10
+  - 10.24.1
   - 12
   - 14
   - 16
