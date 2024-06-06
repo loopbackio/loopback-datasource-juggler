@@ -1,3 +1,15 @@
+2024-06-06, Version 5.0.10
+==========================
+
+ * chore: add Node.js 22 to CI (dhmlau)
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency debug to ^4.3.5 (renovate[bot])
+
+ * chore: update actions/checkout action to v4.1.6 (renovate[bot])
+
+
 2024-05-14, Version 5.0.9
 =========================
 
