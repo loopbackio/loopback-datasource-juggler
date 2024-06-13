@@ -272,6 +272,28 @@ describe('crud-with-options', function() {
       User.find({limit: 3});
     });
 
+    it('should allow filter with groupBy, count, max, min, sum & avg', function(done) {
+      User.find({
+        groupBy: ['vip'],
+        count: 'vip',
+        max: 'id',
+        min: 'id',
+        sum: 'id',
+        avg: 'id',
+      }, options, function(err, users) {
+        should.not.exist(err);
+        should.exist(users);
+        users.forEach(user => {
+          user.should.have.property('count', user.count);
+          user.should.have.property('max');
+          user.should.have.property('min');
+          user.should.have.property('sum');
+          user.should.have.property('avg');
+        });
+        done();
+      });
+    });
+
     it('should skip trailing undefined args', function(done) {
       User.find({limit: 3}, function(err, users) {
         should.exists(users);
