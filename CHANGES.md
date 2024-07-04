@@ -1,3 +1,35 @@
+2024-07-04, Version 5.0.11
+==========================
+
+ * chore: update dependency loopback-connector to ^6.1.7 (renovate[bot])
+
+ * chore: update dependency mocha to ^10.6.0 (renovate[bot])
+
+ * chore: update dependency typescript to ^5.5.3 (renovate[bot])
+
+ * chore: update dependency qs to ^6.12.2 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency mocha to ^10.5.2 (renovate[bot])
+
+ * chore: update dependency minimatch to ^9.0.5 (renovate[bot])
+
+ * chore: update dependency mocha to ^10.5.1 (renovate[bot])
+
+ * chore: update dependency mocha to ^10.5.0 (renovate[bot])
+
+ * chore: update dependency typescript to ^5.5.2 (renovate[bot])
+
+ * chore: update actions/checkout action to v4.1.7 (renovate[bot])
+
+ * chore: update dependency uuid to v10 (renovate[bot])
+
+ * chore: update dependency nyc to v17 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^6.1.6 (renovate[bot])
+
+
 2024-06-06, Version 5.0.10
 ==========================
 
