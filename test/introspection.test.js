@@ -8,7 +8,7 @@ const assert = require('assert');
 const ModelBuilder = require('..').ModelBuilder;
 const DataSource = require('../').DataSource;
 const introspectType = require('../lib/introspection')(ModelBuilder);
-const traverse = require('traverse');
+const traverse = require('neotraverse/legacy');
 
 const json = {
   name: 'Joe',
