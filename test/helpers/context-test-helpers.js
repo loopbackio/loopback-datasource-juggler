@@ -5,7 +5,7 @@
 
 'use strict';
 
-const traverse = require('traverse');
+const traverse = require('neotraverse/legacy');
 
 exports.ContextRecorder = ContextRecorder;
 exports.deepCloneToObject = deepCloneToObject;
