@@ -1,3 +1,29 @@
+2024-08-12, Version 5.0.12
+==========================
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency mocha to ^10.7.3 (renovate[bot])
+
+ * chore: update dependency @commitlint/cli to ^19.4.0 (renovate[bot])
+
+ * chore: update dependency qs to ^6.13.0 (renovate[bot])
+
+ * chore: update dependency eslint-plugin-mocha to ^10.5.0 (renovate[bot])
+
+ * chore: update dependency debug to ^4.3.6 (renovate[bot])
+
+ * chore: update dependency typescript to ^5.5.4 (renovate[bot])
+
+ * chore: update dependency mocha to ^10.7.0 (renovate[bot])
+
+ * docs: update EOL date (dhmlau)
+
+ * chore: update actions/setup-node action to v4.0.3 (renovate[bot])
+
+ * chore: update dependency qs to ^6.12.3 (renovate[bot])
+
+
 2024-07-04, Version 5.0.11
 ==========================
 
