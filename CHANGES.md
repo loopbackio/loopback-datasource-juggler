@@ -1,3 +1,23 @@
+2024-09-09, Version 5.1.0
+=========================
+
+ * chore: update dependency loopback-connector to ^6.1.9 (renovate[bot])
+
+ * feat: query to fetch unique columns (Muhammad Aaqil)
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency debug to ^4.3.7 (renovate[bot])
+
+ * chore: update dependency minimatch to v10 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^19.4.1 (renovate[bot])
+
+ * chore: update dependency async to ^3.2.6 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^6.1.8 (renovate[bot])
+
+
 2024-08-12, Version 5.0.12
 ==========================
 
