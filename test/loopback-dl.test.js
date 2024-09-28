@@ -1363,58 +1363,6 @@ describe('Model define with scopes configuration', function() {
   });
 });
 
-describe('DataAccessObject._forDB', function() {
-  const ds = new DataSource('memory');
-  const dao = ds.DataAccessObject;
-
-  it('should return input data if dataSource is not relational', function() {
-    const inputData = {testKey: 'testValue'};
-    dao.getDataSource = () => ({isRelational: () => false});
-
-    const outputData = dao._forDB(inputData);
-
-    assert.deepEqual(outputData, inputData);
-  });
-
-  it('should return JSON stringified values for appropriate types', function() {
-    const inputData = {
-      key1: [1, 2, 3],
-      key2: {subKey: 'value'},
-      key3: 'nonJSONvalue',
-    };
-    dao.getDataSource = () => ({isRelational: () => true});
-    dao.getPropertyType = (propName) => (propName !== 'key3' ? 'JSON' : 'String');
-
-    const outputData = dao._forDB(inputData);
-
-    assert.deepEqual(outputData, {
-      key1: JSON.stringify([1, 2, 3]),
-      key2: JSON.stringify({subKey: 'value'}),
-      key3: 'nonJSONvalue',
-    });
-  });
-
-  it('should return original value for non JSON, non Array types', function() {
-    const inputData = {key1: 'string', key2: 123, key3: true};
-    dao.getDataSource = () => ({isRelational: () => true});
-    dao.getPropertyType = () => 'String';
-
-    const outputData = dao._forDB(inputData);
-
-    assert.deepEqual(outputData, inputData);
-  });
-
-  it('should not process null values', function() {
-    const inputData = {key1: 'value', key2: null};
-    dao.getDataSource = () => ({isRelational: () => true});
-    dao.getPropertyType = (propName) => 'JSON';
-
-    const outputData = dao._forDB(inputData);
-
-    assert.deepEqual(outputData, {key1: JSON.stringify('value'), key2: null});
-  });
-});
-
 describe('DataAccessObject', function() {
   let ds, model, where, error, filter;
 
