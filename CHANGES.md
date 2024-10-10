@@ -1,3 +1,29 @@
+2024-10-10, Version 5.1.1
+=========================
+
+ * chore: update dependency typescript to ^5.6.3 (renovate[bot])
+
+ * chore: update actions/checkout action to v4.2.1 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update actions/checkout action to v4.2.0 (renovate[bot])
+
+ * chore: update actions/setup-node action to v4.0.4 (renovate[bot])
+
+ * chore: replace traverse with noetraverse (Léandre Daumont)
+
+ * chore: update dependency nyc to ^17.1.0 (renovate[bot])
+
+ * chore: update dependency eslint to ^8.57.1 (renovate[bot])
+
+ * chore: update dependency traverse to ^0.6.10 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^19.5.0 (renovate[bot])
+
+ * chore: update dependency typescript to ^5.6.2 (renovate[bot])
+
+
 2024-09-09, Version 5.1.0
 =========================
 
