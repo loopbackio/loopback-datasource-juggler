@@ -29,6 +29,7 @@ describe('Memory connector with mocked discovery', function() {
       owner: 'STRONGLOOP',
       tableName: 'INVENTORY',
       columnName: 'PRODUCT_ID',
+      indexType: 'BTREE',
       dataType: 'varchar',
       dataLength: 20,
       dataPrecision: null,
@@ -281,6 +282,9 @@ describe('Memory connector with mocked discovery', function() {
             scale: null,
             type: undefined,
             generated: true,
+            index: {
+              unique: true,
+            },
           },
           total: {
             length: null,
