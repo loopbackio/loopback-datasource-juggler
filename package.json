@@ -61,7 +61,7 @@
     "minimatch": "^10.0.1",
     "nanoid": "^3.3.7",
     "neotraverse": "^0.6.18",
-    "qs": "^6.13.0",
+    "qs": "^6.13.1",
     "strong-globalize": "^6.0.6",
     "uuid": "^10.0.0"
   },
