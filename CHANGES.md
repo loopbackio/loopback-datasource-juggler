@@ -1,3 +1,27 @@
+2024-12-05, Version 5.1.3
+=========================
+
+ * fix: fix discovering relations (Thomas Miliopoulos)
+
+ * chore: update dependency loopback-connector to ^6.1.12 (renovate[bot])
+
+ * chore: update dependency mocha to v11 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency uuid to v11 (renovate[bot])
+
+ * chore: update dependency nanoid to ^3.3.8 (renovate[bot])
+
+ * chore: update dependency typescript to ^5.7.2 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^19.6.0 (renovate[bot])
+
+ * chore: update dependency qs to ^6.13.1 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^6.1.11 (renovate[bot])
+
+
 2024-11-11, Version 5.1.2
 =========================
 
