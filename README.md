@@ -1,6 +1,8 @@
 # loopback-datasource-juggler
 
-An ORM/ODM that provides a common set of interfaces for interacting with databases, REST APIs, and other types of data sources. It was originally forked from [JugglingDB](https://github.com/1602/jugglingdb).
+An ORM/ODM that provides a common set of interfaces for interacting with databases, REST APIs, and other types of data sources. It was originally forked from [JugglingDB](https://github.com/1602/jugglingdb). 
+
+In LoopBack 4, it is part of the `@loopback/repository` module. See [Repository page](https://loopback.io/doc/en/lb4/Repository.html) in LoopBack 4 for more details. 
 
 ## Supported versions
 
@@ -31,21 +33,10 @@ npm install loopback-connector-mongodb // in this case, the mongodb connector
 
 ## Documentation
 
-See the [LoopBack documentation](http://loopback.io/doc/en/lb3/index.html).
-
-For information on data source connectors, see [Connecting models to data sources](https://loopback.io/doc/en/lb3/Connecting-models-to-data-sources.html).
+See the [LoopBack documentation](https://loopback.io/doc/en/lb4/index.html) and [DataSource page](https://loopback.io/doc/en/lb4/DataSource.html).
 
 
 ## Contributing
 
 This project uses [DCO](https://developercertificate.org/). Be sure to sign off
-your commits using the `-s` flag or adding `Signed-off-By: Name<Email>` in the
-commit message.
-
-**Example**
-
-```
-git commit -s -m "feat: my commit message"
-```
-
-Also see the [Contributing to LoopBack](https://loopback.io/doc/en/contrib/code-contrib.html) to get you started.
+your commits. For details, see [Contributing to LoopBack](https://loopback.io/doc/en/contrib/code-contrib.html).
