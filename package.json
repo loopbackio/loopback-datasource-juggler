@@ -63,7 +63,7 @@
     "neotraverse": "^0.6.18",
     "qs": "^6.13.1",
     "strong-globalize": "^6.0.6",
-    "uuid": "^11.0.4"
+    "uuid": "^11.0.5"
   },
   "license": "MIT"
 }
