@@ -1,3 +1,27 @@
+2025-01-13, Version 5.1.4
+=========================
+
+ * chore: update dependency loopback-connector to ^6.2.0 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency uuid to ^11.0.5 (renovate[bot])
+
+ * chore: update dependency inflection to ^3.0.2 (renovate[bot])
+
+ * chore: update dependency typescript to ^5.7.3 (renovate[bot])
+
+ * chore: update dependency uuid to ^11.0.4 (renovate[bot])
+
+ * chore: update dependency inflection to ^3.0.1 (renovate[bot])
+
+ * docs: update readme (dhmlau)
+
+ * chore: update dependency @commitlint/cli to ^19.6.1 (renovate[bot])
+
+ * chore: update dependency debug to ^4.4.0 (renovate[bot])
+
+
 2024-12-05, Version 5.1.3
 =========================
 
