@@ -1,3 +1,19 @@
+2025-02-11, Version 5.1.5
+=========================
+
+ * chore: update dependency loopback-connector to ^6.2.1 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update commitlint monorepo to ^19.7.1 (renovate[bot])
+
+ * chore: update actions/setup-node action to v4.2.0 (renovate[bot])
+
+ * chore: update dependency mocha to ^11.1.0 (renovate[bot])
+
+ * chore: update dependency qs to ^6.14.0 (renovate[bot])
+
+
 2025-01-13, Version 5.1.4
 =========================
 
