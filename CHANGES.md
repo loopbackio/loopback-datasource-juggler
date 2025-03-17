@@ -1,3 +1,25 @@
+2025-03-17, Version 5.1.6
+=========================
+
+ * chore: update dependency loopback-connector to ^6.2.2 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update actions/setup-node action to v4.3.0 (renovate[bot])
+
+ * chore: update dependency nanoid to ^3.3.10 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^19.8.0 (renovate[bot])
+
+ * chore: update dependency nanoid to ^3.3.9 (renovate[bot])
+
+ * chore: update dependency typescript to ^5.8.2 (renovate[bot])
+
+ * fix: stop using _extends (Samuel Hughes)
+
+ * chore: update dependency uuid to ^11.1.0 (renovate[bot])
+
+
 2025-02-11, Version 5.1.5
 =========================
 
