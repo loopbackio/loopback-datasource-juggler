@@ -1,3 +1,17 @@
+2025-04-14, Version 5.1.7
+=========================
+
+ * chore: update dependency loopback-connector to ^6.2.3 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update actions/setup-node action to v4.4.0 (renovate[bot])
+
+ * chore: update dependency typescript to ^5.8.3 (renovate[bot])
+
+ * chore: update dependency nanoid to ^3.3.11 (renovate[bot])
+
+
 2025-03-17, Version 5.1.6
 =========================
 
