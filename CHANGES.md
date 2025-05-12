@@ -1,3 +1,13 @@
+2025-05-12, Version 5.1.8
+=========================
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update commitlint monorepo to ^19.8.1 (renovate[bot])
+
+ * chore: update dependency mocha to ^11.2.2 (renovate[bot])
+
+
 2025-04-14, Version 5.1.7
 =========================
 
