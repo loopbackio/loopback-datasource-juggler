@@ -45,7 +45,7 @@
     "eslint-config-loopback": "^13.1.0",
     "eslint-plugin-mocha": "^10.5.0",
     "loopback-connector-throwing": "file:./test/fixtures/loopback-connector-throwing",
-    "mocha": "^11.4.0",
+    "mocha": "^11.5.0",
     "nyc": "^17.1.0",
     "should": "^13.2.3",
     "typescript": "^5.8.3"
