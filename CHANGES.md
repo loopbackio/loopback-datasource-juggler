@@ -1,3 +1,23 @@
+2025-06-09, Version 5.1.9
+=========================
+
+ * chore: update dependency loopback-connector to ^6.2.5 (renovate[bot])
+
+ * chore: update dependency mocha to ^11.6.0 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency mocha to ^11.5.0 (renovate[bot])
+
+ * chore: update dependency mocha to ^11.4.0 (renovate[bot])
+
+ * chore: update dependency mocha to ^11.3.0 (renovate[bot])
+
+ * chore: update dependency debug to ^4.4.1 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^6.2.4 (renovate[bot])
+
+
 2025-05-12, Version 5.1.8
 =========================
 
