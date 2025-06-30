@@ -39,6 +39,14 @@ describe('Memory connector with mocked discovery', function() {
     {
       owner: 'STRONGLOOP',
       tableName: 'INVENTORY',
+      columnName: 'PRODUCT_TYPE',
+      dataType: "ENUM('IMPORTED', 'LOCAL')",
+      nullable: 1,
+      generated: false,
+    },
+    {
+      owner: 'STRONGLOOP',
+      tableName: 'INVENTORY',
       columnName: 'LOCATION_ID',
       dataType: 'varchar',
       dataLength: 20,
@@ -84,7 +92,7 @@ describe('Memory connector with mocked discovery', function() {
       const s = schemas['STRONGLOOP.INVENTORY'];
       s.name.should.be.eql('Inventory');
       Object.keys(s.properties).should.be.eql(
-        ['productId', 'locationId', 'available', 'total'],
+        ['productId', 'productType', 'locationId', 'available', 'total'],
       );
       done();
     });
@@ -110,7 +118,7 @@ describe('Memory connector with mocked discovery', function() {
       const s = schemas['STRONGLOOP.INVENTORY'];
       s.name.should.be.eql('Inventory');
       Object.keys(s.properties).should.be.eql(
-        ['PRODUCT_ID', 'LOCATION_ID', 'AVAILABLE', 'TOTAL'],
+        ['PRODUCT_ID', 'PRODUCT_TYPE', 'LOCATION_ID', 'AVAILABLE', 'TOTAL'],
       );
       done();
     });
@@ -128,7 +136,7 @@ describe('Memory connector with mocked discovery', function() {
       const s = schemas['STRONGLOOP.INVENTORY'];
       s.name.should.be.eql('inventory');
       Object.keys(s.properties).should.be.eql(
-        ['product_id', 'location_id', 'available', 'total'],
+        ['product_id', 'product_type', 'location_id', 'available', 'total'],
       );
       done();
     });
@@ -142,7 +150,7 @@ describe('Memory connector with mocked discovery', function() {
         const s = schemas['STRONGLOOP.INVENTORY'];
         s.name.should.be.eql('INVENTORY');
         Object.keys(s.properties).should.be.eql(
-          ['PRODUCT_ID', 'LOCATION_ID', 'AVAILABLE', 'TOTAL'],
+          ['PRODUCT_ID', 'PRODUCT_TYPE', 'LOCATION_ID', 'AVAILABLE', 'TOTAL'],
         );
         done();
       });
@@ -202,7 +210,7 @@ describe('Memory connector with mocked discovery', function() {
           s.name.should.be.eql('Inventory');
 
           Object.keys(s.properties).should.be.eql(
-            ['productId', 'locationId', 'available', 'total'],
+            ['productId', 'productType', 'locationId', 'available', 'total'],
           );
           done();
         })
@@ -241,6 +249,25 @@ describe('Memory connector with mocked discovery', function() {
             scale: 0,
             type: undefined,
             generated: false,
+          },
+          productType: {
+            type: undefined,
+            required: false,
+            jsonSchema: {nullable: true},
+            length: undefined,
+            precision: undefined,
+            scale: undefined,
+            generated: false,
+            memory: {
+              columnName: 'PRODUCT_TYPE',
+              dataType: 'ENUM(\'IMPORTED\', \'LOCAL\')',
+              dataLength: undefined,
+              dataPrecision: undefined,
+              dataScale: undefined,
+              nullable: 1,
+              generated: false,
+              value: "'imported','local',",
+            },
           },
           locationId: {
             length: 20,
