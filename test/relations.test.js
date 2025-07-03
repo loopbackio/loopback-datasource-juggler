@@ -827,15 +827,19 @@ describe('relations', function() {
       });
       context('with filter where', function() {
         it('returns patient where id equal to samplePatientId', function(done) {
-          const whereFilter = {where: {id: samplePatientId}};
-          physician.patients(whereFilter, function(err, ch) {
-            if (err) return done(err);
-            should.exist(ch);
-            ch.should.have.lengthOf(1);
-            ch[0].id.should.eql(samplePatientId);
-            done();
-          });
+          findByFlexibleId(
+            physician.patients.bind(physician),
+            samplePatientId,
+            function(err, ch) {
+              if (err) return done(err);
+              should.exist(ch);
+              ch.should.have.lengthOf(1);
+              (ch[0].id || ch[0]._id).should.eql(samplePatientId);
+              done();
+            },
+          );
         });
+
         it('returns patient where name equal to samplePatient name', function(done) {
           const whereFilter = {where: {name: 'a'}};
           physician.patients(whereFilter, function(err, ch) {
@@ -945,6 +949,14 @@ describe('relations', function() {
                   });
                 });
             });
+        });
+      }
+
+      function findByFlexibleId(scopeFn, sampleId, callback) {
+        scopeFn({where: {id: sampleId}}, function(err, results) {
+          if (err) return callback(err);
+          if (results.length > 0) return callback(null, results);
+          scopeFn({where: {_id: sampleId}}, callback);
         });
       }
     });
