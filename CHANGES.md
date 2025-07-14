@@ -1,3 +1,21 @@
+2025-07-14, Version 5.1.10
+==========================
+
+ * chore: update dependency loopback-connector to ^6.2.6 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update README (dhmlau)
+
+ * fix: unit test to support dynamic id key (_id vs id) in patient filter (AlexisTd1)
+
+ * chore: update dependency mocha to ^11.7.1 (renovate[bot])
+
+ * chore: update dependency mocha to ^11.7.0 (renovate[bot])
+
+ * chore: update dependency minimatch to ^10.0.3 (renovate[bot])
+
+
 2025-06-09, Version 5.1.9
 =========================
 
