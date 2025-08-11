@@ -1,3 +1,13 @@
+2025-08-11, Version 5.1.11
+==========================
+
+ * chore: update actions/checkout action to v4.3.0 (renovate[bot])
+
+ * chore: update dependency node to v20.19.4 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+
 2025-07-14, Version 5.1.10
 ==========================
 
