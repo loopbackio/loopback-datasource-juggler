@@ -1,3 +1,27 @@
+2025-10-14, Version 5.2.2
+=========================
+
+ * chore: update dependency loopback-connector to ^6.2.12 (renovate[bot])
+
+ * chore: update actions/setup-node action to v6 (renovate[bot])
+
+ * chore: update github/codeql-action action to v4 (renovate[bot])
+
+ * chore: update dependency mocha to ^11.7.4 (renovate[bot])
+
+ * chore: update dependency @commitlint/cli to ^20.1.0 (renovate[bot])
+
+ * chore: update dependency mocha to ^11.7.3 (renovate[bot])
+
+ * chore: update commitlint monorepo to v20 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency debug to ^4.4.3 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^6.2.11 (renovate[bot])
+
+
 2025-09-08, Version 5.2.1
 =========================
 
