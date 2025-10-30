@@ -18,12 +18,12 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node-version: [18, 20, 22]
+        node-version: [20, 22, 24]
         include:
           - os: macos-latest
-            node-version: 20
+            node-version: 22
           - os: windows-latest
-            node-version: 20
+            node-version: 22
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
@@ -73,10 +73,10 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
-      - name: Use Node.js 20
+      - name: Use Node.js 22
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
-          node-version: 20.19.5
+          node-version: 22
       - name: Update NPM
         run: npm install --global npm
       - name: Bootstrap project
@@ -94,10 +94,10 @@ jobs:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
-      - name: Use Node.js 20
+      - name: Use Node.js 22
         uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
-          node-version: 20.19.5
+          node-version: 22
       - name: Update NPM
         run: npm install --global npm
       - name: Bootstrap project
