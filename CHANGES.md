@@ -1,3 +1,19 @@
+2025-11-11, Version 6.0.0
+=========================
+
+ * chore: update dependency mocha to ^11.7.5 (renovate[bot])
+
+ * chore: update dependency node to v22.21.1 (renovate[bot])
+
+ * chore: update dependency loopback-connector to v7 (renovate[bot])
+
+ * chore: drop Node.js 18 support (dhmlau)
+
+ * chore: update dependency minimatch to ^10.1.1 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+
 2025-10-14, Version 5.2.2
 =========================
 
