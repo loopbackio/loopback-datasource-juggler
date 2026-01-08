@@ -29,6 +29,7 @@
   },
   "scripts": {
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "build": "npm run build-ts-types",
     "build-ts-types": "tsc -p tsconfig.json --outDir dist",
     "pretest": "npm run build",
