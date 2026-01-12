@@ -1,3 +1,17 @@
+2026-01-12, Version 6.0.2
+=========================
+
+ * chore: update commitlint monorepo to ^20.3.1 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update tests (dhmlau)
+
+ * chore: update commitlint monorepo to ^20.3.0 (renovate[bot])
+
+ * chore: update dependency qs to ^6.14.1 (renovate[bot])
+
+
 2025-12-08, Version 6.0.1
 =========================
 
