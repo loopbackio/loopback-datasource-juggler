@@ -58,7 +58,7 @@
     "depd": "^2.0.0",
     "inflection": "^3.0.2",
     "lodash": "^4.17.23",
-    "loopback-connector": "^7.0.2",
+    "loopback-connector": "^7.0.3",
     "minimatch": "^10.1.2",
     "nanoid": "^3.3.11",
     "neotraverse": "^0.6.18",
