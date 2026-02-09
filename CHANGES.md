@@ -1,3 +1,31 @@
+2026-02-09, Version 6.0.3
+=========================
+
+ * chore: update dependency typescript to ^5.9.3 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^7.0.3 (renovate[bot])
+
+ * chore: update dependency minimatch to ^10.1.2 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^20.4.1 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^20.4.0 (renovate[bot])
+
+ * chore: update actions/checkout action to v6.0.2 (renovate[bot])
+
+ * chore: update dependency lodash to ^4.17.23 (renovate[bot])
+
+ * chore: update dependency lodash to v4.17.23 [security] (renovate[bot])
+
+ * chore: update actions/setup-node action to v6.2.0 (renovate[bot])
+
+ * chore: update dependency node to v22.22.0 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^7.0.2 (renovate[bot])
+
+
 2026-01-12, Version 6.0.2
 =========================
 
