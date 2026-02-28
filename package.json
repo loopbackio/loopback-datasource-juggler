@@ -60,7 +60,7 @@
     "lodash": "^4.17.23",
     "loopback-connector": "^7.0.3",
     "minimatch": "^10.2.4",
-    "nanoid": "^3.3.11",
+    "nanoid": "^5.1.6",
     "neotraverse": "^0.6.18",
     "qs": "^6.15.0",
     "strong-globalize": "^6.0.6",
