@@ -1,3 +1,33 @@
+2026-03-09, Version 6.0.4
+=========================
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency nyc to v18 (renovate[bot])
+
+ * chore: update dependency node to v22.22.1 (renovate[bot])
+
+ * chore: update actions/setup-node action to v6.3.0 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^20.4.3 (renovate[bot])
+
+ * chore: update dependency minimatch to ^10.2.4 (renovate[bot])
+
+ * chore: update dependency minimatch to v10.2.3 [security] (renovate[bot])
+
+ * chore: update dependency minimatch to ^10.2.2 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^20.4.2 (renovate[bot])
+
+ * chore: update dependency minimatch to ^10.2.1 (renovate[bot])
+
+ * chore: update dependency qs to ^6.15.0 (renovate[bot])
+
+ * chore: update dependency minimatch to ^10.2.0 (renovate[bot])
+
+ * chore: update dependency qs to ^6.14.2 (renovate[bot])
+
+
 2026-02-09, Version 6.0.3
 =========================
 
