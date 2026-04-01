@@ -57,7 +57,7 @@
     "debug": "^4.4.3",
     "depd": "^2.0.0",
     "inflection": "^3.0.2",
-    "lodash": "^4.17.23",
+    "lodash": "^4.18.1",
     "loopback-connector": "^7.0.4",
     "minimatch": "^10.2.5",
     "nanoid": "^3.3.11",
