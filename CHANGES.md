@@ -1,3 +1,25 @@
+2026-04-13, Version 6.0.5
+=========================
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency qs to ^6.15.1 (renovate[bot])
+
+ * fix: replace __proto__ by setPrototypeOf (Jérémy Lal)
+
+ * chore: update dependency lodash to ^4.18.1 (renovate[bot])
+
+ * chore: update dependency minimatch to ^10.2.5 (renovate[bot])
+
+ * fix: set useDefaultIdType while discovering models (Muhammad Aaqil)
+
+ * chore: update commitlint monorepo to ^20.5.0 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^20.4.4 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^7.0.4 (renovate[bot])
+
+
 2026-03-09, Version 6.0.4
 =========================
 
