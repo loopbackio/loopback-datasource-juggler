@@ -1,3 +1,23 @@
+2026-05-11, Version 6.0.6
+=========================
+
+ * chore: update dependency loopback-connector to ^7.0.6 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency uuid to ^13.0.2 (renovate[bot])
+
+ * chore: update dependency nanoid to ^3.3.12 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^20.5.3 (renovate[bot])
+
+ * chore: update dependency @commitlint/cli to ^20.5.2 (renovate[bot])
+
+ * chore: update actions/setup-node action to v6.4.0 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^7.0.5 (renovate[bot])
+
+
 2026-04-13, Version 6.0.5
 =========================
 
