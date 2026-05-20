@@ -16,7 +16,7 @@
   ],
   "author": "IBM Corp. and LoopBack contributors",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "repository": {
     "type": "git",
