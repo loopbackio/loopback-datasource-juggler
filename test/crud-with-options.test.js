@@ -272,6 +272,56 @@ describe('crud-with-options', function() {
       User.find({limit: 3});
     });
 
+    it('should allow filter with groupBy, count, max, min, sum & avg', function(done) {
+      User.find({
+        groupBy: ['vip'],
+        count: 'vip',
+        max: 'id',
+        min: 'id',
+        sum: 'id',
+        avg: 'id',
+      }, options, function(err, users) {
+        should.not.exist(err);
+        should.exist(users);
+        users.length.should.be.above(0);
+        users.forEach(user => {
+          user.should.have.property('count', user.count);
+          user.should.have.property('max');
+          user.should.have.property('min');
+          user.should.have.property('sum');
+          user.should.have.property('avg');
+        });
+        done();
+      });
+    });
+
+    it('should allow filter with groupBy, aggregate methods and other filters', function(done) {
+      User.find({
+        groupBy: ['vip'],
+        count: 'vip',
+        max: 'id',
+        min: 'id',
+        sum: 'id',
+        avg: 'id',
+        limit: 1,
+        fields: ['name', 'id'],
+      }, options, function(err, users) {
+        should.not.exist(err);
+        should.exist(users);
+        users.length.should.be.equal(1);
+        users.forEach(user => {
+          user.should.have.property('count', user.count);
+          user.should.have.property('max');
+          user.should.have.property('min');
+          user.should.have.property('sum');
+          user.should.have.property('avg');
+          user.should.have.property('name');
+          user.should.have.property('id');
+        });
+        done();
+      });
+    });
+
     it('should skip trailing undefined args', function(done) {
       User.find({limit: 3}, function(err, users) {
         should.exists(users);
