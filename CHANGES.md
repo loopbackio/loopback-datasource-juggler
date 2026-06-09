@@ -1,3 +1,17 @@
+2026-06-09, Version 7.0.0
+=========================
+
+ * chore: drop Node.js 20 support (dhmlau)
+
+ * chore: update commitlint monorepo to v21 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency qs to ^6.15.2 (renovate[bot])
+
+ * chore: update dependency node to v22.22.3 (renovate[bot])
+
+
 2026-05-11, Version 6.0.6
 =========================
 
