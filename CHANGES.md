@@ -1,4 +1,6 @@
-2026-07-15, Version 6.0.7
+
+
+2026-07-14, Version 6.0.7
 =========================
 
  * chore: update actions/setup-node action to v7 (renovate[bot])
