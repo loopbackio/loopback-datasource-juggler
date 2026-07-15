@@ -1,3 +1,57 @@
+2026-07-15, Version 6.0.7
+=========================
+
+ * chore: update actions/setup-node action to v7 (renovate[bot])
+
+ * chore: update actions/setup-node action to v6.5.0 (renovate[bot])
+
+ * chore: update dependency neotraverse to v1 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency nanoid to ^3.3.16 (renovate[bot])
+
+ * chore: update dependency @commitlint/cli to ^21.2.1 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^21.2.0 (renovate[bot])
+
+ * chore: update dependency qs to ^6.15.3 (renovate[bot])
+
+ * chore: update dependency node to v22.23.1 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^21.1.0 (renovate[bot])
+
+ * chore: update dependency nanoid to ^3.3.15 (renovate[bot])
+
+ * chore: update dependency uuid to ^14.0.1 (renovate[bot])
+
+ * chore: update dependency nanoid to ^3.3.14 (renovate[bot])
+
+ * chore: update dependency node to v22.23.0 (renovate[bot])
+
+ * chore: update actions/checkout action to v7 (renovate[bot])
+
+ * chore: update dependency nanoid to ^3.3.13 (renovate[bot])
+
+ * chore: update dependency loopback-connector to v8 (renovate[bot])
+
+ * chore: update dependency uuid to v14 (renovate[bot])
+
+ * chore: update actions/checkout action to v6.0.3 (renovate[bot])
+
+ * chore: drop Node.js 20 support (dhmlau)
+
+ * chore: update commitlint monorepo to ^21.0.2 (renovate[bot])
+
+ * chore: update dependency mocha to ^11.7.6 (renovate[bot])
+
+ * chore: update commitlint monorepo to v21 (renovate[bot])
+
+ * chore: update dependency qs to ^6.15.2 (renovate[bot])
+
+ * chore: update dependency node to v22.22.3 (renovate[bot])
+
+
 2026-05-11, Version 6.0.6
 =========================
 
