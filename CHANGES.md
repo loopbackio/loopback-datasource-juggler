@@ -1,3 +1,28 @@
+2026-08-18, Version 7.0.2
+=========================
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update commitlint monorepo to ^21.2.2 (renovate[bot])
+
+ * chore: update dependency nanoid to ^3.3.18 (renovate[bot])
+
+ * chore: update dependency nanoid to ^3.3.17 (renovate[bot])
+
+ * chore: update dependency mocha to ^11.8.0 (renovate[bot])
+
+ * chore: update dependency node to v22.23.2 (renovate[bot])
+
+ * chore: update dependency minimatch to ^10.2.6 (renovate[bot])
+
+ * chore: update actions/checkout action to v7.0.1 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^8.0.1 (renovate[bot])
+
+
+2026-07-14, Version 7.0.1
+=========================
+
 
 
 2026-07-14, Version 6.0.7
