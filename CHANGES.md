@@ -1,3 +1,25 @@
+2026-10-13, Version 7.0.4
+=========================
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * chore: update dependency uuid to ^14.0.3 (renovate[bot])
+
+ * chore: update actions/setup-node action to v7.1.0 (renovate[bot])
+
+ * chore: update dependency nanoid to ^3.3.20 (renovate[bot])
+
+ * chore: update dependency mocha to ^12.0.3 (renovate[bot])
+
+ * chore: update dependency node to v22.23.3 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^21.2.3 (renovate[bot])
+
+ * chore: update dependency mocha to ^12.0.2 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^8.0.3 (renovate[bot])
+
+
 2026-09-15, Version 7.0.3
 =========================
 
