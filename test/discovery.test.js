@@ -502,6 +502,7 @@ describe('discoverModelProperties', function() {
   it('should callback function, passed as options parameter', function(done) {
     const options = function(err, schemas) {
       if (err) return done(err);
+
       schemas.should.be.eql(modelProperties);
       done();
     };
@@ -529,7 +530,6 @@ describe('discoverModelProperties', function() {
       });
   });
 
-  // ADD THE NEW TEST HERE:
   it('should return strict boolean values for generated property', function(done) {
     ds.discoverModelProperties('INVENTORY', {}, function(err, schemas) {
       if (err) return done(err);
