@@ -467,6 +467,7 @@ describe('discoverModelProperties', function() {
       dataPrecision: 10,
       dataScale: 0,
       nullable: 1,
+      generated: false,
     },
     {
       owner: 'STRONGLOOP',
@@ -477,6 +478,18 @@ describe('discoverModelProperties', function() {
       dataPrecision: 10,
       dataScale: 0,
       nullable: 1,
+      generated: false,
+    },
+    {
+      owner: 'STRONGLOOP',
+      tableName: 'INVENTORY',
+      columnName: 'TOKEN',
+      dataType: 'int',
+      dataLength: null,
+      dataPrecision: 10,
+      dataScale: 0,
+      nullable: 1,
+      generated: true,
     }];
 
     ds.connector.discoverModelProperties = function(modelName, options, cb) {
@@ -515,6 +528,17 @@ describe('discoverModelProperties', function() {
       .catch(function(err) {
         done(err);
       });
+  });
+
+  it('should return strict boolean values for generated property', function(done) {
+    ds.discoverModelProperties('INVENTORY', {}, function(err, schemas) {
+      if (err) return done(err);
+      schemas.forEach(function(prop) {
+        prop.should.have.property('generated');
+        (typeof prop.generated).should.equal('boolean');
+      });
+      done();
+    });
   });
 });
 
