@@ -5,7 +5,7 @@
     "experimentalDecorators": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
-
+    "skipLibCheck": true,
     "lib": ["es2018", "dom"],
     "module": "commonjs",
     "moduleResolution": "node",
