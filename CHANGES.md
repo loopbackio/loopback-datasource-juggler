@@ -1,3 +1,31 @@
+2026-11-12, Version 7.0.5
+=========================
+
+ * chore: update dependency node to v26.13.1 (renovate[bot])
+
+ * chore: update dependency neotraverse to ^1.0.2 (renovate[bot])
+
+ * chore: lock file maintenance (renovate[bot])
+
+ * fix: parse generated as boolean (Muhammad Aaqil)
+
+ * chore: update dependency node to v26 (renovate[bot])
+
+ * chore: update dependency qs to ^6.17.1 (renovate[bot])
+
+ * chore: update dependency @types/node to ^24.19.2 (renovate[bot])
+
+ * chore: update dependency qs to ^6.17.0 (renovate[bot])
+
+ * chore: update dependency loopback-connector to ^8.0.4 (renovate[bot])
+
+ * chore: update dependency node to v22.23.4 (renovate[bot])
+
+ * chore: update commitlint monorepo to ^21.2.4 (renovate[bot])
+
+ * chore: update dependency qs to ^6.16.1 (renovate[bot])
+
+
 2026-10-13, Version 7.0.4
 =========================
 
