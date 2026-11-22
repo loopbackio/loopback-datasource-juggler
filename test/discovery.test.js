@@ -758,3 +758,72 @@ describe('Default memory connector', function() {
     });
   });
 });
+
+describe('discoverInverseRelations', function() {
+  let ds;
+  let schemas;
+
+  before(function() {
+    ds = new DataSource({connector: 'memory'});
+
+    schemas = [
+      {
+        name: 'PRODUCT',
+        properties: {
+          ID: {type: 'number', id: true},
+        },
+        options: {
+          relations: {},
+        },
+      },
+      {
+        name: 'INVENTORY',
+        properties: {
+          ID: {type: 'number', id: true},
+          PRODUCT_ID: {type: 'number'},
+        },
+        options: {
+          relations: {
+            PRODUCT: {
+              type: 'belongsTo',
+              model: 'PRODUCT',
+              foreignKey: 'PRODUCT_ID',
+              fkColumnName: 'PRODUCT_ID',
+            },
+          },
+        },
+      },
+      {
+        name: 'PRODUCT_DETAIL',
+        properties: {
+          ID: {type: 'number', id: true},
+          PRODUCT_ID: {type: 'number'},
+        },
+        options: {
+          relations: {
+            PRODUCT: {
+              type: 'belongsTo',
+              model: 'PRODUCT',
+              foreignKey: 'PRODUCT_ID',
+              fkColumnName: 'PRODUCT_ID',
+              isFkColumnNameUnique: true,
+            },
+          },
+        },
+      },
+    ];
+  });
+
+  it('should discover hasMany and hasOne inverse relations - promise variant', function(done) {
+    ds.discoverInverseRelations(schemas)
+      .then(function(discoveredSchemas) {
+        const product = discoveredSchemas.find(function(s) {
+          return s.name === 'PRODUCT';
+        });
+        product.options.relations.inventoryRel.type.should.equal('hasMany');
+        product.options.relations.productDetailRel.type.should.equal('hasOne');
+        done();
+      })
+      .catch(done);
+  });
+});
