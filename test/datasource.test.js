@@ -658,6 +658,81 @@ describe('DataSource', function() {
       }).should.throw('maxOfflineRequests must be a number');
     });
   });
+
+  describe('discoverIsStrict', () => {
+    it('calls connector.discoverIsStrict if implemented', async () => {
+      const ds = new DataSource('ds', {connector: 'memory'});
+      let called = false;
+      ds.connector.discoverIsStrict = function(cb) {
+        called = true;
+        cb(null, [{globalStrictMode: 1, sessionStrictMode: 1}]);
+      };
+
+      const result = await ds.discoverIsStrict();
+      called.should.be.true();
+      result.should.eql([{globalStrictMode: 1, sessionStrictMode: 1}]);
+    });
+
+    it('handles connectors without discoverIsStrict gracefully', async () => {
+      const ds = new DataSource('ds', {connector: 'memory'});
+      delete ds.connector.discoverIsStrict;
+
+      const result = await ds.discoverIsStrict();
+      should(result).be.undefined();
+    });
+  });
+
+  describe('discoverSchemas with strict mode', () => {
+    it('injects jsonSchema.maxLength when strict mode is enabled', async () => {
+      const ds = new DataSource('ds', {connector: 'memory'});
+      ds.connector.discoverIsStrict = function(cb) {
+        cb(null, [{globalStrictMode: 1, sessionStrictMode: 0}]);
+      };
+      ds.connector.discoverModelProperties = function(modelName, options, cb) {
+        cb(null, [{
+          columnName: 'title',
+          dataType: 'VARCHAR',
+          dataLength: 100,
+          owner: 'public',
+          nullable: 'N',
+          type: 'String',
+        }]);
+      };
+      ds.connector.discoverPrimaryKeys = function(modelName, options, cb) {
+        cb(null, []);
+      };
+
+      const schemas = await ds.discoverSchemas('Post');
+      const schema = schemas['public.Post'];
+      schema.properties.title.should.have.property('jsonSchema');
+      schema.properties.title.jsonSchema.should.have.property('maxLength', 100);
+    });
+
+    it('does not inject jsonSchema.maxLength when strict mode is disabled', async () => {
+      const ds = new DataSource('ds', {connector: 'memory'});
+      ds.connector.discoverIsStrict = function(cb) {
+        cb(null, [{globalStrictMode: 0, sessionStrictMode: 0}]);
+      };
+      ds.connector.discoverModelProperties = function(modelName, options, cb) {
+        cb(null, [{
+          columnName: 'title',
+          dataType: 'VARCHAR',
+          owner: 'public',
+          dataLength: 100,
+          nullable: 'Y',
+          type: 'String',
+        }]);
+      };
+      ds.connector.discoverPrimaryKeys = function(modelName, options, cb) {
+        cb(null, []);
+      };
+
+      const schemas = await ds.discoverSchemas('Post');
+      const schema = schemas['public.Post'];
+      schema.properties.title.should.have.property('jsonSchema');
+      schema.properties.title.jsonSchema.should.not.have.property('maxLength');
+    });
+  });
 });
 
 function givenMockConnector(props) {
